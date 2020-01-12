@@ -49,10 +49,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
             response.on('end', function() {
                 responseString += decoder.end();
                 responseString = JSON.parse(responseString);
-
-                console.log(responseString);
-
-                callback(responseString);
+                callback(false,responseString);
             });
         });
         //write data to request body	
@@ -63,13 +60,14 @@ var httpsRequest = function(path, method, headers, data, callback) {
 
         //error checking
         backendRequest.on('error', (error) => {
-            callback({ "error": error.message });
+            callback(error.message,false);
         });
 
         //send request
         backendRequest.end();
     } else {
-        console.log("Invalid Request Method!");
+        //TODO --> add the error
+        callback("Invalid Request Method!",false);
     }
 };
 

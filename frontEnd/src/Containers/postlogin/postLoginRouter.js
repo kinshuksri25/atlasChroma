@@ -1,7 +1,7 @@
 //Dependencies
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
-import localSession from '../Components/sessionComponent';
+import localSession from '../../Components/sessionComponent';
 import PostSignUp from './postSignUp';
 import DashBoard from './dashboard';
 
@@ -35,8 +35,7 @@ class PostLoginRouter extends Component {
 
     render() {
         var container = this.containerSelector();
-        return ( <
-            div > { container } < /div>
+        return ( <div> { container } </div>
         );
     }
 }

@@ -1,5 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Router from "./Containers/router.js";
+import { Provider } from "react-redux";
 
-ReactDOM.render(<Router />, document.getElementById("root"));
+import Router from "./router.js";
+import storeCreator from "./store/store";
+
+const store = storeCreator();
+
+ReactDOM.render(<Provider store = { store }> 
+                    <Router/> 
+                </Provider>, document.getElementById("root"));

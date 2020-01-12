@@ -4,7 +4,6 @@ formConstants.signup = [
 
     {
         id: "signUpForm",
-        route: '/signup',
         type: "form",
         method: "POST",
         enctype: "application/x-www-form-urlencoded"
@@ -12,7 +11,7 @@ formConstants.signup = [
     {
         name: "UserName",
         type: "text",
-        placeholder: "John",
+        placeholder: "UserName",
         id: "signUpUsername",
         className: "signUpAttributes",
         isHidden: false,
@@ -21,7 +20,7 @@ formConstants.signup = [
     {
         name: "Email",
         type: "email",
-        placeholder: "JohnDoe@email.com",
+        placeholder: "Email",
         id: "signUpEmail",
         className: "signUpAttributes",
         isHidden: false,
@@ -48,6 +47,7 @@ formConstants.signup = [
     {
         name: "SignUp",
         type: "button",
+        route: '/signup',
         id: "signUpButton",
         className: "signUpAttributes"
     }
@@ -58,7 +58,6 @@ formConstants.login = [
 
     {
         id: "loginForm",
-        route: '/login',
         type: "form",
         method: "POST",
         enctype: "application/x-www-form-urlencoded"
@@ -66,7 +65,7 @@ formConstants.login = [
     {
         name: "Email",
         type: "email",
-        placeholder: "JohnDoe@email.com",
+        placeholder: "Email",
         id: "loginEmail",
         className: "loginAttributes",
         isHidden: false,
@@ -84,6 +83,7 @@ formConstants.login = [
     {
         name: "Login",
         type: "button",
+        route: '/login',
         id: "loginButton",
         className: "loginAttributes"
     }
@@ -91,14 +91,13 @@ formConstants.login = [
 ];
 formConstants.googleLogin = [{
         id: "loginForm",
-        route: '/googleLogin',
         type: "form",
         method: "GET",
         enctype: "application/x-www-form-urlencoded"
     }, {
         name: "Email",
         type: "email",
-        placeholder: "JohnDoe@email.com",
+        placeholder: "Email",
         id: "loginEmail",
         className: "loginAttributes",
         isHidden: false,
@@ -107,6 +106,7 @@ formConstants.googleLogin = [{
     {
         name: "Login",
         type: "button",
+        route: '/googleLogin',
         id: "googleLoginButton",
         className: "loginAttributes"
     }

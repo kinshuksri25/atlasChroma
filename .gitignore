@@ -4,4 +4,3 @@ frontEnd/node_modules
 frontEnd/src/dist
 lib/Certificates
 lib/constants/projectDetails.txt
-backEnd/logs

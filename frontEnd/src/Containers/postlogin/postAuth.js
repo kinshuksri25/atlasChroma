@@ -1,7 +1,7 @@
 //Dependencies
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
-import localSession from '../Components/sessionComponent';
+import localSession from '../../Components/sessionComponent';
 
 //middleware has to be added to dependencies
 
@@ -22,8 +22,7 @@ class PostAuth extends Component {
     render() {
         return (
 
-            <
-            div > "DashBoard" < /div>
+            <div > "DashBoard" </div>
 
         );
     }
