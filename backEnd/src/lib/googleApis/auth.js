@@ -17,7 +17,7 @@ auth.buildAuthURL = (email,uniqueState) => {
         let authUrl =  authURL+"?scope="+scopes.CALENDAR+" "+scopes.CONTACTS+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+loginAuth.redirectURL+"&client_id="+loginAuth.clientID;
         return authUrl;
     }else{
-        //invalid email/uniqueState provided!!
+        console.log(ERRORS.ERR_INVAUTCDE_SVR);
         return "";
     }
 
@@ -46,6 +46,7 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
         grant_type : "authorization_code"
     };
 
+    //https request
     let accessTokenReq = https.request(requestDetails, function(response) {
 
         let responseString = '';
@@ -65,7 +66,8 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
 
         //error checking
         accessTokenReq.on('error', (error) => {
-            reject(error.message);
+            console.log(error.message);
+            reject(ERRORS.ERR_GGLCONN_SVR);
         });
 
         //send request
@@ -114,7 +116,8 @@ auth.refreshAccessToken = (refreshToken) => new Promise((resolve,reject) => {
 
     //error checking
     refAccessTokenReq.on('error', (error) => {
-        reject(error.message);
+        console.log(error.message);
+        reject(ERRORS.ERR_GGLCONN_SVR);
     });
 
     //send request

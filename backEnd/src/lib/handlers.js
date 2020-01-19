@@ -42,10 +42,11 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
 
             //call the login function to log user in
             handlers.login(loginObject).then(result => {
+                //TODO --> need to handle reject use cases
                 fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
                     if (error) {
-                        //read error 
-                        reject(error);
+                        console.log(error);
+                        reject(ERRORS.ERR_SNDEML_SVR);
                     } else {  
                         //send welcome mail
                         sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,subject,data).then(resolveResult => {   
@@ -57,17 +58,15 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
                     }  
                 });              
             }).catch(error =>{
-                //login error
-                reject(error);
+                console.log(error);
+                reject(ERRORS.ERR_DBCONN_SVR);
             }); 
         }).catch(error => {
-            //writing error
-            reject(error);
+            console.log(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
         });           
     }else{
-        //TODO --> add error code
-        //invalid requestObject
-        reject("invalid requestobject");
+        reject(ERRORS.ERR_INVREQOBJ_SVR);
     }
 
 });
@@ -92,23 +91,17 @@ handlers.login = (requestObject) => new Promise((resolve,reject) => {
                     //send the userSession back
                      resolve(sessionObject);   
                 }else{
-                    //TODO --> add error code
-                    //invalid password
-                    throw "invalid password";
+                    reject(ERRORS.ERR_INVPASS_SVR);
                 }    
             }else{
-                //TODO --> add error code 
-                //invalid email id 
-                throw "invalid email-id ";
+                reject(ERRORS.ERR_INVEML_SVR);
             } 
         }).catch(error => {
-            //read error
-            reject(error);
+            console.log(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
         });       
     }else{
-        //TODO --> add error code
-        //invalid requestObject
-        reject("invalid requestObject");   
+        reject(ERRORS.ERR_INVREQOBJ_SVR);   
     }
 });
 
@@ -122,22 +115,16 @@ handlers.checkEmail = (requestObject) => new Promise((resolve,reject) => {
         mongo.read(dbConstants.userCollection,{ Email: requestObject.queryObject.Email }, {}).then(resultSet => {  
             if (JSON.stringify(resultSet) == JSON.stringify([])) {    
                 //return response
-                resolve(true);
-                
+                resolve(true);   
             }else{
-                //TODO --> add error code
-                //email id exists
-                throw "email id exists";
+                reject(ERRORS.ERR_EXEML_SVR);
             }
         }).catch(error => {
             console.log(error);
-            //read error 
-            reject(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
         });       
     }else{
-        //TODO --> add error code
-        //invalid requestObject
-        reject("invalid requestobject");
+        reject(ERRORS.ERR_INVREQOBJ_SVR);  
     }
 });
 
@@ -152,23 +139,17 @@ handlers.checkUserName = (requestObject) => new Promise((resolve,reject) => {
         //check userName validity
         mongo.read(dbConstants.userCollection,{ UserName: requestObject.queryObject.UserName }, {}).then(resultSet => {
             if (JSON.stringify(resultSet) == JSON.stringify([])) {    
-                    
                 //return response
-                resolve(true);
-                
+                resolve(true);    
             }else{
-                //TODO --> add error code
-                //userName exists
-                throw "userName exists";
+                reject(ERRORS.ERR_EXUSR_SVR);
             }
-        }).catch(error => {
-            //read error 
-            reject(error);
+        }).catch(error => { 
+            console.log(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
         });
     }else{
-        //TODO --> add error code
-        //invalid requestObject
-        reject("invalid requestobject");
+        reject(ERRORS.ERR_INVREQOBJ_SVR); 
     }
 });
 
@@ -191,8 +172,8 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                         responseObject.newUser = true;
                         fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
                             if (error) {  
-                                //read error 
-                                reject(error);
+                                console.log(error);
+                                reject(ERRORS.ERR_SNDEML_SVR);
                             } else {  
                                 //send welcome mail
                                 sendEmail(senderEmail,resultSet[0].Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,subject,data).then(resolveResult => {                           
@@ -216,10 +197,11 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                             //check for new user 
                             if(resultSet[0].Password == ""){
                                 responseObject.newUser = true;
+                                //TODO --> need to handle reject use cases
                                 fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
                                     if (error) {  
-                                        //read error 
-                                        reject(error);
+                                        console.log(error);
+                                        reject(ERRORS.ERR_SNDEML_SVR);
                                     } else {  
                                         //send welcome mail
                                         sendEmail(senderEmail,resultSet[0].Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,subject,data).then(resolveResult => {                           
@@ -238,48 +220,37 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                             //send the userSession back
                             resolve(responseObject);  
                         }).catch(error => {
-                            //TODO --> add error code
-                            //write error
-                            reject(error);
+                            console.log(error);
+                            reject(ERRORS.ERR_GGLCONN_SVR); 
                         });       
                     }
                 }).catch(error => {
-                    //TODO --> add error code
-                    reject(error);
+                    console.log(error);
+                    reject(ERRORS.ERR_GGLCONN_SVR); 
                 });  
                 
             }else{
-                //TODO --> add error code 
-                //Security concern!!
-                reject("security concern");
+                reject(ERRORS.ERR_SEC_SVR);
             }
         }else{
             //delete the user data 
             resultSet[0].Password == "" && mongo.delete(dbConstants.userCollection, { State: requestObject.reqBody.state }, {}, SINGLE).then(updateSet => {
-                //TODO --> add errorcode
-                //permission denied by user
-                reject("permission denied by user");
+                reject(ERRORS.ERR_PERMDEND_SVR);
             }).catch(error => {
                 //TODO --> add scheduler to handle this user case
-                //TODO --> add errorcode
-                //error deleting user data
-                reject(error);
+                console.log(error);
+                reject(ERRORS.ERR_GGLCONN_SVR); 
             });
             resultSet[0].Password != "" && mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { RefreshToken: "" } }, {}, SINGLE).then(updateSet => {
-                //TODO --> add errorcode
-                //permission denied by user
-                reject("permission denied by user");
+                reject(ERRORS.ERR_PERMDEND_SVR);
             }).catch(error => {
                 //TODO --> add scheduler to handle this user case
-                //TODO --> add errorcode
-                //error deleting user data
-                reject(error);
+                console.log(error);
+                reject(ERRORS.ERR_GGLCONN_SVR); 
             });
         }     
     }).catch(error => {
-        //TODO --> add errorcode
-        //read error 
-        reject(error);   
+        reject(ERRORS.ERR_INVREQOBJ_SVR); 
     }); 
 });
 
@@ -291,7 +262,7 @@ handlers.googleLogin = (requestObject) => new Promise((resolve,reject) => {
     let authURL = "";
     //check the request object
     if(requestObject.queryObject.Email != undefined && requestObject.method == "GET"){
-        //check if user exists
+
         mongo.read(dbConstants.userCollection,{ Email: requestObject.queryObject.Email }, {}).then(resultSet => {
 
             //check if user exists
@@ -310,9 +281,8 @@ handlers.googleLogin = (requestObject) => new Promise((resolve,reject) => {
                     resolve(authURL); 
                     
                 }).catch(error => {
-                    //TODO --> add error code
-                    //unable to login(write error)
-                    reject(error);
+                    console.log(error);
+                    reject(ERRORS.ERR_GGLCONN_SVR);
                 });
             } else{
                 mongo.update(dbConstants.userCollection, { _id: resultSet[0]._id }, { $set: { State: state } }, {}, SINGLE).then(updateSet => {
@@ -322,32 +292,23 @@ handlers.googleLogin = (requestObject) => new Promise((resolve,reject) => {
                     resolve(authURL);    
 
                 }).catch(error => {
-                    //TODO --> add error code
-                    //unable to create new state for google auth(write error)
-                    reject(error);
+                    console.log(error);
+                    reject(ERRORS.ERR_GGLCONN_SVR);
                 });
             }
         }).catch(error => {
-            //TODO --> add error code
-            //read error
-            //unable to crosscheck user
-             reject("unable to crosscheck user");   
+            console.log(error);
+            reject(ERRORS.ERR_GGLCONN_SVR);  
         });
     }else{
-        //TODO --> add error code
-        //invalid request object
-        reject("invalid request object");
+        reject(ERRORS.ERR_INVREQOBJ_SVR); 
     }
 });
 
 
 //notFound route
 handlers.notFound = (requestObject) => new Promise((resolve,reject) => {
-
-    //TODO --> add errorcode
-    //invalid route access
-    reject("invalid route specified");
-
+    reject(ERRORS.ERR_INVRUT_SVR);
 });
 
 

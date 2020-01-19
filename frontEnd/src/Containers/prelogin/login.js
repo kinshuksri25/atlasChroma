@@ -45,8 +45,11 @@ class Login extends Component {
 
                     globalThis.props.reRenderRoot();
                 }else{
-                    //TODO --> change the replaceState 'state' and 'title'
-                    history.replaceState(stateObj, "", responseObject.Payload);
+                    if(responseObject.Payload == ""){
+                        //TODO --> errormsg div(ERR_GGLCONN_CLI)    
+                    }else{
+                        window.location = responseObject.Payload;
+                    }
                 }
              }   
         });

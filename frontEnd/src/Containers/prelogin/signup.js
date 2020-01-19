@@ -95,54 +95,55 @@ class SignUp extends Component {
                         globalThis.setState({
                             "validUserName": true,
                             "isCheckingUsername": false
-                        }) onSubmitHandler(formObject) {
-                            let headers = {};
-                            let globalThis = this;
-                            if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
-                                var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
-                                if (this.state.validEmail || this.state.validUserName) {
-                                    if(errorMsgObject == ""){
-                                        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-                                           console.log(responseObject);
-                                            if(error || responseObject.Status == "ERROR"){
-                                                if(error){
-                                                    console.log(error);
-                                                    //TODO --> add errormsg div(ERR_CONN_SERVER)
-                                                }else{
-                                                    //TODO --> add error msg div(errormsg)
-                                                }
-                                           }else{
-                                                //set the session 
-                                                localSession.setSessionObject(responseObject.Payload);
-                
-                                                 //TODO --> change the pushState 'state' and 'title'
-                                                window.history.pushState({},"",urls.POSTSIGNUPFORM);
-                                                globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
-                                                
-                                                globalThis.props.reRenderRoot();
-                                           }
-                                        });
-                                    } else {
-                                         //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
-                                        } 
-                                } else {
-                                        if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
-                                            //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
-                                        }else{
-                                            //TODO --> add errormsg div (ERR_INVUSREML_CLI)
-                                        }
-                                    }
-                            } else {
-                                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                                console.log(urls.ERR_INVREQ_CLI);
-                            }
-                        }
-                        
+                        });
                     }
                 }
-            });
+            }); 
         });
-    };
+    }     
+    onSubmitHandler(formObject) {
+        let headers = {};
+        let globalThis = this;
+        if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
+            var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+            if (this.state.validEmail || this.state.validUserName) {
+                if(errorMsgObject == ""){
+                    httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
+                        console.log(responseObject);
+                        if(error || responseObject.Status == "ERROR"){
+                            if(error){
+                                console.log(error);
+                                //TODO --> add errormsg div(ERR_CONN_SERVER)
+                            }else{
+                                //TODO --> add error msg div(errormsg)
+                            }
+                        }else{
+                           //set the session 
+                            localSession.setSessionObject(responseObject.Payload);
+                
+                            //TODO --> change the pushState 'state' and 'title'
+                            window.history.pushState({},"",urls.POSTSIGNUPFORM);
+                            globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
+                                                
+                            globalThis.props.reRenderRoot();
+                        }
+                    });
+                } else {
+                        //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
+                } 
+            } else {
+                if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
+                    //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
+                }else{
+                    //TODO --> add errormsg div (ERR_INVUSREML_CLI)
+                }
+            }
+        } else {
+                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
+                console.log(urls.ERR_INVREQ_CLI);
+        }
+    }
+                        
     onSubmitHandler(formObject) {
             let headers = {};
             let globalThis = this;
