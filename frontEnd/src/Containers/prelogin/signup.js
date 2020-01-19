@@ -50,12 +50,12 @@ class SignUp extends Component {
             "isCheckingEmail": true
         }, () => {
             httpsMiddleware.httpsRequest('/checkEmail', 'GET', headers, emailCheckQueryString, function(error,responseObject) {
-                console.log(responseObject);
                 if(error){
-                    //TODO --> add error msg div
+                    //TODO --> add error msg div (ERR_CONN_SERVER)
+                    console.log(error);
                 }else{
                     if (responseObject.Status == "ERROR") {
-                        //do something!!
+                        //TODO --> add error msg div
                         globalThis.setState({
                             "validEmail": false,
                             "isCheckingEmail": false
@@ -80,12 +80,12 @@ class SignUp extends Component {
             "isCheckingUsername": true
         }, () => {
             httpsMiddleware.httpsRequest('/checkUserName', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
-                console.log(responseObject);
                 if(error){
-                    //TODO --> add error msg div
+                    //TODO --> add error msg div (ERR_CONN_SERVER)
+                    console.log(error);
                 }else{
                     if (responseObject.Status == "ERROR") {
-                        //do something!!
+                        //TODO --> add error msg div
                         globalThis.setState({
                             "validUserName": false,
                             "isCheckingUsername": false
@@ -95,7 +95,49 @@ class SignUp extends Component {
                         globalThis.setState({
                             "validUserName": true,
                             "isCheckingUsername": false
-                        })
+                        }) onSubmitHandler(formObject) {
+                            let headers = {};
+                            let globalThis = this;
+                            if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
+                                var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+                                if (this.state.validEmail || this.state.validUserName) {
+                                    if(errorMsgObject == ""){
+                                        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
+                                           console.log(responseObject);
+                                            if(error || responseObject.Status == "ERROR"){
+                                                if(error){
+                                                    console.log(error);
+                                                    //TODO --> add errormsg div(ERR_CONN_SERVER)
+                                                }else{
+                                                    //TODO --> add error msg div(errormsg)
+                                                }
+                                           }else{
+                                                //set the session 
+                                                localSession.setSessionObject(responseObject.Payload);
+                
+                                                 //TODO --> change the pushState 'state' and 'title'
+                                                window.history.pushState({},"",urls.POSTSIGNUPFORM);
+                                                globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
+                                                
+                                                globalThis.props.reRenderRoot();
+                                           }
+                                        });
+                                    } else {
+                                         //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
+                                        } 
+                                } else {
+                                        if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
+                                            //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
+                                        }else{
+                                            //TODO --> add errormsg div (ERR_INVUSREML_CLI)
+                                        }
+                                    }
+                            } else {
+                                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
+                                console.log(urls.ERR_INVREQ_CLI);
+                            }
+                        }
+                        
                     }
                 }
             });
@@ -103,6 +145,7 @@ class SignUp extends Component {
     };
     onSubmitHandler(formObject) {
             let headers = {};
+            let globalThis = this;
             if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
                 var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
                 if (this.state.validEmail || this.state.validUserName) {
@@ -110,37 +153,47 @@ class SignUp extends Component {
                         httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                            console.log(responseObject);
                             if(error || responseObject.Status == "ERROR"){
-                                //TODO --> add error msg div
+                                if(error){
+                                    console.log(error);
+                                    //TODO --> add errormsg div(ERR_CONN_SERVER)
+                                }else{
+                                    //TODO --> add error msg div(errormsg)
+                                }
                            }else{
                                 //set the session 
-                                localSession.setSessionObject(responseObject.sessionObject);
-                                //TODO --> add the url
-                                window.history.pushState({},"","/dashboard");
-                                props.setUrlState("/dashboard");
+                                localSession.setSessionObject(responseObject.Payload);
+
+                                 //TODO --> change the pushState 'state' and 'title'
+                                window.history.pushState({},"",urls.POSTSIGNUPFORM);
+                                globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
+                                
+                                globalThis.props.reRenderRoot();
                            }
                         });
                     } else {
-                        //display message saying invalid password!
-                        console.log(errorMsgObject);
+                         //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
                         } 
                 } else {
-                        //display message saying we are checking your credentials please wait a sec!
-                        console.log("invalid username || email");
+                        if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
+                            //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
+                        }else{
+                            //TODO --> add errormsg div (ERR_INVUSREML_CLI)
+                        }
                     }
             } else {
-                //invalid formObject
-                console.log("invalid object");
+                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
+                console.log(urls.ERR_INVREQ_CLI);
             }
         }
-        //TODO --> change regex here
+        
     checkPasswordValidity(password, confirmPassword) {
-        // var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
-        // if (!regex.test(password)) {
-        //     return ERRORS.ERR_INPASS_CLI;
-        // }
-        // if (password != confirmPassword) {
-        //     return ERRORS.ERR_PASSMIS_CLI;
-        // }
+        var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
+        if (!regex.test(password)) {
+            return ERRORS.ERR_INPASS_CLI;
+        }
+        if (password != confirmPassword) {
+            return ERRORS.ERR_PASSMIS_CLI;
+        }
         return "";
     };
 

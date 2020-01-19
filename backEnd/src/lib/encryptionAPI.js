@@ -3,10 +3,10 @@
 */
 
 //Dependencies
-let crypto = require('crypto');
+const crypto = require('crypto');
 
 //defining the encryptionAPI object
-let encryptionAPI = {};
+const encryptionAPI = {};
 
 //password hashing function
 //Params --> unhashedData -- string

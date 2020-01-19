@@ -11,6 +11,9 @@ export default class Router extends Component {
 
     constructor(props){
         super(props);
+        this.checkSession = this.checkSession.bind(this);
+        this.checkSessionTime = this.checkSessionTime.bind(this);
+        this.rerenderRoot = this.rerenderRoot.bind(this);
     }
 
    checkSession() {
@@ -23,7 +26,7 @@ export default class Router extends Component {
         return sessionExists;
     }
 
-    rerenderRoot (){
+    rerenderRoot() {
         this.forceUpdate();
     }
 

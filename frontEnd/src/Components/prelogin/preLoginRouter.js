@@ -29,11 +29,11 @@ function PreLoginRouter (props) {
                 case "signup":
                     return <SignUp reRenderRoot = {reRenderRoot}/>;
                     break;
+                case "postauth":
+                    return <PostAuth reRenderRoot = {reRenderRoot}/>;
+                    break;
                 case "landing":
                     return <LandingPage/>;
-                    break;
-                case "postauth":
-                    return <PostAuth/>;
                     break;
                 default:
                     //TODO --> change the pushState 'state' and 'title'

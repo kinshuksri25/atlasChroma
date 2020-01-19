@@ -3,15 +3,16 @@
  */
 
 //Depenedencies
-let https = require('https');
-let url = require('url');
-let fs = require('fs');
-let handlers = require('./lib/handlers');
-let stringDecoder = require('string_decoder').StringDecoder;
-let decoder = new stringDecoder('utf-8');
+const https = require('https');
+const url = require('url');
+const fs = require('fs');
+const handlers = require('./lib/handlers');
+const stringDecoder = require('string_decoder').StringDecoder;
 
 //server object definition
-let server = {};
+const server = {};
+
+const decoder = new stringDecoder('utf-8');
 
 //https certifications
 server.certParams = {
@@ -95,9 +96,9 @@ server.handlers = {
     '/signup': handlers.signup,
     '/checkUserName': handlers.checkUserName,
     '/checkEmail': handlers.checkEmail,
-    '/notFound': handlers.notFound,
     '/googleLogin' : handlers.googleLogin,
-    '/postAuth': handlers.postAuth
+    '/postAuth': handlers.postAuth,
+    '/notFound': handlers.notFound
 };
 
 //init function

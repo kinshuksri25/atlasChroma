@@ -1,17 +1,17 @@
 //main routing logic
 
 //Dependencies
-var fs = require('fs');
-let mongo = require('./data');
-let {buildAuthURL,generateInitialAccessToken} = require('./googleApis/auth');
-let encryptionAPI = require('./encryptionAPI');
-let sessionHandler = require('./sessionHandler');
-let {userObject} = require('../../../lib/constants/objectConstants');
-let {dbConstants,ERRORS,senderEmail,emailCredentials,loginAuth,SINGLE,MULTIPLE} = require('../../../lib/constants/dataConstants');
-let {sendEmail} = require('./googleApis/email');
+const fs = require('fs');
+const mongo = require('./data');
+const {buildAuthURL,generateInitialAccessToken} = require('./googleApis/auth');
+const encryptionAPI = require('./encryptionAPI');
+const sessionHandler = require('./sessionHandler');
+const {userObject} = require('../../../lib/constants/objectConstants');
+const {dbConstants,ERRORS,senderEmail,emailCredentials,loginAuth,SINGLE,MULTIPLE} = require('../../../lib/constants/dataConstants');
+const {sendEmail} = require('./googleApis/email');
 
 //handler object definition
-let handlers = {};
+const handlers = {};
 
 //signup route
 //method = POST
@@ -29,6 +29,7 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
 
         //save the user details
         mongo.insert(dbConstants.userCollection, signUpUserObject, {}).then(insertResult => {
+
             //setup the login object
             let loginObject = {
                 reqBody : {},
@@ -38,15 +39,16 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
             let subject = "Welcome to Atlas Chroma";
             loginObject.reqBody.Email = requestObject.reqBody.Email;
             loginObject.reqBody.Password = requestObject.reqBody.Password;
+
             //call the login function to log user in
             handlers.login(loginObject).then(result => {
                 fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
-                    if (error) {  
+                    if (error) {
                         //read error 
                         reject(error);
                     } else {  
                         //send welcome mail
-                        sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,subject,data).then(resolveResult => {                           
+                        sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,subject,data).then(resolveResult => {   
                             //send the response 
                             resolve(result);       
                         }).catch(error => {
@@ -58,12 +60,10 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
                 //login error
                 reject(error);
             }); 
-
         }).catch(error => {
             //writing error
             reject(error);
-        });   
-        
+        });           
     }else{
         //TODO --> add error code
         //invalid requestObject
@@ -76,6 +76,7 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
 //method = POST
 //params --> requestObject -- object
 handlers.login = (requestObject) => new Promise((resolve,reject) => {
+
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         
@@ -86,7 +87,8 @@ handlers.login = (requestObject) => new Promise((resolve,reject) => {
                 if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
                     
                     //set userSession
-                     let sessionObject = sessionHandler.createSession(resultSet[0]._id);   
+                     let sessionObject = sessionHandler.createSession(resultSet[0]._id);
+
                     //send the userSession back
                      resolve(sessionObject);   
                 }else{
@@ -99,12 +101,10 @@ handlers.login = (requestObject) => new Promise((resolve,reject) => {
                 //invalid email id 
                 throw "invalid email-id ";
             } 
-
         }).catch(error => {
             //read error
             reject(error);
-        });
-        
+        });       
     }else{
         //TODO --> add error code
         //invalid requestObject
@@ -133,8 +133,7 @@ handlers.checkEmail = (requestObject) => new Promise((resolve,reject) => {
             console.log(error);
             //read error 
             reject(error);
-        });
-        
+        });       
     }else{
         //TODO --> add error code
         //invalid requestObject
@@ -166,7 +165,6 @@ handlers.checkUserName = (requestObject) => new Promise((resolve,reject) => {
             //read error 
             reject(error);
         });
-        
     }else{
         //TODO --> add error code
         //invalid requestObject
@@ -174,14 +172,6 @@ handlers.checkUserName = (requestObject) => new Promise((resolve,reject) => {
     }
 });
 
-//notFound route
-handlers.notFound = (requestObject) => new Promise((resolve,reject) => {
-
-    //TODO --> add errorcode
-    //invalid route access
-    reject("invalid route specified");
-
-});
 
 //postAuth route
 //method = POST
@@ -270,15 +260,17 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                 //permission denied by user
                 reject("permission denied by user");
             }).catch(error => {
+                //TODO --> add scheduler to handle this user case
                 //TODO --> add errorcode
                 //error deleting user data
                 reject(error);
             });
             resultSet[0].Password != "" && mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { RefreshToken: "" } }, {}, SINGLE).then(updateSet => {
-                  //TODO --> add errorcode
+                //TODO --> add errorcode
                 //permission denied by user
                 reject("permission denied by user");
             }).catch(error => {
+                //TODO --> add scheduler to handle this user case
                 //TODO --> add errorcode
                 //error deleting user data
                 reject(error);
@@ -304,7 +296,6 @@ handlers.googleLogin = (requestObject) => new Promise((resolve,reject) => {
 
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
-                //user doesnot exist(Create new user)
                 //set user object
                 let googleSignUpUserObject = {...userObject};
                 googleSignUpUserObject._id = handlers.randomNumberGen(15);
@@ -348,6 +339,17 @@ handlers.googleLogin = (requestObject) => new Promise((resolve,reject) => {
         reject("invalid request object");
     }
 });
+
+
+//notFound route
+handlers.notFound = (requestObject) => new Promise((resolve,reject) => {
+
+    //TODO --> add errorcode
+    //invalid route access
+    reject("invalid route specified");
+
+});
+
 
 //unique random number generator
 handlers.randomNumberGen = (length) => {

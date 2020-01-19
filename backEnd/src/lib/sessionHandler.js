@@ -3,10 +3,10 @@
 */
 
 //Dependencies
-let {sessionObject} = require('../../../lib/constants/objectConstants');
+const {sessionObject} = require('../../../lib/constants/objectConstants');
 
 //defining the sessionHandler object
-let sessionHandler = {};
+const sessionHandler = {};
 
 //create a new session 
 //Params --> sessionID -- string

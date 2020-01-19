@@ -25,19 +25,28 @@ class Login extends Component {
 
     onSubmitHandler(formObject) {
         let headers = {};
+        let globalThis = this;
         formObject.formData = formObject.route == "/login" ? formObject.formData : "Email="+formObject.formData.Email;
         httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
             if(error || responseObject.Status == "ERROR"){
-                //TODO --> add error msg div
+                if(error){
+                    console.log(error);
+                    //TODO --> errormsg div(ERR_CONN_SERVER)
+                }else{
+                    //TODO --> errormsg div(errorMsg)
+                }
              }else{
                 if(formObject.route == "/login"){
-                    //set the session 
-                    localSession.setSessionObject(responseObject.sessionObject);
-                    //TODO --> add the url
-                    window.history.pushState({},"","/dashboard");
-                    props.setUrlState("/dashboard");
+                    localSession.setSessionObject(responseObject.Payload);
+
+                    //TODO --> change the pushState 'state' and 'title'
+                    window.history.pushState({},"",urls.DASHBOARD);
+                    globalThis.props.setUrlState(urls.DASHBOARD);
+
+                    globalThis.props.reRenderRoot();
                 }else{
-                    window.location = responseObject.Payload;
+                    //TODO --> change the replaceState 'state' and 'title'
+                    history.replaceState(stateObj, "", responseObject.Payload);
                 }
              }   
         });

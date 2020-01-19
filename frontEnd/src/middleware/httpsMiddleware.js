@@ -1,7 +1,7 @@
 //middleware for constructing and sending https request to backend.
 
 var https = require("https");
-import { constants } from '../../../lib/constants/dataConstants';
+import { constants,ERRORS } from '../../../lib/constants/dataConstants';
 var stringdecoder = require('string_decoder').StringDecoder;
 var url = require('url');
 
@@ -67,7 +67,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
         backendRequest.end();
     } else {
         //TODO --> add the error
-        callback("Invalid Request Method!",false);
+        callback(ERRORS.ERR_INVMET_CLIMID,false);
     }
 };
 

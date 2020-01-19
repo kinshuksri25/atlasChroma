@@ -30,17 +30,19 @@ class postAuth extends Component{
                 window.history.pushState({}, "","/postAuth");
               
                 httpsMiddleware.httpsRequest("/postAuth", "POST", headers, queryObject, function(error,responseObject) {
+                        let globalThis = this;
                          if(error || responseObject.Status == "ERROR"){
                              //TODO --> add error msg div
                              //TODO --> use set timeout to display errormsg
                              //return the user to login page
                         }else{
                              //set the session 
-                             localSession.setSessionObject(responseObject.sessionObject);
+                             localSession.setSessionObject(responseObject.Payload.sessionObject);
                              //TODO --> add the routes 
-                             let route  = responseObject.newUser ? "/postAuthForm" : "/dashboard";
+                             let route  = responseObject.Payload.newUser ? "/postSignUpForm" : "/dashboard";
                              window.history.pushState({},"",route);
-                             props.setUrlState(route);  
+                             globalThis.props.setUrlState(route);
+                             globalThis.props.reRenderRoot();  
                         }
                 });  
         }

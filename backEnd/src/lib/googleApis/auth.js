@@ -1,10 +1,10 @@
 //Central Auth File For Google OAUTH2
 
 //Dependencies 
-var https = require("https");
-var url = require('url');
-var stringdecoder = require('string_decoder').StringDecoder;
-var {ERRORS,scopes,loginAuth,refreshTokenURL,authURL} = require ('../../../../lib/constants/dataConstants');
+const https = require("https");
+const url = require('url');
+const stringdecoder = require('string_decoder').StringDecoder;
+const {ERRORS,scopes,loginAuth,refreshTokenURL,authURL} = require ('../../../../lib/constants/dataConstants');
 const decoder = new stringdecoder('utf-8');
 
 //declaring the module
@@ -23,7 +23,7 @@ auth.buildAuthURL = (email,uniqueState) => {
 
 };
 
-//access token retrival 
+//inital access token retrival 
 auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => {
     
     let parsedUrl = url.parse( refreshTokenURL);
@@ -73,7 +73,7 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
 
 });
 
-
+//refresh/access token retrival 
 auth.refreshAccessToken = (refreshToken) => new Promise((resolve,reject) => {
 
     let parsedUrl  = url.parse(refreshTokenURL);

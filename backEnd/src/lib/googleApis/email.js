@@ -33,7 +33,6 @@ email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,
         
             smtpTransport.sendMail(mailOptions, (error, response) => {
             if(error){
-                console.log(error);
                 reject(error);
             }else{
                 resolve(true);
