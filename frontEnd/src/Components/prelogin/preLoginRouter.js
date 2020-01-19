@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import Login from '../../Containers/prelogin/login';
 import SignUp from '../../Containers/prelogin/signup';
-import PostAuth from '../../Containers/postlogin/postAuth';
+import PostAuth from '../../Containers/prelogin/postAuth';
 import LandingPage from "../../Components/prelogin/landingpage";
 import {urls} from "../../../../lib/constants/dataConstants";
 

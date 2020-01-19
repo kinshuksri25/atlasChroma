@@ -32,7 +32,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
         //create a request object
         var requestDetails = url.parse(builtUrl, true);
         requestDetails.method = requestMethod;
-        requestDetails.headers = headers;
+        requestDetails.headers = {...headers};
 
         console.log("Request being made to:", path);
         //request made to the backend.
@@ -54,7 +54,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
         });
         //write data to request body	
         if (requestMethod == methods["post"] || requestMethod == methods["put"]) {
-            data = JSON.stringify(data)
+            data = JSON.stringify(data);
             backendRequest.write(data);
         }
 

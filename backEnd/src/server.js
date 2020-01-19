@@ -22,7 +22,7 @@ server.certParams = {
 server.https = https.createServer(server.certParams, (req, res) => {
 
     server.unifiedServer(req, res);
-
+                        
 });
 
 //main server 
@@ -63,10 +63,13 @@ server.unifiedServer = (req, res) => {
         requestObject.reqBody = requestBodyString;
         requestObject.queryObject = queryStringObject;
 
-        chosenHandler = server.handlers[route] ? server.handlers[route] : server.handlers.notFound;
-        res.writeHead(200, { 'Access-Control-Allow-Origin': 'https://localhost:3000' });
-        chosenHandler(requestObject)
-            .then((result) => {
+        chosenHandler = server.handlers.hasOwnProperty(route) ? server.handlers[route] : server.handlers.notFound;
+        
+        res.writeHead(200,{"Access-Control-Allow-Origin":"*",
+                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
+                           "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
+        
+        chosenHandler(requestObject).then(result => {
                 //post handler call
                 responsePayload.Status = "SUCCESS";
                 responsePayload.Payload = result;
@@ -74,15 +77,16 @@ server.unifiedServer = (req, res) => {
                 //send the data back
                 res.write(JSON.stringify(responsePayload));
                 res.end();
-            }).catch((error) => {
+            }).catch(error => {
                 //error handler 
-                responsePayload.Status = "ERROR-->" + error;
+                responsePayload.Status = "ERROR";
+                responsePayload.Payload = "ERROR-->" + error;
 
-                //send the data back
+                //send the data back 
                 res.write(JSON.stringify(responsePayload));
                 res.end();
             });
-    });
+    }); 
 };
 
 //router definition
@@ -91,7 +95,9 @@ server.handlers = {
     '/signup': handlers.signup,
     '/checkUserName': handlers.checkUserName,
     '/checkEmail': handlers.checkEmail,
-    '/notFound': handlers.notFound
+    '/notFound': handlers.notFound,
+    '/googleLogin' : handlers.googleLogin,
+    '/postAuth': handlers.postAuth
 };
 
 //init function

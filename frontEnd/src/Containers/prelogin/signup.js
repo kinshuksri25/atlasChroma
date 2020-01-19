@@ -50,10 +50,11 @@ class SignUp extends Component {
             "isCheckingEmail": true
         }, () => {
             httpsMiddleware.httpsRequest('/checkEmail', 'GET', headers, emailCheckQueryString, function(error,responseObject) {
+                console.log(responseObject);
                 if(error){
                     //TODO --> add error msg div
                 }else{
-                    if (!responseObject.Status) {
+                    if (responseObject.Status == "ERROR") {
                         //do something!!
                         globalThis.setState({
                             "validEmail": false,
@@ -79,10 +80,11 @@ class SignUp extends Component {
             "isCheckingUsername": true
         }, () => {
             httpsMiddleware.httpsRequest('/checkUserName', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
+                console.log(responseObject);
                 if(error){
                     //TODO --> add error msg div
                 }else{
-                    if (!responseObject.Status) {
+                    if (responseObject.Status == "ERROR") {
                         //do something!!
                         globalThis.setState({
                             "validUserName": false,
@@ -99,45 +101,46 @@ class SignUp extends Component {
             });
         });
     };
-
     onSubmitHandler(formObject) {
-            var headers = { "Origin": "https://localhost:3000" };
-            if (formObject.hasOwnProperty('UserName') && formObject.hasOwnProperty('Email') && formObject.hasOwnProperty('Password') && formObject.hasOwnProperty('ConfirmPassword')) {
-                var errorMsgObject = this.checkPasswordValidity(formObject.Password, formObject.ConfirmPassword);
-                if (this.state.validEmail && this.state.validUserName && errorMsgObject == "") {
+            let headers = {};
+            if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
+                var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+                if (this.state.validEmail || this.state.validUserName) {
+                    if(errorMsgObject == ""){
                         httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-                           if(error){
+                           console.log(responseObject);
+                            if(error || responseObject.Status == "ERROR"){
                                 //TODO --> add error msg div
                            }else{
-                                // if (!responseObject.Status) {
-                                //     console.log(responseObject.ErrorMsg);
-                                // } else {
-                                //     //set the session
-                                //     var session = localSession;
-                                //     var sessionObject = session.setSessionObject(Result);
-                                //     //post login form
-                                //     window.location.pathname = "/postSignUp";
-                                // }
+                                //set the session 
+                                localSession.setSessionObject(responseObject.sessionObject);
+                                //TODO --> add the url
+                                window.history.pushState({},"","/dashboard");
+                                props.setUrlState("/dashboard");
                            }
                         });
                     } else {
-                        //display message saying we are checking your credentials please wait a sec!
+                        //display message saying invalid password!
                         console.log(errorMsgObject);
+                        } 
+                } else {
+                        //display message saying we are checking your credentials please wait a sec!
+                        console.log("invalid username || email");
                     }
             } else {
                 //invalid formObject
                 console.log("invalid object");
             }
         }
-
+        //TODO --> change regex here
     checkPasswordValidity(password, confirmPassword) {
-        var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
-        if (!regex.test(password)) {
-            return ERRORS.ERR_INPASS_CLI;
-        }
-        if (password != confirmPassword) {
-            return ERRORS.ERR_PASSMIS_CLI;
-        }
+        // var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
+        // if (!regex.test(password)) {
+        //     return ERRORS.ERR_INPASS_CLI;
+        // }
+        // if (password != confirmPassword) {
+        //     return ERRORS.ERR_PASSMIS_CLI;
+        // }
         return "";
     };
 
