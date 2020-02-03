@@ -63,7 +63,6 @@ server.unifiedServer = (req, res) => {
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
         requestObject.queryObject = queryStringObject;
-
         chosenHandler = server.handlers.hasOwnProperty(route) ? server.handlers[route] : server.handlers.notFound;
         
         res.writeHead(200,{"Access-Control-Allow-Origin":"*",
@@ -74,7 +73,6 @@ server.unifiedServer = (req, res) => {
                 //post handler call
                 responsePayload.Status = "SUCCESS";
                 responsePayload.Payload = result;
-
                 //send the data back
                 res.write(JSON.stringify(responsePayload));
                 res.end();
@@ -98,7 +96,9 @@ server.handlers = {
     '/checkEmail': handlers.checkEmail,
     '/googleLogin' : handlers.googleLogin,
     '/postAuth': handlers.postAuth,
-    '/notFound': handlers.notFound
+    '/notFound': handlers.notFound,
+    '/postSignupForm': handlers.postSignupForm,
+    '/postAuthForm': handlers.postAuthForm
 };
 
 //init function

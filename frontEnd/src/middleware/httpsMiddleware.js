@@ -49,6 +49,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
             response.on('end', function() {
                 responseString += decoder.end();
                 responseString = JSON.parse(responseString);
+                console.log(responseString);
                 callback(false,responseString);
             });
         });

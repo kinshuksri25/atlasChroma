@@ -4,6 +4,7 @@
 const fs = require('fs');
 const mongo = require('./data');
 const {buildAuthURL,generateInitialAccessToken} = require('./googleApis/auth');
+const {getProfileDetails} = require('./googleApis/profile');
 const encryptionAPI = require('./encryptionAPI');
 const sessionHandler = require('./sessionHandler');
 const {userObject} = require('../../../lib/constants/objectConstants');
@@ -53,7 +54,8 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
                             //send the response 
                             resolve(result);       
                         }).catch(error => {
-                            reject(error);
+                            console.log(error);
+                            reject(ERRORS.ERR_SNDEML_SVR);
                         }); 
                     }  
                 });              
@@ -75,21 +77,23 @@ handlers.signup = (requestObject) => new Promise((resolve,reject) => {
 //method = POST
 //params --> requestObject -- object
 handlers.login = (requestObject) => new Promise((resolve,reject) => {
-
+    let response = {};
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         
         //check email validity
-        mongo.read(dbConstants.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1 } }).then(resultSet => {
+        mongo.read(dbConstants.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 //check password validity
                 if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
-                    
                     //set userSession
-                     let sessionObject = sessionHandler.createSession(resultSet[0]._id);
-
-                    //send the userSession back
-                     resolve(sessionObject);   
+                    response = resultSet[0].FirstName == "" ? resultSet[0]._id : sessionHandler.createSession(resultSet[0]._id);
+                    if(typeof(response) == Object)
+                    //send the response back
+                    resolve({...response});
+                    else
+                    //send the response back
+                    resolve(response);
                 }else{
                     reject(ERRORS.ERR_INVPASS_SVR);
                 }    
@@ -168,8 +172,7 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                 generateInitialAccessToken(requestObject.reqBody.code).then(refreshTokenObject => {
                     if(refreshTokenObject.refresh_token == undefined){
                         //check for new user 
-                        if(resultSet[0].Password == ""){
-                        responseObject.newUser = true;
+                        if(resultSet[0].Password == "" && resultSet[0].UserName == ""){
                         fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
                             if (error) {  
                                 console.log(error);
@@ -180,23 +183,32 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                                     //send the response 
                                     resolve(result);       
                                 }).catch(error => {
-                                    reject(error);
+                                    reject(ERRORS.ERR_SNDEML_SVR);
                                 }); 
                             }  
                         });
                         }else{
-                                responseObject.newUser = false;
-                            }
-                        //set userSession
-                        responseObject.sessionObject = sessionHandler.createSession(resultSet[0]._id);
-                        //send the userSession back
-                        resolve(responseObject); 
+                                //set userSession
+                                responseObject.sessionObject = sessionHandler.createSession(resultSet[0]._id);
+                        }
+                        //save the user details
+                        getProfileDetails(refreshTokenObject.access_token).then(result => {
+                            mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                sessionObject = sessionHandler.createSession(resultSet[0]._id); 
+                                //send the userSession back
+                                resolve(responseObject); 
+                            }).catch(error => {
+                                console.log(error);
+                                reject(ERRORS.ERR_GGLPRFDE_SVR);
+                            });
+                        }).catch(reject => {
+                            reject(ERRORS.ERR_GGLPRFDE_SVR);
+                        }); 
                     }else{
                         //save refreshToken
                         mongo.update(dbConstants.userCollection, { _id: resultSet[0]._id }, { $set: { RefreshToken: refreshTokenObject.refresh_token } }, {}, SINGLE).then(updateSet => {
                             //check for new user 
-                            if(resultSet[0].Password == ""){
-                                responseObject.newUser = true;
+                            if(resultSet[0].Password == "" && resultSet[0].UserName == ""){
                                 //TODO --> need to handle reject use cases
                                 fs.readFile('/home/kinshuk/Documents/projects/Projects/atlasChroma/backEnd/src/lib/emailTemplate/welcome.html', function(error, data) {  
                                     if (error) {  
@@ -208,17 +220,27 @@ handlers.postAuth = (requestObject) => new Promise((resolve,reject) => {
                                             //send the response 
                                             resolve(result);       
                                         }).catch(error => {
-                                            reject(error);
+                                            reject(ERRORS.ERR_SNDEML_SVR);
                                         }); 
                                     }  
                                 });
                             }else{
-                                responseObject.newUser = false;
+                                //set userSession
+                                responseObject.sessionObject = sessionHandler.createSession(resultSet[0]._id);
                             }
-                            //set userSession
-                            responseObject.sessionObject = sessionHandler.createSession(resultSet[0]._id);
-                            //send the userSession back
-                            resolve(responseObject);  
+                            //save the user details
+                            getProfileDetails(refreshTokenObject.access_token).then(result => {
+                            mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                sessionObject = sessionHandler.createSession(resultSet[0]._id); 
+                                //send the userSession back
+                                resolve(responseObject); 
+                            }).catch(error => {
+                                console.log(error);
+                                reject(ERRORS.ERR_GGLPRFDE_SVR);
+                            });
+                        }).catch(reject => {
+                            reject(ERRORS.ERR_GGLPRFDE_SVR);
+                        });
                         }).catch(error => {
                             console.log(error);
                             reject(ERRORS.ERR_GGLCONN_SVR); 
@@ -311,6 +333,66 @@ handlers.notFound = (requestObject) => new Promise((resolve,reject) => {
     reject(ERRORS.ERR_INVRUT_SVR);
 });
 
+//postSignupForm route
+//method = POST
+//params --> requestObject -- object
+handlers.postSignupForm = (requestObject) => new Promise((resolve,reject) => {
+    let sessionObject = {};
+    //check the requestObject
+    if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
+         //check id validity
+         mongo.read(dbConstants.userCollection,{ _id: requestObject.reqBody.id }, { projection: { Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
+            if (JSON.stringify(resultSet) != JSON.stringify([])) {  
+                mongo.update(dbConstants.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                    sessionObject = sessionHandler.createSession(requestObject.reqBody.id);
+                    resolve({...sessionObject});
+                }).catch(error => {
+                    console.log(error);
+                    reject(ERRORS.ERR_UP_DB);
+                });
+            }else{
+                reject(ERRORS.ERR_INVID_SVR);
+            } 
+        }).catch(error => {
+            console.log(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
+        });
+
+    }else{
+        reject(ERRORS.ERR_INVREQOBJ_SVR);
+    }
+});
+
+//postAuthForm
+//method = POST
+//params --> requestObject -- object
+handlers.postAuthForm = (requestObject) => new Promise ((resolve,reject) => {
+    let sessionObject = {};
+    //check the requestObject
+    console.log(requestObject.reqBody.state);
+    if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
+         //check state validity
+         mongo.read(dbConstants.userCollection,{ State: requestObject.reqBody.state }, { projection: { _id: 1,Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
+            if (JSON.stringify(resultSet) != JSON.stringify([])) {  
+                mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { UserName: requestObject.reqBody.UserName, Password: requestObject.reqBody.Password, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                    sessionObject = sessionHandler.createSession(resultSet[0]._id);
+                    resolve({...sessionObject});
+                }).catch(error => {
+                    console.log(error);
+                    reject(ERRORS.ERR_UP_DB);
+                });
+            }else{
+                reject(ERRORS.ERR_SEC_SVR);
+            } 
+        }).catch(error => {
+            console.log(error);
+            reject(ERRORS.ERR_DBCONN_SVR);
+        });
+
+    }else{
+        reject(ERRORS.ERR_INVREQOBJ_SVR);
+    }
+});
 
 //unique random number generator
 handlers.randomNumberGen = (length) => {

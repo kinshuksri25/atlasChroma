@@ -37,12 +37,19 @@ class Login extends Component {
                 }
              }else{
                 if(formObject.route == "/login"){
-                    localSession.setSessionObject(responseObject.Payload);
-
-                    //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({},"",urls.DASHBOARD);
-                    globalThis.props.setUrlState(urls.DASHBOARD);
-
+                    if(typeof(responseObject.Payload) != Object){
+                        localStorage.uniqueID = responseObject.Payload;
+                        //TODO --> change the pushState 'state' and 'title'
+                        window.history.pushState({},"",urls.POSTSIGNUPFORM);
+                        globalThis.props.setUrlState(urls.POSTSIGNUPFORM);    
+                    }else{
+                        //set the session
+                        localSession.setSessionObject(responseObject.Payload);
+                        //TODO --> change the pushState 'state' and 'title'
+                        window.history.pushState({},"",urls.DASHBOARD);
+                        globalThis.props.setUrlState(urls.DASHBOARD);
+                    }
+                    
                     globalThis.props.reRenderRoot();
                 }else{
                     if(responseObject.Payload == ""){

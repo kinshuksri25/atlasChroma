@@ -23,7 +23,6 @@ email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,
                     refreshToken: refreshToken,
                     accessToken: senderAccessTokenObject.access_token
             }});
-        
             const mailOptions = {
                 from: senderEmail,
                 to: recieverEmail,

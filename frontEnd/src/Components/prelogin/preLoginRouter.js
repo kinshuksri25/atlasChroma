@@ -9,6 +9,7 @@ import Login from '../../Containers/prelogin/login';
 import SignUp from '../../Containers/prelogin/signup';
 import PostAuth from '../../Containers/prelogin/postAuth';
 import LandingPage from "../../Components/prelogin/landingpage";
+import PostSignUpForm from '../../Containers/prelogin/postSignUpForm';
 import {urls} from "../../../../lib/constants/dataConstants";
 
 function PreLoginRouter (props) {
@@ -35,11 +36,16 @@ function PreLoginRouter (props) {
                 case "landing":
                     return <LandingPage/>;
                     break;
+                case "postsignupform":
+                    return <PostSignUpForm reRenderRoot = {reRenderRoot}/>;
+                    break;    
                 default:
+                  if(path != "postsignupform"){
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({}, "",urls.LANDING);
                     return <LandingPage/>;
                     break;
+                  }
             }
         }
 

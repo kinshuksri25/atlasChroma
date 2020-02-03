@@ -14,7 +14,7 @@ const auth = {};
 auth.buildAuthURL = (email,uniqueState) => {
 
     if(email != "" && uniqueState != ""){
-        let authUrl =  authURL+"?scope="+scopes.CALENDAR+" "+scopes.CONTACTS+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+loginAuth.redirectURL+"&client_id="+loginAuth.clientID;
+        let authUrl =  authURL+"?scope="+scopes.CALENDAR+" "+scopes.CONTACTS+" "+scopes.SIGNIN+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+loginAuth.redirectURL+"&client_id="+loginAuth.clientID;
         return authUrl;
     }else{
         console.log(ERRORS.ERR_INVAUTCDE_SVR);
@@ -77,7 +77,6 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
 
 //refresh/access token retrival 
 auth.refreshAccessToken = (refreshToken) => new Promise((resolve,reject) => {
-
     let parsedUrl  = url.parse(refreshTokenURL);
     let requestDetails = {
         'host': parsedUrl.host,
