@@ -9,10 +9,10 @@ export default function urlStateReducer (state = urlObject, actions) {
     switch(actions.type){
 
         case actionTypes.CHANGEURL : 
-               return {...state , currentUrl : actions.payload};
+               return {currentUrl : actions.payload};
                break;
         default : 
-               return {...state};
+               return {currentUrl: {...state}};
                break;         
     }
 }

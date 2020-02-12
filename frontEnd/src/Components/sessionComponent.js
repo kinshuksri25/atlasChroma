@@ -1,20 +1,25 @@
-var localSession = (function() {
+let localSession = (function() {
 
-    var getSessionObject = function() {
+    let getSessionObject = function() {
         var returnObject = {};
         returnObject.sessionID = localStorage.sessionID;
         returnObject.creationTime = localStorage.creationTime;
         return returnObject;
     };
 
-    var setSessionObject = function(sessionObject) {
+    let setSessionObject = function(sessionObject) {
         localStorage.sessionID = sessionObject.sessionID;
         localStorage.creationTime = sessionObject.creationTime;
     };
 
+    let clearSession = function(){
+        localStorage.clear();
+    }
+
     return {
         getSessionObject: getSessionObject,
-        setSessionObject: setSessionObject
+        setSessionObject: setSessionObject,
+        clearSession: clearSession
     }
 
 })();

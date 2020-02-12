@@ -1,12 +1,13 @@
 /*
- *   Main server file
- */
+*   Main server file
+*/
 
 //Depenedencies
 const https = require('https');
 const url = require('url');
 const fs = require('fs');
-const handlers = require('./lib/handlers');
+const loginHandlers = require('./lib/routes/loginHandlers');
+const domainLogicHandlers = require('./lib/routes/domainLogicHandlers');
 const stringDecoder = require('string_decoder').StringDecoder;
 
 //server object definition
@@ -90,15 +91,18 @@ server.unifiedServer = (req, res) => {
 
 //router definition
 server.handlers = {
-    '/login': handlers.login,
-    '/signup': handlers.signup,
-    '/checkUserName': handlers.checkUserName,
-    '/checkEmail': handlers.checkEmail,
-    '/googleLogin' : handlers.googleLogin,
-    '/postAuth': handlers.postAuth,
-    '/notFound': handlers.notFound,
-    '/postSignupForm': handlers.postSignupForm,
-    '/postAuthForm': handlers.postAuthForm
+    //Login Routes
+    '/login': loginHandlers.login,
+    '/signup': loginHandlers.signup,
+    '/checkUserName': loginHandlers.checkUserName,
+    '/checkEmail': loginHandlers.checkEmail,
+    '/googleLogin' : loginHandlers.googleLogin,
+    '/postAuth': loginHandlers.postAuth,
+    '/notFound': loginHandlers.notFound,
+    '/postSignupForm': loginHandlers.postSignupForm,
+    '/postAuthForm': loginHandlers.postAuthForm,
+    //Domain logic Routes
+    '/user': domainLogicHandlers.user
 };
 
 //init function

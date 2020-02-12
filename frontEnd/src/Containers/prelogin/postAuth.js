@@ -84,7 +84,7 @@ class postAuth extends Component{
                                         //TODO --> add error msg div(errormsg)
                                     }
                                 }else{
-                                    localStorage.clear();
+                                    localSession.clearSession();
                                     //set the session
                                     localSession.setSessionObject(responseObject.Payload);
                                     //TODO --> change the pushState 'state' and 'title'

@@ -1,15 +1,15 @@
-//main routing logic
+//Login Logic Router
 
 //Dependencies
 const fs = require('fs');
-const mongo = require('./data');
-const {buildAuthURL,generateInitialAccessToken} = require('./googleApis/auth');
-const {getProfileDetails} = require('./googleApis/profile');
-const encryptionAPI = require('./encryptionAPI');
-const sessionHandler = require('./sessionHandler');
-const {userObject} = require('../../../lib/constants/objectConstants');
-const {dbConstants,ERRORS,senderEmail,emailCredentials,loginAuth,SINGLE,MULTIPLE} = require('../../../lib/constants/dataConstants');
-const {sendEmail} = require('./googleApis/email');
+const mongo = require('../data');
+const {buildAuthURL,generateInitialAccessToken} = require('../googleApis/auth');
+const {getProfileDetails} = require('../googleApis/profile');
+const encryptionAPI = require('../encryptionAPI');
+const sessionHandler = require('../sessionHandler');
+const {userObject} = require('../../../../lib/constants/objectConstants');
+const {dbConstants,ERRORS,senderEmail,emailCredentials,loginAuth,SINGLE,MULTIPLE} = require('../../../../lib/constants/dataConstants');
+const {sendEmail} = require('../googleApis/email');
 
 //handler object definition
 const handlers = {};

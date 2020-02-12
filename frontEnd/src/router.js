@@ -34,12 +34,12 @@ export default class Router extends Component {
         let sessionBool = false;
         sessionBool = Date.now() - sessionObject.creationTime < 1800000 ? true : false;
         if (!sessionBool)
-            window.localStorage.clear();
+            localSession.checkSession();
         return sessionBool;
     }
 
     render(){
-        let router = this.checkSession() ? <PostLoginRouter rerenderRouter = {this.rerenderRoot}/> 
+        let router = this.checkSession() ? <PostLoginRouter checkSession = {this.checkSession}/> 
                                             : 
                                            < PreLoginRouter rerenderRouter = {this.rerenderRoot}/> ;
         return ( <div> { router } </div>);
