@@ -212,5 +212,50 @@ formConstants.googleLogin = [{
 
 ];
 
+formConstants.addProject = [
+    {
+        id: "addProject",
+        type: "form",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded"
+    },
+    {
+        name: "Title",
+        type: "text",
+        placeholder: "Title",
+        id: "addProjectTitle",
+        className: "addProjectAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Description",
+        type: "textbox",
+        width: "100px",
+        height: "50px",
+        placeholder: "Description",
+        id: "addProjectDescription",
+        className: "addProjectAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "ProjectType",
+        type: "DropDown",
+        placeholder: "ProjectType",
+        id: "projectType",
+        className: "addProjectAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "Add Project",
+        type: "button",
+        route: '/addProject',
+        id: "addProjectButton",
+        className: "addProjectAttributes"
+    }
+];
+
 //export the module
 export default formConstants;

@@ -12,8 +12,8 @@ import Scheduler from './scheduler';
 import Menu from '../../Menu/menu';
 import menuConstants from '../../Menu/menuConstants';
 import setUserAction from '../../store/actions/userActions';
+import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/dataConstants";
-
 class PostLoginRouter extends Component {
 
     constructor(props){
@@ -23,26 +23,29 @@ class PostLoginRouter extends Component {
     }
 
     componentDidMount(){
-        this.getUserData();
+        let sessionID = localSession.getSessionObject().sessionID;
+        let queryString = "sessionID="+sessionID;
+        this.getUserData(queryString,this.props.setUserState);
+        queryString+="?userID="+sessionID;
+        this.getUserData(queryString,this.props.setUserListState);
     }
 
-    getUserData(){
+    getUserData(queryString,action){
         
         let headers={}
-        let globalThis = this;
-        let route = urls.USER+"?userID="+localSession.getSessionObject().sessionID;
-        httpsMiddleware.httpsRequest(route,"GET", headers, {}, function(error,responseObject) {
+        httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
             if(error || responseObject.Status == "ERROR"){
                 if(error){
                     console.log(error);
                     //TODO --> add errormsg div(ERR_CONN_SERVER)
                 }else{
-                    //TODO --> delete the session and send to login page
+                    localSession.clearSession();
+                    this.props.checkSession();
+                    //TODO --> errorMSG - your session is invalid please log in again
                     //TODO --> add error msg div(errormsg)
                 }
             }else{
-                console.log({...responseObject.Payload.userObject});
-                globalThis.props.setUserState({...responseObject.Payload.userObject});
+                action({...responseObject.Payload.users});
             }
         });
     }
@@ -68,16 +71,19 @@ class PostLoginRouter extends Component {
                     break;
                 case "logout":
                     localSession.clearSession();
-                    this.props.checkSession();
+                    this.props.rerenderRouter();
                     break;        
                 default:
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({}, "",urls.DASHBOARD);
+                    //TODO --> check if urlaction is required?
                     return <DashBoard/>;
                     break;
             }
         }
     }
+   
+
     render(){
         this.props.checkSession();
         return ( <div>
@@ -98,6 +104,9 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
+        },
+        setUserListState : (userList) => {
+            dispatch(setUserListStateAction(userList));    
         }
     };
 };

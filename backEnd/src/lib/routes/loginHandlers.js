@@ -369,11 +369,11 @@ handlers.postSignupForm = (requestObject) => new Promise((resolve,reject) => {
 handlers.postAuthForm = (requestObject) => new Promise ((resolve,reject) => {
     let sessionObject = {};
     //check the requestObject
-    console.log(requestObject.reqBody.state);
     if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check state validity
          mongo.read(dbConstants.userCollection,{ State: requestObject.reqBody.state }, { projection: { _id: 1,Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
+                requestObject.reqBody.Password = handlers.randomNumberGen(15);
                 mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { UserName: requestObject.reqBody.UserName, Password: requestObject.reqBody.Password, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
                     sessionObject = sessionHandler.createSession(resultSet[0]._id);
                     resolve({...sessionObject});

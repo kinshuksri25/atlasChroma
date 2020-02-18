@@ -2,7 +2,6 @@
 
 //Dependencies
 import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
 import localSession from './Components/sessionComponent';
 import PreLoginRouter from './Components/prelogin/preLoginRouter';
 import PostLoginRouter from './Containers/postlogin/postLoginRouter';
@@ -33,13 +32,14 @@ export default class Router extends Component {
     checkSessionTime(sessionObject) {
         let sessionBool = false;
         sessionBool = Date.now() - sessionObject.creationTime < 1800000 ? true : false;
-        if (!sessionBool)
-            localSession.checkSession();
+        if (!sessionBool){
+            localSession.clearSession();
+        }
         return sessionBool;
     }
 
     render(){
-        let router = this.checkSession() ? <PostLoginRouter checkSession = {this.checkSession}/> 
+        let router = this.checkSession() ? <PostLoginRouter checkSession = {this.checkSession} rerenderRouter = {this.rerenderRoot}/> 
                                             : 
                                            < PreLoginRouter rerenderRouter = {this.rerenderRoot}/> ;
         return ( <div> { router } </div>);

@@ -1,10 +1,11 @@
 //Blueprint for project objects
 
+//TODO add a _id value and a default value for it using random generator
 export default class project{
 
-    constructor(title="",
+    constructor(
+                title="",
                 description="",
-                startDate="",
                 projectLead="",
                 projectType="",
                 contributors="",
@@ -13,7 +14,6 @@ export default class project{
 
         this.title = title;
         this.description=description;
-        this.startDate=startDate;
         this.projectLead = projectLead;
         this.conbtributors=contributors;
         this.projectType=projectType;
@@ -25,7 +25,6 @@ export default class project{
         let projectDetails={
             title:this.title,
             description:this.description,
-            startDate:this.startDate,
             projectLead:this.projectLead,
             projectType:this.projectType,
             contributors:this.contributors,
@@ -37,7 +36,6 @@ export default class project{
 
     setProjectDetails(title=this.title,
                       description=this.description,
-                      startDate=this.startDate,
                       projectLead=this.projectLead,
                       contributors=this.contributors,
                       projectType=this.projectType,
@@ -46,7 +44,6 @@ export default class project{
 
         this.title = title;
         this.description=description;
-        this.startDate=startDate;
         this.projectLead = projectLead;
         this.conbtributors=contributors;
         this.projectType=projectType;

@@ -36,10 +36,29 @@ domainLogicHandlers.user = (requestObject) => new Promise((resolve,reject) => {
 //method --> GET
 //params --> requestObject -- object
 domainLogicHandlers.getUser = (requestObject) => new Promise((resolve,reject) => {
+    let projection = {
+        projection: {UserName:1,Email: 1}
+    };
+    let query ={};
 
-    mongo.read(dbConstants.userCollection,{ _id : requestObject.queryObject.userID },{_id:0,password:0}).then(resultSet => {
-        if(JSON.stringify(resultSet) != JSON.stringify([])){
-            resolve({userObject:{...resultSet[0]}});
+    if(requestObject.queryObject.hasOwnProperty("userID")){
+        projection.projection = { _id: 0, Password:0,RefreshToken:0,State:0};
+        query={_id : requestObject.queryObject.userID}
+    }
+
+    mongo.read(dbConstants.userCollection,{...query},{...projection.projection}).then(resultSet => {
+        if(resultSet.length != 0){    
+              if(resultSet[0].Projects.length != 0){
+                let projectList = resultSet[0].Projects;
+                 mongo.read(dbConstants.projectCollection,{ _id: { $in: projectList } },{}).then(resolveSet => {
+                    if(resolveSet[0].length != 0){
+                        resultSet[0].Projects = resolveSet[0];
+                    }
+                 }).catch(rejectSet =>{
+                     throw rejectSet;
+                 });     
+              } 
+            resolve({users:{...resultSet[0]}});
         }else{
             throw ERRORS.ERR_INVSESS_SVR;     
         }

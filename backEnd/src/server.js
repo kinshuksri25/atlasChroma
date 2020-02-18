@@ -37,7 +37,6 @@ server.unifiedServer = (req, res) => {
     let route = parsedUrl.pathname;
     let queryStringObject = parsedUrl.query;
     let headers = req.headers;
-
     //function specific params
     let requestBodyString = "";
     let chosenHandler;
@@ -103,6 +102,7 @@ server.handlers = {
     '/postAuthForm': loginHandlers.postAuthForm,
     //Domain logic Routes
     '/user': domainLogicHandlers.user
+    //TODO add /user/* routes
 };
 
 //init function

@@ -22,10 +22,10 @@ sessionHandler.createSession = sessionID => {
 //check session validity
 //Params --> requestObject -- object
 sessionHandler.sessionChecker = requestObject => new Promise((resolve,reject) => {
-    let sessionID = requestObject.method == "GET" || requestObject.method == "DELETE" ? requestObject.queryObject.userID : requestObject.reqBody.userID;
+    let sessionID = requestObject.method == "GET" || requestObject.method == "DELETE" ? requestObject.queryObject.sessionID : requestObject.reqBody.sessionID;
     if(sessionID != undefined){
         mongo.read(dbConstants.userCollection,{ _id : sessionID },{}).then(resolveResult => {
-            if(JSON.stringify(resolveResult) == JSON.stringify([])){
+            if(resolveResult.length != 0){
                 resolve(true);
             }else{
                 throw ERRORS.ERR_INVSESS_SVR;     
