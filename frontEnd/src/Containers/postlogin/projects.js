@@ -51,7 +51,7 @@ class Projects extends Component {
 
 const mapStateToProps = (state) => {
         return {
-            user: state.userStateReducer.user
+            user: state.userStateReducer
         }
 };
     
@@ -61,6 +61,6 @@ const mapDispatchToProps = dispatch => {
                 dispatch(setUserAction(userObject));
             }
         };
-    };
+};
     
 export default connect(mapStateToProps,mapDispatchToProps)(Projects);

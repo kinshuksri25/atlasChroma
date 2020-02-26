@@ -58,7 +58,6 @@ server.unifiedServer = (req, res) => {
         requestBodyString += decoder.end();
 
         requestBodyString = method == "POST" ? JSON.parse(requestBodyString) : {};
-
         //the request object sent to the handlers
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
@@ -101,7 +100,8 @@ server.handlers = {
     '/postSignupForm': loginHandlers.postSignupForm,
     '/postAuthForm': loginHandlers.postAuthForm,
     //Domain logic Routes
-    '/user': domainLogicHandlers.user
+    '/user': domainLogicHandlers.user,
+    '/project': domainLogicHandlers.project
     //TODO add /user/* routes
 };
 

@@ -12,7 +12,7 @@ export default function urlStateReducer (state = urlObject, actions) {
                return {currentUrl : actions.payload};
                break;
         default : 
-               return {currentUrl: {...state}};
+               return {...state};
                break;         
     }
 }

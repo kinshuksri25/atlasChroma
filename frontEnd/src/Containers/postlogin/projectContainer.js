@@ -11,19 +11,20 @@ class ProjectContainer extends Component{
     }
 
     renderProjectTabs(){
-      if(this.props.Projects.length != 0){
-        let sortedProjectArray = sortProjects(this.props.orderBy,this.props.Projects);
-        sortedProjectArray.map(project => {
+      if(this.props.user.Projects.length != 0){
+        let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.Projects);
+        let projectContainer = sortedProjectArray.map(project => {
             return(
+                    //TODO add the project lead's photo (link)  
+                    //TODO add a list of contributors (profilePhotos)(link)
                 <button id = {project.title} className = {project.projectType} onClick = {this.onClick}>
                     <h3>{project.title}</h3>
                     <h4>Project Lead:</h4>
-                    //TODO add the project lead's photo (link)  
-                    //TODO add a list of contributors (profilePhotos)(link)
                     <h5>{project.description}</h5>
                 </button>   
             );
         });
+      return (<div>{projectContainer}</div>);
       }else{
             //TODO add in dataConstants
           return (<h1>You are not collaborating on any projects...</h1>);
@@ -31,8 +32,7 @@ class ProjectContainer extends Component{
     }
 
     sortProjects(orderBy,projectArray){
-
-        let sortedArray = {...projectArray};
+        let sortedArray = [...projectArray];
         let selection = "";
         switch(orderBy){
             case "Recently Created":
@@ -66,20 +66,20 @@ class ProjectContainer extends Component{
             sortedArray[i] = sel;
             sortedArray[selIndex] = tempVal;
         }
-        
         return sortedArray;
     }
 
     render(){
+        let container = this.renderProjectTabs();
         return(<div>
-            {renderProjectTabs()}
-          </div>);
+                {container}
+              </div>);
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        Projects: state.userStateReducer.user.Projects
+        user: state.userStateReducer
     }
 };
 

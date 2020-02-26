@@ -123,7 +123,7 @@ class SimpleForm extends Component {
                                                           </select>);
                                                   break;
                                                 }
-
+                                //TODO --> add textbox                
                                 default:{ return <input type = { param.type }
                                                   name = { param.name }
                                                   placeholder = { param.placeholder }

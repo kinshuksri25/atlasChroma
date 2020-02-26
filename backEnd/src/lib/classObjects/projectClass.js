@@ -1,21 +1,21 @@
 //Blueprint for project objects
 
 //TODO add a _id value and a default value for it using random generator
-export default class project{
+class project{
 
     constructor(
                 title="",
                 description="",
                 projectLead="",
                 projectType="",
-                contributors="",
-                creationDate="",
+                contributors=[],
+                creationDate= Date.now(),
                 modificationDate=""){
 
         this.title = title;
         this.description=description;
         this.projectLead = projectLead;
-        this.conbtributors=contributors;
+        this.contributors=contributors;
         this.projectType=projectType;
         this.creationDate=creationDate;
         this.modificationDate=modificationDate;
@@ -31,7 +31,7 @@ export default class project{
             creationDate:this.creationDate,
             modificationDate:this.modificationDate
         } 
-        return projectDetails;
+        return {...projectDetails};
     }
 
     setProjectDetails(title=this.title,
@@ -51,3 +51,5 @@ export default class project{
         this.modificationDate=modificationDate;
     }
 }
+
+module.exports = project;

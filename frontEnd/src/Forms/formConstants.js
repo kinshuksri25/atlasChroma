@@ -251,7 +251,7 @@ formConstants.addProject = [
     {
         name: "Add Project",
         type: "button",
-        route: '/addProject',
+        route: '/project',
         id: "addProjectButton",
         className: "addProjectAttributes"
     }

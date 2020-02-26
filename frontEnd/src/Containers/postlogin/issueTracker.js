@@ -1,8 +1,15 @@
 //Dependencies
 import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
+import { connect } from 'react-redux';
 
-export default function IssueTracker () {
-
+function IssueTracker (props) {
         return (<div> "IssueTracker" </div>);
 }
+
+const mapStateToProps = (state) => {
+    return {
+            users: state.userStateReducer
+        }
+};
+
+export default connect(mapStateToProps,null)(IssueTracker);

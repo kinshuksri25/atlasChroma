@@ -8,9 +8,9 @@ export default function userStateReducer (state = userObject, action) {
 
     switch(action.type){
         case actionTypes.SETUSER : 
-            return {user:{...action.payload}};
+            return {...state,...action.payload};
             break;
         default :
-            return {user:{...state}};
+            return {...state};
     }
 }

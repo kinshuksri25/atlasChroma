@@ -25,14 +25,14 @@ class PostLoginRouter extends Component {
     componentDidMount(){
         let sessionID = localSession.getSessionObject().sessionID;
         let queryString = "sessionID="+sessionID;
-        this.getUserData(queryString,this.props.setUserState);
-        queryString+="?userID="+sessionID;
         this.getUserData(queryString,this.props.setUserListState);
+        queryString+="&userID="+sessionID;
+        this.getUserData(queryString,this.props.setUserState);
     }
 
     getUserData(queryString,action){
         
-        let headers={}
+        let headers={};
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
             if(error || responseObject.Status == "ERROR"){
                 if(error){
