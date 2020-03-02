@@ -8,9 +8,7 @@ const {ERRORS} = require('../../../../lib/constants/dataConstants');
 //declaring the module
 const email = {};
 
-email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data) => new Promise((resolve,reject) => {
-    
-    refreshAccessToken(refreshToken).then(senderAccessTokenObject => {
+email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data,senderAccessTokenObject) => new Promise((resolve,reject) => {
             const smtpTransport = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
                 port: 465,
@@ -39,10 +37,6 @@ email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,
             }    
             smtpTransport.close();
         });
-    }).catch(error => {
-        console.log(error);
-        reject(ERRORS.ERR_SNDEML_SVR);
-    });
 });
 
 //exporting the module
