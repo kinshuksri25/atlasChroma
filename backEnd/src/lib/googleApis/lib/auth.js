@@ -11,9 +11,13 @@ const decoder = new stringdecoder('utf-8');
 const auth = {};
 
 //auth url contruction 
-auth.buildAuthURL = (email,uniqueState) => {
+auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDetails) => {
 
-    if(email != "" && uniqueState != ""){
+    if(email != "" && uniqueState != "" && currentScopes != [] && appAuthDetails != {}){
+        let scopes = "";
+        currentScopes.map(scope => {
+   
+                          });
         let authUrl =  authURL+"?scope="+scopes.CALENDAR+" "+scopes.CONTACTS+" "+scopes.SIGNIN+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+loginAuth.redirectURL+"&client_id="+loginAuth.clientID;
         return authUrl;
     }else{
