@@ -5,13 +5,13 @@ const https = require("https");
 const stringdecoder = require('string_decoder').StringDecoder;
 const decoder = new stringdecoder('utf-8');
 
-const {ERRORS,scopes} = require('../../../../lib/constants/dataConstants');
+const {ERRORS} = require('../../../../lib/constants/dataConstants');
 
 //declaring the module
 const profile = {};
 
-profile.getProfileDetails = accessToken => new Promise((resolve,reject) => {
-    let requestUrl = scopes.PROFILE + "?access_token=" + accessToken;
+profile.getProfileDetails = (accessToken,profileScope) => new Promise((resolve,reject) => {
+    let requestUrl = profileScope + "?access_token=" + accessToken;
 
     let profileDetailsRequest = https.request(requestUrl,function(response){
         let responseString = '';
