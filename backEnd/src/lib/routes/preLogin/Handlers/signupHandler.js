@@ -20,7 +20,7 @@ signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
 
         //set userObject 
-        let userObject = new userObject(randValueGenerator(Constants.RANDOMGEN.ID),
+        let userObject = new userObject(randValueGenerator(),
                                         requestObject.reqBody.Email,
                                         requestObject.reqBody.UserName,
                                         encryptionAPI.hash(requestObject.reqBody.Password));                                      
