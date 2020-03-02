@@ -55,7 +55,7 @@ class ProjectContainer extends Component{
             counter = i;
             sel = sortedArray[i];
             while(counter < arrLen){
-                if(sortedArray[counter][selection] < sel[selection])
+                if(sortedArray[counter][selection] <= sel[selection])
                 {
                     sel = sortedArray[counter];
                     selIndex = counter;
