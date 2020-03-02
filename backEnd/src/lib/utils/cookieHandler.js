@@ -1,11 +1,11 @@
 //Dependencies
-const cookieObject = require("");
+const cookies = require("");
 
 //declaring the module
 const cookieHandler = {};
 
 cookieHandler.createCookies = (requestObjectID)  => {
-    let newCookie = new cookieObject(requestObjectID);
+    let newCookie = new cookies(requestObjectID);
     return newCookie.getCookie();
 };
 
