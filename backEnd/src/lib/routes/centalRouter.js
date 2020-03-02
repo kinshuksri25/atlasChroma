@@ -2,7 +2,6 @@
 //Dependencies
 const preLoginRouter = require("");
 const postLoginRouter = require("");
-const responseObject = require("");
 
 //defining the router object
 const router = {};
