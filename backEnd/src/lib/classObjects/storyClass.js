@@ -1,6 +1,6 @@
 //Blueprint for story object
 
-export default class story{
+class story{
     constructor(name="",
                 description="",
                 contributors="",
@@ -55,3 +55,6 @@ export default class story{
 
     }
 }
+
+//export the module
+module.exports = story;
