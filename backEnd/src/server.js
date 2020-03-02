@@ -6,8 +6,7 @@
 const https = require('https');
 const url = require('url');
 const fs = require('fs');
-const loginHandlers = require('./lib/routes/loginHandlers');
-const domainLogicHandlers = require('./lib/routes/domainLogicHandlers');
+const router = require("");
 const stringDecoder = require('string_decoder').StringDecoder;
 
 //server object definition
@@ -62,48 +61,21 @@ server.unifiedServer = (req, res) => {
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
         requestObject.queryObject = queryStringObject;
-        chosenHandler = server.handlers.hasOwnProperty(route) ? server.handlers[route] : server.handlers.notFound;
         
         res.writeHead(200,{"Access-Control-Allow-Origin":"*",
                            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
         
-        chosenHandler(requestObject).then(result => {
-                //post handler call
-                responsePayload.Status = "SUCCESS";
-                responsePayload.Payload = result;
-                //send the data back
-                res.write(JSON.stringify(responsePayload));
+        router.router(route,requestObject).then(responseObject => {
+                res.write(JSON.stringify(responseObject));
                 res.end();
-            }).catch(error => {
-                //error handler 
-                responsePayload.Status = "ERROR";
-                responsePayload.Payload = "ERROR-->" + error;
-
-                //send the data back 
-                res.write(JSON.stringify(responsePayload));
+            }).catch(errorObject => {
+                res.write(JSON.stringify(errorObject));
                 res.end();
             });
     }); 
 };
 
-//router definition
-server.handlers = {
-    //Login Routes
-    '/login': loginHandlers.login,
-    '/signup': loginHandlers.signup,
-    '/checkUserName': loginHandlers.checkUserName,
-    '/checkEmail': loginHandlers.checkEmail,
-    '/googleLogin' : loginHandlers.googleLogin,
-    '/postAuth': loginHandlers.postAuth,
-    '/notFound': loginHandlers.notFound,
-    '/postSignupForm': loginHandlers.postSignupForm,
-    '/postAuthForm': loginHandlers.postAuthForm,
-    //Domain logic Routes
-    '/user': domainLogicHandlers.user,
-    '/project': domainLogicHandlers.project
-    //TODO add /user/* routes
-};
 
 //init function
 server.init = () => {
