@@ -15,7 +15,7 @@ let googleAuthHandler = {};
 //return --> promise(object)
 googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) => {
 
-    let state = randValueGenerator(Constants.RANDOMGEN.NUM,15);
+    let state = randValueGenerator(15);
     let response = {};
     //check the request object
     if(requestObject.queryObject.Email != undefined && requestObject.method == "GET"){
@@ -25,9 +25,7 @@ googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) =>
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
                 //set user object
-                //create userObject
-                let googleSignUpUserObject = new userObject(randValueGenerator(Constants.RANDOMGEN.ID),
-                                                            requestObject.reqBody.Email,"","","", state);          
+                let googleSignUpUserObject = new userObject(randValueGenerator(),requestObject.reqBody.Email,"","","", state);          
                 //save user credentials 
                 mongo.insert(dbConstants.userCollection, googleSignUpUserObject, {}).then(insertSet => {
                     
