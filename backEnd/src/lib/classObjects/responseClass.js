@@ -1,6 +1,6 @@
 //Blueprint for response Object 
 
-class responseObject(){
+class responseObject{
 
   constructor(status = 500,smsg = "", payload = {}, emsg = ""){
     this.status = status;
