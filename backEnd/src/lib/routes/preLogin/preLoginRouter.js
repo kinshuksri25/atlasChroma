@@ -14,10 +14,10 @@ preLoginRouter.router = (route,requestObject) = new Promise((resolve,reject) => 
 
     let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes.handlers[route] : preLoginRouter.routes.handlers.notFound;
     chosenHandler(requestObject).then(resolvedResult => {
-        let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,0,MSG.EMSG.NOERROR);
+        let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,MSG.EMSG.NOERROR);
         resolve(response.getResponseObject());
     }).catch(rejectedResult => {
-        let response = new responseObject(0,MSG.SMSG.NOSUCCESS,"",rejectedResult.STATUS,rejectedResult.EMSG);
+        let response = new responseObject(rejectedResult.STATUS,MSG.SMSG.NOSUCCESS,{},rejectedResult.EMSG);
         reject(response.getResponseObject());
     });
 
