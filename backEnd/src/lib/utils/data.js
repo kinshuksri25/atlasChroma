@@ -18,7 +18,8 @@ mongo.openConnection = url => new Promise((resolve,reject) => {
         .then(db => {
             resolve(db);
         }).catch(err => {
-            reject(ERRORS.ERR_CONN_DB + err);
+            console.log(err);
+            reject(ERRORS.ERR_CONN_DB);
         });
 });
 
@@ -36,7 +37,7 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             if(err)
             {
                 db.close();
-                reject(ERRORS.ERR_RD_DB + err);    
+                reject(ERRORS.ERR_RD_DB);    
             }else{
                 if(doc != null)
                 {
@@ -49,7 +50,8 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             }
         });
     }).catch(err => {
-        reject(err);
+        console.log(err);
+        reject(ERRORS.ERR_RD_DB);
     });
 });
 
@@ -66,7 +68,7 @@ mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) =
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_WR_DB + err);
+            reject(ERRORS.ERR_WR_DB);
         });
 
         payload.length > 1 && col.insertMany(payload, options).then(result => {
@@ -74,10 +76,11 @@ mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) =
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_WR_DB + err);
+            reject(ERRORS.ERR_WR_DB);
         });
     }).catch(err => {
-        reject(err);
+        console.log(err);
+        reject(ERRORS.ERR_WR_DB);
     });
 });
 
@@ -95,7 +98,7 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_DL_DB + err);
+            reject(ERRORS.ERR_DL_DB);
         });
 
         selectionType == MULTIPLE && col.deleteMany(query, options).then(result => {
@@ -103,10 +106,11 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_DL_DB + err);
+            reject(ERRORS.ERR_DL_DB);
         });
     }).catch(err => {
-        reject(err);
+        console.log(err);
+        reject(ERRORS.ERR_DL_DB);
     });
 });
 
@@ -124,7 +128,7 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_UP_DB + err);
+            reject(ERRORS.ERR_UP_DB);
         });
 
         selectionType == MULTIPLE && col.updateMany(query, updatedPayload, options).then(result => {
@@ -132,10 +136,11 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_UP_DB + err);
+            reject(ERRORS.ERR_UP_DB);
         });
     }).catch(err => {
-        reject(err);
+        console.log(err);
+        reject(ERRORS.ERR_UP_DB);
     });
 });
 
