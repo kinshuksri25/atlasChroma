@@ -131,9 +131,15 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
          mongo.read(dbConstants.userCollection,{ _id: requestObject.reqBody.id }, { projection: { Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 mongo.update(dbConstants.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
-                    response.STATUS = 200;
-                    response.SMSG = "SIGNUP SUCCESSFUL";
-                    response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id);
+                    response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.SMSG = "SIGNUP SUCCESSFUL";
+                        response.PAYLOAD.cookieObject = resolvedResult;
+                    }).catch(rejectedResult => {
+                        response.STATUS = 500;
+                        response.EMSG = "UNABLE TO LOG THE USER IN";
+                        reject(response);
+                    });
                     resolve(response);
                 }).catch(error => {
                     response.STATUS = 500;

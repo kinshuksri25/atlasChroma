@@ -65,7 +65,9 @@ server.unifiedServer = (req, res) => {
         res.writeHead(200,{"Access-Control-Allow-Origin":"*",
                            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
-        
+                           
+
+
         router.router(route,requestObject).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();

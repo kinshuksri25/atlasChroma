@@ -25,20 +25,32 @@ router.router = (route,requestObject) => new Promise((resolve,reject) => {
     }else{
         //postlogin
         //check cookie availability
+        let response = {};
         if(requestObject.hasOwnProperty("cookieObject")){
             cookieHandler.checkCookie(requestObject.cookieObject).then(validCookie => {
-                postLoginRouter(route,requestObject).then(resolvedResult => {
-                    resolve(resolvedResult);
-                }).catch(rejectedResult => {
-                    reject(rejectedResult);
-                });
-            }).catch(invalidCookie => {
+                if(validCookie){
+                    postLoginRouter(route,requestObject).then(resolvedResult => {
+                        resolve(resolvedResult);
+                    }).catch(rejectedResult => {
+                        reject(rejectedResult);
+                    });
+                }else{
+                    response.STATUS = 400;
+                    response.EMSG = "INVALID COOKIE DATA FOUND";
+                    //send to login page
+                    reject(response);
+                }
+            }).catch(rejectedResult => {
+                response.STATUS = 500;
+                response.EMSG = rejectedResult;
                 //send to login page
-                reject(invalidCookie);
+                reject(response);
             });
         }else{
+            response.STATUS = 400;
+            response.EMSG = "COOKIE NOT FOUND";
             //send to login page
-            reject(rejectedResult);
+            reject(response);
         }
     }
 

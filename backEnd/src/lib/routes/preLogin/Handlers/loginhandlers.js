@@ -16,7 +16,7 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password')){
                 
         //check email validity
-        mongo.read(dbConstants.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1 } }).then(resultSet => {
+        mongo.read(dbConstants.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1, UserName:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 //check password validity
                 if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
@@ -27,10 +27,15 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                         response.SMSG = "LOGIN SUCCESSFUL, INCOMPLETE USER DATA AVAILABLE";
                         response.STATUS = 201;
                     }else{
-                        response.PAYLOAD.cookieDetails = cookieHandler.createCookies(resultSet[0]._id);
-                        //TODO --> add the below mentioned msg to MSG
-                        response.SMSG = "LOGIN SUCCESSFUL";
-                        response.STATUS = 200;
+                        response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
+                            response.SMSG = "LOGIN SUCCESSFUL";
+                            response.STATUS = 200;
+                            response.PAYLOAD.cookieObject = resolvedResult;
+                        }).catch(rejectedResult => {
+                            response.STATUS = 500;
+                            response.EMSG = "UNABLE TO LOG THE USER IN";
+                            reject(response);
+                        });
                     }
                     resolve(response);
                 }else{
