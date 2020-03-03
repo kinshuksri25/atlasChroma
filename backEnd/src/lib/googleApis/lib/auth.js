@@ -32,10 +32,10 @@ auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDeta
 
 };
 
-//inital access token retrival 
-auth.generateInitialAccessToken = (authCode,refreshTokenURL,appAuthDetails) => new Promise((resolve,reject) => {
+//token retrival 
+auth.tokenGeneration = (authRequest) => new Promise((resolve,reject) => {
     
-    let parsedUrl = url.parse( refreshTokenURL);
+    let parsedUrl = url.parse(authRequest.refreshTokenURL);
     let requestDetails = {
         'host': parsedUrl.host,
         'hostname': parsedUrl.hostname,
@@ -46,15 +46,20 @@ auth.generateInitialAccessToken = (authCode,refreshTokenURL,appAuthDetails) => n
         'pathname': parsedUrl.pathname,
         'href': parsedUrl.href
     };
-
+    
     let data = {
-        code : authCode,
-        client_id : appAuthDetails.clientID,
-        client_secret : appAuthDetails.clientSecret,
-        redirect_uri : appAuthDetails.redirectURL,
-        grant_type : "authorization_code"
+        client_id : authRequest.appAuthDetails.clientID,
+        client_secret : authRequest.appAuthDetails.clientSecret,
     };
-
+    if(authRequest.hasOwnProperty("authCode")){
+        data.code = authRequest.authCode;
+        data.redirect_uri = authRequest.appAuthDetails.redirectURL;
+        data.grant_type = "authorization_code";
+    }else{
+        data.refresh_token = authRequest.refreshToken;
+        data.grant_type = "refresh_token";
+   }
+    
     //https request
     let accessTokenReq = https.request(requestDetails, function(response) {
 
@@ -83,55 +88,6 @@ auth.generateInitialAccessToken = (authCode,refreshTokenURL,appAuthDetails) => n
         accessTokenReq.end();
 
 });
-
-//refresh/access token retrival 
-auth.refreshAccessToken = (refreshToken,refreshTokenURL,appAuthDetails) => new Promise((resolve,reject) => {
-    let parsedUrl  = url.parse(refreshTokenURL);
-    let requestDetails = {
-        'host': parsedUrl.host,
-        'hostname': parsedUrl.hostname,
-        'protocol' : parsedUrl.protocol,
-        'method' : 'POST',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'path': parsedUrl.path,
-        'pathname': parsedUrl.pathname,
-        'href': parsedUrl.href
-    };
-
-    let data = {
-        refresh_token : refreshToken,
-        client_id : appAuthDetails.clientID,
-        client_secret : appAuthDetails.clientSecret,
-        grant_type : "refresh_token"
-    };
-
-    //https request
-    let refAccessTokenReq = https.request(requestDetails, function(response) {
-
-        let responseString = '';
-        response.on('data', function(chunk) {
-            responseString += decoder.write(chunk);
-        });
-
-        response.on('end', function() {
-            responseString += decoder.end();
-            responseString = JSON.parse(responseString);
-            resolve(responseString);
-        });
-    });
-    
-    refAccessTokenReq.write(JSON.stringify(data));
-
-    //error checking
-    refAccessTokenReq.on('error', (error) => {
-        console.log(error.message);
-        reject(ERRORS.ERR_GGLCONN_SVR);
-    });
-
-    //send request
-    refAccessTokenReq.end();
-});
-
 
 //exporting the module
 module.exports = {...auth};
