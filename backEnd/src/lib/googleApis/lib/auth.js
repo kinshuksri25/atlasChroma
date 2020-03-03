@@ -4,7 +4,7 @@
 const https = require("https");
 const url = require('url');
 const stringdecoder = require('string_decoder').StringDecoder;
-const {ERRORS,scopes,loginAuth,refreshTokenURL,authURL} = require ('../../../../lib/constants/dataConstants');
+const {ERRORS} = require ('../../../../lib/constants/dataConstants');
 const decoder = new stringdecoder('utf-8');
 
 //declaring the module
@@ -15,20 +15,25 @@ auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDeta
 
     if(email != "" && uniqueState != "" && currentScopes != [] && appAuthDetails != {}){
         let scopes = "";
-        currentScopes.map(scope => {
-   
-                          });
-        let authUrl =  authURL+"?scope="+scopes.CALENDAR+" "+scopes.CONTACTS+" "+scopes.SIGNIN+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+loginAuth.redirectURL+"&client_id="+loginAuth.clientID;
+        for(let i=0;i<currentScopes.length;i++)
+        {
+           if(i == currentScopes.length-1){
+               scopes += currentScopes[i];
+           }else{
+               scopes += currentScopes[i]+"+";
+           }
+        }    
+        let authUrl =  authUrlTemplate+"?scope="+scopes+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+appAuthDetails.redirectURL+"&client_id="+appAuthDetails.clientID;
         return authUrl;
     }else{
-        console.log(ERRORS.ERR_INVAUTCDE_SVR);
+        console.log("INVALID REQUEST PARAMS");
         return "";
     }
 
 };
 
 //inital access token retrival 
-auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => {
+auth.generateInitialAccessToken = (authCode,refreshTokenURL,appAuthDetails) => new Promise((resolve,reject) => {
     
     let parsedUrl = url.parse( refreshTokenURL);
     let requestDetails = {
@@ -44,9 +49,9 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
 
     let data = {
         code : authCode,
-        client_id : loginAuth.clientID,
-        client_secret : loginAuth.clientSecret,
-        redirect_uri : loginAuth.redirectURL,
+        client_id : appAuthDetails.clientID,
+        client_secret : appAuthDetails.clientSecret,
+        redirect_uri : appAuthDetails.redirectURL,
         grant_type : "authorization_code"
     };
 
@@ -80,7 +85,7 @@ auth.generateInitialAccessToken = (authCode) => new Promise((resolve,reject) => 
 });
 
 //refresh/access token retrival 
-auth.refreshAccessToken = (refreshToken) => new Promise((resolve,reject) => {
+auth.refreshAccessToken = (refreshToken,refreshTokenURL,appAuthDetails) => new Promise((resolve,reject) => {
     let parsedUrl  = url.parse(refreshTokenURL);
     let requestDetails = {
         'host': parsedUrl.host,
@@ -95,8 +100,8 @@ auth.refreshAccessToken = (refreshToken) => new Promise((resolve,reject) => {
 
     let data = {
         refresh_token : refreshToken,
-        client_id : loginAuth.clientID,
-        client_secret : loginAuth.clientSecret,
+        client_id : appAuthDetails.clientID,
+        client_secret : appAuthDetails.clientSecret,
         grant_type : "refresh_token"
     };
 
