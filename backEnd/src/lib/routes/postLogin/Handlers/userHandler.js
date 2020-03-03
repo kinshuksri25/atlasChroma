@@ -11,10 +11,17 @@ userHandler.user = (requestObject) => new Promise((resolve,reject) => {
         swtich(requestObject.method){
           case "GET" :
               userHandler.user.get.then(resolvedResult => {
+                   resolve(resolvedResult);
               }).catch(rejectedResult => {
+                   reject(rejectedResult);
               });
               break;
           case "POST" : 
+              userHandler.user.post.then(resolvedResult => {
+                   resolve(resolvedResult);
+              }).catch(rejectedResult => {
+                   reject(rejectedResult);
+              });
               break;
           case "PUT" : 
               break;
