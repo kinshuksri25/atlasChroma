@@ -25,7 +25,12 @@ googleApis.buildAuthURL = (userEmail,uniqueState) => {
 };
 
 googleApis.getAccessToken = (authCode) = new Promise((resolve,reject) => {
-    auth.generateInitialAccessToken(authCode,CONSTANTS.refreshTokenURL,CONSTANTS.appAuth).then(resolvedResult => {
+    let authRequest = {
+        "authCode" : authCode,
+        "refreshTokenURL" : refreshTokenURL,
+        "appAuthDetails" : CONSTANTS.appAuth
+    };
+    auth.tokenGeneration(authRequest).then(resolvedResult => {
         return (resolveResult);  
     }).catch(rejectedResult => {
         return(rejectedResult);
@@ -33,7 +38,12 @@ googleApis.getAccessToken = (authCode) = new Promise((resolve,reject) => {
 });
 
 googleApis.getRefreshToken = (refreshToken) = new Promise((resolve,reject) => {
-    auth.refreshAccessToken(refreshToken,CONSTANTS.refreshTokenURL,CONSTANTS.appAuth).then(resolvedResult => {
+    let authRequest = {
+        "refreshToken" : refreshToken,
+        "refreshTokenURL" : refreshTokenURL,
+        "appAuthDetails" : CONSTANTS.appAuth
+    };
+    auth.tokenGeneration(authRequest).then(resolvedResult => {
         return (resolveResult);  
     }).catch(rejectedResult => {
         return(rejectedResult);
