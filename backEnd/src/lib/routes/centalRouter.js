@@ -2,6 +2,7 @@
 //Dependencies
 const preLoginRouter = require("");
 const postLoginRouter = require("");
+const cookieHandler = require("");
 
 //defining the router object
 const router = {};
@@ -23,7 +24,22 @@ router.router = (route,requestObject) => new Promise((resolve,reject) => {
 
     }else{
         //postlogin
-        //check session validity
+        //check cookie availability
+        if(requestObject.hasOwnProperty("cookieObject")){
+            cookieHandler.checkCookie(requestObject.cookieObject).then(validCookie => {
+                postLoginRouter(route,requestObject).then(resolvedResult => {
+                    resolve(resolvedResult);
+                }).catch(rejectedResult => {
+                    reject(rejectedResult);
+                });
+            }).catch(invalidCookie => {
+                //send to login page
+                reject(invalidCookie);
+            });
+        }else{
+            //send to login page
+            reject(rejectedResult);
+        }
     }
 
 });
