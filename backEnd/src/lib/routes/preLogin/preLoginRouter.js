@@ -1,11 +1,11 @@
 //Dependencies
-const loginHandler = require("");
-const signupHandler = require("");
-const googleAuthHandler = require("");
-const responseObject = require("");
-const {MSG} = require("");
+const loginHandler = require("./Handlers/loginHandler");
+const signupHandler = require("./Handlers/signupHandler");
+const googleAuthHandler = require("./Handlers/googleAuthHandler");
+const responseObject = require("../../classObjects/responseClass");
 
-//defining the preLoginRouter object
+
+//defining the module
 const preLoginRouter = {};
 
 //params --> route -- string, requestObject -- object
@@ -35,4 +35,5 @@ preLoginRouter.routes = {
     "notFound": centralHandler.notFound
 };
 
+//export the module
 module.exports = preLoginRouter;
