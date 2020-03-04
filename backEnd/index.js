@@ -12,10 +12,10 @@ var app = {};
 
 
 //define the init method
-app.init = function(callback) {
+app.init = function(runtimeEnvironment,callback) {
 
     //start the server
-    server.init();
+    server.init(runtimeEnvironment);
 };
 
 
