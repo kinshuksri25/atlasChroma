@@ -21,4 +21,7 @@ app.init = function(callback) {
 
 //self invoking only if required directly
 if (require.main == module)
-    app.init(function() {});
+{
+    const runtimeEnvironment = process.argv.slice(2)[0] ? process.argv.slice(2)[0] : "Development";
+    app.init(runtimeEnvironment,function() {});    
+}
