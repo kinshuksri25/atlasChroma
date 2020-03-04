@@ -90,7 +90,18 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
                                     } else {  
                                         //send welcome mail
                                         sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => { 
-                                            response.PAYLOAD == {};
+											getProfileDetails(refreshTokenObject.access_token).then(result => {
+												mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+													response.PAYLOAD.cookieDetails = resolvedResult;
+													response.SMSG = "LOGIN SUCCESSFUL";
+													response.STATUS = 200;
+													resolve(response);
+												}).catch(error => {
+													throw error;
+												});
+											}).catch(reject => {
+												throw reject;
+											});
                                         })
                                         .catch(error => {
                                             response.STATUS = 500;
@@ -101,24 +112,26 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
                                 });   
                             }else{
                                 //set userSession
-                                response.PAYLOAD.cookieDetails = cookieHandler.createCookies(resultSet[0]._id);
+                                cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
+									 //save the user details
+									getProfileDetails(refreshTokenObject.access_token).then(result => {
+										mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+											response.PAYLOAD.cookieDetails = resolvedResult;
+											response.SMSG = "LOGIN SUCCESSFUL";
+											response.STATUS = 200;
+											resolve(response);
+										}).catch(error => {
+											throw error;
+										});
+									}).catch(reject => {
+										throw reject;
+									});
+								}).catch(rejectedResult =>{
+									response.STATUS = 500;
+									response.EMSG = rejectedResult;
+									reject(response);
+								});
                             }
-                            //save the user details
-                            getProfileDetails(refreshTokenObject.access_token).then(result => {
-                                mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
-
-                                    response.SMSG = "LOGIN SUCCESSFUL";
-                                    response.STATUS = 200;
-                                }).catch(error => {
-                                    response.STATUS = 500;
-                                    response.EMSG = error;
-                                    reject(response);
-                                });
-                            }).catch(reject => {
-                                response.STATUS = 500;
-                                response.EMSG = error;
-                                reject(response);
-                            });
                         }else{
                             //save refreshToken
                             mongo.update(dbConstants.userCollection, { _id: resultSet[0]._id }, { $set: { RefreshToken: refreshTokenObject.refresh_token } }, {}, SINGLE).then(updateSet => {
@@ -131,8 +144,21 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
                                             reject(response);
                                         } else {  
                                             //send welcome mail
-                                            sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => { 
-                                                response.PAYLOAD == {};
+                                            sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => {  
+                                                getProfileDetails(refreshTokenObject.access_token).then(result => {
+                                                    mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                                        response.PAYLOAD = {};
+                                                        response.SMSG = "LOGIN SUCCESSFUL";
+                                                        response.STATUS = 200;
+                                                        resolve(response);
+                                                    }).catch(error => {
+                                                        throw error;    
+                                                    });
+                                                }).catch(reject => {
+                                                    response.STATUS = 500;
+                                                    response.EMSG = error;
+                                                    reject(response);
+                                                });
                                             })
                                             .catch(error => {
                                                 response.STATUS = 500;
@@ -143,28 +169,26 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
                                     });
                                 }else{
                                     //set userSession
-                                    response.PAYLOAD.cookieDetails = cookieHandler.createCookies(resultSet[0]._id);
-                                }
-                                //save the user details
-                                getProfileDetails(refreshTokenObject.access_token).then(result => {
-                                    mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
-
-                                        response.SMSG = "LOGIN SUCCESSFUL";
-                                        response.STATUS = 200;
-                                    }).catch(error => {
-                                        response.STATUS = 500;
-                                        response.EMSG = error;
-                                        reject(response);
+                                    cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
+                                         //save the user details
+                                        getProfileDetails(refreshTokenObject.access_token).then(result => {
+                                            mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                                response.PAYLOAD.cookieDetails = resolvedResult;
+                                                response.SMSG = "LOGIN SUCCESSFUL";
+                                                response.STATUS = 200;
+                                                resolve(response);
+                                            }).catch(error => {
+                                                throw error;    
+                                            });
+                                        }).catch(reject => {
+                                            throw reject;
+                                        });
+                                    }).catch(rejectedResult =>{
+                                       throw rejectedResult;
                                     });
-                                }).catch(reject => {
-                                    response.STATUS = 500;
-                                    response.EMSG = error;
-                                    reject(response);
-                                });
+                                } 
                             }).catch(error => {
-                                response.STATUS = 500;
-                                response.EMSG = error;
-                                reject(response);
+                               throw error;
                             });       
                         }
                     }).catch(error => {
@@ -225,11 +249,15 @@ googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,rejec
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
                 mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { UserName: requestObject.reqBody.UserName, Password: requestObject.reqBody.Password, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
-                    response.PAYLOAD.cookieDetails = cookieHandler.createCookies(resultSet[0]._id);
-                    //TODO --> add the below mentioned msg to MSG
-                    response.SMSG = "LOGIN SUCCESSFUL";
-                    response.STATUS = 200;
-                    resolve(response);
+                    cookieHandler.createCookies(resultSet[0]._id).then(resolvedResult => {
+                         response.PAYLOAD.cookieDetails =resolvedResult;
+                         response.SMSG = "LOGIN SUCCESSFUL";
+                         response.STATUS = 200;
+                         resolve(response);
+                    }).catch(rejectedResult => {
+                        response.EMSG = rejectedResult;
+                        response.STATUS = 400;
+                    });
                 }).catch(error => {
                     throw error;
                 });
