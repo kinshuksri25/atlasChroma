@@ -8,7 +8,7 @@ const cookieHandler = {};
 
 cookieHandler.createCookies = (requestObjectID,UserName)  = new Promise ((resolve,reject) =>{
     let newCookie = new cookies(requestObjectID);
-    client.set(requestObjectID,UserName, "value", (err,res) => {
+    client.set(requestObjectID,UserName, (err,res) => {
         if(err){
             console.log("UNABLE TO CACHE DATA");
             reject("UNABLE TO CACHE DATA");
@@ -21,7 +21,16 @@ cookieHandler.createCookies = (requestObjectID,UserName)  = new Promise ((resolv
 
 cookieHandler.checkCookie = (cookieObject) = new Promise ((resolve,reject) => {
     //check cookies
-    resolve(true);
+    let cookieValidity = false;
+    client.get(cookieObject.cookieID, (err,res) => {
+        if(err){
+            console.log("UNABLE TO FETCH DATA");
+            reject("UNABLE TO FETCH DATA");
+        }else{
+           cookieValidity = res != undefined || res != "" ? true : false;
+           resolve(cookieValidity);
+        }
+    });  
 });
 
 //export the module
