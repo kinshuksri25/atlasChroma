@@ -40,11 +40,7 @@ server.unifiedServer = (req, res) => {
     let requestBodyString = "";
     let chosenHandler;
     let requestObject = {};
-    let responsePayload = {
-        'Payload': {},
-        'Status': ""
-    };
-
+    
     //streaming in the req body in case of post req
     req.on("data", function(chunk) {
         requestBodyString += chunk;
@@ -56,7 +52,7 @@ server.unifiedServer = (req, res) => {
         //this is specific to post req
         requestBodyString += decoder.end();
 
-        requestBodyString = method == "POST" ? JSON.parse(requestBodyString) : {};
+        requestBodyString = method == "POST" || method == "PUT" ? JSON.parse(requestBodyString) : {};
         //the request object sent to the handlers
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
@@ -78,11 +74,11 @@ server.unifiedServer = (req, res) => {
 
 
 //init function
-server.init = () => {
+server.init = runtimeEnvironment => {
     //start the https server
-    //TODO--> Change this to handle changing port and env
-    server.https.listen(5000, function() {
-        console.log('The https server is listening on port 5000 in Development mode');
+    const port = runtimeEnvironment == "Development" ? 5000 : 8000;
+    server.https.listen(port, function() {
+        console.log('The https server is listening on port ${port} in ${runtimeEnvironement} mode');
     });
 };
 
