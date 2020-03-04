@@ -1,8 +1,7 @@
 //Dependencies
-const mongo = require("");
-const encryptionAPI = require("");
-const {MSG} = require("");
-const cookieHandler = require("");
+const mongo = require("../../../utils/data");
+const encryptionAPI = require("../../../utils/encryptionAPI");
+const cookieHandler = require("../../../utils/cookieHandler");
 
 //declaring the module
 const loginHandler = {};
