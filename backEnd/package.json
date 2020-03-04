@@ -4,8 +4,8 @@
   "description": "backend for atlas chroma",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon index.js development",
-    "start" : "node index.js production"
+    "devStart": "nodemon index.js Development",
+    "start" : "node index.js Production"
   },
   "keywords": [
     "atlas chroma"
