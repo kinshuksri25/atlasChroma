@@ -1,12 +1,10 @@
 //Dependencies
-const mongo = require("");
-const encryptionAPI = require("");
-const {MSG,Constants,SINGLE} = require("");
-const cookieHandler = require("");
-const userObject = require("");
-const randValueGenerator = require("");
-const emailTemplate = require("");
-const fs =  require("");
+const mongo = require("../../../utils/data");
+const encryptionAPI = require("../../../utils/encryptionAPI");
+const cookieHandler = require("../../../utils/cookieHandler");
+const userObject = require("../../../classObjects/userClass");
+const {randValueGenerator} = require("../../../utils/helper");
+const fs =  require("fs");
 
 //declaring the module
 const signupHandler = {};
@@ -76,7 +74,6 @@ signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
             reject(response);
         });           
     }else{
-        //TODO --> add the below mentioned msg to MSG
         response.EMSG = "INVALID REQUEST MADE";
         response.STATUS = 400; // --> request syntax is invalid
         reject(response);
@@ -113,7 +110,6 @@ signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject)
             reject(response);
         });       
     }else{
-          //TODO --> add the below mentioned msg to MSG
           response.EMSG = "INVALID REQUEST MADE";
           response.STATUS = 400; // --> request syntax is invalid
           reject(response);   
@@ -158,12 +154,11 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
         });
 
     }else{
-          //TODO --> add the below mentioned msg to MSG
           response.EMSG = "INVALID REQUEST MADE";
           response.STATUS = 400; // --> request syntax is invalid
           reject(response);   
     }
 });
 
-//exporting the module
+//export the module
 module.exports = signupHandler;
