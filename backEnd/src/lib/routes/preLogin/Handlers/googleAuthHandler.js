@@ -1,12 +1,8 @@
 //Dependencies
-const mongo = require("");
-const encryptionAPI = require("");
-const {MSG,Constants,SINGLE} = require("");
-const cookieHandler = require("");
-const randValueGenerator = require("");
-const emailTemplate = require("");
-
-//TODO --> need to change the all the msgs
+const mongo = require("../../../utils/data");
+const encryptionAPI = require("../../../utils/encryptionAPI");
+const cookieHandler = require("../../../utils/cookieHandler");
+const {randValueGenerator} = require("../../../utils/helper");
 
 //declaring the module
 let googleAuthHandler = {};
