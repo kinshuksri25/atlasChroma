@@ -1,27 +1,32 @@
+/*
+* Signup handler
+*/
+
 //Dependencies
 const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
-const userObject = require("../../../classObjects/userClass");
+const user = require("../../../classObjects/userClass");
+const {EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
+const loginHandler = require("./loginhandlers");
 const {randValueGenerator} = require("../../../utils/helper");
-const fs =  require("fs");
+
 
 //declaring the module
 const signupHandler = {};
 
+//signup route handler
 //params --> requestObject -- object
 //returns --> promise(object)
 signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
 
     let response = {};
-
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
-
         //set userObject 
-        let userObject = new userObject(randValueGenerator(),
-                                        requestObject.reqBody.Email,
-                                        requestObject.reqBody.UserName,
-                                        encryptionAPI.hash(requestObject.reqBody.Password));                                      
+        let userObject = new user(randValueGenerator(),
+                                  requestObject.reqBody.Email,
+                                  requestObject.reqBody.UserName,
+                                  encryptionAPI.hash(requestObject.reqBody.Password));                                      
         //save the user details
         mongo.insert(dbConstants.userCollection, userObject.getUser(), {}).then(insertSet => {
 
@@ -36,35 +41,23 @@ signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
             loginObject.reqBody.Password = requestObject.reqBody.Password;
 
             //call the login function to log user in
-            handlers.login(loginObject).then(result => {
-                fs.readFile(emailTemplate.WELCOMEMAIL, function(error, data) {  
-                    if (error) {
-                        mongo.delete(dbConstants.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
-                        .catch(error => {
-                           //TODO --> add this delete to cron job     
-                        });
-                        response.STATUS = 500;
-                        response.EMSG = "UNABLE TO SIGN THE USER UP, PLEASE TRY SIGNING UP AGAIN, OR TRY GOOGLE LOGIN";
-                        reject(response);
-                    } else {  
-                        //send welcome mail
-                        sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => {   
-                            //send the response 
-                            response.SMSG = "SIGNUP SUCCESSFUL";
-                            response.STATUS = 200;
-                            response.PAYLOAD.unquieID = result.PAYLOAD.unquieID;
-                            resolve(response);       
-                        }).catch(error => {
-                            mongo.delete(dbConstants.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
-                            .catch(error => {
-                               //TODO --> add this delete to cron job     
-                            });
-                            response.STATUS = 500;
-                            response.EMSG = "UNABLE TO SIGN THE USER UP, PLEASE TRY SIGNING UP AGAIN, OR TRY GOOGLE LOGIN";
-                            reject(response);
-                        }); 
-                    }  
-                });              
+            loginHandler.login(loginObject).then(result => {
+                //send welcome mail
+                sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.refreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
+                    //send the response 
+                    response.SMSG = SMSG.SVR_SNGH_SGNSUC;
+                    response.STATUS = 200;
+                    response.PAYLOAD.unquieID = result.PAYLOAD.unquieID;
+                    resolve(response);       
+                }).catch(error => {
+                    mongo.delete(dbConstants.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
+                    .catch(error => {
+                        //TODO --> add this delete to cron job     
+                    });
+                    response.STATUS = 500;
+                    response.EMSG = EMSG.SVR_SGNH_UNSGNUP;
+                    reject(response);
+                });    
             }).catch(error =>{
                 reject(error);
             }); 
@@ -74,13 +67,14 @@ signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
             reject(response);
         });           
     }else{
-        response.EMSG = "INVALID REQUEST MADE";
-        response.STATUS = 400; // --> request syntax is invalid
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        response.STATUS = 400; 
         reject(response);
     }
 
 });
 
+//checking user availability handler
 //params -->  requestObject -- object
 //return --> promise(object)
 signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject) => {
@@ -96,12 +90,12 @@ signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject)
 
                 response.STATUS = 200;
                 response.PAYLOAD = {};
-                response.SMSG = "NO USER EXISTS FOR THIS DATA";
+                response.SMSG = SMSG.SVR_SGNH_NUSR;
                 //return response
                 resolve(response);   
             }else{
                 response.STATUS = 200;
-                response.EMSG = "USER ALREADY EXISTS";
+                response.EMSG = EMSG.SVR_SGNH_EUSR;
                 reject(response);
             }
         }).catch(error => {
@@ -110,12 +104,13 @@ signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject)
             reject(response);
         });       
     }else{
-          response.EMSG = "INVALID REQUEST MADE";
-          response.STATUS = 400; // --> request syntax is invalid
+          response.EMSG = EMSG.SVR_HNDLS_INREQ;
+          response.STATUS = 400; 
           reject(response);   
     }
 });
 
+//post signup form route handler
 //params -->  requestObject -- object
 //return --> promise(object)
 signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject) => {
@@ -129,11 +124,11 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
                 mongo.update(dbConstants.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
                         response.STATUS = 200;
-                        response.SMSG = "SIGNUP SUCCESSFUL";
+                        response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
                         response.PAYLOAD.cookieObject = resolvedResult;
                     }).catch(rejectedResult => {
                         response.STATUS = 500;
-                        response.EMSG = "UNABLE TO LOG THE USER IN";
+                        response.EMSG = EMSG.SVR_LGNH_LGNUSUC;
                         reject(response);
                     });
                     resolve(response);
@@ -144,7 +139,7 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
                 });
             }else{
                 response.STATUS = 400;
-                response.EMSG = "INVALID USER";
+                response.EMSG = EMSG.SVR_SGNH_INUSR;
                 reject(response);
             } 
         }).catch(error => {
@@ -154,7 +149,7 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
         });
 
     }else{
-          response.EMSG = "INVALID REQUEST MADE";
+          response.EMSG = EMSG.SVR_HNDLS_INREQ;
           response.STATUS = 400; // --> request syntax is invalid
           reject(response);   
     }

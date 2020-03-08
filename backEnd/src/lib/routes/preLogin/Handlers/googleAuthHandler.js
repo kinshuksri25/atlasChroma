@@ -1,14 +1,23 @@
+/*
+* OAuth Handler
+*/
+
 //Dependencies
 const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
 const {randValueGenerator} = require("../../../utils/helper");
+const user = require("../../../classObjects/userClass");
+const googleApis = require("../../../googleApis/googleAPI");
+const {EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
 
 //declaring the module
 let googleAuthHandler = {};
 
+
+//oauth url creation handler
 //params --> requestObject -- object
-//return --> promise(object)
+//return --> promise - object
 googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) => {
 
     let state = randValueGenerator(15);
@@ -21,15 +30,15 @@ googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) =>
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
                 //set user object
-                let googleSignUpUserObject = new userObject(randValueGenerator(),requestObject.reqBody.Email,"","","", state);          
+                let googleSignUpUserObject = new user(_id = randValueGenerator(),Email = requestObject.reqBody.Email,state = state);          
                 //save user credentials 
                 mongo.insert(dbConstants.userCollection, googleSignUpUserObject, {}).then(insertSet => {
                     
                     //TODO --> add google interface
                     //build auth url
                     response.STATUS = 200;
-                    response.SMSG = "New User Discovered,Google Authentication url built successfully";
-                    response.PAYLOAD.authURL =  buildAuthURL(requestObject.queryObject.Email,state); 
+                    response.SMSG = EMSG.SVR_OATH_NURLSUC;
+                    response.PAYLOAD.authURL =  googleApis.buildAuthURL(requestObject.queryObject.Email,state); 
                     //send the response
                     resolve(authURL); 
                     
@@ -42,8 +51,8 @@ googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) =>
                     //TODO --> add google interface
                     //build auth url
                     response.STATUS = 200;
-                    response.SMSG = "Welcome Back!,Google Authentication url built successfully";
-                    response.PAYLOAD.authURL =  buildAuthURL(requestObject.queryObject.Email,state); 
+                    response.SMSG = EMSG.SVR_OATH_URLSUC;
+                    response.PAYLOAD.authURL =  googleApis.buildAuthURL(requestObject.queryObject.Email,state); 
                     //send the response
                     resolve(authURL);    
 
@@ -57,63 +66,54 @@ googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) =>
             reject(response);
         });
     }else{
-        //TODO --> add the below mentioned msg to MSG
-        response.EMSG = "INVALID REQUEST MADE";
-        response.STATUS = 400; // --> request syntax is invalid
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        response.STATUS = 400;
         reject(response);   
     }
 });
 
-
+//post auth handler
 //params --> requestObject -- object
-//return --> promise(object)
+//return --> promise - object
 googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
     let response = {};
     if(requestObject.reqBody.state != undefined && requestObject.reqBody.method == "POST"){
         mongo.read(dbConstants.userCollection,{ State: requestObject.reqBody.state }, {}).then(resultSet => {
             if(requestObject.reqBody.code != undefined && requestObject.reqBody.error == undefined){
                 if (JSON.stringify(resultSet) != JSON.stringify([])){
-                    //get refresh token
-                    generateInitialAccessToken(requestObject.reqBody.code).then(refreshTokenObject => {
-                        if(refreshTokenObject.refresh_token == undefined){
+                    if(resultSet[0].RefreshToken == ""){
+                        //get access_token
+                        googleApis.getRefAccessToken(requestObject.reqBody.code).then(refreshTokenObject => {
                             //check for new user 
                             if(resultSet[0].Password == "" && resultSet[0].UserName == ""){
-                                fs.readFile(emailTemplate.WELCOMEMAIL, function(error, data) {  
-                                    if (error) {
-                                        response.STATUS = 500;
-                                        response.EMSG = "UNABLE TO LOGIN USING GOOGLE";
-                                        reject(response);
-                                    } else {  
-                                        //send welcome mail
-                                        sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => { 
-											getProfileDetails(refreshTokenObject.access_token).then(result => {
-												mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
-													response.PAYLOAD.cookieDetails = resolvedResult;
-													response.SMSG = "LOGIN SUCCESSFUL";
-													response.STATUS = 200;
-													resolve(response);
-												}).catch(error => {
-													throw error;
-												});
-											}).catch(reject => {
-												throw reject;
-											});
-                                        })
-                                        .catch(error => {
-                                            response.STATUS = 500;
-                                            response.EMSG = "UNABLE TO LOGIN USING GOOGLE";
-                                            reject(response);
-                                        }); 
-                                    }  
-                                });   
+                                //send welcome mail
+                                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.refreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => { 
+                                    googleApis.getUserDetails(resultSet[0].RefreshToken).then(result => {
+                                        mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name, RefreshToken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
+                                            response.PAYLOAD.cookieDetails = resolvedResult;
+                                            response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                                            response.STATUS = 200;
+                                            resolve(response);
+                                        }).catch(error => {
+                                            throw error;
+                                        });
+                                    }).catch(reject => {
+                                        throw reject;
+                                    });
+                                }).catch(error => {
+                                    console.log(error);
+                                    response.STATUS = 500;
+                                    response.EMSG = EMSG.SVR_OATH_LGNUSUC;
+                                    reject(response);
+                                });  
                             }else{
                                 //set userSession
                                 cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
 									 //save the user details
-									getProfileDetails(refreshTokenObject.access_token).then(result => {
+                                     googleApis.getUserDetails(resultSet[0].RefreshToken).then(result => {
 										mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
 											response.PAYLOAD.cookieDetails = resolvedResult;
-											response.SMSG = "LOGIN SUCCESSFUL";
+											response.SMSG = SMSG.SVR_OATH_LGNSUC;
 											response.STATUS = 200;
 											resolve(response);
 										}).catch(error => {
@@ -123,99 +123,85 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
 										throw reject;
 									});
 								}).catch(rejectedResult =>{
-									response.STATUS = 500;
-									response.EMSG = rejectedResult;
-									reject(response);
+                                    throw rejectedResult;
 								});
                             }
-                        }else{
-                            //save refreshToken
-                            mongo.update(dbConstants.userCollection, { _id: resultSet[0]._id }, { $set: { RefreshToken: refreshTokenObject.refresh_token } }, {}, SINGLE).then(updateSet => {
-                                //check for new user 
-                                if(resultSet[0].Password == "" && resultSet[0].UserName == ""){
-                                    fs.readFile(emailTemplate.WELCOMEMAIL, function(error, data) {  
-                                        if (error) {
-                                            response.STATUS = 500;
-                                            response.EMSG = "UNABLE TO SIGN THE USER UP, PLEASE TRY SIGNING UP AGAIN, OR TRY GOOGLE LOGIN";
-                                            reject(response);
-                                        } else {  
-                                            //send welcome mail
-                                            sendEmail(senderEmail,requestObject.reqBody.Email,emailCredentials.refreshToken,loginAuth.clientID,loginAuth.clientSecret,"Welcome to Atlas Chroma",data).then(resolveResult => {  
-                                                getProfileDetails(refreshTokenObject.access_token).then(result => {
-                                                    mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
-                                                        response.PAYLOAD = {};
-                                                        response.SMSG = "LOGIN SUCCESSFUL";
-                                                        response.STATUS = 200;
-                                                        resolve(response);
-                                                    }).catch(error => {
-                                                        throw error;    
-                                                    });
-                                                }).catch(reject => {
-                                                    response.STATUS = 500;
-                                                    response.EMSG = error;
-                                                    reject(response);
-                                                });
-                                            })
-                                            .catch(error => {
-                                                response.STATUS = 500;
-                                                response.EMSG = "UNABLE TO SIGN THE USER UP, PLEASE TRY SIGNING UP AGAIN, OR TRY GOOGLE LOGIN";
-                                                reject(response);
-                                            }); 
-                                        }  
+                        }).catch(error => {
+                            console.log(error);
+                            response.STATUS = 500;
+                            response.EMSG = error;
+                            reject(response);
+                        });       
+                    }else{      
+                        //check for new user 
+                        if(resultSet[0].Password == "" && resultSet[0].UserName == ""){
+                            //send welcome mail
+                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.refreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {  
+                                googleApis.getUserDetails(resultSet[0].RefreshToken).then(result => {
+                                    mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                        response.PAYLOAD = {};
+                                        response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                                        response.STATUS = 200;
+                                        resolve(response);
+                                    }).catch(error => {
+                                        throw error;    
                                     });
-                                }else{
-                                    //set userSession
-                                    cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
-                                         //save the user details
-                                        getProfileDetails(refreshTokenObject.access_token).then(result => {
-                                            mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
-                                                response.PAYLOAD.cookieDetails = resolvedResult;
-                                                response.SMSG = "LOGIN SUCCESSFUL";
-                                                response.STATUS = 200;
-                                                resolve(response);
-                                            }).catch(error => {
-                                                throw error;    
-                                            });
-                                        }).catch(reject => {
-                                            throw reject;
-                                        });
-                                    }).catch(rejectedResult =>{
-                                       throw rejectedResult;
-                                    });
-                                } 
+                                }).catch(reject => {
+                                    throw reject;
+                                });
                             }).catch(error => {
-                               throw error;
-                            });       
-                        }
-                    }).catch(error => {
-                        response.STATUS = 500;
-                        response.EMSG = error;
-                        reject(response);
-                    });  
-                    
+                                console.log(error);
+                                response.STATUS = 500;
+                                response.EMSG = EMSG.SVR_OATH_LGNUSUC;
+                                reject(response);
+                            }); 
+                        }else{
+                            //set userSession
+                            cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
+                                    //save the user details
+                                    googleApis.getUserDetails(resultSet[0].RefreshToken).then(result => {
+                                    mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { FirstName: result.given_name, LastName: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                        response.PAYLOAD.cookieDetails = resolvedResult;
+                                        response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                                        response.STATUS = 200;
+                                        resolve(response);
+                                    }).catch(error => {
+                                        throw error;    
+                                    });
+                                }).catch(reject => {
+                                    throw reject;
+                                });
+                            }).catch(rejectedResult =>{
+                                console.log(rejectedResult);
+                                response.STATUS = 500;
+                                response.EMSG = rejectedResult;
+                                reject(response);
+                            });
+                        }      
+                    }        
                 }else{
-                    response.EMSG = "INVALID REQUEST MADE";
-                    response.STATUS = 400; // --> request syntax is invalid
+                    response.EMSG = EMSG.SVR_HNDLS_INREQ;
+                    response.STATUS = 400; 
                     reject(response);
                 }
             }else{
                 //delete the user data 
                 resultSet[0].Password == "" && mongo.delete(dbConstants.userCollection, { State: requestObject.reqBody.state }, {}, SINGLE).then(updateSet => {
                     response.STATUS = 400;
-                    response.EMSG = "THE USER DENIED LOGIN";
+                    response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
                 }).catch(error => {
-                    //TODO --> add scheduler to handle this user case
+                    //TODO --> add scheduler to handle this use case
                     response.STATUS = 500;
                     response.EMSG = error;
                     reject(response);
                 });
                 resultSet[0].Password != "" && mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { RefreshToken: "" } }, {}, SINGLE).then(updateSet => {
                     response.STATUS = 400;
-                    response.EMSG = "THE USER DENIED LOGIN";
+                    response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
                 }).catch(error => {
-                    //TODO --> add scheduler to handle this user case
+                    //TODO --> add scheduler to handle this use case
                     response.STATUS = 500;
                     response.EMSG = error;
                     reject(response);
@@ -227,15 +213,15 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
             reject(response); 
         }); 
     }else{
-         //TODO --> add the below mentioned msg to MSG
-        response.EMSG = "INVALID REQUEST MADE";
-        response.STATUS = 400; // --> request syntax is invalid
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        response.STATUS = 400;
         reject(response);   
     }
 });
 
+//post auth form handler
 //params --> requestObject -- object
-//return --> promise(object)
+//return --> promise - object
 googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,reject) => {
     let response = {};
     //check the requestObject
@@ -247,7 +233,7 @@ googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,rejec
                 mongo.update(dbConstants.userCollection, { State: requestObject.reqBody.state }, { $set: { UserName: requestObject.reqBody.UserName, Password: requestObject.reqBody.Password, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
                     cookieHandler.createCookies(resultSet[0]._id).then(resolvedResult => {
                          response.PAYLOAD.cookieDetails =resolvedResult;
-                         response.SMSG = "LOGIN SUCCESSFUL";
+                         response.SMSG = SMSG.SVR_OATH_LGNSUC;
                          response.STATUS = 200;
                          resolve(response);
                     }).catch(rejectedResult => {
@@ -258,8 +244,8 @@ googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,rejec
                     throw error;
                 });
             }else{
-                response.EMSG = "Invalid state!";
-                response.STATUS = 400; // --> request syntax is invalid
+                response.EMSG = EMSG.SVR_OATH_INST;
+                response.STATUS = 400; 
                 reject(response);   
             } 
         }).catch(error => {
@@ -269,9 +255,8 @@ googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,rejec
         });
 
     }else{
-        //TODO --> add the below mentioned msg to MSG
-        response.EMSG = "INVALID REQUEST MADE";
-        response.STATUS = 400; // --> request syntax is invalid
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        response.STATUS = 400;
         reject(response);   
     }
 });

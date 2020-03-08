@@ -2,8 +2,6 @@
 
 //Dependencies
 const nodemailer = require("nodemailer");
-const {refreshAccessToken} = require('./auth');
-const {ERRORS} = require('../../../../lib/constants/dataConstants');
 
 //declaring the module
 const email = {};
@@ -31,7 +29,8 @@ email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,
         
             smtpTransport.sendMail(mailOptions, (error, response) => {
             if(error){
-                reject(error);
+                console.log(error)
+                reject(false);
             }else{
                 resolve(true);
             }    

@@ -4,35 +4,42 @@
 const https = require("https");
 const url = require('url');
 const stringdecoder = require('string_decoder').StringDecoder;
-const {ERRORS} = require ('../../../../lib/constants/dataConstants');
+const {EMSG} = require ('../../../../lib/constants/constants');
+
 const decoder = new stringdecoder('utf-8');
 
 //declaring the module
 const auth = {};
 
-//auth url contruction 
+//function for auth url contruction 
+//params --> email -string, uniqueState - string, authUrlTemplate - string, currentScopes - object, appAuthDetails - object
+//returns --> authurl - string
 auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDetails) => {
 
-    if(email != "" && uniqueState != "" && currentScopes != [] && appAuthDetails != {}){
+    if(email != "" && uniqueState != "" && JSON.stringify(currentScopes) != JSON.stringify({}) && JSON.stringify(appAuthDetails) != JSON.stringify({})){
         let scopes = "";
-        for(let i=0;i<currentScopes.length;i++)
+        let counter = 0;
+        for(let scope in currentScopes)
         {
-           if(i == currentScopes.length-1){
-               scopes += currentScopes[i];
+           if(counter == Object.keys(currentScopes).length){
+               scopes += currentScopes[scope];
            }else{
-               scopes += currentScopes[i]+"+";
+               scopes += currentScopes[scope]+"+";
            }
+           counter ++;
         }    
         let authUrl =  authUrlTemplate+"?scope="+scopes+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+appAuthDetails.redirectURL+"&client_id="+appAuthDetails.clientID;
         return authUrl;
     }else{
-        console.log("INVALID REQUEST PARAMS");
+        console.log(EMSG.SVR_OAUTH_URLERR);
         return "";
     }
 
 };
 
-//token retrival 
+//function for token retrival
+//params --> authRequest - object
+//returns --> promise - tokenObject 
 auth.tokenGeneration = (authRequest) => new Promise((resolve,reject) => {
     
     let parsedUrl = url.parse(authRequest.refreshTokenURL);
@@ -81,7 +88,7 @@ auth.tokenGeneration = (authRequest) => new Promise((resolve,reject) => {
         //error checking
         accessTokenReq.on('error', (error) => {
             console.log(error.message);
-            reject(ERRORS.ERR_GGLCONN_SVR);
+            reject(EMSG.SVR_OAUTH_CONNERR);
         });
 
         //send request

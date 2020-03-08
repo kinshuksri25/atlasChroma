@@ -10,8 +10,8 @@ const {ERRORS} = require('../../../../lib/constants/dataConstants');
 //declaring the module
 const profile = {};
 
-profile.getProfileDetails = (accessToken,profileScope) => new Promise((resolve,reject) => {
-    let requestUrl = profileScope + "?access_token=" + accessToken;
+profile.getProfileDetails = (accessTokenObject,profileScope) => new Promise((resolve,reject) => {
+    let requestUrl = profileScope + "?access_token=" + accessTokenObject.access_token;
 
     let profileDetailsRequest = https.request(requestUrl,function(response){
         let responseString = '';

@@ -1,60 +1,102 @@
+/*
+* OAuth Interface
+*/
+
 //Dependencies
-const auth = require("");
-const profile = require("");
-const email = require("");
-const CONSTANTS = require("");
+const fs = require("fs");
+const auth = require("./lib/auth");
+const profile = require("./lib/profile");
+const email = require("./lib/email");
+const {OAuthCONST,EMSG} = require("../../../../lib/constants/contants");
+
 
 //declaring the module
 const googleApis = {};
 
-googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data) = new Promise((resolve,reject) => {
-    googleApis.getRefreshToken(refreshToken).then(resolvedResult => {
-        email.sendEmail(senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data,resolvedResult).then(resolvedResult => {
-            return (resolvedResult);
+//function for sending emails
+//params --> senderEmail - string, recieverEmail - string, refreshToken - string, clientID - string, clientSecret - string, emailTemplate - object
+//returns --> promise - boolean
+googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate) = new Promise((resolve,reject) => {
+   //get the template data
+   fs.readFile(emailTemplate.templateLocation, function(error, data) {  
+    if (error) {
+        console.log(error);
+        reject(false);
+    } else { 
+        //get access token 
+        googleApis.getAccessToken(refreshToken).then(resolvedResult => {
+            //send the email
+            email.sendEmail(senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate.templateHeader,data,resolvedResult).then(resolvedResult => {
+                resolve (true);
+            }).catch(rejectedResult => {
+                console.log(rejectedResult);
+                throw EMSG.SVR_OAUTH_EMLERR;
+            });
         }).catch(rejectedResult => {
-          throw rejectedResult;
+            reject(false);
         });
-    }).catch(rejectedResult => {
-      reject(rejectedResult);
-    });
+    }  
+});   
 });
 
+
+//function for building google oauth url
+//params --> userEmail,uniqueState
+//returns --> promise - string
 googleApis.buildAuthURL = (userEmail,uniqueState) => {
-    let authURL = auth.buildAuthURL(userEmail,uniqueState,CONSTANTS.authUrlTemplate,CONSTANTS.scopes,CONSTANTS.appAuth);
+    let authURL = auth.buildAuthURL(userEmail,uniqueState,OAuthCONST.authUrlTemplate,OAuthCONST.scopes,OAuthCONST.appAuth);
     return authURL;
 };
 
-googleApis.getAccessToken = (authCode) = new Promise((resolve,reject) => {
+
+//function for getting refresh/access tokens 
+//params --> authCode - string
+//returns --> promise - object
+googleApis.getRefAccessToken = (authCode) = new Promise((resolve,reject) => {
     let authRequest = {
         "authCode" : authCode,
-        "refreshTokenURL" : refreshTokenURL,
-        "appAuthDetails" : CONSTANTS.appAuth
+        "refreshTokenURL" : OAuthCONST.refreshTokenURL,
+        "appAuthDetails" : OAuthCONST.appAuth
     };
     auth.tokenGeneration(authRequest).then(resolvedResult => {
-        return (resolveResult);  
+        resolve (resolvedResult);  
     }).catch(rejectedResult => {
-        return(rejectedResult);
+        console.log(rejectedResult);
+        reject (EMSG.SVR_OAUTH_CONNERR);
     });
 });
 
-googleApis.getRefreshToken = (refreshToken) = new Promise((resolve,reject) => {
+//function for getting access tokens 
+//params --> refreshToken - string
+//returns --> promise - object
+googleApis.getAccessToken = (refreshToken) = new Promise((resolve,reject) => {
     let authRequest = {
         "refreshToken" : refreshToken,
-        "refreshTokenURL" : refreshTokenURL,
-        "appAuthDetails" : CONSTANTS.appAuth
+        "refreshTokenURL" : OAuthCONST.refreshTokenURL,
+        "appAuthDetails" : OAuthCONST.appAuth
     };
     auth.tokenGeneration(authRequest).then(resolvedResult => {
-        return (resolveResult);  
+        resolve (resolvedResult);  
     }).catch(rejectedResult => {
-        return(rejectedResult);
+        console.log(rejectedResult);
+        reject (EMSG.SVR_OAUTH_CONNERR);
     });
 });
 
-googleApis.getUserDetails = (accessToken) = new Promise((resolve,reject) => {
-    profile.getProfileDetails(accessToken,CONSTANTS.scopes.PROFILE).then(resolvedResult => {
-        return (resolvedResult);
+//function for getting userProfile details from google 
+//params --> refreshToken - string
+//returns --> promise - object
+googleApis.getUserDetails = (refreshToken) = new Promise((resolve,reject) => {
+    //get access token 
+    googleApis.getAccessToken(refreshToken).then(resolvedResult => {
+        profile.getProfileDetails(resolvedResult,OAuthCONST.scopeDetails.PROFILE).then(resolvedResult => {
+            resolve (resolvedResult);
+        }).catch(rejectedResult => {
+            throw rejectedResult;
+        });
     }).catch(rejectedResult => {
-        return(rejectedResult);
+        console.log(rejectedResult);
+        reject(EMSG.SVR_OAUTH_CONNERR);
     });
 });
 

@@ -1,3 +1,7 @@
+/*
+* Central Router for the backend 
+*/
+
 //Dependencies
 const preLoginRouter = require("./preLogin/preLoginRouter");
 const postLoginRouter = require("postLogin/postLoginRouter");
@@ -5,8 +9,9 @@ const postLoginRouter = require("postLogin/postLoginRouter");
 //defining the module
 const router = {};
 
+//central router for entire backend
 //params --> route -- string, requestObject -- object
-//returns --> promise(object)
+//returns --> promise - object
 router.router = (route,requestObject) => new Promise((resolve,reject) => {
 
     let loginRegex = "";

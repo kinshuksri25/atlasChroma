@@ -4,13 +4,13 @@
 
 //Dependencies
 let mongoDB = require('mongodb').MongoClient;
-let { dbConstants, ERRORS, SINGLE, MULTIPLE } = require('../../../lib/constants/dataConstants');
+let { DBCONST, EMSG, SINGLE, MULTIPLE } = require('../../../lib/constants/constants');
 
 //mongo object definition
 let mongo = {};
 
-//mongo atlas url
-mongo.url = "mongodb+srv://admin:" + dbConstants.password + "@atlas-cloud-yrwic.mongodb.net/test?retryWrites=true&w=majority";
+//DBaaS url
+mongo.url = "mongodb+srv://admin:" + DBCONST.password + "@atlas-cloud-yrwic.mongodb.net/test?retryWrites=true&w=majority";
 
 //open the connection to the atlas
 mongo.openConnection = url => new Promise((resolve,reject) => {
@@ -19,25 +19,27 @@ mongo.openConnection = url => new Promise((resolve,reject) => {
             resolve(db);
         }).catch(err => {
             console.log(err);
-            reject(ERRORS.ERR_CONN_DB);
+            reject(EMSG.SVR_DAO_CONNERR);
         });
 });
 
 //reading data
-//Params --> collection - string, query - object, options - object
+//params --> collection - string, query - object, options - object
+//returns --> promise
 mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
 
     mongo.openConnection(mongo.url).then(db => {
 
         let resultArr = [];
-        let dbinstance = db.db(dbConstants.DB_NAME);
+        let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
         let cursor = col.find(query, options);
         cursor.each(function(err, doc) {
             if(err)
             {
                 db.close();
-                reject(ERRORS.ERR_RD_DB);    
+                console.log(err);
+                throw err;   
             }else{
                 if(doc != null)
                 {
@@ -50,25 +52,26 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             }
         });
     }).catch(err => {
-        console.log(err);
         reject(ERRORS.ERR_RD_DB);
     });
 });
 
 //writing data
-//Params-->collection - string, payload -array of object, options - object
+//params-->collection - string, payload -array of object, options - object
+//returns --> promise
 mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) => {
 
     mongo.openConnection(mongo.url).then(db => {
 
-        let dbinstance = db.db(dbConstants.DB_NAME);
+        let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
         payload.length == undefined && col.insertOne(payload, options).then(result => {
             db.close();
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_WR_DB);
+            console.log(err);
+            throw err;
         });
 
         payload.length > 1 && col.insertMany(payload, options).then(result => {
@@ -76,21 +79,22 @@ mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) =
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_WR_DB);
+            console.log(err);
+            throw err;
         });
     }).catch(err => {
-        console.log(err);
-        reject(ERRORS.ERR_WR_DB);
+        reject(EMSG.SVR_DAO_WRERR);
     });
 });
 
 //deleting data
-//Params --> collection - string, query - object, options - object,selectionType - integer
+//params --> collection - string, query - object, options - object,selectionType - integer
+//returns --> promise
 mongo.delete = (collection, query, options, selectionType) =>  new Promise((resolve,reject) => {
 
     mongo.openConnection(mongo.url).then(db => {
 
-        let dbinstance = db.db(dbConstants.DB_NAME);
+        let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
 
         selectionType == SINGLE && col.deleteOne(query, options).then(result => {
@@ -98,7 +102,8 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_DL_DB);
+            console.log(err);
+            throw err;
         });
 
         selectionType == MULTIPLE && col.deleteMany(query, options).then(result => {
@@ -106,21 +111,22 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_DL_DB);
+            console.log(err);
+            throw err;
         });
     }).catch(err => {
-        console.log(err);
-        reject(ERRORS.ERR_DL_DB);
+        reject(EMSG.SVR_DAO_DLERR);
     });
 });
 
 //updating data
-//Params --> collection - string, query - object,updatedPayload - object ,options - object,selectionType - integer
+//params --> collection - string, query - object,updatedPayload - object ,options - object,selectionType - integer
+//returns --> promise
 mongo.update = (collection, query, updatedPayload, options, selectionType) =>  new Promise((resolve,reject) => {
 
     mongo.openConnection(mongo.url).then(db => {
 
-        let dbinstance = db.db(dbConstants.DB_NAME);
+        let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
 
         selectionType == SINGLE && col.updateOne(query, updatedPayload, options).then(result => {
@@ -128,7 +134,8 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_UP_DB);
+            console.log(err);
+            throw err;
         });
 
         selectionType == MULTIPLE && col.updateMany(query, updatedPayload, options).then(result => {
@@ -136,11 +143,11 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
             resolve(result);
         }).catch(err => {
             db.close();
-            reject(ERRORS.ERR_UP_DB);
+            console.log(err);
+            throw err;
         });
     }).catch(err => {
-        console.log(err);
-        reject(ERRORS.ERR_UP_DB);
+        reject(EMSG.SVR_DAO_UPERR);
     });
 });
 

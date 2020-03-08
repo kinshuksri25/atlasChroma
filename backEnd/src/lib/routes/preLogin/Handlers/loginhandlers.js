@@ -1,11 +1,17 @@
+/*
+* Login Handler
+*/
+
 //Dependencies
 const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
+const {EMSG,SMSG} = require("../../../../../../lib/constants/contants");
 
 //declaring the module
 const loginHandler = {};
 
+//login route handler
 //params --> requestObject -- object
 //returns --> promise(object)
 loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
@@ -22,43 +28,38 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                     //set userSession
                     if(resultSet[0].FirstName == ""){
                         response.PAYLOAD.unquieID = resultSet[0]._id;
-                        //TODO --> add the below mentioned msg to MSG
-                        response.SMSG = "LOGIN SUCCESSFUL, INCOMPLETE USER DATA AVAILABLE";
+                        response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
                     }else{
                         response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
-                            response.SMSG = "LOGIN SUCCESSFUL";
+                            response.SMSG = SMSG.SVR_LGNH_LGNSUC;
                             response.STATUS = 200;
                             response.PAYLOAD.cookieObject = resolvedResult;
                         }).catch(rejectedResult => {
                             response.STATUS = 500;
-                            response.EMSG = "UNABLE TO LOG THE USER IN";
+                            response.EMSG = rejectedResult;
                             reject(response);
                         });
                     }
                     resolve(response);
                 }else{
-                    //TODO --> add the below mentioned msg to MSG
-                    throw "INVALID PASSWORD!";
+                    throw EMSG.SVR_LGNH_INPASS;
                 }    
             }else{
-                //TODO --> add the below mentioned msg to MSG
-                throw "INVALID EMAIL!";
+                throw EMSG.SVR_LGNH_INEML;
             } 
         }).catch(error => {
             response.EMSG = error;
-            //TODO --> add the below mentioned msg to MSG
-            if(error == "INVALID PASSWORD" || error == "INVALID EMAIL"){
-                response.STATUS = 422; // --> syntax of the request is correct but the values are incorrect
+            if(error == EMSG.SVR_LGN_INPASS || error == EMSG.SVR_LGN_INEML){
+                response.STATUS = 422; 
             }else{
                 response.STATUS = 500;
             }
             reject(response);
         });       
     }else{
-        //TODO --> add the below mentioned msg to MSG
-        response.EMSG = "INVALID REQUEST MADE";
-        response.STATUS = 400; // --> request syntax is invalid
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        response.STATUS = 400; 
         reject(response);   
     }
 });

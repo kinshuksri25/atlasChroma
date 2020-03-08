@@ -1,8 +1,13 @@
-//Dependencies
+/*
+*   Helper Functions
+*/
 
 //declaring the module
 const helperFunctions = {};
 
+//Generates a random value
+//params --> valuelength - integer
+//returns --> randomValue - string
 helperFunctions.randValueGenerator = (valueLength = 10) => {
   let randomValue = "";
   let saltString = "0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
