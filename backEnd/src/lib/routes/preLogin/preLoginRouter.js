@@ -3,11 +3,12 @@
 */
 
 //Dependencies
-const loginHandler = require("./Handlers/loginHandler");
+const loginHandler = require("./Handlers/loginhandlers");
 const signupHandler = require("./Handlers/signupHandler");
 const googleAuthHandler = require("./Handlers/googleAuthHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG} = require("../../../../../lib/constants/contants");
+const router = require("../centalRouter");
 
 
 //defining the module
@@ -16,9 +17,9 @@ const preLoginRouter = {};
 //prelogin router
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
-preLoginRouter.router = (route,requestObject) = new Promise((resolve,reject) => {
+preLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
 
-    let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes.handlers[route] : preLoginRouter.routes.handlers.notFound;
+    let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes[route] : preLoginRouter.routes.notFound;
     chosenHandler(requestObject).then(resolvedResult => {
         let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
         resolve(response.getResponseObject());
@@ -38,7 +39,7 @@ preLoginRouter.routes = {
     "/googleAuth": googleAuthHandler.googleAuth, 
     "/googleAuth/postAuth": googleAuthHandler.postAuth,
     "/googleAuth/postAuthDetails": googleAuthHandler.postAuthDetails,
-    "/notFound": centralHandler.notFound
+    "/notFound": router.notFound
 };
 
 //export the module

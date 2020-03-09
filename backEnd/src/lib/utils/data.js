@@ -4,7 +4,7 @@
 
 //Dependencies
 let mongoDB = require('mongodb').MongoClient;
-let { DBCONST, EMSG, SINGLE, MULTIPLE } = require('../../../lib/constants/constants');
+let { DBCONST, EMSG, SINGLE, MULTIPLE } = require("../../../../lib/constants/contants");
 
 //mongo object definition
 let mongo = {};

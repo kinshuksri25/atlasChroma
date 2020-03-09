@@ -16,7 +16,7 @@ const cookieHandler = {};
 //function for creating cookie objects
 //params --> requestObjectID - string, UserName - string
 //returns --> promise - cookie
-cookieHandler.createCookies = (requestObjectID,UserName)  = new Promise ((resolve,reject) =>{
+cookieHandler.createCookies = (requestObjectID,UserName)  => new Promise ((resolve,reject) =>{
     let newCookie = new cookies(requestObjectID);
     client.set(requestObjectID,UserName, (err,res) => {
         if(err){
@@ -31,7 +31,7 @@ cookieHandler.createCookies = (requestObjectID,UserName)  = new Promise ((resolv
 //function for checking cookie validity
 //params --> cookieObject
 //returns --> promise - boolean
-cookieHandler.checkCookie = (cookieObject) = new Promise ((resolve,reject) => {
+cookieHandler.checkCookie = (cookieObject) => new Promise ((resolve,reject) => {
     //check cookies
     let cookieValidity = false;
     client.get(cookieObject.cookieID, (err,res) => {

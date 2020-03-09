@@ -1,27 +1,27 @@
-//Dependencies
+/*
+* User Handlers
+*/
 
+//Dependencies
+const mongo = require("../../../utils/data");
+const {EMSG,SMSG,} = require("../../../../../../lib/constants/contants");
 
 //declaring the module
 const userHandler = {};
 
 
-userHandler.user = (requestObject) => new Promise((resolve,reject) => {
+userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
     let response = {};
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
-              userHandler.user.get.then(resolvedResult => {
+              userHandler.user.get(route,requestObject).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
               });
               break;
           case "POST" : 
-              userHandler.user.post.then(resolvedResult => {
-                   resolve(resolvedResult);
-              }).catch(rejectedResult => {
-                   reject(rejectedResult);
-              });
               break;
           case "PUT" : 
               break;
@@ -30,12 +30,12 @@ userHandler.user = (requestObject) => new Promise((resolve,reject) => {
         }
     }else{
       response.STATUS = 500;
-      response.EMSG = "METHOD NOT FOUND!";
+      response.EMSG = EMSG.SVR_HDNLS_MTHNTFND;
       reject(response);
     }
 });
 
-userHandler.user.get = (requestObject) = new Promise((resolve,reject) => {
+userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => {
     let response = {};
     let projection = {
         projection: {UserName:1,Email: 1}
@@ -55,7 +55,7 @@ userHandler.user.get = (requestObject) = new Promise((resolve,reject) => {
                     if(resolveSet.length != 0){
                         response.STATUS = 200;
                         response.PAYLOAD.users = {...resultSet[0]};
-                        response.SMSG = "USER FOUND!"  
+                        response.SMSG = SMSG.SVR_UHH_RDUSR;   
                         resolve(response);
                     }
                 }).catch(rejectedSet =>{
@@ -64,12 +64,12 @@ userHandler.user.get = (requestObject) = new Promise((resolve,reject) => {
               }else{
                 response.STATUS = 200;
                 response.PAYLOAD.users = {...resultSet[0]};
-                response.SMSG = "USER FOUND!"  
+                response.SMSG = SMSG.SVR_UHH_RDUSR;  
                 resolve(response);
               } 
         }else{
             response.STATUS = 400;
-            response.EMSG = "INVALID SESSION!!";
+            response.EMSG = EMSG.SVR_HNDLS_INREQ;
             reject(response);     
         }
     }).catch(rejectedResult => {
@@ -85,4 +85,4 @@ userHandler.user.post = (requestObject) = new Promise((resolve,reject) => {
 });
 
 //exporting the module
-module.exports = userHandler.js
+module.exports = userHandler;

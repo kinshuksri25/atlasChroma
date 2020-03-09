@@ -18,15 +18,15 @@ const signupHandler = {};
 //signup route handler
 //params --> requestObject -- object
 //returns --> promise(object)
-signupHandler.signup = (requestObject) = new Promise((resolve,reject) => {
+signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
 
     let response = {};
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         //set userObject 
-        let userObject = new user(randValueGenerator(),
-                                  requestObject.reqBody.Email,
-                                  requestObject.reqBody.UserName,
-                                  encryptionAPI.hash(requestObject.reqBody.Password));                                      
+        let userObject = new user(_id = randValueGenerator(),
+                                  Email = requestObject.reqBody.Email,
+                                  UserName = requestObject.reqBody.UserName,
+                                  Password = encryptionAPI.hash(requestObject.reqBody.Password));                                      
         //save the user details
         mongo.insert(dbConstants.userCollection, userObject.getUser(), {}).then(insertSet => {
 

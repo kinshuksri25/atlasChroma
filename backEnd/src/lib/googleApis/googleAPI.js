@@ -16,7 +16,7 @@ const googleApis = {};
 //function for sending emails
 //params --> senderEmail - string, recieverEmail - string, refreshToken - string, clientID - string, clientSecret - string, emailTemplate - object
 //returns --> promise - boolean
-googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate) = new Promise((resolve,reject) => {
+googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate) => new Promise((resolve,reject) => {
    //get the template data
    fs.readFile(emailTemplate.templateLocation, function(error, data) {  
     if (error) {
@@ -52,7 +52,7 @@ googleApis.buildAuthURL = (userEmail,uniqueState) => {
 //function for getting refresh/access tokens 
 //params --> authCode - string
 //returns --> promise - object
-googleApis.getRefAccessToken = (authCode) = new Promise((resolve,reject) => {
+googleApis.getRefAccessToken = (authCode) => new Promise((resolve,reject) => {
     let authRequest = {
         "authCode" : authCode,
         "refreshTokenURL" : OAuthCONST.refreshTokenURL,
@@ -69,7 +69,7 @@ googleApis.getRefAccessToken = (authCode) = new Promise((resolve,reject) => {
 //function for getting access tokens 
 //params --> refreshToken - string
 //returns --> promise - object
-googleApis.getAccessToken = (refreshToken) = new Promise((resolve,reject) => {
+googleApis.getAccessToken = (refreshToken) => new Promise((resolve,reject) => {
     let authRequest = {
         "refreshToken" : refreshToken,
         "refreshTokenURL" : OAuthCONST.refreshTokenURL,
@@ -86,7 +86,7 @@ googleApis.getAccessToken = (refreshToken) = new Promise((resolve,reject) => {
 //function for getting userProfile details from google 
 //params --> refreshToken - string
 //returns --> promise - object
-googleApis.getUserDetails = (refreshToken) = new Promise((resolve,reject) => {
+googleApis.getUserDetails = (refreshToken) => new Promise((resolve,reject) => {
     //get access token 
     googleApis.getAccessToken(refreshToken).then(resolvedResult => {
         profile.getProfileDetails(resolvedResult,OAuthCONST.scopeDetails.PROFILE).then(resolvedResult => {

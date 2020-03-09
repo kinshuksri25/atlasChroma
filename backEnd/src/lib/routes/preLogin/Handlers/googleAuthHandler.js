@@ -18,7 +18,7 @@ let googleAuthHandler = {};
 //oauth url creation handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) => {
+googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) => {
 
     let state = randValueGenerator(15);
     let response = {};
@@ -75,7 +75,7 @@ googleAuthHandler.googleAuth = (requestObject) = new Promise((resolve,reject) =>
 //post auth handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
+googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => {
     let response = {};
     if(requestObject.reqBody.state != undefined && requestObject.reqBody.method == "POST"){
         mongo.read(dbConstants.userCollection,{ State: requestObject.reqBody.state }, {}).then(resultSet => {
@@ -222,7 +222,7 @@ googleAuthHandler.postAuth = (requestObject) = new Promise((resolve,reject) => {
 //post auth form handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.postAuthDetails = (requestObject) = new Promise((resolve,reject) => {
+googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reject) => {
     let response = {};
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){

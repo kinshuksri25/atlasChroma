@@ -5,7 +5,7 @@ const https = require("https");
 const stringdecoder = require('string_decoder').StringDecoder;
 const decoder = new stringdecoder('utf-8');
 
-const {ERRORS} = require('../../../../lib/constants/dataConstants');
+const {EMSG} = require ("../../../../../lib/constants/contants");
 
 //declaring the module
 const profile = {};
@@ -30,7 +30,7 @@ profile.getProfileDetails = (accessTokenObject,profileScope) => new Promise((res
     //error checking
     profileDetailsRequest.on('error', (error) => {
         console.log(error.message);
-        reject(ERRORS.ERR_GGLCONN_SVR);
+        reject(EMSG.SVR_OATH_UNPRF);
     });
 
     //send request

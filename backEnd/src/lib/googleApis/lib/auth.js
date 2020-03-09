@@ -4,7 +4,7 @@
 const https = require("https");
 const url = require('url');
 const stringdecoder = require('string_decoder').StringDecoder;
-const {EMSG} = require ('../../../../lib/constants/constants');
+const {EMSG} = require ("../../../../../lib/constants/contants");
 
 const decoder = new stringdecoder('utf-8');
 

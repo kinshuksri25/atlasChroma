@@ -6,7 +6,7 @@
 const https = require('https');
 const url = require('url');
 const fs = require('fs');
-const router = require("./src/lib/routes/centralRouter");
+const router = require("./lib/routes/centalRouter");
 const stringDecoder = require('string_decoder').StringDecoder;
 
 //server object definition
@@ -62,7 +62,7 @@ server.unifiedServer = (req, res) => {
                            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
         
-        router.router(route,requestObject).then(responseObject => {
+        router.centralRouter(route,requestObject).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();
             }).catch(errorObject => {
@@ -74,11 +74,10 @@ server.unifiedServer = (req, res) => {
 
 
 //init function
-server.init = runtimeEnvironment => {
+server.init = (runtimeEnvironment,port) => {
     //start the https server
-    const port = runtimeEnvironment == "Development" ? 5000 : 8000;
     server.https.listen(port, function() {
-        console.log('The https server is listening on port ${port} in ${runtimeEnvironement} mode');
+        console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
     });
 };
 

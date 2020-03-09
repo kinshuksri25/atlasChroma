@@ -12,10 +12,10 @@ var app = {};
 
 
 //define the init method
-app.init = function(runtimeEnvironment,callback) {
+app.init = function(runtimeEnvironment,port,callback) {
 
     //start the server
-    server.init(runtimeEnvironment);
+    server.init(runtimeEnvironment,port);
 };
 
 
@@ -23,5 +23,6 @@ app.init = function(runtimeEnvironment,callback) {
 if (require.main == module)
 {
     const runtimeEnvironment = process.argv.slice(2)[0] ? process.argv.slice(2)[0] : "Development";
-    app.init(runtimeEnvironment,function() {});    
+    const port = runtimeEnvironment == "Development" ? 5000 : 8000;
+    app.init(runtimeEnvironment,port,function() {});    
 }

@@ -1,4 +1,11 @@
+/*
+* Project Handlers
+*/
+
 //Dependencies
+const mongo = require("../../../utils/data");
+const {EMSG,SMSG,SINGLE} = require("../../../../../../lib/constants/contants");
+const project = require("../../../classObjects/projectClass");
 
 
 //declaring the module
@@ -10,14 +17,9 @@ projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
-            projectHandler.project.get.then(resolvedResult => {
-                   resolve(resolvedResult);
-              }).catch(rejectedResult => {
-                   reject(rejectedResult);
-              });
               break;
           case "POST" : 
-            projectHandler.project.post.then(resolvedResult => {
+            projectHandler.project.post(route,requestObject).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
@@ -30,12 +32,12 @@ projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
         }
     }else{
       response.STATUS = 500;
-      response.EMSG = "METHOD NOT FOUND!";
+      response.EMSG = EMSG.SVR_HDNLS_MTHNTFND;
       reject(response);
     }
 });
 
-domainLogicHandlers.project.post = (requestObject) => new Promise((resolve,reject) => {
+projectHandler.project.post = (route,requestObject) => new Promise((resolve,reject) => {
     
     let response = {};
     if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectLeader')){
@@ -53,7 +55,7 @@ domainLogicHandlers.project.post = (requestObject) => new Promise((resolve,rejec
             mongo.update(dbConstants.userCollection,{ UserName: { $in: projectObject.contributors } },{ $push: {Projects : insertedID}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
                 response.PAYLOAD.projects = resolveResult.ops[0];
-                response.SMSG = "USER DATA UPDATED";        
+                response.SMSG = SMSG.SVR_PHH_USRUP;        
                 resolve(response);     
             }).catch(rejectSet => {
                 throw rejectSet;
@@ -66,11 +68,11 @@ domainLogicHandlers.project.post = (requestObject) => new Promise((resolve,rejec
         });    
     }else{
         response.STATUS = 400;
-        response.EMSG = "INVALID REQUEST";
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
         reject(response);
     } 
 });
 
 
 //exporting the module
-module.exports = projectHandler.js
+module.exports = projectHandler;
