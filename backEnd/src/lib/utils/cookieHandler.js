@@ -1,7 +1,6 @@
 /*
 * Primary file for creating cookies and checking cookie validity
 */
-//TODO --> add redis caching functionality
 
 //Dependencies
 const cookies = require("../classObjects/cookieClass");

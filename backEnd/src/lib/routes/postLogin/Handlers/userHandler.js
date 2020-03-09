@@ -9,7 +9,9 @@ const {EMSG,SMSG,} = require("../../../../../../lib/constants/contants");
 //declaring the module
 const userHandler = {};
 
-
+//router for all the user routes
+//params --> route - string, requestObject - object
+//returns --> promise - object
 userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
     let response = {};
     if(requestObject.hasOwnProperty("method")){
@@ -35,6 +37,10 @@ userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
     }
 });
 
+
+//user get route
+//params --> route - string, requestObject - object
+//returns --> promise - object
 userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => {
     let response = {};
     let projection = {
@@ -80,6 +86,9 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
 
 });
 
+//user post route
+//params --> route - string, requestObject - object
+//returns --> promise - object
 userHandler.user.post = (requestObject) = new Promise((resolve,reject) => {
     
 });

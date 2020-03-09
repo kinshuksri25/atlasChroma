@@ -1,5 +1,4 @@
 //Blueprint for story object
-
 class story{
     constructor(name="",
                 description="",

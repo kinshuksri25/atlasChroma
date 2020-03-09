@@ -2,7 +2,6 @@
 const {randValueGenerator} = require("../utils/helper");
 
 //Blueprint for the user objects
-
 class userObject{
   constructor(_id = randValueGenerator(), 
               UserName = "",

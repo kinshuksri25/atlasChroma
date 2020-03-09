@@ -1,4 +1,6 @@
-//email module 
+/*
+* Module for getting user details from google
+*/
 
 //Dependencies
 const https = require("https");
@@ -10,6 +12,9 @@ const {EMSG} = require ("../../../../../lib/constants/contants");
 //declaring the module
 const profile = {};
 
+//function for getting user details
+//params --> accestokenObject - object, profileScope - string
+//returns --> promise - object
 profile.getProfileDetails = (accessTokenObject,profileScope) => new Promise((resolve,reject) => {
     let requestUrl = profileScope + "?access_token=" + accessTokenObject.access_token;
 

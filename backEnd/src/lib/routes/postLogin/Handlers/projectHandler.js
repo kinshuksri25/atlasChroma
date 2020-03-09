@@ -11,7 +11,9 @@ const project = require("../../../classObjects/projectClass");
 //declaring the module
 const projectHandler = {};
 
-
+//router for all the project routes
+//params --> route - string, requestObject - object
+//returns --> promise - object
 projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
     let response = {};
     if(requestObject.hasOwnProperty("method")){
@@ -37,6 +39,9 @@ projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
     }
 });
 
+//project post route
+//params --> route - string, requestObject - object
+//returns --> promise - object
 projectHandler.project.post = (route,requestObject) => new Promise((resolve,reject) => {
     
     let response = {};

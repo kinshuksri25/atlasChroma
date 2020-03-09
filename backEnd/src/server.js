@@ -26,7 +26,7 @@ server.https = https.createServer(server.certParams, (req, res) => {
                         
 });
 
-//main server 
+// combined server for all routes
 server.unifiedServer = (req, res) => {
 
     //converting url to url object
@@ -73,7 +73,7 @@ server.unifiedServer = (req, res) => {
 };
 
 
-//init function
+//function for starting the server
 server.init = (runtimeEnvironment,port) => {
     //start the https server
     server.https.listen(port, function() {

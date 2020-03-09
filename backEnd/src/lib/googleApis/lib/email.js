@@ -1,4 +1,6 @@
-//email module 
+/*
+* Module for sending emails
+*/
 
 //Dependencies
 const nodemailer = require("nodemailer");
@@ -6,6 +8,10 @@ const nodemailer = require("nodemailer");
 //declaring the module
 const email = {};
 
+
+//function for sending emails
+//params --> senderEmail - string, recieverEmail - string, refreshToken - string, clientID - string, clientSecret - string, subject - string, data - string, senderAccessToken - string
+//returns --> promise - boolean
 email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data,senderAccessTokenObject) => new Promise((resolve,reject) => {
             const smtpTransport = nodemailer.createTransport({
                 host: 'smtp.gmail.com',

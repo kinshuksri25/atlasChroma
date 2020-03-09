@@ -1,5 +1,4 @@
 //Blueprint for cookie Objects
-
 class cookies {
   constructor(cookieName = "",creationTime = Date.now()){
     this.cookieName = cookieName;

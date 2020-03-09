@@ -1,5 +1,4 @@
 //Blueprint for response Object 
-
 class responseObject{
 
   constructor(status = 500,smsg = "", payload = {}, emsg = ""){
@@ -22,5 +21,5 @@ class responseObject{
 
 };
 
-//export the class
+//export the module
 module.exports = responseObject;

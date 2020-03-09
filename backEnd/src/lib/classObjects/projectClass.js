@@ -1,9 +1,10 @@
-//Blueprint for project objects
+//Dependencies
+const {randValueGenerator} = require("../utils/helper");
 
-//TODO add a _id value and a default value for it using random generator
+//Blueprint for project objects
 class project{
 
-    constructor(
+    constructor(_id = randValueGenerator(),
                 title="",
                 description="",
                 projectLead="",
@@ -11,7 +12,8 @@ class project{
                 contributors=[],
                 creationDate= Date.now(),
                 modificationDate=""){
-
+        
+        this._id = _id;                    
         this.title = title;
         this.description=description;
         this.projectLead = projectLead;
@@ -23,6 +25,7 @@ class project{
 
     getProjectDetails(){
         let projectDetails={
+            _id : this._id,
             title:this.title,
             description:this.description,
             projectLead:this.projectLead,
@@ -34,7 +37,8 @@ class project{
         return {...projectDetails};
     }
 
-    setProjectDetails(title=this.title,
+    setProjectDetails(_id = this._id,
+                      title=this.title,
                       description=this.description,
                       projectLead=this.projectLead,
                       contributors=this.contributors,
@@ -42,6 +46,7 @@ class project{
                       creationDate=this.creationDate,
                       modificationDate=this.modificationDate){
 
+        this._id = _id;                
         this.title = title;
         this.description=description;
         this.projectLead = projectLead;
@@ -52,4 +57,5 @@ class project{
     }
 }
 
+//export the module
 module.exports = project;

@@ -8,7 +8,6 @@ const signupHandler = require("./Handlers/signupHandler");
 const googleAuthHandler = require("./Handlers/googleAuthHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG} = require("../../../../../lib/constants/contants");
-const router = require("../centalRouter");
 
 
 //defining the module
@@ -30,6 +29,17 @@ preLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =>
 
 });
 
+//not-found handler
+//params --> requestObject - object
+//returns --> promise - object
+preLoginRouter.notFound = (requestObject) => new Promise((resolve,reject) => {
+    let response = {};
+    response.STATUS = 404;
+    response.EMSG = EMSG.SVR_HNDLS_RTNTFND;
+    reject(response);
+});
+
+
 //prelogin routes
 preLoginRouter.routes = {
     "/login": loginHandler.login,
@@ -39,7 +49,7 @@ preLoginRouter.routes = {
     "/googleAuth": googleAuthHandler.googleAuth, 
     "/googleAuth/postAuth": googleAuthHandler.postAuth,
     "/googleAuth/postAuthDetails": googleAuthHandler.postAuthDetails,
-    "/notFound": router.notFound
+    "/notFound": preLoginRouter.notFound
 };
 
 //export the module
