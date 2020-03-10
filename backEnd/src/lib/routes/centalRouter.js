@@ -13,9 +13,8 @@ const router = {};
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
 router.centralRouter = (route,requestObject) => new Promise((resolve,reject) => {
-
      //check cookie availability
-     if(!requestObject.hasOwnProperty("cookieObject") && requestObject.cookieObject.cookieID == undefined){
+     if(!requestObject.hasOwnProperty("cookieObject")){
         //prelogin
         preLoginRouter.router(route,requestObject).then(resolvedResult => {
             resolve(resolvedResult);

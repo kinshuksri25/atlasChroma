@@ -1,17 +1,15 @@
 //Blueprint for cookie Objects
 class cookies {
-  constructor(cookieName = "",creationTime = Date.now()){
+  constructor(cookieName = ""){
     this.cookieName = cookieName;
-    this.creationTime = creationTime;
   }
   
   getCookie(){
-    return ({cookieName:this.cookieName, creationTime:this.creationTime});
+    return ({ID : this.cookieName});
   }
   
-  setCookie(cookieName = this.cookieName,creationTime = this.creationTime){
+  setCookie(cookieName = this.cookieName){
     this.cookieName = cookieName;
-    this.creationTime = creationTime;
   }
 };
 

@@ -1,18 +1,14 @@
 //Dependencies
 import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 
 import SimpleForm from '../../Forms/simpleform';
+import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import localSession from '../../Components/sessionComponent';
 import {urls} from "../../../../lib/constants/dataConstants";
 import {ERRORS} from "../../../../lib/constants/dataConstants";
-import setUrlAction from "../../store/actions/urlActions";
 
-class SignUp extends Component {
+export default class SignUp extends Component {
 
     constructor(props) {
         super(props);
@@ -49,12 +45,12 @@ class SignUp extends Component {
         this.setState({
             "isCheckingEmail": true
         }, () => {
-            httpsMiddleware.httpsRequest('/checkEmail', 'GET', headers, emailCheckQueryString, function(error,responseObject) {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, emailCheckQueryString, function(error,responseObject) {
                 if(error){
                     //TODO --> add error msg div (ERR_CONN_SERVER)
                     console.log(error);
                 }else{
-                    if (responseObject.Status == "ERROR") {
+                    if (responseObject.ERRORMSG != "") {
                         //TODO --> add error msg div
                         globalThis.setState({
                             "validEmail": false,
@@ -79,12 +75,12 @@ class SignUp extends Component {
         this.setState({
             "isCheckingUsername": true
         }, () => {
-            httpsMiddleware.httpsRequest('/checkUserName', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
                 if(error){
                     //TODO --> add error msg div (ERR_CONN_SERVER)
                     console.log(error);
                 }else{
-                    if (responseObject.Status == "ERROR") {
+                    if (responseObject.ERRORMSG != "") {
                         //TODO --> add error msg div
                         globalThis.setState({
                             "validUserName": false,
@@ -109,8 +105,7 @@ class SignUp extends Component {
             if (this.state.validEmail && this.state.validUserName) {
                 if(errorMsgObject == ""){
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-                        console.log(responseObject);
-                        if(error || responseObject.Status == "ERROR"){
+                        if(responseObject.STATUS != 200 || error){
                             if(error){
                                 console.log(error);
                                 //TODO --> add errormsg div(ERR_CONN_SERVER)
@@ -118,14 +113,10 @@ class SignUp extends Component {
                                 //TODO --> add error msg div(errormsg)
                             }
                         }else{
-                           //set the session 
-                            localSession.setSessionObject(responseObject.Payload);
-                
+                            //set the session 
+                            cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
                             //TODO --> change the pushState 'state' and 'title'
                             window.history.pushState({},"",urls.POSTSIGNUPFORM);
-                            globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
-                                                
-                            globalThis.props.reRenderRoot();
                         }
                     });
                 } else {
@@ -143,47 +134,7 @@ class SignUp extends Component {
                 console.log(urls.ERR_INVREQ_CLI);
         }
     }
-                        
-    onSubmitHandler(formObject) {
-            let headers = {};
-            let globalThis = this;
-            if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
-                var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
-                if (this.state.validEmail || this.state.validUserName) {
-                    if(errorMsgObject == ""){
-                        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-                            if(error || responseObject.Status == "ERROR"){
-                                if(error){
-                                    console.log(error);
-                                    //TODO --> add errormsg div(ERR_CONN_SERVER)
-                                }else{
-                                    //TODO --> add error msg div(errormsg)
-                                }
-                           }else{
-                                localStorage.uniqueID = responseObject.Payload;
-                                 //TODO --> change the pushState 'state' and 'title'
-                                window.history.pushState({},"",urls.POSTSIGNUPFORM);
-                                globalThis.props.setUrlState(urls.POSTSIGNUPFORM);
-                                
-                                globalThis.props.reRenderRoot();
-                           }
-                        });
-                    } else {
-                         //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
-                        } 
-                } else {
-                        if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
-                            //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
-                        }else{
-                            //TODO --> add errormsg div (ERR_INVUSREML_CLI)
-                        }
-                    }
-            } else {
-                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                console.log(urls.ERR_INVREQ_CLI);
-            }
-        }
-        
+     
     checkPasswordValidity(password, confirmPassword) {
         var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
         if (!regex.test(password)) {
@@ -204,13 +155,3 @@ class SignUp extends Component {
                 </div>);
     }
 }
-
-const mapDispatchToProps = dispatch => {
-    return {
-        setUrlState: (url) => {
-            dispatch(setUrlAction(url));
-        }
-    };
-};
-
-export default connect(null, mapDispatchToProps)(SignUp);

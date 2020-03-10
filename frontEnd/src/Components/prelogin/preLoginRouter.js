@@ -1,9 +1,7 @@
 //PreLogin Router File
 
 //Dependencies
-import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
-import { connect } from 'react-redux';
+import React from 'react';
 
 import Login from '../../Containers/prelogin/login';
 import SignUp from '../../Containers/prelogin/signup';
@@ -12,12 +10,8 @@ import LandingPage from "../../Components/prelogin/landingpage";
 import PostSignUpForm from '../../Containers/prelogin/postSignUpForm';
 import {urls} from "../../../../lib/constants/dataConstants";
 
-function PreLoginRouter (props) {
-
-   function reRenderRoot (){
-       props.rerenderRouter();
-   }
-
+export default function PreLoginRouter (props) {
+   
    function containerSelector() {
         var path = window.location.pathname.substring(1).toLowerCase();
         if (/[a-z]+\//g.test(path) && !/[a-z]+\/[a-z]+/g.test(path)) {
@@ -25,27 +19,25 @@ function PreLoginRouter (props) {
         } else {
             switch (path) {
                 case "login":
-                    return <Login reRenderRoot = {reRenderRoot}/>;
+                    return <Login />;
                     break;
                 case "signup":
-                    return <SignUp reRenderRoot = {reRenderRoot}/>;
+                    return <SignUp />;
                     break;
                 case "postauth":
-                    return <PostAuth reRenderRoot = {reRenderRoot}/>;
+                    return <PostAuth />;
                     break;
                 case "landing":
                     return <LandingPage/>;
                     break;
                 case "postsignupform":
-                    return <PostSignUpForm reRenderRoot = {reRenderRoot}/>;
+                    return <PostSignUpForm />;
                     break;    
                 default:
-                  if(path != "postsignupform"){
                     //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({}, "",urls.LANDING);
+                    window.history.replaceState({}, "",urls.LANDING);
                     return <LandingPage/>;
                     break;
-                  }
             }
         }
 
@@ -54,11 +46,3 @@ function PreLoginRouter (props) {
     let container = containerSelector();
     return ( <div> { container } </div>);
 }
-
-const mapStateToProps = (state) => {
-    return {
-        url: state.urlStateReducer.currentUrl
-    }
-};
-
-export default connect(mapStateToProps, null)(PreLoginRouter);

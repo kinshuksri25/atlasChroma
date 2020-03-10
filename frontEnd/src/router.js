@@ -2,46 +2,46 @@
 
 //Dependencies
 import React, { Component } from 'react';
-import localSession from './Components/sessionComponent';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+
+import setUrlAction from "./store/actions/urlActions"; 
+import cookieManager from './Components/cookieManager';
 import PreLoginRouter from './Components/prelogin/preLoginRouter';
 import PostLoginRouter from './Containers/postlogin/postLoginRouter';
 
-export default class Router extends Component {
+class Router extends Component {
 
     constructor(props){
         super(props);
-        this.checkSession = this.checkSession.bind(this);
-        this.checkSessionTime = this.checkSessionTime.bind(this);
-        this.rerenderRoot = this.rerenderRoot.bind(this);
     }
 
-   checkSession() {
-        let sessionObject = localSession.getSessionObject();
-
-        let sessionExists = sessionObject != undefined && sessionObject.sessionID != undefined && sessionObject.creationTime != undefined ? true : false;
-        if (sessionExists) {
-            sessionExists = this.checkSessionTime(sessionObject);
-        }
-        return sessionExists;
-    }
-
-    rerenderRoot() {
-        this.forceUpdate();
-    }
-
-    checkSessionTime(sessionObject) {
-        let sessionBool = false;
-        sessionBool = Date.now() - sessionObject.creationTime < 1800000 ? true : false;
-        if (!sessionBool){
-            localSession.clearSession();
-        }
-        return sessionBool;
+    componentDidMount(){
+        setInterval(() => {
+            if(this.props.currentUrl == "" || this.props.currentUrl != window.location.pathname){
+                this.props.setUrlState(window.location.pathname);
+            } 
+        },500);
     }
 
     render(){
-        let router = this.checkSession() ? <PostLoginRouter checkSession = {this.checkSession} rerenderRouter = {this.rerenderRoot}/> 
-                                            : 
-                                           < PreLoginRouter rerenderRouter = {this.rerenderRoot}/> ;
-        return ( <div> { router } </div>);
+        let router = cookieManager.getUserSessionDetails() ? <PostLoginRouter/> : < PreLoginRouter/>;
+        return ( <div> {router} </div>);
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        currentUrl: state.urlStateReducer.currentUrl
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setUrlState: (url) => {
+            dispatch(setUrlAction(url));
+        }
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Router);

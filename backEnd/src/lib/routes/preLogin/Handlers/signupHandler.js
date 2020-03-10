@@ -7,7 +7,7 @@ const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
 const user = require("../../../classObjects/userClass");
-const {EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
+const {DBCONST,EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
 const loginHandler = require("./loginhandlers");
 const {randValueGenerator} = require("../../../utils/helper");
 
@@ -19,16 +19,15 @@ const signupHandler = {};
 //params --> requestObject -- object
 //returns --> promise(object)
 signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
-
     let response = {};
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         //set userObject 
-        let userObject = new user(_id = randValueGenerator(),
-                                  Email = requestObject.reqBody.Email,
-                                  UserName = requestObject.reqBody.UserName,
-                                  Password = encryptionAPI.hash(requestObject.reqBody.Password));                                      
+        let userObject = new user({_id : randValueGenerator(),
+                                  UserName : requestObject.reqBody.UserName,
+                                  Email : requestObject.reqBody.Email,
+                                  Password : encryptionAPI.hash(requestObject.reqBody.Password)});                                                           
         //save the user details
-        mongo.insert(dbConstants.userCollection, userObject.getUser(), {}).then(insertSet => {
+        mongo.insert(DBCONST.userCollection, userObject.getUserObject(), {}).then(insertSet => {
 
             //setup the login object
             let loginObject = {
@@ -50,7 +49,8 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
                     response.PAYLOAD.unquieID = result.PAYLOAD.unquieID;
                     resolve(response);       
                 }).catch(error => {
-                    mongo.delete(dbConstants.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
+                    console.log("called");
+                    mongo.delete(DBCONST.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
                     .catch(error => {
                         //TODO --> add this delete to cron job     
                     });
@@ -77,7 +77,7 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
 //checking user availability handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject) => {
+signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject) => {
     let response = {};
     let query = {};
     query = requestObject.queryObject.Email != undefined ? {"Email":requestObject.queryObject.Email} : {"UserName":requestObject.queryObject.UserName};
@@ -85,7 +85,7 @@ signupHandler.userAvailability = (requestObject) => new Promise((resolve,reject)
     //check requestObject
     if(query != {} && requestObject.method == "GET"){
         //check email validity
-        mongo.read(dbConstants.userCollection,query, {}).then(resultSet => {  
+        mongo.read(DBCONST.userCollection,query, {}).then(resultSet => {  
             if (JSON.stringify(resultSet) == JSON.stringify([])) {    
 
                 response.STATUS = 200;
@@ -119,9 +119,9 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check id validity
-         mongo.read(dbConstants.userCollection,{ _id: requestObject.reqBody.id }, { projection: { Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
+         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
-                mongo.update(dbConstants.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
                         response.STATUS = 200;
                         response.SMSG = SMGSG.SVR_LGNH_LGNSUC;

@@ -2,7 +2,7 @@ import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
 import setUserAction from '../../store/actions/userActions';
-import localSession from '../../Components/sessionComponent';
+import cookieManager from '../../Components/cookieManager';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import formConstants from '../../Forms/formConstants';
 import searchFeildConstants from '../../Forms/searchFeildConstants';

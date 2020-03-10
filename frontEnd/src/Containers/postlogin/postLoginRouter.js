@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import localSession from '../../Components/sessionComponent';
+import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
 import Projects from './projects';
 import IssueTracker from './issueTracker';

@@ -27,7 +27,6 @@ mongo.openConnection = url => new Promise((resolve,reject) => {
 //params --> collection - string, query - object, options - object
 //returns --> promise
 mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
-
     mongo.openConnection(mongo.url).then(db => {
 
         let resultArr = [];

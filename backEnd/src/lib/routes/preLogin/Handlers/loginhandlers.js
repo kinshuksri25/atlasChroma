@@ -6,7 +6,7 @@
 const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
-const {EMSG,SMSG} = require("../../../../../../lib/constants/contants");
+const {DBCONST,EMSG,SMSG} = require("../../../../../../lib/constants/contants");
 
 //declaring the module
 const loginHandler = {};
@@ -15,19 +15,17 @@ const loginHandler = {};
 //params --> requestObject -- object
 //returns --> promise(object)
 loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
-
     let response = {};
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password')){
-                
         //check email validity
-        mongo.read(dbConstants.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1, UserName:1 } }).then(resultSet => {
-            if (JSON.stringify(resultSet) != JSON.stringify([])) {  
+        mongo.read(DBCONST.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1, UserName:1 } }).then(resultSet => {
+            if (JSON.stringify(resultSet) != JSON.stringify([])) { 
                 //check password validity
                 if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
                     //set userSession
                     if(resultSet[0].FirstName == ""){
-                        response.PAYLOAD.unquieID = resultSet[0]._id;
+                        response.PAYLOAD.unqiueID = resultSet[0]._id;
                         response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
                     }else{

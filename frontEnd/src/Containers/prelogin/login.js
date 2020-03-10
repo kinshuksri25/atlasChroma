@@ -1,18 +1,14 @@
 //Dependencies
 import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 
 import SimpleForm from '../../Forms/simpleform';
+import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import localSession from '../../Components/sessionComponent';
 import {urls} from "../../../../lib/constants/dataConstants";
 import {ERRORS} from "../../../../lib/constants/dataConstants";
-import setUrlAction from "../../store/actions/urlActions";
 
-class Login extends Component {
+export default class Login extends Component {
 
     constructor(props) {
         super(props);
@@ -28,29 +24,25 @@ class Login extends Component {
         let globalThis = this;
         formObject.formData = formObject.route == "/login" ? formObject.formData : "Email="+formObject.formData.Email;
         httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-            if(error || responseObject.Status == "ERROR"){
+            if(responseObject.ERRORMSG != "" || error){
                 if(error){
                     console.log(error);
                     //TODO --> errormsg div(ERR_CONN_SERVER)
                 }else{
                     //TODO --> errormsg div(errorMsg)
                 }
-             }else{
+            }else{
                 if(formObject.route == "/login"){
-                    if(typeof(responseObject.Payload) != Object){
-                        localStorage.uniqueID = responseObject.Payload;
+                    if(responseObject.PAYLOAD.hasOwnProperty("unqiueID")){
+                        localStorage.uniqueID = responseObject.PAYLOAD;
                         //TODO --> change the pushState 'state' and 'title'
-                        window.history.pushState({},"",urls.POSTSIGNUPFORM);
-                        globalThis.props.setUrlState(urls.POSTSIGNUPFORM);    
+                        window.history.pushState({},"",urls.POSTSIGNUPFORM);   
                     }else{
                         //set the session
-                        localSession.setSessionObject(responseObject.Payload);
+                        cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
                         //TODO --> change the pushState 'state' and 'title'
                         window.history.pushState({},"",urls.DASHBOARD);
-                        globalThis.props.setUrlState(urls.DASHBOARD);
                     }
-                    
-                    globalThis.props.reRenderRoot();
                 }else{
                     if(responseObject.Payload == ""){
                         //TODO --> errormsg div(ERR_GGLCONN_CLI)    
@@ -58,7 +50,7 @@ class Login extends Component {
                         window.location = responseObject.Payload;
                     }
                 }
-             }   
+            }   
         });
     }
 
@@ -82,13 +74,3 @@ class Login extends Component {
                     </div>);
     }
 }
-
-const mapDispatchToProps = dispatch => {
-    return {
-        setUrlState: (url) => {
-            dispatch(setUrlAction(url));
-        }
-    };
-};
-
-export default connect(null, mapDispatchToProps)(Login);

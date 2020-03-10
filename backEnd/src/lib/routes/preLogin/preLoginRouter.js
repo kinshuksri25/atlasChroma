@@ -7,7 +7,7 @@ const loginHandler = require("./Handlers/loginhandlers");
 const signupHandler = require("./Handlers/signupHandler");
 const googleAuthHandler = require("./Handlers/googleAuthHandler");
 const responseObject = require("../../classObjects/responseClass");
-const {EMSG} = require("../../../../../lib/constants/contants");
+const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
 
 
 //defining the module
@@ -17,12 +17,15 @@ const preLoginRouter = {};
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
 preLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
-
     let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes[route] : preLoginRouter.routes.notFound;
     chosenHandler(requestObject).then(resolvedResult => {
+        console.log("resolved");
+        console.log(resolvedResult);
         let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
         resolve(response.getResponseObject());
     }).catch(rejectedResult => {
+        console.log("rejected");
+        console.log(rejectedResult);
         let response = new responseObject(rejectedResult.STATUS,SMSG.NOSUCCESS,{},rejectedResult.EMSG);
         reject(response.getResponseObject());
     });
