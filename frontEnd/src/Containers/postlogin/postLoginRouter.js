@@ -23,24 +23,33 @@ class PostLoginRouter extends Component {
     }
 
     componentDidMount(){
-        let sessionID = localSession.getSessionObject().sessionID;
-        let queryString = "sessionID="+sessionID;
-        this.getUserData(queryString,this.props.setUserListState);
-        queryString+="&userID="+sessionID;
-        this.getUserData(queryString,this.props.setUserState);
+        let userID = cookieManager.getUserSessionDetails(); 
+        if(userID){
+            let cookieDetails = {"UserID" : userID};
+            this.getUserData(cookieDetails,this.props.setUserListState);
+            queryString+="&userID="+userID;
+            this.getUserData(queryString,this.props.setUserState);
+        }else{
+            window.history.pushState({}, "",urls.LANDING);
+        }
     }
 
-    getUserData(queryString,action){
-        
-        let headers={};
+    getUserData(params,action){
+        if(typeof(params) == "string"){
+            let headers={};
+            let queryString = params;
+        }else{
+            let headers = {...params};
+            let queryString = "";
+        }    
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
             if(error || responseObject.Status == "ERROR"){
                 if(error){
                     console.log(error);
                     //TODO --> add errormsg div(ERR_CONN_SERVER)
                 }else{
-                    localSession.clearSession();
-                    this.props.checkSession();
+                    cookieManager.clearUserSession(); 
+                    window.history.pushState({}, "",urls.LANDING);
                     //TODO --> errorMSG - your session is invalid please log in again
                     //TODO --> add error msg div(errormsg)
                 }
@@ -70,8 +79,8 @@ class PostLoginRouter extends Component {
                     return <Scheduler/>;
                     break;
                 case "logout":
-                    localSession.clearSession();
-                    this.props.rerenderRouter();
+                    cookieManager.clearUserSession(); 
+                    window.history.pushState({}, "",urls.LANDING);
                     break;        
                 default:
                     //TODO --> change the pushState 'state' and 'title'
@@ -85,7 +94,6 @@ class PostLoginRouter extends Component {
    
 
     render(){
-        this.props.checkSession();
         return ( <div>
             <Menu menuArray = {menuConstants}/> 
             { this.containerSelector() }
@@ -93,13 +101,6 @@ class PostLoginRouter extends Component {
         </div>);
     }
 }
-
-const mapStateToProps = (state) => {
-    return {
-        url: state.urlStateReducer.currentUrl
-    }
-};
-
 const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
@@ -111,4 +112,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(mapStateToProps,mapDispatchToProps)(PostLoginRouter);
+export default connect(null,mapDispatchToProps)(PostLoginRouter);
