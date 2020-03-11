@@ -45,13 +45,12 @@ class AddProject extends Component{
     }
 
     onSubmitHandler(formObject){
-        let headers = {};
+        let headers = {UserID : cookieManager.setUserSessionDetails()};
         let globalThis = this;
         let formData = formObject.formData;
         if(this.state.contributors.length != 0 && this.state.projectLeader != "" && formData.ProjectType != ""){
             formData.contributors = this.state.contributors;
             formData.projectLeader = this.state.projectLeader;
-            formData.sessionID = localSession.getSessionObject().sessionID;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || responseObject.Status == "ERROR"){
                     if(error){
