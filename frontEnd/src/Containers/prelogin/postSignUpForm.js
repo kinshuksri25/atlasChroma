@@ -40,7 +40,7 @@ export default class PostSignUpForm extends Component {
                     //TODO --> add error msg div(errormsg)
                 }
             }else{
-                localSession.clearSession();
+                localStorage.clear();
                 //set the session
                 
                 //TODO --> change the pushState 'state' and 'title'
