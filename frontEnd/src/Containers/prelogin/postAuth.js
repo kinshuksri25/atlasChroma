@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import url from 'url';
 
 import httpsMiddleware from '../../middleware/httpsMiddleware';
+import cookieManager from '../../Components/cookieManager';
 import {urls} from "../../../../lib/constants/dataConstants";
 import {ERRORS} from "../../../../lib/constants/dataConstants";
 import SimpleForm from '../../Forms/simpleform';
@@ -46,11 +47,11 @@ export default class postAuth extends Component{
                         }else{
                                 if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
                                     //TODO --> change the pushState 'state' and 'title'
-                                     window.history.pushState({},"",urls.POSTAUTHFORM);
+                                     window.history.pushState({},"",urls.POSTAUTH);
                                      globalThis.setState({displayForm:true});            
                                 }else{
                                     //set the session 
-                                    
+                                     cookieManager.setUserSessionDetails(responseObject.PAYLOAD.userID);
                                     //TODO --> change the pushState 'state' and 'title'
                                     window.history.pushState({},"",urls.DASHBOARD);
                                 }
@@ -77,7 +78,7 @@ export default class postAuth extends Component{
                                     }
                                 }else{
                                     //set the session
-
+                                    cookieManager.setUserSessionDetails(responseObject.PAYLOAD.userID);
                                     //TODO --> change the pushState 'state' and 'title'
                                     window.history.pushState({},"",urls.DASHBOARD);
                                 }
@@ -113,7 +114,7 @@ export default class postAuth extends Component{
                 this.setState({
                     "isCheckingUsername": true
                 }, () => {
-                    httpsMiddleware.httpsRequest('/checkUserName', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
+                    httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
                         if(error){
                             //TODO --> add error msg div (ERR_CONN_SERVER)
                             console.log(error);
