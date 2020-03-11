@@ -113,8 +113,8 @@ export default class SignUp extends Component {
                                 //TODO --> add error msg div(errormsg)
                             }
                         }else{
-                            //set the session 
-                            cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
+                            //set the localstorage
+                            localStorage.uniqueID = responseObject.PAYLOAD;
                             //TODO --> change the pushState 'state' and 'title'
                             window.history.pushState({},"",urls.POSTSIGNUPFORM);
                         }
