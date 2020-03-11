@@ -15,7 +15,12 @@ const projectHandler = {};
 //params --> route - string, requestObject - object
 //returns --> promise - object
 projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
@@ -44,7 +49,11 @@ projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
 //returns --> promise - object
 projectHandler.project.post = (route,requestObject) => new Promise((resolve,reject) => {
     
-    let response = {};
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectLeader')){
         let creationDate = Date.now();
         let projectClass = new project( requestObject.reqBody.Title,

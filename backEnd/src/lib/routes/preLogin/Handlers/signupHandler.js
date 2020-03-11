@@ -19,7 +19,12 @@ const signupHandler = {};
 //params --> requestObject -- object
 //returns --> promise(object)
 signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         //set userObject 
         let userObject = new user({_id : randValueGenerator(),
@@ -42,7 +47,7 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
             //call the login function to log user in
             loginHandler.login(loginObject).then(result => {
                 //send welcome mail
-                sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.refreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
+                sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
                     //send the response 
                     response.SMSG = SMSG.SVR_SNGH_SGNSUC;
                     response.STATUS = 200;
@@ -78,7 +83,12 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
 //params -->  requestObject -- object
 //return --> promise(object)
 signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     let query = {};
     query = requestObject.queryObject.Email != undefined ? {"Email":requestObject.queryObject.Email} : {"UserName":requestObject.queryObject.UserName};
     
@@ -115,7 +125,11 @@ signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject)
 //return --> promise(object)
 signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject) => {
     
-    let response = {};
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check id validity

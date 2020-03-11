@@ -39,13 +39,14 @@ export default class postAuth extends Component{
         postAuthReq(queryObject){
                 let headers = {};
                 let globalThis = this;
-                httpsMiddleware.httpsRequest("/postAuth", "POST", headers,queryObject, function(error,responseObject) {
-                         if(error || responseObject.Status == "ERROR"){
+                httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject, function(error,responseObject) {
+                         if(error || responseObject.STATUS != 200){
                              //TODO --> add error msg div
                              //TODO --> use set timeout to display errormsg
                              //return the user to login page
                         }else{
-                                if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
+                                if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
+                                    console.log(globalThis.state.state);
                                     //TODO --> change the pushState 'state' and 'title'
                                      window.history.pushState({},"",urls.POSTAUTH);
                                      globalThis.setState({displayForm:true});            
@@ -78,7 +79,7 @@ export default class postAuth extends Component{
                                     }
                                 }else{
                                     //set the session
-                                    cookieManager.setUserSessionDetails(responseObject.PAYLOAD.userID);
+                                    cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
                                     //TODO --> change the pushState 'state' and 'title'
                                     window.history.pushState({},"",urls.DASHBOARD);
                                 }

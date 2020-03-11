@@ -33,8 +33,8 @@ export default class Login extends Component {
                 }
             }else{
                 if(formObject.route == "/login"){
-                    if(responseObject.PAYLOAD.hasOwnProperty("unqiueID")){
-                        localStorage.uniqueID = responseObject.PAYLOAD;
+                    if(responseObject.PAYLOAD.hasOwnProperty("uniqueID")){
+                        localStorage.uniqueID = responseObject.PAYLOAD.uniqueID;
                         //TODO --> change the pushState 'state' and 'title'
                         window.history.pushState({},"",urls.POSTSIGNUPFORM);   
                     }else{
@@ -44,10 +44,10 @@ export default class Login extends Component {
                         window.history.pushState({},"",urls.DASHBOARD);
                     }
                 }else{
-                    if(responseObject.Payload == ""){
+                    if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
                         //TODO --> errormsg div(ERR_GGLCONN_CLI)    
                     }else{
-                        window.location = responseObject.Payload;
+                        window.location = responseObject.PAYLOAD.authURL;
                     }
                 }
             }   

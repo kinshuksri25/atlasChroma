@@ -18,7 +18,7 @@ export default class PostSignUpForm extends Component {
 
     componentDidMount() {
         let id = localStorage.uniqueID;
-        let sessionExists = id == 'undefined' ? false : true;
+        let sessionExists = id == undefined ? false : true;
         if (!sessionExists) {
             window.history.pushState({},"",urls.LANDING);
         }else{

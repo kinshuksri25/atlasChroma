@@ -13,7 +13,12 @@ const userHandler = {};
 //params --> route - string, requestObject - object
 //returns --> promise - object
 userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
@@ -42,7 +47,12 @@ userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
 //params --> route - string, requestObject - object
 //returns --> promise - object
 userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
     let projection = {
         projection: {UserName:1,Email: 1}
     };

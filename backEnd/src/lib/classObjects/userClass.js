@@ -3,17 +3,17 @@ const {randValueGenerator} = require("../utils/helper");
 
 //Blueprint for the user objects
 class userObject{
-  constructor({_id : randValueGenerator(), 
-              UserName : "",
-              Email : "",
-              Photo : "",
-              Password : "",
-              FirstName : "",
-              LastName : "",
-              Projects : [],
-              PhoneNumber : "",
-              state : "",
-              RefreshToken : ""}){
+  constructor({_id = randValueGenerator(), 
+              UserName = "",
+              Email = "",
+              Photo = "",
+              Password = "",
+              FirstName = "",
+              LastName = "",
+              Projects = [],
+              PhoneNumber = "",
+              state = "",
+              RefreshToken = ""}){
     
     this._id = _id;
     this.username = UserName;
@@ -42,17 +42,17 @@ class userObject{
           RefreshToken : this.refreshToken});
   }
   
-  setUserObject({_id : this._id,
-                username : this.username,
-                email : this.email,
-                photo : this.photo,
-                password : this.password,
-                firstname : this.firstname,
-                lastname : this.lastname,
-                projects : this.projects,
-                phoneno : this.phoneno,
-                state : this.state,
-                refreshToken : this.refreshToken}){
+  setUserObject({_id = this._id,
+                username = this.username,
+                email = this.email,
+                photo = this.photo,
+                password = this.password,
+                firstname = this.firstname,
+                lastname = this.lastname,
+                projects = this.projects,
+                phoneno = this.phoneno,
+                state = this.state,
+                refreshToken = this.refreshToken}){
   
     this._id = _id;
     this.username = username;

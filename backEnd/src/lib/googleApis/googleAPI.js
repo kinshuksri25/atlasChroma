@@ -33,6 +33,7 @@ googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSe
                 throw EMSG.SVR_OAUTH_EMLERR;
             });
         }).catch(rejectedResult => {
+            console.log(rejectedResult);
             reject(false);
         });
     }  
@@ -44,7 +45,7 @@ googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSe
 //params --> userEmail,uniqueState
 //returns --> promise - string
 googleApis.buildAuthURL = (userEmail,uniqueState) => {
-    let authURL = auth.buildAuthURL(userEmail,uniqueState,OAuthCONST.authUrlTemplate,OAuthCONST.scopes,OAuthCONST.appAuth);
+    let authURL = auth.buildAuthURL(userEmail,uniqueState,OAuthCONST.authUrlTemplate,OAuthCONST.scopeDetails,OAuthCONST.appAuth);
     return authURL;
 };
 
@@ -89,7 +90,7 @@ googleApis.getAccessToken = (refreshToken) => new Promise((resolve,reject) => {
 googleApis.getUserDetails = (refreshToken) => new Promise((resolve,reject) => {
     //get access token 
     googleApis.getAccessToken(refreshToken).then(resolvedResult => {
-        profile.getProfileDetails(resolvedResult,OAuthCONST.scopeDetails.PROFILE).then(resolvedResult => {
+        profile.getProfileDetails(resolvedResult,OAuthCONST.profileDetails).then(resolvedResult => {
             resolve (resolvedResult);
         }).catch(rejectedResult => {
             throw rejectedResult;

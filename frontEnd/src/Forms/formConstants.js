@@ -47,7 +47,7 @@ formConstants.postAuthForm = [
     {
         name: "Continue",
         type: "button",
-        route: '/postAuthForm',
+        route: '/googleAuth/postAuthDetails',
         id: "postAuthButton",
         className: "postAuthAttributes"
     }
@@ -205,7 +205,7 @@ formConstants.googleLogin = [{
     {
         name: "Login",
         type: "button",
-        route: '/googleLogin',
+        route: '/googleAuth',
         id: "googleLoginButton",
         className: "loginAttributes"
     }

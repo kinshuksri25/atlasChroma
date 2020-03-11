@@ -4,14 +4,14 @@ const {randValueGenerator} = require("../utils/helper");
 //Blueprint for project objects
 class project{
 
-    constructor(_id = randValueGenerator(),
+    constructor({_id = randValueGenerator(),
                 title="",
                 description="",
                 projectLead="",
                 projectType="",
                 contributors=[],
                 creationDate= Date.now(),
-                modificationDate=""){
+                modificationDate=""}){
         
         this._id = _id;                    
         this.title = title;
@@ -37,14 +37,14 @@ class project{
         return {...projectDetails};
     }
 
-    setProjectDetails(_id = this._id,
+    setProjectDetails({_id = this._id,
                       title=this.title,
                       description=this.description,
                       projectLead=this.projectLead,
                       contributors=this.contributors,
                       projectType=this.projectType,
                       creationDate=this.creationDate,
-                      modificationDate=this.modificationDate){
+                      modificationDate=this.modificationDate}){
 
         this._id = _id;                
         this.title = title;

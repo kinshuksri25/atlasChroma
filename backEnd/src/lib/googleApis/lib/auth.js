@@ -15,19 +15,18 @@ const auth = {};
 //params --> email -string, uniqueState - string, authUrlTemplate - string, currentScopes - object, appAuthDetails - object
 //returns --> authurl - string
 auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDetails) => {
-
     if(email != "" && uniqueState != "" && JSON.stringify(currentScopes) != JSON.stringify({}) && JSON.stringify(appAuthDetails) != JSON.stringify({})){
         let scopes = "";
-        let counter = 0;
+        let counter = 1;
         for(let scope in currentScopes)
-        {
+        { 
            if(counter == Object.keys(currentScopes).length){
                scopes += currentScopes[scope];
            }else{
-               scopes += currentScopes[scope]+"+";
+               scopes += currentScopes[scope]+" ";
            }
            counter ++;
-        }    
+        } 
         let authUrl =  authUrlTemplate+"?scope="+scopes+"&response_type=code&access_type=offline&state="+uniqueState+"&login_hint="+email+"&redirect_uri="+appAuthDetails.redirectURL+"&client_id="+appAuthDetails.clientID;
         return authUrl;
     }else{

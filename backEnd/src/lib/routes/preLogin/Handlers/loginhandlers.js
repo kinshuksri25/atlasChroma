@@ -15,7 +15,12 @@ const loginHandler = {};
 //params --> requestObject -- object
 //returns --> promise(object)
 loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
-    let response = {};
+    
+    let response = {
+                    EMSG : "",
+                    PAYLOAD : {},
+                    SMSG : ""
+                   };
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password')){
         //check email validity
@@ -25,7 +30,7 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                 if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
                     //set userSession
                     if(resultSet[0].FirstName == ""){
-                        response.PAYLOAD.unqiueID = resultSet[0]._id;
+                        response.PAYLOAD.uniqueID = resultSet[0]._id;
                         response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
                     }else{
