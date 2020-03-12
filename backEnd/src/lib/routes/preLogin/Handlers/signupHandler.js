@@ -28,9 +28,9 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
     if(requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.method == "POST"){
         //set userObject 
         let userObject = new user({_id : randValueGenerator(),
-                                  UserName : requestObject.reqBody.UserName,
-                                  Email : requestObject.reqBody.Email,
-                                  Password : encryptionAPI.hash(requestObject.reqBody.Password)});                                                           
+                                  username : requestObject.reqBody.UserName,
+                                  email : requestObject.reqBody.Email,
+                                  password : encryptionAPI.hash(requestObject.reqBody.Password)});                                                           
         //save the user details
         mongo.insert(DBCONST.userCollection, userObject.getUserObject(), {}).then(insertSet => {
 
@@ -90,7 +90,7 @@ signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject)
         SMSG : ""
        };
     let query = {};
-    query = requestObject.queryObject.Email != undefined ? {"Email":requestObject.queryObject.Email} : {"UserName":requestObject.queryObject.UserName};
+    query = requestObject.queryObject.Email != undefined ? {"email":requestObject.queryObject.Email} : {"username":requestObject.queryObject.UserName};
     
     //check requestObject
     if(query != {} && requestObject.method == "GET"){
@@ -133,10 +133,10 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check id validity
-         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { Email: 1, Password:1, FirstName:1 } }).then(resultSet => {
+         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1, password:1, firstname:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
-                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { FirstName: requestObject.reqBody.FirstName, LastName: requestObject.reqBody.LastName, PhoneNumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
-                    response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
+                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                    response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
                         response.STATUS = 200;
                         response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
                         response.PAYLOAD.cookieObject = resolvedResult;
