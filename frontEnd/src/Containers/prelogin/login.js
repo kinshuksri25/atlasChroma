@@ -5,8 +5,7 @@ import SimpleForm from '../../Forms/simpleform';
 import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import {urls} from "../../../../lib/constants/dataConstants";
-import {ERRORS} from "../../../../lib/constants/dataConstants";
+import {urls} from "../../../../lib/constants/contants";
 
 export default class Login extends Component {
 

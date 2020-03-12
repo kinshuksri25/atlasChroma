@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import React,{ Component } from 'react';
 
-import {ERRORS} from '../../../lib/constants/dataConstants';
+import {EMSG} from '../../../lib/constants/contants';
 import setUrlAction from "../store/actions/urlActions";
 
 class Menu extends Component{
@@ -24,7 +24,7 @@ class Menu extends Component{
 
     renderMenu(){
         if(this.props.menuArray == [] || this.props.menuArray == "" || this.props.menuArray == {} || this.props.menuArray == undefined){
-            console.log(ERRORS.ERR_MNU_CLI);
+            console.log(EMSG.CLI_MNU_IMNUARR);
             return '';
         }else{
             let menuArray = this.props.menuArray;

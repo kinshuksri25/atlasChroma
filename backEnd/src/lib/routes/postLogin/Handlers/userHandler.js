@@ -12,13 +12,12 @@ const userHandler = {};
 //router for all the user routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
-    
+userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {     
     let response = {
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
-       };
+    };
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :

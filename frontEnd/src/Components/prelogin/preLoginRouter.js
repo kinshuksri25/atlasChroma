@@ -8,7 +8,7 @@ import SignUp from '../../Containers/prelogin/signup';
 import PostAuth from '../../Containers/prelogin/postAuth';
 import LandingPage from "../../Components/prelogin/landingpage";
 import PostSignUpForm from '../../Containers/prelogin/postSignUpForm';
-import {urls} from "../../../../lib/constants/dataConstants";
+import {urls} from "../../../../lib/constants/contants";
 
 export default function PreLoginRouter (props) {
    

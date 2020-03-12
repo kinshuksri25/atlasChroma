@@ -17,7 +17,7 @@ const preLoginRouter = {};
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
 preLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
-    let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes[route] : preLoginRouter.routes.notFound;
+    let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes[route] : preLoginRouter.notFound;
     chosenHandler(requestObject).then(resolvedResult => {
         let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
         resolve(response.getResponseObject());
@@ -47,8 +47,7 @@ preLoginRouter.routes = {
     "/signup/postSignupDetails": signupHandler.postSignupDetails,
     "/googleAuth": googleAuthHandler.googleAuth, 
     "/googleAuth/postAuth": googleAuthHandler.postAuth,
-    "/googleAuth/postAuthDetails": googleAuthHandler.postAuthDetails,
-    "/notFound": preLoginRouter.notFound
+    "/googleAuth/postAuthDetails": googleAuthHandler.postAuthDetails
 };
 
 //export the module

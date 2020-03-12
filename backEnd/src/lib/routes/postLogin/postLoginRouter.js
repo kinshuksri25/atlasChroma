@@ -17,7 +17,7 @@ const postLoginRouter = {};
 //returns --> promise(object)
 postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
      
-    cookieHandler.checkCookie(requestObject.cookieObject).then(validCookie => {
+    cookieHandler.checkCookie(requestObject.cookieid).then(validCookie => {
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);
             chosenHandler(route,requestObject).then(resolvedResult => {
@@ -28,11 +28,11 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
                 reject(response.getResponseObject());
             });
         }else{
-            let response = new responseObject(400,MSG.SMSG.NOSUCCESS,{},EMSG.SVR_HNDLS_INDLCKIE);
+            let response = new responseObject(400,SMSG.NOSUCCESS,{},EMSG.SVR_HNDLS_INDLCKIE);
             reject(response);
         }
     }).catch(rejectedResult => {
-        let response = new responseObject(500,MSG.SMSG.NOSUCCESS,{},rejectedResult);
+        let response = new responseObject(500,SMSG.NOSUCCESS,{},rejectedResult);
         reject(response);
     });
 });
@@ -42,11 +42,11 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
 //returns --> chosenHandler - function 
 postLoginRouter.routeChecker = (route) => {
 
-    route = route.subString(1);
+    route = route.substring(1);
     let index = route.indexOf("/");
     route = index != -1 ? "/"+route.subString(0,index) : "/"+route;
     //select the correct router
-    let chosenHandler = postLoginRouter.routes.hasOwnProperty(route) ? postLoginRouter.routes[route] : postLoginRouter.routes.notFound;
+    let chosenHandler = postLoginRouter.routes.hasOwnProperty(route) ? postLoginRouter.routes[route] : postLoginRouter.notFound;
     return chosenHandler;
 };
 
@@ -63,8 +63,7 @@ postLoginRouter.notFound = (route,requestObject) => new Promise((resolve,reject)
 //postlogin routes
 postLoginRouter.routes = {
  "/user" : userHandler.user,
- "/project" : projectHandler.project,
- "/notFound": postLoginRouter.notFound
+ "/project" : projectHandler.project
 };
 
 //export the module

@@ -13,7 +13,7 @@ import Menu from '../../Menu/menu';
 import menuConstants from '../../Menu/menuConstants';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
-import {urls} from "../../../../lib/constants/dataConstants";
+import {urls} from "../../../../lib/constants/contants";
 class PostLoginRouter extends Component {
 
     constructor(props){
@@ -24,26 +24,20 @@ class PostLoginRouter extends Component {
 
     componentDidMount(){
         let userID = cookieManager.getUserSessionDetails(); 
+        let queryString = "";
         if(userID){
-            let cookieDetails = {"UserID" : userID};
-            this.getUserData(cookieDetails,this.props.setUserListState);
+            let cookieDetails = {"CookieID" : userID};
+            this.getUserData(cookieDetails,queryString,this.props.setUserListState);
             queryString+="&userID="+userID;
-            this.getUserData(queryString,this.props.setUserState);
+            this.getUserData(cookieDetails,queryString,this.props.setUserState);
         }else{
             window.history.pushState({}, "",urls.LANDING);
         }
     }
 
-    getUserData(params,action){
-        if(typeof(params) == "string"){
-            let headers={};
-            let queryString = params;
-        }else{
-            let headers = {...params};
-            let queryString = "";
-        }    
+    getUserData(headers,queryString,action){  
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
-            if(error || responseObject.Status == "ERROR"){
+            if(error || responseObject.Status != 200){
                 if(error){
                     console.log(error);
                     //TODO --> add errormsg div(ERR_CONN_SERVER)

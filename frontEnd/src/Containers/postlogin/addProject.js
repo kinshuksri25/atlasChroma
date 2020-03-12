@@ -6,6 +6,7 @@ import cookieManager from '../../Components/cookieManager';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import formConstants from '../../Forms/formConstants';
 import searchFeildConstants from '../../Forms/searchFeildConstants';
+import {EMSG} from '../../../../lib/constants/contants';
 import SimpleForm from '../../Forms/simpleform';
 import SearchFeild from '../../Forms/searchFeildForm';
 
@@ -67,7 +68,7 @@ class AddProject extends Component{
             });
         }else{
             //TODO --> empty feilds in the add project form
-            console.log("Empty feilds in the add project form");
+            console.log(EMSG.CLI_MID_INVMET);
         }
     }
 

@@ -2,11 +2,9 @@
 import React, { Component } from 'react';
 
 import SimpleForm from '../../Forms/simpleform';
-import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import {urls} from "../../../../lib/constants/dataConstants";
-import {ERRORS} from "../../../../lib/constants/dataConstants";
+import {EMSG,urls} from "../../../../lib/constants/contants";
 
 export default class SignUp extends Component {
 
@@ -131,17 +129,17 @@ export default class SignUp extends Component {
             }
         } else {
                 //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                console.log(urls.ERR_INVREQ_CLI);
+                console.log(EMSG.CLI_REQ_INVREQ);
         }
     }
      
     checkPasswordValidity(password, confirmPassword) {
         var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
         if (!regex.test(password)) {
-            return ERRORS.ERR_INPASS_CLI;
+            return EMSG.CLI_SGN_INPASS;
         }
         if (password != confirmPassword) {
-            return ERRORS.ERR_PASSMIS_CLI;
+            return EMSG.CLI_SGN_PASSMIS;
         }
         return "";
     };

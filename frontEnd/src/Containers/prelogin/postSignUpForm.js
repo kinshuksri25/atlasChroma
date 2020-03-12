@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import {urls} from "../../../../lib/constants/dataConstants";
-import {ERRORS} from "../../../../lib/constants/dataConstants";
+import {EMSG,urls} from "../../../../lib/constants/contants";
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
 
@@ -32,24 +31,24 @@ export default class PostSignUpForm extends Component {
         if (formObject.formData.hasOwnProperty('FirstName') && formObject.formData.hasOwnProperty('LastName') && formObject.formData.hasOwnProperty('Phone')) {
             formObject.formData.id = this.state.ID;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-            if(error || responseObject.Status == "ERROR"){
-                if(error){
-                    console.log(error);
-                    //TODO --> add errormsg div(ERR_CONN_SERVER)
+                if(error || responseObject.Status == "ERROR"){
+                    if(error){
+                        console.log(error);
+                        //TODO --> add errormsg div(ERR_CONN_SERVER)
+                    }else{
+                        //TODO --> add error msg div(errormsg)
+                    }
                 }else{
-                    //TODO --> add error msg div(errormsg)
+                    localStorage.clear();
+                    //set the session
+                    
+                    //TODO --> change the pushState 'state' and 'title'
+                    window.history.pushState({},"",urls.DASHBOARD);
                 }
-            }else{
-                localStorage.clear();
-                //set the session
-                
-                //TODO --> change the pushState 'state' and 'title'
-                window.history.pushState({},"",urls.DASHBOARD);
-            }
-        });
+            });
         } else {
                 //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                console.log(urls.ERR_INVREQ_CLI);
+                console.log(EMSG.CLI_MID_INVMET);
         }
     }
 

@@ -1,8 +1,8 @@
 //User Reducer File
 
 //Dependencies
-import {userObject} from "../../../../lib/constants/objectConstants";
-import {actionTypes} from "../../../../lib/constants/dataConstants";
+import {userObject} from "../../../../lib/constants/storeConstants";
+import {actionTypes} from "../../../../lib/constants/contants";
 
 export default function userStateReducer (state = userObject, action) {
 

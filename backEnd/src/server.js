@@ -45,7 +45,6 @@ server.unifiedServer = (req, res) => {
     req.on("data", function(chunk) {
         requestBodyString += chunk;
     });
-
     //this is called regardless of the method of the req
     req.on("end", function() {
 
@@ -57,11 +56,15 @@ server.unifiedServer = (req, res) => {
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
         requestObject.queryObject = queryStringObject;
+
+        if(headers.hasOwnProperty("cookieid")){
+            requestObject.cookieid = headers.cookieid;
+        }
         
         res.writeHead(200,{"Access-Control-Allow-Origin":"*",
-                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
+                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
-        
+
         router.centralRouter(route,requestObject).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();

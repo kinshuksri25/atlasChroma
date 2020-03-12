@@ -34,7 +34,7 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                         response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
                     }else{
-                        response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
+                        response.PAYLOAD.cookie = cookieHandler.createCookies(resultSet[0]._id,resultSet[0].username).then(resolvedResult => {
                             response.SMSG = SMSG.SVR_LGNH_LGNSUC;
                             response.STATUS = 200;
                             response.PAYLOAD.cookieObject = resolvedResult;

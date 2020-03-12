@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 
-import {urls} from "../../../../lib/constants/dataConstants";
+import {urls} from "../../../../lib/constants/contants";
 
 export default function Landing (props) {
 

@@ -1,8 +1,8 @@
 //UserList Reducer File
 
 //Dependencies
-import {userList} from "../../../../lib/constants/objectConstants";
-import {actionTypes} from "../../../../lib/constants/dataConstants";
+import {userList} from "../../../../lib/constants/storeConstants";
+import {actionTypes} from "../../../../lib/constants/contants";
 
 export default function userListStateReducer (state = userList, action) {
 

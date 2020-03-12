@@ -1,7 +1,7 @@
 //middleware for constructing and sending https request to backend.
 
 var https = require("https");
-import { constants,ERRORS } from '../../../lib/constants/dataConstants';
+import { connectionConstants,EMSG } from '../../../lib/constants/contants';
 var stringdecoder = require('string_decoder').StringDecoder;
 var url = require('url');
 
@@ -24,7 +24,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
 
     console.log("Https request initiated to the backend");
 
-    var builtUrl = constants.secureProtocol + "//" + constants.hostname + ":" + constants.backEndPort + path;
+    var builtUrl = connectionConstants.secureProtocol + "//" + connectionConstants.hostname + ":" + connectionConstants.backEndPort + path;
     var requestMethod = checkMethod(method);
     if (requestMethod != '') {
         builtUrl = requestMethod == methods["get"] || requestMethod == methods["delete"] ? builtUrl + "?" + data : builtUrl;
@@ -68,7 +68,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
         backendRequest.end();
     } else {
         //TODO --> add the error
-        callback(ERRORS.ERR_INVMET_CLIMID,false);
+        callback(EMSG.CLI_MID_INVMET,false);
     }
 };
 

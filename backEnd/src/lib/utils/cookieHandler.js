@@ -22,7 +22,7 @@ cookieHandler.createCookies = (requestObjectID,UserName)  => new Promise ((resol
             console.log(err);
             reject(EMSG.SVR_UTL_RDSCHERR);
         }else{
-            resolve(newCookie.getCookie());
+            resolve(newCookie.getCookie().ID);
         }
     }); 
 });
@@ -30,15 +30,15 @@ cookieHandler.createCookies = (requestObjectID,UserName)  => new Promise ((resol
 //function for checking cookie validity
 //params --> cookieObject
 //returns --> promise - boolean
-cookieHandler.checkCookie = (cookieObject) => new Promise ((resolve,reject) => {
+cookieHandler.checkCookie = (cookieID) => new Promise ((resolve,reject) => {
     //check cookies
     let cookieValidity = false;
-    client.get(cookieObject.cookieID, (err,res) => {
+    client.get(cookieID, (err,res) => {
         if(err){
             console.log(err);
             reject(EMSG.SVR_UTL_RDSRDERR);
         }else{
-           cookieValidity = res != undefined || res != "" ? true : false;
+           cookieValidity = res != "" ? true : false;
            resolve(cookieValidity);
         }
     });  
