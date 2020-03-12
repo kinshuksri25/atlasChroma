@@ -54,7 +54,6 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
                     response.PAYLOAD.unquieID = result.PAYLOAD.unquieID;
                     resolve(response);       
                 }).catch(error => {
-                    console.log("called");
                     mongo.delete(DBCONST.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
                     .catch(error => {
                         //TODO --> add this delete to cron job     
