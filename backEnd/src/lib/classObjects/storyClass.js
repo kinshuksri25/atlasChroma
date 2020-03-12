@@ -3,20 +3,20 @@ class story{
     constructor(name="",
                 description="",
                 contributors="",
-                storyPoints="",
+                storypoints="",
                 priority="",
-                startDate="",
-                dueDate="",
-                initialComments="") {
+                startdate="",
+                duedate="",
+                initialcomments="") {
                     
         this.name=name;
         this.description=description;
         this.contributors=contributors;
-        this.storyPoints=storyPoints;
+        this.storypoints=storypoints;
         this.priority=priority;
-        this.startDate=startDate;
-        this.dueDate=dueDate;
-        this.initialComments=initialComments;
+        this.startdate=startdate;
+        this.duedate=duedate;
+        this.initialcomments=initialcomments;
     }
 
     getStoryDetails(){
@@ -24,11 +24,11 @@ class story{
             name:this.name,
             description:this.description,
             contributors:this.contributors,
-            storyPoints:this.storyPoints,
+            storypoints:this.storypoints,
             priority:this.priority,
-            startDate:this.startDate,
-            dueDate:this.dueDate,
-            initialComments:this.initialComments          
+            startdate:this.startdate,
+            duedate:this.duedate,
+            initialcomments:this.initialcomments          
         }
 
         return storyObject;
@@ -37,20 +37,20 @@ class story{
     setStoryObject(name=this.name,
                    description=this.description,
                    contributors=this.contributors,
-                   storyPoints=this.storyPoints,
+                   storypoints=this.storypoints,
                    priority=this.priority,
-                   startDate=this.startDate,
+                   startdate=this.startdate,
                    dueDate=this.dueDate,
-                   initialComments=this.initialComments){
+                   initialcomments=this.initialcomments){
 
             this.name=name;
             this.description=description;
             this.contributors=contributors;
-            this.storyPoints=storyPoints;
+            this.storypoints=storypoints;
             this.priority=priority;
-            this.startDate=startDate;
-            this.dueDate=dueDate;
-            this.initialComments=initialComments;        
+            this.startdate=startdate;
+            this.duedate=duedate;
+            this.initialcomments=initialcomments;        
 
     }
 }
