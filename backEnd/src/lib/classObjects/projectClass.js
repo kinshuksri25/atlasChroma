@@ -7,20 +7,20 @@ class project{
     constructor({_id = randValueGenerator(),
                 title="",
                 description="",
-                projectLead="",
-                projectType="",
+                projectlead="",
+                projecttype="",
                 contributors=[],
-                creationDate= Date.now(),
-                modificationDate=""}){
+                creationdate= Date.now(),
+                modificationdate=""}){
         
         this._id = _id;                    
         this.title = title;
         this.description=description;
-        this.projectLead = projectLead;
+        this.projectlead = projectlead;
         this.contributors=contributors;
-        this.projectType=projectType;
-        this.creationDate=creationDate;
-        this.modificationDate=modificationDate;
+        this.projecttype=projecttype;
+        this.creationdate=creationdate;
+        this.modificationdate=modificationdate;
     }
 
     getProjectDetails(){
@@ -28,11 +28,11 @@ class project{
             _id : this._id,
             title:this.title,
             description:this.description,
-            projectLead:this.projectLead,
-            projectType:this.projectType,
+            projectlead:this.projectlead,
+            projecttype:this.projecttype,
             contributors:this.contributors,
-            creationDate:this.creationDate,
-            modificationDate:this.modificationDate
+            creationdate:this.creationdate,
+            modificationdate:this.modificationdate
         } 
         return {...projectDetails};
     }
@@ -40,20 +40,20 @@ class project{
     setProjectDetails({_id = this._id,
                       title=this.title,
                       description=this.description,
-                      projectLead=this.projectLead,
+                      projectlead=this.projectlead,
                       contributors=this.contributors,
-                      projectType=this.projectType,
-                      creationDate=this.creationDate,
-                      modificationDate=this.modificationDate}){
+                      projecttype=this.projecttype,
+                      creationdate=this.creationdate,
+                      modificationdate=this.modificationdate}){
 
         this._id = _id;                
         this.title = title;
         this.description=description;
-        this.projectLead = projectLead;
+        this.projectlead = projectlead;
         this.conbtributors=contributors;
-        this.projectType=projectType;
-        this.creationDate=creationDate;
-        this.modificationDate=modificationDate;
+        this.projecttype=projecttype;
+        this.creationdate=creationdate;
+        this.modificationdate=modificationdate;
     }
 }
 
