@@ -33,7 +33,7 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
                 //set user object
-                let googleSignUpUserObject = new user({_id : randValueGenerator(),Email : requestObject.queryObject.Email,state : state});          
+                let googleSignUpUserObject = new user({_id : randValueGenerator(),email : requestObject.queryObject.Email,state : state});          
                 //save user credentials 
                 mongo.insert(DBCONST.userCollection, googleSignUpUserObject, {}).then(insertSet => {
                     
@@ -90,7 +90,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
         mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, {}).then(resultSet => {
             if(requestObject.reqBody.code != undefined && requestObject.reqBody.error == undefined){
                 if (JSON.stringify(resultSet) != JSON.stringify([])){
-                    if(resultSet[0].refreshToken == ""){
+                    if(resultSet[0].refreshtoken == ""){
                         //get access_token
                         googleApis.getRefAccessToken(requestObject.reqBody.code).then(refreshTokenObject => {
                             //check for new user 
@@ -98,7 +98,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                                 //send welcome mail
                                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,resultSet[0].email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => { 
                                     googleApis.getUserDetails(refreshTokenObject.refresh_token).then(result => {
-                                        mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshToken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
+                                        mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshtoken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
                                             response.PAYLOAD.uniqueID = resultSet[0]._id;
                                             response.SMSG = SMSG.SVR_OATH_LGNSUC;
                                             response.STATUS = 200;
@@ -117,10 +117,10 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                                 });  
                             }else{
                                 //set userSession
-                                cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
+                                cookieHandler.createCookies(resultSet[0]._id,resultSet[0].username).then(resolvedResult => {
 									 //save the user details
                                      googleApis.getUserDetails(refreshTokenObject.refresh_token).then(result => {
-										mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshToken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
+										mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshtoken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
 											response.PAYLOAD.cookieDetails = resolvedResult;
 											response.SMSG = SMSG.SVR_OATH_LGNSUC;
 											response.STATUS = 200;
@@ -166,7 +166,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                             }); 
                         }else{
                             //set userSession
-                            cookieHandler.createCookies(resultSet[0]._id,resultSet[0].UserName).then(resolvedResult => {
+                            cookieHandler.createCookies(resultSet[0]._id,resultSet[0].username).then(resolvedResult => {
                                     //save the user details
                                     googleApis.getUserDetails(resultSet[0].RefreshToken).then(result => {
                                     mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name}}, {}, SINGLE).then(updateSet => {
@@ -195,7 +195,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                 }
             }else{
                 //delete the user data 
-                resultSet[0].Password == "" && mongo.delete(DBCONST.userCollection, { state: requestObject.reqBody.state }, {}, SINGLE).then(updateSet => {
+                resultSet[0].password == "" && mongo.delete(DBCONST.userCollection, { state: requestObject.reqBody.state }, {}, SINGLE).then(updateSet => {
                     response.STATUS = 400;
                     response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
@@ -205,7 +205,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                     response.EMSG = error;
                     reject(response);
                 });
-                resultSet[0].Password != "" && mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { refreshToken: "" } }, {}, SINGLE).then(updateSet => {
+                resultSet[0].password != "" && mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { refreshtoken: "" } }, {}, SINGLE).then(updateSet => {
                     response.STATUS = 400;
                     response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
@@ -245,7 +245,7 @@ googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reje
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
                 mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
-                    cookieHandler.createCookies(resultSet[0]._id).then(resolvedResult => {
+                    cookieHandler.createCookies(resultSet[0]._id,requestObject.reqBody.UserName).then(resolvedResult => {
                          response.PAYLOAD.cookieDetails =resolvedResult;
                          response.SMSG = SMSG.SVR_OATH_LGNSUC;
                          response.STATUS = 200;
