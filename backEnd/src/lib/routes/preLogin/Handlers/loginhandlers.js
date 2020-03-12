@@ -24,17 +24,17 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password')){
         //check email validity
-        mongo.read(DBCONST.userCollection,{ Email: requestObject.reqBody.Email }, { projection: { Email: 1, Password:1, _id:1, FirstName:1, UserName:1 } }).then(resultSet => {
+        mongo.read(DBCONST.userCollection,{ email: requestObject.reqBody.Email }, { projection: { email: 1, password:1, _id:1, firstname:1, username:1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) { 
                 //check password validity
-                if(resultSet[0].Password === encryptionAPI.hash(requestObject.reqBody.Password)){
+                if(resultSet[0].password === encryptionAPI.hash(requestObject.reqBody.Password)){
                     //set userSession
-                    if(resultSet[0].FirstName == ""){
+                    if(resultSet[0].firstname == ""){
                         response.PAYLOAD.uniqueID = resultSet[0]._id;
                         response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
                     }else{
-                        response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].UserName).then(resolvedResult => {
+                        response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
                             response.SMSG = SMSG.SVR_LGNH_LGNSUC;
                             response.STATUS = 200;
                             response.PAYLOAD.cookieObject = resolvedResult;
