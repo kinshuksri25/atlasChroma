@@ -21,8 +21,15 @@ export default class Login extends Component {
     onSubmitHandler(formObject) {
         let headers = {};
         let globalThis = this;
-        formObject.formData = formObject.route == "/login" ? formObject.formData : "Email="+formObject.formData.Email;
-        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
+        let gmailPatternError = "";
+        if(formObject.route != "/login"){
+            let gmailRegex = new Regex("/*gmail/g");
+            gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid mail";
+            if(gmailPatternError == "")
+                 formObject.formData = "Email="+formObject.formData.Email;
+        }
+        if(gmailPatternError == ""){
+          httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
             if(responseObject.ERRORMSG != "" || error){
                 if(error){
                     console.log(error);
@@ -51,6 +58,9 @@ export default class Login extends Component {
                 }
             }   
         });
+        }else{
+            //TODO --> errormsg div(invalid email)
+        }
     }
 
     onClickHandler(event) {
