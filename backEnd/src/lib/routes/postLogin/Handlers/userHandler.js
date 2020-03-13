@@ -53,19 +53,19 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
         SMSG : ""
        };
     let projection = {
-        projection: {UserName:1,Email: 1}
+        projection: {username:1,email: 1}
     };
     let query ={};
 
     if(requestObject.queryObject.userID != undefined){
-        projection.projection = { _id: 0, Password:0,RefreshToken:0,State:0};
+        projection.projection = { _id: 0, password:0,refreshToken:0,state:0};
         query={_id : requestObject.queryObject.userID};
     }
 
     mongo.read(dbConstants.userCollection,{...query},{...projection}).then(resultSet => {
         if(resultSet.length != 0){    
-              if( resultSet[0].Projects != undefined && resultSet[0].Projects.length != 0){
-                let projectList = resultSet[0].Projects;
+              if( resultSet[0].projects != undefined && resultSet[0].projects.length != 0){
+                let projectList = resultSet[0].projects;
                 mongo.read(dbConstants.projectCollection,{ _id: { $in: projectList } },{}).then(resolveSet => {
                     if(resolveSet.length != 0){
                         response.STATUS = 200;
