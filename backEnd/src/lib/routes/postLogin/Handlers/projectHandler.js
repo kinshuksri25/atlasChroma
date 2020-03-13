@@ -55,18 +55,17 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
         SMSG : ""
        };
     if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectLeader')){
-        let creationDate = Date.now();
-        let projectClass = new project( requestObject.reqBody.Title,
-                                        requestObject.reqBody.Description,
-                                        requestObject.reqBody.projectLeader,
-                                        requestObject.reqBody.ProjectType,
-                                        requestObject.reqBody.contributors,
-                                        creationDate);
+        let projectClass = new project({title : requestObject.reqBody.Title,
+                                        description : requestObject.reqBody.Description,
+                                        projectleader : requestObject.reqBody.projectLeader,
+                                        projecttype : requestObject.reqBody.ProjectType,
+                                        contributors : requestObject.reqBody.contributors});
+        
         let projectObject = projectClass.getProjectDetails();  
         mongo.insert(dbConstants.projectCollection,projectObject,{}).then(resolveResult => {
             
             let insertedID = resolveResult.insertedId;
-            mongo.update(dbConstants.userCollection,{ UserName: { $in: projectObject.contributors } },{ $push: {Projects : insertedID}}, {}, SINGLE).then(updateSet => {
+            mongo.update(dbConstants.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
                 response.PAYLOAD.projects = resolveResult.ops[0];
                 response.SMSG = SMSG.SVR_PHH_USRUP;        
