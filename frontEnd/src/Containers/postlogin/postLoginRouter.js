@@ -14,6 +14,7 @@ import menuConstants from '../../Menu/menuConstants';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
+
 class PostLoginRouter extends Component {
 
     constructor(props){
@@ -37,7 +38,7 @@ class PostLoginRouter extends Component {
 
     getUserData(headers,queryString,action){  
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
-            if(error || responseObject.Status != 200){
+            if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     console.log(error);
                     //TODO --> add errormsg div(ERR_CONN_SERVER)
@@ -48,7 +49,7 @@ class PostLoginRouter extends Component {
                     //TODO --> add error msg div(errormsg)
                 }
             }else{
-                action({...responseObject.Payload.users});
+                action({...responseObject.PAYLOAD.users});
             }
         });
     }
@@ -74,11 +75,11 @@ class PostLoginRouter extends Component {
                     break;
                 case "logout":
                     cookieManager.clearUserSession(); 
-                    window.history.pushState({}, "",urls.LANDING);
+                    window.history.replaceState({}, "",urls.LANDING);
                     break;        
                 default:
                     //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({}, "",urls.DASHBOARD);
+                    window.history.replaceState({}, "",urls.DASHBOARD);
                     //TODO --> check if urlaction is required?
                     return <DashBoard/>;
                     break;

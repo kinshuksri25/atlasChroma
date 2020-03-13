@@ -23,14 +23,14 @@ export default class Login extends Component {
         let globalThis = this;
         let gmailPatternError = "";
         if(formObject.route != "/login"){
-            let gmailRegex = new Regex("/*gmail/g");
-            gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid mail";
-            if(gmailPatternError == "")
+            // let gmailRegex = new RegExp("/*gmail/g");
+            // gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid email";
+            // if(gmailPatternError == "")
                  formObject.formData = "Email="+formObject.formData.Email;
         }
         if(gmailPatternError == ""){
           httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
-            if(responseObject.ERRORMSG != "" || error){
+            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     console.log(error);
                     //TODO --> errormsg div(ERR_CONN_SERVER)
@@ -45,7 +45,7 @@ export default class Login extends Component {
                         window.history.pushState({},"",urls.POSTSIGNUPFORM);   
                     }else{
                         //set the session
-                        cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
+                        cookieManager.setUserSessionDetails(responseObject.PAYLOAD.userID);
                         //TODO --> change the pushState 'state' and 'title'
                         window.history.pushState({},"",urls.DASHBOARD);
                     }

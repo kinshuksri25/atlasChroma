@@ -4,7 +4,7 @@
 
 //Dependencies
 const mongo = require("../../../utils/data");
-const {EMSG,SMSG,SINGLE} = require("../../../../../../lib/constants/contants");
+const {EMSG,SMSG,SINGLE,DBCONST} = require("../../../../../../lib/constants/contants");
 const project = require("../../../classObjects/projectClass");
 
 
@@ -62,10 +62,10 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
                                         contributors : requestObject.reqBody.contributors});
         
         let projectObject = projectClass.getProjectDetails();  
-        mongo.insert(dbConstants.projectCollection,projectObject,{}).then(resolveResult => {
+        mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {
             
             let insertedID = resolveResult.insertedId;
-            mongo.update(dbConstants.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
+            mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
                 response.PAYLOAD.projects = resolveResult.ops[0];
                 response.SMSG = SMSG.SVR_PHH_USRUP;        

@@ -15,7 +15,6 @@ const loginHandler = {};
 //params --> requestObject -- object
 //returns --> promise(object)
 loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
-    
     let response = {
                     EMSG : "",
                     PAYLOAD : {},
@@ -33,18 +32,19 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                         response.PAYLOAD.uniqueID = resultSet[0]._id;
                         response.SMSG = SMSG.SVR_LGNH_INLGNSUC;
                         response.STATUS = 201;
+                        resolve(response);
                     }else{
                         response.PAYLOAD.cookie = cookieHandler.createCookies(resultSet[0]._id,resultSet[0].username).then(resolvedResult => {
                             response.SMSG = SMSG.SVR_LGNH_LGNSUC;
                             response.STATUS = 200;
-                            response.PAYLOAD.cookieObject = resolvedResult;
+                            response.PAYLOAD.userID = resolvedResult;
+                            resolve(response);
                         }).catch(rejectedResult => {
                             response.STATUS = 500;
                             response.EMSG = rejectedResult;
                             reject(response);
                         });
                     }
-                    resolve(response);
                 }else{
                     throw EMSG.SVR_LGNH_INPASS;
                 }    

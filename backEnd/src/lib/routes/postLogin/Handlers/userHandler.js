@@ -4,7 +4,7 @@
 
 //Dependencies
 const mongo = require("../../../utils/data");
-const {EMSG,SMSG,} = require("../../../../../../lib/constants/contants");
+const {EMSG,SMSG,DBCONST} = require("../../../../../../lib/constants/contants");
 
 //declaring the module
 const userHandler = {};
@@ -46,7 +46,6 @@ userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
 //params --> route - string, requestObject - object
 //returns --> promise - object
 userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => {
-    
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -62,7 +61,7 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
         query={_id : requestObject.queryObject.userID};
     }
 
-    mongo.read(dbConstants.userCollection,{...query},{...projection}).then(resultSet => {
+    mongo.read(DBCONST.userCollection,{...query},{...projection}).then(resultSet => {
         if(resultSet.length != 0){    
               if( resultSet[0].projects != undefined && resultSet[0].projects.length != 0){
                 let projectList = resultSet[0].projects;

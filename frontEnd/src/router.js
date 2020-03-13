@@ -21,7 +21,7 @@ class Router extends Component {
             if(this.props.currentUrl == "" || this.props.currentUrl != window.location.pathname){
                 this.props.setUrlState(window.location.pathname);
             } 
-        },500);
+        },1000);
     }
 
     render(){
