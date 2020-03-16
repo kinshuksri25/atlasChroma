@@ -23,10 +23,10 @@ export default class Login extends Component {
         let globalThis = this;
         let gmailPatternError = "";
         if(formObject.route != "/login"){
-            // let gmailRegex = new RegExp("/*gmail/g");
-            // gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid email";
-            // if(gmailPatternError == "")
-                 formObject.formData = "Email="+formObject.formData.Email;
+            let gmailRegex = new RegExp("/*gmail/g");
+            gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid email";
+            if(gmailPatternError == "")
+                formObject.formData = "Email="+formObject.formData.Email;
         }
         if(gmailPatternError == ""){
           httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
