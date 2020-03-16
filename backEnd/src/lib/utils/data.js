@@ -51,7 +51,7 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             }
         });
     }).catch(err => {
-        reject(ERRORS.ERR_RD_DB);
+        reject(EMSG.ERR_RD_DB);
     });
 });
 

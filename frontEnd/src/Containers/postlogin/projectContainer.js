@@ -11,13 +11,13 @@ class ProjectContainer extends Component{
     }
 
     renderProjectTabs(){
-      if(this.props.user.Projects.length != 0){
-        let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.Projects);
+      if(this.props.user.projects.length != 0){
+        let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.projects);
         let projectContainer = sortedProjectArray.map(project => {
             return(
                     //TODO add the project lead's photo (link)  
                     //TODO add a list of contributors (profilePhotos)(link)
-                <button id = {project.title} className = {project.projectType} onClick = {this.onClick}>
+                <button id = {project.title} className = {project.projecttype} onClick = {this.onClick}>
                     <h3>{project.title}</h3>
                     <h4>Project Lead:</h4>
                     <h5>{project.description}</h5>
@@ -36,16 +36,16 @@ class ProjectContainer extends Component{
         let selection = "";
         switch(orderBy){
             case "Recently Created":
-                selection="creationDate";
+                selection="creationdate";
                 break;
             case "Recently Modified":
-                selection="modificationDate";
+                selection="modificationdate";
                 break;
             case "Alphabetically":
                 selection="title";
                 break;
              default:
-                 selection="creationDate";
+                 selection="creationdate";
                  break;           
         }
 

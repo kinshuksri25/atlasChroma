@@ -96,6 +96,13 @@ class PostLoginRouter extends Component {
         </div>);
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        currentUrl : state.urlStateReducer.currentUrl
+    }
+}
+
 const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
@@ -107,4 +114,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(null,mapDispatchToProps)(PostLoginRouter);
+export default connect(mapStateToProps,mapDispatchToProps)(PostLoginRouter);

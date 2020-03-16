@@ -14,8 +14,8 @@ const projectHandler = {};
 //router for all the project routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project = (requestObject) => new Promise((resolve,reject) => {
-    
+projectHandler.project = (route,requestObject) => new Promise((resolve,reject) => {
+
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -54,10 +54,10 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
         PAYLOAD : {},
         SMSG : ""
        };
-    if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectLeader')){
+    if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectleader')){
         let projectClass = new project({title : requestObject.reqBody.Title,
                                         description : requestObject.reqBody.Description,
-                                        projectleader : requestObject.reqBody.projectLeader,
+                                        projectlead : requestObject.reqBody.projectleader,
                                         projecttype : requestObject.reqBody.ProjectType,
                                         contributors : requestObject.reqBody.contributors});
         
@@ -67,7 +67,7 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
             let insertedID = resolveResult.insertedId;
             mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
-                response.PAYLOAD.projects = resolveResult.ops[0];
+                response.PAYLOAD = resolveResult.ops[0];
                 response.SMSG = SMSG.SVR_PHH_USRUP;        
                 resolve(response);     
             }).catch(rejectSet => {

@@ -46,25 +46,25 @@ class AddProject extends Component{
     }
 
     onSubmitHandler(formObject){
-        let headers = {UserID : cookieManager.setUserSessionDetails()};
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         let formData = formObject.formData;
         if(this.state.contributors.length != 0 && this.state.projectLeader != "" && formData.ProjectType != ""){
             formData.contributors = this.state.contributors;
-            formData.projectLeader = this.state.projectLeader;
+            formData.projectleader = this.state.projectLeader;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
-                if(error || responseObject.Status == "ERROR"){
+                if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){
                         console.log(error);
                         //TODO --> errormsg div(ERR_CONN_SERVER)
                     }else{
                         //TODO --> errormsg div(errorMsg)
                     }
-                 }else{
+                }else{
                      let userStateObject = {...globalThis.props.user};
-                     userStateObject.Projects = responseObject.payload;
+                     userStateObject.projects.push({...responseObject.PAYLOAD});
                      globalThis.props.setUserState(userStateObject);
-                 }
+                }
             });
         }else{
             //TODO --> empty feilds in the add project form

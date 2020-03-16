@@ -37,7 +37,7 @@ export default class SearchFeild extends Component{
                 let suggestionContainer = <ul>
                                             {
                                                 resultSet.map( el => {
-                                                    return( <li id = {el.UserName} onClick = {this.onClick}>{el.UserName}</li> );
+                                                    return( <li id = {el.username} onClick = {this.onClick}>{el.username}</li> );
                                                 })
                                             }
                                           </ul>

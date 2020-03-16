@@ -94,7 +94,8 @@ export default class SignUp extends Component {
                 }
             }); 
         });
-    }     
+    }  
+
     onSubmitHandler(formObject) {
         let headers = {};
         let globalThis = this;
@@ -112,7 +113,7 @@ export default class SignUp extends Component {
                             }
                         }else{
                             //set the localstorage
-                            localStorage.uniqueID = responseObject.PAYLOAD;
+                            localStorage.uniqueID = responseObject.PAYLOAD.uniqueID;
                             //TODO --> change the pushState 'state' and 'title'
                             window.history.pushState({},"",urls.POSTSIGNUPFORM);
                         }

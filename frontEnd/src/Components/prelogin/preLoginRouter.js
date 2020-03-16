@@ -42,7 +42,6 @@ export default function PreLoginRouter (props) {
         }
 
     }
-
     let container = containerSelector();
     return ( <div> { container } </div>);
 }

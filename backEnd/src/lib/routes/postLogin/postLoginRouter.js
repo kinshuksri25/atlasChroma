@@ -16,7 +16,6 @@ const postLoginRouter = {};
 //params --> route -- string, requestObject -- object
 //returns --> promise(object)
 postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
-     
     cookieHandler.checkCookie(requestObject.cookieid).then(validCookie => {
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);

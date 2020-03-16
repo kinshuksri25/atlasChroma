@@ -45,9 +45,7 @@ class Menu extends Component{
         let route = event.target.id;
         this.setState({currentUrl : route}, () => {
             //push new url to history
-            window.history.pushState({},"",this.state.currentUrl);
-            //dispatch action to change route in store state
-            this.props.setUrlState(this.state.currentUrl);    
+            window.history.pushState({},"",this.state.currentUrl);   
         });
     }
 
@@ -64,13 +62,6 @@ const mapStateToProps = (state) => {
     }
 };
 
-const mapDispatchToProps = dispatch => {
-    return {
-        setUrlState: (url) => {
-            dispatch(setUrlAction(url));
-        }
-    };
-};
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Menu);
+export default connect(mapStateToProps, null)(Menu);

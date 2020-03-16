@@ -61,6 +61,7 @@ var httpsRequest = function(path, method, headers, data, callback) {
 
         //error checking
         backendRequest.on('error', (error) => {
+            console.log(error);
             callback(error.message,false);
         });
 

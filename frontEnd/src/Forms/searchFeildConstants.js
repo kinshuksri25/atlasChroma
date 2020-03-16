@@ -5,7 +5,7 @@ searchFeildConstants.ProjectLead = {
                                       placeholder: "Project Lead",
                                       id: "projectLead",
                                       className: "searchBox",
-                                      searchCriteria: ["Email","UserName"] 
+                                      searchCriteria: ["email","username"] 
                                    };
 
 searchFeildConstants.Contributors = {
@@ -13,7 +13,7 @@ searchFeildConstants.Contributors = {
                                     placeholder: "Contributors",
                                     id: "contributors",
                                     className: "searchBox",
-                                    searchCriteria: ["Email","UserName"] 
+                                    searchCriteria: ["email","username"] 
                                    };      
                                    
                                    

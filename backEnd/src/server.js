@@ -60,7 +60,6 @@ server.unifiedServer = (req, res) => {
         if(headers.hasOwnProperty("cookieid")){
             requestObject.cookieid = headers.cookieid;
         }
-        
         res.writeHead(200,{"Access-Control-Allow-Origin":"*",
                            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
