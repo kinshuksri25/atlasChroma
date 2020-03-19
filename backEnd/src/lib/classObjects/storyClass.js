@@ -1,14 +1,19 @@
+//Dependencies
+const {randValueGenerator} = require("../utils/helper");
+
 //Blueprint for story object
 class story{
-    constructor(name="",
+    constructor({_id = randValueGenerator(), 
+                name="",
                 description="",
                 contributors="",
                 storypoints="",
                 priority="",
                 startdate="",
                 duedate="",
-                initialcomments="") {
-                    
+                comments=""}) {
+        
+        this._id = _id;              
         this.name=name;
         this.description=description;
         this.contributors=contributors;
@@ -16,11 +21,12 @@ class story{
         this.priority=priority;
         this.startdate=startdate;
         this.duedate=duedate;
-        this.initialcomments=initialcomments;
+        this.comments=comments;
     }
 
     getStoryDetails(){
         let storyObject={
+            _id : this._id,
             name:this.name,
             description:this.description,
             contributors:this.contributors,
@@ -28,21 +34,23 @@ class story{
             priority:this.priority,
             startdate:this.startdate,
             duedate:this.duedate,
-            initialcomments:this.initialcomments          
+            comments:this.comments          
         }
 
         return storyObject;
     }
 
-    setStoryObject(name=this.name,
+    setStoryObject({_id = this._id,
+                   name=this.name,
                    description=this.description,
                    contributors=this.contributors,
                    storypoints=this.storypoints,
                    priority=this.priority,
                    startdate=this.startdate,
                    dueDate=this.dueDate,
-                   initialcomments=this.initialcomments){
+                   comments=this.comments}){
 
+            this._id = _id;            
             this.name=name;
             this.description=description;
             this.contributors=contributors;
@@ -50,7 +58,7 @@ class story{
             this.priority=priority;
             this.startdate=startdate;
             this.duedate=duedate;
-            this.initialcomments=initialcomments;        
+            this.comments=comments;        
 
     }
 }

@@ -8,6 +8,7 @@ class ProjectContainer extends Component{
         super(props);
         this.renderProjectTabs = this.renderProjectTabs.bind(this);
         this.sortProjects = this.sortProjects.bind(this);
+        this.onClick = this.onClick.bind(this);
     }
 
     renderProjectTabs(){
@@ -17,10 +18,10 @@ class ProjectContainer extends Component{
             return(
                     //TODO add the project lead's photo (link)  
                     //TODO add a list of contributors (profilePhotos)(link)
-                <button id = {project.title} className = {project.projecttype} onClick = {this.onClick}>
-                    <h3>{project.title}</h3>
-                    <h4>Project Lead:</h4>
-                    <h5>{project.description}</h5>
+                <button className = {project._id} onClick = {this.onClick}>
+                    <h3 className = {project._id}>{project.title}</h3>
+                    <h4 className = {project._id}>Project Lead:</h4>
+                    <h5 className = {project._id}>{project.description}</h5>
                 </button>   
             );
         });
@@ -29,6 +30,11 @@ class ProjectContainer extends Component{
             //TODO add in dataConstants
           return (<h1>You are not collaborating on any projects...</h1>);
       }
+    }
+
+    onClick(event){
+        let projectID = event.target.className;
+        window.history.pushState({},"","/projects/"+projectID);
     }
 
     sortProjects(orderBy,projectArray){

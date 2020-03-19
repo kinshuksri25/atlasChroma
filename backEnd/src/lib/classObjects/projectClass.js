@@ -10,6 +10,7 @@ class project{
                 projectlead="",
                 projecttype="",
                 contributors=[],
+                stories = [],
                 creationdate= Date.now(),
                 modificationdate=""}){
         
@@ -19,6 +20,7 @@ class project{
         this.projectlead = projectlead;
         this.contributors=contributors;
         this.projecttype=projecttype;
+        this.stories=stories;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
     }
@@ -31,6 +33,7 @@ class project{
             projectlead:this.projectlead,
             projecttype:this.projecttype,
             contributors:this.contributors,
+            stories:this.stories,
             creationdate:this.creationdate,
             modificationdate:this.modificationdate
         } 
@@ -43,6 +46,7 @@ class project{
                       projectlead=this.projectlead,
                       contributors=this.contributors,
                       projecttype=this.projecttype,
+                      stories=this.stories,
                       creationdate=this.creationdate,
                       modificationdate=this.modificationdate}){
 
@@ -52,6 +56,7 @@ class project{
         this.projectlead = projectlead;
         this.conbtributors=contributors;
         this.projecttype=projecttype;
+        this.stories=stories;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
     }

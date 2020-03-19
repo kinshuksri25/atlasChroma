@@ -45,7 +45,7 @@ class Menu extends Component{
         let route = event.target.id;
         this.setState({currentUrl : route}, () => {
             //push new url to history
-            window.history.pushState({},"",this.state.currentUrl);   
+            window.history.pushState({},"",window.location.origin+"/"+route); 
         });
     }
 

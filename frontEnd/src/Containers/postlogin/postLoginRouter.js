@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
+import ProjectBoard from './projectBoard';
 import Projects from './projects';
 import IssueTracker from './issueTracker';
 import Highlight from './highlight';
@@ -56,35 +57,48 @@ class PostLoginRouter extends Component {
 
     //Router
     containerSelector() {
-        var path = window.location.pathname.substring(1).toLowerCase();
-        if (/[a-z]+\//g.test(path) && !/[a-z]+\/[a-z]+/g.test(path)) {
-            window.location.pathname = "/" + path.substring(0, path.length - 1);
-        } else {
-            switch (path) {
-                case "dashboard":
-                    return <DashBoard/>;
-                    break;
-                case "projects":
-                    return <Projects/>;
-                    break;
-                case "issuetracker":
-                    return <IssueTracker/>;
-                    break;
-                case "scheduler":
-                    return <Scheduler/>;
-                    break;
-                case "logout":
-                    cookieManager.clearUserSession(); 
-                    window.history.replaceState({}, "",urls.LANDING);
-                    break;        
-                default:
-                    //TODO --> change the pushState 'state' and 'title'
-                    window.history.replaceState({}, "",urls.DASHBOARD);
-                    //TODO --> check if urlaction is required?
-                    return <DashBoard/>;
-                    break;
+        let projectRegex = new RegExp(/projects\/[a-z|0-9]*/);
+        let issueRegex = new RegExp(/issuetracker\/[a-z|0-9]*/);
+        let path = window.location.pathname.substring(1).toLowerCase();
+
+        if(!/[a-z]+\/[a-z|0-9]+/g.test(path))
+            if (/[a-z]+\//g.test(path)) {
+                window.location.pathname = "/" + path.substring(0, path.length - 1);
+            } else {
+                switch (path) {
+                    case "dashboard":
+                        return <DashBoard/>;
+                        break;
+                    case "projects":
+                        return <Projects/>;
+                        break;    
+                    case "issuetracker":
+                        return <IssueTracker/>;
+                        break;
+                    case "scheduler":
+                        return <Scheduler/>;
+                        break;
+                    case "logout":
+                        cookieManager.clearUserSession(); 
+                        window.history.replaceState({}, "",urls.LANDING);
+                        break;        
+                    default:
+                        //TODO --> change the pushState 'state' and 'title'
+                        window.history.replaceState({}, "",urls.DASHBOARD);
+                        return <DashBoard/>;
+                        break;
+                }
+            }  
+        else{
+            if(projectRegex.test(path)){
+                return <ProjectBoard/>
+            }else if(issueRegex.test(path)){
+                console.path(path);
+            }else{
+                window.history.replaceState({}, "",urls.DASHBOARD);
+                return <DashBoard/>;
             }
-        }
+        }      
     }
    
 

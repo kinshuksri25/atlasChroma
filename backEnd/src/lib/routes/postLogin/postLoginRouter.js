@@ -6,8 +6,10 @@
 const userHandler = require("./Handlers/userHandler");
 const projectHandler = require("./Handlers/projectHandler");
 const cookieHandler = require("../../utils/cookieHandler");
+const storyHandler = require("./Handlers/storyHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
+
 
 //defining the module
 const postLoginRouter = {};
@@ -62,7 +64,8 @@ postLoginRouter.notFound = (route,requestObject) => new Promise((resolve,reject)
 //postlogin routes
 postLoginRouter.routes = {
  "/user" : userHandler.user,
- "/project" : projectHandler.project
+ "/project" : projectHandler.project,
+ "/stories" : storyHandler.stories
 };
 
 //export the module

@@ -42,6 +42,7 @@ class AddProject extends Component{
     }
 
     onChangeHandler(event){
+        //TODO --> check the availabilty for project name
         console.log(event);
     }
 
@@ -80,7 +81,7 @@ class AddProject extends Component{
                     changeHandler = { this.onChangeHandler }
                     submitHandler = { this.onSubmitHandler }
                     changeFieldNames = {["Title"]}
-                    options = {["Project Type","Simple","Agile"]} />
+                    options = {["Project Type","Simple","Kanban"]} />
                </div>);
     }
 }

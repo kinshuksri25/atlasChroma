@@ -47,7 +47,6 @@ server.unifiedServer = (req, res) => {
     });
     //this is called regardless of the method of the req
     req.on("end", function() {
-
         //this is specific to post req
         requestBodyString += decoder.end();
 
