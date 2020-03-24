@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
-import ProjectBoard from './projectBoard';
+import KanbanBoard from './kanbanBoard';
 import Projects from './projects';
 import IssueTracker from './issueTracker';
 import Highlight from './highlight';
@@ -57,7 +57,7 @@ class PostLoginRouter extends Component {
 
     //Router
     containerSelector() {
-        let projectRegex = new RegExp(/projects\/[a-z|0-9]*/);
+        let boardRegex = new RegExp(/boards\/[a-z|0-9]*/);
         let issueRegex = new RegExp(/issuetracker\/[a-z|0-9]*/);
         let path = window.location.pathname.substring(1).toLowerCase();
 
@@ -90,8 +90,8 @@ class PostLoginRouter extends Component {
                 }
             }  
         else{
-            if(projectRegex.test(path)){
-                return <ProjectBoard/>
+            if(boardRegex.test(path)){
+                return <KanbanBoard/>
             }else if(issueRegex.test(path)){
                 console.path(path);
             }else{
