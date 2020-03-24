@@ -54,11 +54,10 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
         PAYLOAD : {},
         SMSG : ""
        };
-    if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('ProjectType') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectleader')){
+    if(requestObject.reqBody.hasOwnProperty('Description') && requestObject.reqBody.hasOwnProperty('Title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectleader')){
         let projectClass = new project({title : requestObject.reqBody.Title,
                                         description : requestObject.reqBody.Description,
                                         projectlead : requestObject.reqBody.projectleader,
-                                        projecttype : requestObject.reqBody.ProjectType,
                                         contributors : requestObject.reqBody.contributors});
         
         let projectObject = projectClass.getProjectDetails();  
