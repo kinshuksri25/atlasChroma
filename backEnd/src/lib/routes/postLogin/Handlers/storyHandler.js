@@ -77,7 +77,7 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
     
         mongo.insert(DBCONST.storyCollection,storyObject.getStoryDetails(),{}).then(resolveResult => {
             let insertedID = resolveResult.insertedId;
-            mongo.update(DBCONST.projectCollection,{ _id : requestObject.reqBody.ProjectID },{ $push: {stories : insertedID}}, {}, SINGLE).then(updateSet => {
+            mongo.update(DBCONST.projectCollection,{ _id : requestObject.reqBody.ProjectID },{ $push: {boarddetails.stories : insertedID}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
                 response.PAYLOAD = resolveResult.ops[0];
                 response.SMSG = SMSG.SVR_SHH_PRJUP;        
