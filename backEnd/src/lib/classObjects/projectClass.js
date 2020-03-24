@@ -8,21 +8,19 @@ class project{
                 title="",
                 description="",
                 projectlead="",
-                projecttype="",
-                contributors=[],
-                stories = [],
+                contributors=[], 
                 creationdate= Date.now(),
-                modificationdate=""}){
+                modificationdate="",
+                boarddetails = {}}){
         
         this._id = _id;                    
         this.title = title;
         this.description=description;
         this.projectlead = projectlead;
         this.contributors=contributors;
-        this.projecttype=projecttype;
-        this.stories=stories;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
+        this.boarddetails = boarddetails;
     }
 
     getProjectDetails(){
@@ -31,11 +29,10 @@ class project{
             title:this.title,
             description:this.description,
             projectlead:this.projectlead,
-            projecttype:this.projecttype,
             contributors:this.contributors,
-            stories:this.stories,
             creationdate:this.creationdate,
-            modificationdate:this.modificationdate
+            modificationdate:this.modificationdate,
+            boarddetails:this.boarddetails
         } 
         return {...projectDetails};
     }
@@ -45,20 +42,18 @@ class project{
                       description=this.description,
                       projectlead=this.projectlead,
                       contributors=this.contributors,
-                      projecttype=this.projecttype,
-                      stories=this.stories,
                       creationdate=this.creationdate,
-                      modificationdate=this.modificationdate}){
+                      modificationdate=this.modificationdate,
+                      boarddetails=this.boarddetails}){
 
         this._id = _id;                
         this.title = title;
         this.description=description;
         this.projectlead = projectlead;
         this.conbtributors=contributors;
-        this.projecttype=projecttype;
-        this.stories=stories;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
+        this.boarddetails=boarddetails;
     }
 }
 
