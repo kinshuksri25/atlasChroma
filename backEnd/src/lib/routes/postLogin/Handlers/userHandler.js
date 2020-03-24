@@ -68,7 +68,7 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
                 mongo.read(DBCONST.projectCollection,{ _id: { $in: projectList } },{}).then(resolveSet => {
                     if(resolveSet.length != 0){
                         resultSet[0].projects = resolveSet;
-                        let storyList = resultSet[0].projects.stories;
+                        let storyList = resultSet[0].projects.boarddetails.stories;
                         mongo.read(DBCONST.storyCollection,{_id:{$in : storyList}},{}).then(storySet => {
                             resultSet[0].projects.stories = storySet;
                             response.STATUS = 200;
