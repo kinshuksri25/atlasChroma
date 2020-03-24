@@ -50,7 +50,7 @@ class AddProject extends Component{
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         let formData = formObject.formData;
-        if(this.state.contributors.length != 0 && this.state.projectLeader != "" && formData.ProjectType != ""){
+        if(this.state.contributors.length != 0 && this.state.projectLeader != ""){
             formData.contributors = this.state.contributors;
             formData.projectleader = this.state.projectLeader;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
@@ -80,8 +80,7 @@ class AddProject extends Component{
                 <SimpleForm formAttributes = { formConstants.addProject }
                     changeHandler = { this.onChangeHandler }
                     submitHandler = { this.onSubmitHandler }
-                    changeFieldNames = {["Title"]}
-                    options = {["Project Type","Simple","Kanban"]} />
+                    changeFieldNames = {["Title"]}/>
                </div>);
     }
 }
