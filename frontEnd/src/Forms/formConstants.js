@@ -240,15 +240,6 @@ formConstants.addProject = [
         isRequired: true
     },
     {
-        name: "ProjectType",
-        type: "DropDown",
-        placeholder: "ProjectType",
-        id: "projectType",
-        className: "addProjectAttributes",
-        isHidden: false,
-        isRequired: "required"
-    },
-    {
         name: "Add Project",
         type: "button",
         route: '/project',
