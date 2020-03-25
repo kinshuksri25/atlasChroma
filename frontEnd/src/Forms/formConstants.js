@@ -248,5 +248,30 @@ formConstants.addProject = [
     }
 ];
 
+formConstants.boardTemplateSelector = [
+    {
+        id: "templateSelector",
+        type: "form",
+        method: "GET",
+        enctype: "application/x-www-form-urlencoded"
+    },
+    {
+        name: "TemplateType",
+        type: "DropDown",
+        placeholder: "TemplateType",
+        id: "templateType",
+        className: "templateAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "Next",
+        type: "button",
+        route: '',
+        id: "templateNextButton",
+        className: "templateAttributes"
+    }
+];
+
 //export the module
 export default formConstants;

@@ -58,7 +58,7 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
     if(requestObject.reqBody.hasOwnProperty('Name') && 
        requestObject.reqBody.hasOwnProperty('Description') && 
        requestObject.reqBody.hasOwnProperty('Contributor') && 
-       requestObject.reqBody.hasOwnProperty('StoryPoints') && 
+       requestObject.reqBody.hasOwnProperty('CurrentStatus') && 
        requestObject.reqBody.hasOwnProperty('Priority') && 
        requestObject.reqBody.hasOwnProperty('StartDate') && 
        requestObject.reqBody.hasOwnProperty('DueDate') && 
@@ -69,7 +69,7 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
                                     name:requestObject.reqBody.Name,
                                     description:requestObject.reqBody.Description,
                                     contributors:requestObject.reqBody.Contributors,
-                                    storypoints:requestObject.reqBody.StoryPoints,
+                                    currentstatus:requestObject.reqBody.CurrentStatus,
                                     priority:requestObject.reqBody.Priority,
                                     startdate:requestObject.reqBody.StartDate,
                                     duedate:requestObject.reqBody.DueDate,
@@ -77,7 +77,8 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
     
         mongo.insert(DBCONST.storyCollection,storyObject.getStoryDetails(),{}).then(resolveResult => {
             let insertedID = resolveResult.insertedId;
-            mongo.update(DBCONST.projectCollection,{ _id : requestObject.reqBody.ProjectID },{ $push: {boarddetails.stories : insertedID}}, {}, SINGLE).then(updateSet => {
+            let updateObject = {"boarddetails.stories" : insertedID};
+            mongo.update(DBCONST.projectCollection,{ _id : requestObject.reqBody.ProjectID },{ $push: {...updateObject}}, {}, SINGLE).then(updateSet => {
                 response.STATUS = 200;
                 response.PAYLOAD = resolveResult.ops[0];
                 response.SMSG = SMSG.SVR_SHH_PRJUP;        

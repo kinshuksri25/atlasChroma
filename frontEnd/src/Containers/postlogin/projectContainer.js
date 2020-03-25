@@ -34,7 +34,7 @@ class ProjectContainer extends Component{
 
     onClick(event){
         let projectID = event.target.className;
-        window.history.pushState({},"","/projects/"+projectID);
+        window.history.pushState({},"","/boards/"+projectID);
     }
 
     sortProjects(orderBy,projectArray){

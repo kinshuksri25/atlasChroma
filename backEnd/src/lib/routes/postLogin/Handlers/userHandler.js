@@ -68,17 +68,23 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
                 mongo.read(DBCONST.projectCollection,{ _id: { $in: projectList } },{}).then(resolveSet => {
                     if(resolveSet.length != 0){
                         resultSet[0].projects = resolveSet;
-                        let storyList = resultSet[0].projects.boarddetails.stories;
-                        mongo.read(DBCONST.storyCollection,{_id:{$in : storyList}},{}).then(storySet => {
-                            resultSet[0].projects.stories = storySet;
+                        if( resultSet[0].storydetails != undefined && resultSet[0].storydetails.length != 0){
+                            let storyList = resultSet[0].projects.storydetails;
+                            mongo.read(DBCONST.storyCollection,{_id:{$in : storyList}},{}).then(storySet => {
+                                resultSet[0].projects.storydetails = storySet;
+                                response.STATUS = 200;
+                                response.PAYLOAD.users = {...resultSet[0]};
+                                response.SMSG = SMSG.SVR_UHH_RDUSR;   
+                                resolve(response);
+                            }).catch(rejectedSet => {
+                                throw rejectedSet;
+                            });
+                        }else{
                             response.STATUS = 200;
                             response.PAYLOAD.users = {...resultSet[0]};
-                            response.SMSG = SMSG.SVR_UHH_RDUSR;   
+                            response.SMSG = SMSG.SVR_UHH_RDUSR; 
                             resolve(response);
-
-                        }).catch(rejectedSet => {
-                            throw rejectedSet;
-                        });
+                        }
                     }
                 }).catch(rejectedSet =>{
                     throw rejectedSet;
