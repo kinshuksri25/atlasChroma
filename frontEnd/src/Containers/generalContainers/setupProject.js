@@ -1,27 +1,32 @@
 //Dependencies
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
+import { connect } from 'react-redux';
 
 import SimpleForm from '../../Forms/simpleform';
+import httpsMiddleware from '../../middleware/httpsMiddleware';
 import formConstants from '../../Forms/formConstants';
 import EditableForm from '../../Forms/editableForms';
+import cookieManager from '../../Components/cookieManager';
 import editableConstants from '../../Forms/editableFormConstants';
 
-export default class SetupProject extends Component {
+class SetupProject extends Component {
 
     constructor(props){
         super(props);
         this.state = {
             boarddetails : {},
             nextPage : false,
+            loadedTemplate : [],
             currentTemplate: "" 
         };
         this.formBuilder = this.formBuilder.bind(this);
         this.changePage = this.changePage.bind(this);
+        this.setLoadedTemplate = this.setLoadedTemplate.bind(this);
+        this.onTemplateSubmit = this.onTemplateSubmit.bind(this);
     }
     
-    componentDidMount(){
-        if(this.props.projectObject.boarddetails != undefined) 
+    componentDidMount(){ 
         this.setState({boarddetails:this.props.projectObject.boarddetails});
     }
 
@@ -36,18 +41,51 @@ export default class SetupProject extends Component {
             switch(this.state.currentTemplate){
                 case "SIMPLE" : 
                     constants = editableConstants.SIMPLE;
-                    constants.map(constant => {
-                        constant.WIP = constant.WIP ? this.props.projectObject.contributors.length + 2 : false;   
-                    });
                     break;
-                default :
-                    break;            
+                case "SDLC" : 
+                    constants = editableConstants.SDLC;
+                    break;
+                case "MANUFACTURING" : 
+                    constants = editableConstants.MANUFACTURING;
+                    break;
+                case "CUSTOM" : 
+                    constants = editableConstants.CUSTOM;
+                    break;    
             }
+            constants.map(constant => {
+                constant.WIP = constant.WIP ? this.props.projectObject.contributors.length + 2 : false;   
+            });
             return(<div>
-                      <EditableForm template={constants} openFormPanel={this.openFormPanel}/>
+                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
                       <button onClick={this.changePage}>Back</button>
                     </div>);
         }
+    }
+
+    setLoadedTemplate(template){
+        this.setState({loadedTemplate : template});
+    }
+
+    onTemplateSubmit(event){
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+        httpsMiddleware.httpsRequest("/project", "PUT", headers, this.state.loadedTemplate, function(error,responseObject) {
+            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                if(error){
+                    console.log(error);
+                    //TODO --> errormsg div(ERR_CONN_SERVER)
+                }else{
+                    //TODO --> errormsg div(errorMsg)
+                }
+            }else{
+                let userDetails = this.props.user;
+                userDetails.projects.map(project => {
+                    if(project._id == this.props.projectObject._id){
+                        project.boarddetails.boardTemplate = this.state.loadedTemplate;
+                    }
+                });
+                this.props.setUserState(userDetails);        
+            }   
+        });
     }
 
     changePage(formObject){
@@ -68,7 +106,23 @@ export default class SetupProject extends Component {
         let setupContainer = this.formBuilder();
         return(<div>
                 {setupContainer}
+                <button onClick={this.onTemplateSubmit} disabled={this.state.currentTemplate == "" ? true : this.state.loadedTemplate.length ==0 ? true : false}>Go</button>
                </div>);
     }
 }
- 
+
+const mapStateToProps = (state) => {
+    return {
+        user: state.userStateReducer
+    }
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setUserState: (userObject) => {
+            dispatch(setUserAction(userObject));
+        }
+    };
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(SetupProject);

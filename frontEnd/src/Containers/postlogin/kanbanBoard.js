@@ -29,8 +29,8 @@ class KanbanBoard extends Component {
         
     render(){
         let setupProject = "";
-            if(this.state.currentProject.storydetails != undefined)
-                setupProject = this.state.currentProject.storydetails.length == 0 ? <SetupProject projectObject = {this.state.currentProject}/>:"";
+            if(this.state.currentProject.boarddetails != undefined)
+                setupProject = JSON.stringify(this.state.currentProject.boarddetails) == JSON.stringify({}) ? <SetupProject projectObject = {this.state.currentProject}/>:"";
             
             return (<div>
                         {setupProject} 

@@ -77,8 +77,8 @@ export default class Login extends Component {
 
     render() {
             return ( <div>
-                        <button id = "login"onClick = { this.onClickHandler } > Login </button> 
-                        <button id = "googleLogin"onClick = { this.onClickHandler } > Login with Google </button> 
+                        <button id = "login" onClick = { this.onClickHandler } > Login </button> 
+                        <button id = "googleLogin" onClick = { this.onClickHandler } > Login with Google </button> 
                         { this.state.loginForm }  
                     </div>);
     }
