@@ -74,7 +74,6 @@ export default class EditableForm extends Component {
         return (<div>{template}{addButton}</div>);
     }
 
-    //TODO --> Refactor this part 
     toggleChildren(event){
       if(this.state.currentAction == ""){
         let parentPhaseName = event.target.id;
@@ -104,7 +103,6 @@ export default class EditableForm extends Component {
       }
     }
     
-    //TODO --> Refactor this part
     groupTemplates(){
         let template = [...this.state.loadedTemplate];
         let groupedTemplate = [];
@@ -113,15 +111,7 @@ export default class EditableForm extends Component {
                 for(let i=0;i< groupedTemplate.length;i++){
                     for(let j=0;j<groupedTemplate[i].length;j++){
                         if(groupedTemplate[i][j].NAME == element.EXTENDS){
-                            if(j == groupedTemplate[i].length-1){
-                                groupedTemplate[i].push(element);
-                            }else{
-                                groupedTemplate[i][groupedTemplate[i].length] = groupedTemplate[i][groupedTemplate[i].length-1];
-                                for(let k=groupedTemplate[i].length-1;k>j+1;k--){
-                                    groupedTemplate[i][k] = groupedTemplate[i][k-1];
-                                }
-                                groupedTemplate[i][j+1] = element;
-                            }
+                            groupedTemplate[i].push(element);
                         }
                     }
                 }
@@ -268,7 +258,6 @@ export default class EditableForm extends Component {
             this.props.mouseover[0].CALLABLEFUNCTION = this.editPhase;
             this.props.mouseover[1].CALLABLEFUNCTION = this.getInfo;
             this.props.mouseover[2].CALLABLEFUNCTION = this.removePhase; 
-    
             this.props.mouseover.map(mouseovr => {
                 let button = document.createElement("Button");
                 button.innerHTML = mouseovr.IMAGEURL;

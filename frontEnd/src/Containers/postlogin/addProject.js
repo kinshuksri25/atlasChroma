@@ -51,8 +51,12 @@ class AddProject extends Component{
         let globalThis = this;
         let formData = formObject.formData;
         if(this.state.contributors.length != 0 && this.state.projectLeader != ""){
+            formData.title = formData.Title;
+            formData.description = formData.Description;
             formData.contributors = this.state.contributors;
             formData.projectleader = this.state.projectLeader;
+            delete formData.Description;
+            delete formData.Title;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){

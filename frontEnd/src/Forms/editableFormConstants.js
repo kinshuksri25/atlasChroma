@@ -80,8 +80,7 @@ editableConstants.SDLC = [
         WIP: false,
         EXTENDS : "",
         CHILDREN : []
-    }
-
+    },
 ];
  
 editableConstants.MANUFACTURING = [    

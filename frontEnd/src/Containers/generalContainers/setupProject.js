@@ -7,6 +7,7 @@ import SimpleForm from '../../Forms/simpleform';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import formConstants from '../../Forms/formConstants';
 import EditableForm from '../../Forms/editableForms';
+import setUserAction from '../../store/actions/userActions';
 import cookieManager from '../../Components/cookieManager';
 import editableConstants from '../../Forms/editableFormConstants';
 
@@ -67,8 +68,9 @@ class SetupProject extends Component {
     }
 
     onTemplateSubmit(event){
+        let globalThis = this;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        httpsMiddleware.httpsRequest("/project", "PUT", headers, this.state.loadedTemplate, function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectObject._id}, function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     console.log(error);
@@ -77,13 +79,13 @@ class SetupProject extends Component {
                     //TODO --> errormsg div(errorMsg)
                 }
             }else{
-                let userDetails = this.props.user;
+                let userDetails = globalThis.props.user;
                 userDetails.projects.map(project => {
-                    if(project._id == this.props.projectObject._id){
-                        project.boarddetails.boardTemplate = this.state.loadedTemplate;
+                    if(project._id == globalThis.props.projectObject._id){
+                        project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
                     }
                 });
-                this.props.setUserState(userDetails);        
+                globalThis.props.setUserState(userDetails);        
             }   
         });
     }
