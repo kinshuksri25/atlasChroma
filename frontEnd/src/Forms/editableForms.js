@@ -17,6 +17,7 @@ export default class EditableForm extends Component {
             editForm : true,
             isSubPhase : true
         };
+        this.hideChildren = this.hideChildren.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
         this.mouseLeaveButton = this.mouseLeaveButton.bind(this);
         this.mouseOverButton = this.mouseOverButton.bind(this);
@@ -47,6 +48,15 @@ export default class EditableForm extends Component {
         });
         this.setState({selectedTemplate : selectedTemplate});
         return selectedTemplate;
+    }
+
+    hideChildren(){
+        this.state.loadedTemplate.map(element => {
+            if(element.EXTENDS != ""){
+                let childComponent = document.getElementById(element.NAME);
+                childComponent.hidden = true;
+            }
+        });
     }
 
     formBuilder(){
@@ -107,14 +117,53 @@ export default class EditableForm extends Component {
         let template = [...this.state.loadedTemplate];
         let groupedTemplate = [];
         template.map(element => {
+            let insertPosition;
+            let selectedPosition;
+            let parentI;
+            let parentJ;
             if(element.EXTENDS != ""){
                 for(let i=0;i< groupedTemplate.length;i++){
                     for(let j=0;j<groupedTemplate[i].length;j++){
+                        if(groupedTemplate[i][j].EXTENDS == element.EXTENDS){
+                            selectedPosition = i;
+                            insertPosition = j;
+                        }
                         if(groupedTemplate[i][j].NAME == element.EXTENDS){
-                            groupedTemplate[i].push(element);
+                            parentI = i;
+                            parentJ = j;
                         }
                     }
                 }
+                if(insertPosition == undefined || selectedPosition == undefined){
+                    groupedTemplate[parentI].splice(parentJ+1,0,element);
+                }else{
+                        parentI = selectedPosition;
+                        parentJ = insertPosition+1;
+                        let found = false;
+                    while(parentJ <= groupedTemplate[parentI].length){
+                       if(parentJ == groupedTemplate[parentI].length){
+                            break;
+                       }else{
+                            let count = parentJ-1;
+                            while(count >= insertPosition){
+                                if(groupedTemplate[selectedPosition][count].CHILDREN.includes(groupedTemplate[selectedPosition][parentJ]))
+                                {
+                                    count--;
+                                }else{
+                                    found = true;
+                                    break;
+                                }
+                            }
+                           if(found){
+                               break;
+                           }else{
+                               parentJ++;
+                           }    
+                       }
+                    }
+                    groupedTemplate[selectedPosition].splice(parentJ,0,element);
+                }
+                
             }else{
                 let parentArr = [];
                 parentArr.push(element);
@@ -137,7 +186,6 @@ export default class EditableForm extends Component {
     submitPhase(){
         let formData = {...this.state.formData};
         let template = [...this.state.loadedTemplate];
-        console.log(formData);
         if(formData.NAME != ""){
             if(this.state.currentAction == "EDIT"){
                 template.map(element => {
@@ -181,6 +229,7 @@ export default class EditableForm extends Component {
             }
             this.setState({loadedTemplate : template},()=> {
                 this.props.setLoadedTemplate(this.state.loadedTemplate);
+                this.hideChildren();
             });
             this.clearForm();
         }else{
@@ -206,7 +255,7 @@ export default class EditableForm extends Component {
         let childrenArray = this.getTemplate(event.target.className).CHILDREN;
         let refreshedTemplate = [];
         let template = [... this.state.loadedTemplate];
-        if(this.getTemplate(event.target.className).CHILDREN == undefined){
+        if(childrenArray == undefined){
             template.map(element => {
                 if(element.NAME != event.target.className){
                     refreshedTemplate.push(element);
@@ -214,6 +263,9 @@ export default class EditableForm extends Component {
             });
         }else{
             template.map(element => {
+                if(element.CHILDREN != undefined && element.CHILDREN.includes(event.target.className)){
+                    element.CHILDREN.splice(element.CHILDREN.indexOf(event.target.className),1);
+                }
                 if(!childrenArray.includes(element.NAME) && element.NAME != event.target.className){
                     refreshedTemplate.push(element);
                 }
@@ -221,6 +273,7 @@ export default class EditableForm extends Component {
         }
         event.target.className == this.state.formData.NAME && this.setState({loadedTemplate : refreshedTemplate,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},editForm : true});
         event.target.className == this.state.formData.NAME || this.setState({loadedTemplate : refreshedTemplate});
+        this.props.setLoadedTemplate(refreshedTemplate);
     }
 
     editPhase(event){
@@ -270,7 +323,8 @@ export default class EditableForm extends Component {
     
     render(){
         let formContainer = this.formBuilder();
-        let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;                                                             
+        let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;      
+
         return(<div>
                     {formContainer}
                     <select id="phaseSelector" value = {this.state.formData.PHASE} hidden = {showPhaseSelector} onChange={this.onPhaseOptionChange}>
@@ -278,10 +332,12 @@ export default class EditableForm extends Component {
                         <option value="SubPhase">SubPhase</option>   
                     </select>
                     <select id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
-                        {this.groupTemplates().map(template => {
-                                return(template.map(opt => {
-                                return(<option value = {opt.NAME}>{opt.NAME}</option>)}));
-                            })}
+                        {
+                            !showPhaseSelector && this.groupTemplates().map(template => {
+                                                        return(template.map(opt => {
+                                                        return(<option value = {opt.NAME}>{opt.NAME}</option>)}));
+                                                    })
+                        }
                     </select>
                     <div hidden = {this.state.editForm}>
                         <input type="text" id = "NAME" value={this.state.formData.NAME} onChange = {this.changeHandler} placeholder="Name" disabled = {this.state.isFeildDisabled}/>

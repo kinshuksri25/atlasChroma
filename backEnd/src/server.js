@@ -16,8 +16,8 @@ const decoder = new stringDecoder('utf-8');
 
 //https certifications
 server.certParams = {
-    'key': fs.readFileSync('../lib/Certificates/serverKey.key'),
-    'cert': fs.readFileSync('../lib/Certificates/serverCert.crt')
+    'key': fs.readFileSync('../lib/Certificates/private.key'),
+    'cert': fs.readFileSync('../lib/Certificates/private.crt')
 };
 
 server.https = https.createServer(server.certParams, (req, res) => {

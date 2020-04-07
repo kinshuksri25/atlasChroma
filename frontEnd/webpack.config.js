@@ -29,8 +29,8 @@ module.exports = {
         contentBase: path.join(__dirname, "src/public/"),
         port: 3000,
         https: {
-            key: fs.readFileSync('../lib/Certificates/serverKey.key'),
-            cert: fs.readFileSync('../lib/Certificates/serverCert.crt')
+            key: fs.readFileSync('../lib/Certificates/private.key'),
+            cert: fs.readFileSync('../lib/Certificates/private.crt')
         },
         publicPath: "/dist/",
         hotOnly: true,
