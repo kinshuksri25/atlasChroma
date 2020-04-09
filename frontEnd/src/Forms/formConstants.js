@@ -273,5 +273,82 @@ formConstants.boardTemplateSelector = [
     }
 ];
 
+formConstants.storyForm = [
+    {
+        id: "addStory",
+        type: "form",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded" 
+    },
+    {
+        name: "StoryTitle",
+        type: "text",
+        placeholder: "Story Title",
+        id: "addStoryTitle",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Description",
+        type: "textbox",
+        width: "100px",
+        height: "50px",
+        placeholder: "Description",
+        id: "addStoryDescription",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Contributor",
+        type: "DropDown",
+        placeholder: "Contributor",
+        id: "contributor",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "Priority",
+        type: "DropDown",
+        placeholder: "Priority",
+        id: "priority",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "EndDate",
+        type: "Date",
+        placeholder: "End Date",
+        id: "endDate",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "CurrentStatus",
+        type: "DropDown",
+        placeholder: "Current Status",
+        id: "currentStatus",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: "required"
+    },
+    {
+        name: "Comments",
+        type: "textbox",
+        width: "100px",
+        height: "50px",
+        placeholder: "Comments",
+        id: "addStoryComments",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: true
+    }
+    
+];
+
 //export the module
 export default formConstants;

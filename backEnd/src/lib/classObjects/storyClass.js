@@ -4,7 +4,7 @@ const {randValueGenerator} = require("../utils/helper");
 //Blueprint for story object
 class story{
     constructor({_id = randValueGenerator(), 
-                name="",
+                storytitle="",
                 description="",
                 contributor="",
                 priority="",
@@ -14,7 +14,7 @@ class story{
                 comments=""}) {
         
         this._id = _id;              
-        this.name=name;
+        this.storytitle=storytitle;
         this.description=description;
         this.contributor=contributor;
         this.priority=priority;
@@ -27,7 +27,7 @@ class story{
     getStoryDetails(){
         let storyObject={
             _id : this._id,
-            name:this.name,
+            storytitle:this.storytitle,
             description:this.description,
             contributor:this.contributor,
             priority:this.priority,
@@ -41,7 +41,7 @@ class story{
     }
 
     setStoryObject({_id = this._id,
-                   name=this.name,
+                    storytitle=this.storytitle,
                    description=this.description,
                    contributor=this.contributor,
                    priority=this.priority,
@@ -51,7 +51,7 @@ class story{
                    comments=this.comments}){
 
             this._id = _id;            
-            this.name=name;
+            this.storytitle=storytitle;
             this.description=description;
             this.contributor=contributor;
             this.priority=priority;

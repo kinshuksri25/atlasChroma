@@ -35,7 +35,7 @@ class SetupProject extends Component {
         if(!this.state.nextPage){
            return(<SimpleForm formAttributes = { formConstants.boardTemplateSelector }
                     submitHandler = { this.changePage }
-                    options = {["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]}
+                    options = {[["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
                     changeFieldNames = {[]} />);     
         }else{
             let constants = [];
@@ -85,7 +85,10 @@ class SetupProject extends Component {
                         project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
                     }
                 });
-                globalThis.props.setUserState(userDetails);        
+                globalThis.props.setUserState(userDetails);
+                let projectObject =  {...globalThis.props.projectObject};
+                projectObject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
+                globalThis.props.updateCurrentProject(projectObject);       
             }   
         });
     }

@@ -76,6 +76,7 @@ class SimpleForm extends Component {
 
     buildForm() {
         let params = this.props.formAttributes;
+        let optionNumber = -1;
         let formParam;
         params.map(param => {
             if (param.type == "form") {
@@ -95,7 +96,7 @@ class SimpleForm extends Component {
                                 className = { param.className } 
                                 key = { param.id } > { param.name } </button>	
                             } else {
-                                    if (this.props.changeFieldNames.length != 0 && this.props.changeFieldNames.includes(param.name)) {
+                                if (this.props.changeFieldNames.length != 0 && this.props.changeFieldNames.includes(param.name)) {
                                     return <input type = { param.type } 
                                             name = { param.name } 
                                             placeholder = { param.placeholder }
@@ -112,18 +113,34 @@ class SimpleForm extends Component {
                             } else {
                                 switch (param.type) {
                                 case "DropDown":{ 
+                                                optionNumber++;
                                                 return ( <select id = { param.name }
                                                           name = { param.name } key = { param.id }
                                                           onChange = { this.onChangeHandler } required = { param.isRequired }> 
                                                           {
-                                                            this.props.options.map(option => {
+                                                            this.props.options[optionNumber].map(option => {
                                                             return ( <option value = { option } > { option } </option>)
                                                             })
                                                           } 
                                                           </select>);
                                                   break;
-                                                }
-                                //TODO --> add textbox                
+                                                }             
+                                case "textbox":{
+                                                return(<input type = {param.type}
+                                                        name = { param.name }
+                                                        width = {param.width}
+                                                        height = {param.height}
+                                                        placeholder = { param.placeholder }
+                                                        value = { this.state.formData[param.name] }
+                                                        id = { param.id }
+                                                        key = { param.id }
+                                                        className = { param.className }
+                                                        onChange = { this.onChangeHandler }
+                                                        hidden = { param.isHidden }
+                                                        required = { param.isRequired }/> );
+                                                break;
+
+                                }                
                                 default:{ return <input type = { param.type }
                                                   name = { param.name }
                                                   placeholder = { param.placeholder }
