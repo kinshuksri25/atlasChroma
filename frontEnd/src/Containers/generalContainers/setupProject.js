@@ -25,6 +25,8 @@ class SetupProject extends Component {
         this.changePage = this.changePage.bind(this);
         this.setLoadedTemplate = this.setLoadedTemplate.bind(this);
         this.onTemplateSubmit = this.onTemplateSubmit.bind(this);
+        this.randValueGenerator = this.randValueGenerator.bind(this);
+        
     }
     
     componentDidMount(){ 
@@ -54,10 +56,12 @@ class SetupProject extends Component {
                     break;    
             }
             constants.map(constant => {
-                constant.WIP = constant.WIP ? this.props.projectObject.contributors.length + 2 : false;   
+                constant.WIP = constant.WIP ? this.props.projectObject.contributors.length + 2 : false;
+                constant._id = this.randValueGenerator();
+                   
             });
             return(<div>
-                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
+                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator()} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
                       <button onClick={this.changePage}>Back</button>
                     </div>);
         }
@@ -105,6 +109,17 @@ class SetupProject extends Component {
         }
         else
             this.setState({nextPage : false, currentTemplate: ""});   
+    }
+
+    randValueGenerator(valueLength = 10){
+        let randomValue = "";
+        let saltString = "0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+        let i = 0;
+        while(i<=valueLength){
+          randomValue += saltString[Math.floor((Math.random() * saltString.length))];
+          i++;
+        }
+        return randomValue;
     }
 
     render(){

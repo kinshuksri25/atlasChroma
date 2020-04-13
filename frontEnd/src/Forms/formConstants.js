@@ -230,9 +230,9 @@ formConstants.addProject = [
     },
     {
         name: "Description",
-        type: "textbox",
-        width: "100px",
-        height: "50px",
+        type: "textarea",
+        rows: "4",
+        cols: "50",
         placeholder: "Description",
         id: "addProjectDescription",
         className: "addProjectAttributes",
@@ -291,9 +291,9 @@ formConstants.storyForm = [
     },
     {
         name: "Description",
-        type: "textbox",
-        width: "100px",
-        height: "50px",
+        type: "textarea",
+        rows: "4",
+        cols: "50",
         placeholder: "Description",
         id: "addStoryDescription",
         className: "addStoryAttributes",
@@ -328,24 +328,22 @@ formConstants.storyForm = [
         isRequired: "required"
     },
     {
-        name: "CurrentStatus",
-        type: "DropDown",
-        placeholder: "Current Status",
-        id: "currentStatus",
-        className: "addStoryAttributes",
-        isHidden: false,
-        isRequired: "required"
-    },
-    {
         name: "Comments",
-        type: "textbox",
-        width: "100px",
-        height: "50px",
+        type: "textarea",
+        rows: "4",
+        cols: "50",
         placeholder: "Comments",
         id: "addStoryComments",
         className: "addStoryAttributes",
         isHidden: false,
         isRequired: true
+    },
+    {
+        name: "ADD",
+        type: "button",
+        route: '/stories',
+        id: "templateNextButton",
+        className: "templateAttributes"
     }
     
 ];

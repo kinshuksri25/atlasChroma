@@ -203,6 +203,7 @@ export default class EditableForm extends Component {
                 });
             }else{
                 formData.WIP = formData.WIP == "" ? false : formData.WIP;
+                formData._id = this.props.randValueGenerator();
                 formData.EXTENDS = formData.PHASE == "Phase" ? formData.EXTENDS : formData.EXTENDS == "" ? template[0].NAME : formData.EXTENDS; 
                 let newTemplate = {
                   NAME : formData.NAME,

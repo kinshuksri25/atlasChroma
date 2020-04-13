@@ -13,7 +13,7 @@ helperFunctions.randValueGenerator = (valueLength = 10) => {
   let saltString = "0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
   let i = 0;
   while(i<=valueLength){
-    randomValue += saltString[Math.floor((Math.random() * saltString.length) + 1)];
+    randomValue += saltString[Math.floor((Math.random() * saltString.length))];
     i++;
   }
   return randomValue;

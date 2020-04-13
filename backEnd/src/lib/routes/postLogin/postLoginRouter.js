@@ -6,7 +6,7 @@
 const userHandler = require("./Handlers/userHandler");
 const projectHandler = require("./Handlers/projectHandler");
 const cookieHandler = require("../../utils/cookieHandler");
-const storyHandler = require("./Handlers/storyHandler");
+const storyHandler = require("./Handlers/storiesHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
 

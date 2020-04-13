@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import SetupProject from '../generalContainers/setupProject';
 import StoryForm from './storyForm';
+import Story from './story';
 import {urls} from '../../../../lib/constants/contants';
 
 class KanbanBoard extends Component {
@@ -20,6 +21,7 @@ class KanbanBoard extends Component {
         this.buildBoard = this.buildBoard.bind(this);
         this.updateCurrentProject = this.updateCurrentProject.bind(this);
         this.addStory = this.addStory.bind(this);
+        this.placeStories = this.placeStories.bind(this);
     }
     //TODO --> directly hitting this page will immediately redirect to dashboard as the user is not available 
     //this needs to be fixed in the next refactor
@@ -35,9 +37,22 @@ class KanbanBoard extends Component {
             window.history.replaceState({}, "",urls.DASHBOARD);
         }else{
             this.setState({currentProject:{...projectObject}},()=> {
-                this.state.currentProject.boarddetails.templatedetails != undefined && this.buildBoard();
+                if(this.state.currentProject.boarddetails.templatedetails != undefined)
+                {
+                    this.buildBoard();
+                }
             });
         }
+    }
+
+    placeStories(stories){
+       stories.map(story => {
+            let parentPhase = document.getElementById(story.currentstatus);
+            let storyTile = document.createElement("DIV");
+            storyTile.innerHTML = story.storytitle;
+            storyTile.id = storyTile._id;
+            parentPhase.appendChild(storyTile); 
+       });
     }
 
     addStory(){
@@ -71,14 +86,14 @@ class KanbanBoard extends Component {
         board = template.templatedetails.map(template => {
             if(template.EXTENDS == "" && template.CHILDREN.length == 0){
                 return(
-                    <div className="phaseContainer" id={template.NAME} style = {phaseContainerStyle}>
+                    <div className="phaseContainer" id={template._id} style = {phaseContainerStyle}>
                         <div className="phaseHeading">{template.NAME}</div>
                         <div className="storiesContainer"></div>
                     </div>
                 );
             }else if(template.EXTENDS == "" && template.CHILDREN.length != 0){
                 return(
-                    <div className="phaseContainer" id={template.NAME} style = {phaseContainerStyle}>
+                    <div className="phaseContainer" id={template._id} style = {phaseContainerStyle}>
                         <div className="phaseHeading">{template.NAME}</div>
                     </div>
                 );
@@ -92,18 +107,23 @@ class KanbanBoard extends Component {
 
     renderChild(templateArr = this.state.currentProject.boarddetails){
         templateArr.templatedetails.map(template => {
+                let parentTemplateID = "";
+                templateArr.templatedetails.map(parentTemp => {
+                    if(parentTemp.NAME == template.EXTENDS)
+                        parentTemplateID = parentTemp._id;
+                });
 
                 let phaseContainer = document.createElement("DIV");
                 let phaseHeading = document.createElement("DIV");
 
                 phaseContainer.className = "phaseContainer";
-                phaseContainer.id = template.NAME;
+                phaseContainer.id = template._id;
                 phaseHeading.innerHTML = template.NAME;
 
                 phaseContainer.appendChild(phaseHeading);
                 let style = {};
             if(template.EXTENDS != "" && template.CHILDREN.length != 0){
-                let parentComponent = document.getElementById(template.EXTENDS);
+                let parentComponent = document.getElementById(parentTemplateID);
                 let numberOfElements = 0;
                 templateArr.templatedetails.map(temp => {
                     if(temp.NAME == template.EXTENDS)
@@ -119,7 +139,7 @@ class KanbanBoard extends Component {
                 storiesContainer.className = "storiesContainer";
                 phaseHeading.appendChild(storiesContainer);
 
-                let parentComponent = document.getElementById(template.EXTENDS);
+                let parentComponent = document.getElementById(parentTemplateID);
                 let style = {};
                 let numberOfElements = 0;
                 templateArr.templatedetails.map(temp => {
@@ -131,6 +151,8 @@ class KanbanBoard extends Component {
                 parentComponent.appendChild(phaseContainer);
             }
         });
+        let stories = [...this.state.currentProject.storydetails];
+        stories != undefined && this.placeStories(stories);
     }
 
     render(){
@@ -142,7 +164,7 @@ class KanbanBoard extends Component {
             setupProject = <SetupProject projectObject = {this.state.currentProject} updateCurrentProject = {this.updateCurrentProject}/>;
         }
         return (<div>
-                    {this.state.showStoryForm && <StoryForm currentProject={this.state.currentProject} closeForm={this.addStory}/>}
+                    {this.state.showStoryForm && <StoryForm currentProject={this.state.currentProject} closeForm={this.addStory} placeStories={this.placeStories} currentMode = "ADD"/>}
                     {setupProject} 
                     <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
                         {this.state.parentBoard}

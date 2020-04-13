@@ -125,11 +125,11 @@ class SimpleForm extends Component {
                                                           </select>);
                                                   break;
                                                 }             
-                                case "textbox":{
+                                case "textarea":{
                                                 return(<input type = {param.type}
                                                         name = { param.name }
-                                                        width = {param.width}
-                                                        height = {param.height}
+                                                        rows = {param.rows}
+                                                        cols = {param.cols}
                                                         placeholder = { param.placeholder }
                                                         value = { this.state.formData[param.name] }
                                                         id = { param.id }

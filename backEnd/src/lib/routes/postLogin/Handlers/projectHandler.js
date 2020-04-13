@@ -112,7 +112,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
                     projectObject.title = requestObject.reqBody.hasOwnProperty("title") ? requestObject.reqBody.title : projectObject.title;
                     projectObject.description = requestObject.reqBody.hasOwnProperty("description") ? requestObject.reqBody.description : projectObject.description;
                     projectObject.contributors = requestObject.reqBody.hasOwnProperty("contributors") ? requestObject.reqBody.contributors : projectObject.contributors;
-                    projectObject.projectleader = requestObject.reqBody.hasOwnProperty("projectleader") ? requestObject.reqBody.projectleader : projectObject.projectleader;
+                    projectObject.projectlead = requestObject.reqBody.hasOwnProperty("projectleader") ? requestObject.reqBody.projectleader : projectObject.projectlead;
                     projectObject.boarddetails.templatedetails = requestObject.reqBody.hasOwnProperty("boarddetails") ? requestObject.reqBody.boarddetails : projectObject.boarddetails;
                     projectObject.storydetails = requestObject.reqBody.hasOwnProperty("storydetails") ? requestObject.reqBody.storydetails : projectObject.storydetails;
 

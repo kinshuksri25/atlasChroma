@@ -7,6 +7,7 @@ const mongo = require("../../../utils/data");
 const encryptionAPI = require("../../../utils/encryptionAPI");
 const cookieHandler = require("../../../utils/cookieHandler");
 const user = require("../../../classObjects/userClass");
+const googleApis = require("../../../googleApis/googleAPI");
 const {DBCONST,EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
 const loginHandler = require("./loginhandlers");
 const {randValueGenerator} = require("../../../utils/helper");
@@ -47,7 +48,7 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
             //call the login function to log user in
             loginHandler.login(loginObject).then(result => {
                 //send welcome mail
-                sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
                     //send the response 
                     response.SMSG = SMSG.SVR_SNGH_SGNSUC;
                     response.STATUS = 200;
