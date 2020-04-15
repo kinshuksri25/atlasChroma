@@ -26,14 +26,24 @@ storyHandler.stories = (route,requestObject) => new Promise((resolve,reject) => 
                 break;
             case "POST" : 
                 storyHandler.stories.post(route,requestObject).then(resolvedResult => {
-                     resolve(resolvedResult);
+                    resolve(resolvedResult);
                 }).catch(rejectedResult => {
-                     reject(rejectedResult);
+                    reject(rejectedResult);
                 });
                 break;
             case "PUT" :
+                storyHandler.stories.put(route,requestObject).then(resolvedResult => {
+                    resolve(resolvedResult);
+                }).catch(rejectedResult => {
+                    reject(rejectedResult);
+                });
                 break;
             case "DELETE" : 
+                storyHandler.stories.delete(route,requestObject).then(resolvedResult => {
+                    resolve(resolvedResult);
+                }).catch(rejectedResult => {
+                    reject(rejectedResult);
+                });
                 break;
           }
     }else{
@@ -106,6 +116,106 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
         reject(response);   
    }                      
                               
+});
+
+//story put route
+//params --> route - string, requestObject - object
+//returns --> promise - object
+storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject) => {
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
+
+    if(requestObject.reqBody.hasOwnProperty("projectID") && requestObject.reqBody.hasOwnProperty("storyDetails")){
+        mongo.read(DBCONST.projectCollection ,{id : requestObject.reqBody.projectID},{}).then(resolvedResult => {
+            let storyDetails = resolvedResult[0].storydetails;
+            storyDetails.map(story => {
+                if(story._id == requestObject.reqBody.storyDetails._id){
+                    story.currentStatus = requestObject.reqBody.storyDetails.currenstatus;
+                }
+            });
+            mongo.update(DBCONST.projectCollection,{id : requestObject.reqBody.projectID},{$set : {storydetails : [...storyDetails]}},{},SINGLE).then(resolvedResult => {
+                mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.storyDetails.contributor},{}).then(resolvedResult => {
+                    let contributorEmailID = resolvedResult[0].email;
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = "story deleted successfully";
+                        resolve(response);
+                    }).catch(rejectedResult => {
+                        response.STATUS = 201;
+                        response.PAYLOAD = {};
+                        response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                        resolve(response);    
+                    });
+                }).catch(rejectedResult => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = {...newStory.getStoryDetails()};
+                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                    resolve(response);    
+                });
+            }).catch(rejectedResult => {
+                response.STATUS = 500;
+                response.EMSG = rejectedResult;
+                reject(response);
+            });
+        }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response);
+        });
+    }else{   
+        response.STATUS = 400;
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        reject(response);   
+    }
+});
+
+//story delete route
+//params --> route - string, requestObject - object
+//returns --> promise - object
+storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reject) => {
+    
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
+
+    if(requestObject.reqBody.hasOwnProperty("projectID") && requestObject.reqBody.hasOwnProperty("storyDetails")){
+        mongo.update(DBCONST.update,{id : requestObject.reqBody.projectID},{$pull : {storydetails : requestObject.reqBody.storyDetails}},{},SINGLE).then(resolvedResult => {
+            mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.storyDetails.contributor},{}).then(resolvedResult => {
+                let contributorEmailID = resolvedResult[0].email;
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = "story deleted successfully";
+                    resolve(response);
+                }).catch(rejectedResult => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = {};
+                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                    resolve(response);    
+                });
+            }).catch(rejectedResult => {
+                response.STATUS = 201;
+                response.PAYLOAD = {...newStory.getStoryDetails()};
+                response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                resolve(response);    
+            });
+        }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response);
+        });
+    }else{   
+        response.STATUS = 400;
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        reject(response);   
+    }
 });
 
 //exporting the module

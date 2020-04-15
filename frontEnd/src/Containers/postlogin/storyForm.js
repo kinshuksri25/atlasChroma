@@ -7,6 +7,7 @@ import {urls} from '../../../../lib/constants/contants';
 import setUserAction from '../../store/actions/userActions';
 import cookieManager from '../../Components/cookieManager';
 import SimpleForm from '../../Forms/simpleform';
+import setProjectAction from '../../store/actions/projectActions';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import formConstants from '../../Forms/formConstants';
 
@@ -17,7 +18,7 @@ class StoryForm extends Component {
         this.state = {
             storyForm : "",
             priorityList : ["StoryPriority","Urgent","High","Medium","Low","OnHold"],
-            contributorList : ["Contributors",...this.props.currentProject.contributors],
+            contributorList : ["Contributors",...this.props.projectDetails.currentProject.contributors],
             currentMode: this.props.currentMode,
         };
         this.buildAddStoryForm = this.buildAddStoryForm.bind(this);
@@ -45,8 +46,8 @@ class StoryForm extends Component {
         let globalThis = this;
         if(formObject.formData.Priority != "" && formObject.formData.Contributor != ""){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            formObject.formData.currentStatus = this.props.currentProject.boarddetails.templatedetails[0]._id;
-            formObject.formData.projectID = this.props.currentProject._id;
+            formObject.formData.currentStatus = this.props.projectDetails.currentProject.boarddetails.templatedetails[0]._id;
+            formObject.formData.projectID = this.props.projectDetails.currentProject._id;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -56,14 +57,17 @@ class StoryForm extends Component {
                         //TODO --> errormsg div(errorMsg)
                     }
                 }else{
-                    let updatedUser = globalThis.props.user;
+                    let updatedUser = {...globalThis.props.user};
                     updatedUser.projects.map(project =>{
-                        if(project._id == globalThis.props.currentProject._id){
+                        if(project._id == globalThis.props.projectDetails.currentProject._id){
                             project.storydetails.push(responseObject.PAYLOAD);
                         }
                     });
+                    let currentProject = {...globalThis.props.projectDetails.currentProject};
+                    currentProject.storydetails.push(responseObject.PAYLOAD);
+
                     globalThis.props.setUserState(updatedUser);
-                    globalThis.props.placeStories([responseObject.PAYLOAD]);
+                    globalThis.props.updateProjectState({currentProject : currentProject});
                 }
             });
         }else{
@@ -78,7 +82,8 @@ class StoryForm extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer
+        user: state.userStateReducer,
+        projectDetails: state.projectStateReducer
     }
 };
 
@@ -86,6 +91,9 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
+        },
+        updateProjectState: (project) => {
+            dispatch(setProjectAction(project));
         }
     };
 };

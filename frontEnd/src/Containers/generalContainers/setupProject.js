@@ -30,7 +30,7 @@ class SetupProject extends Component {
     }
     
     componentDidMount(){ 
-        this.setState({boarddetails:this.props.projectObject.boarddetails});
+        this.setState({boarddetails:this.props.projectDetails.currentProject.boarddetails});
     }
 
     formBuilder(){
@@ -56,12 +56,12 @@ class SetupProject extends Component {
                     break;    
             }
             constants.map(constant => {
-                constant.WIP = constant.WIP ? this.props.projectObject.contributors.length + 2 : false;
+                constant.WIP = constant.WIP ? this.props.projectDetails.currentDetails.contributors.length + 2 : false;
                 constant._id = this.randValueGenerator();
                    
             });
             return(<div>
-                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator()} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
+                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
                       <button onClick={this.changePage}>Back</button>
                     </div>);
         }
@@ -74,7 +74,7 @@ class SetupProject extends Component {
     onTemplateSubmit(event){
         let globalThis = this;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectObject._id}, function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectDetails.currentProject._id}, function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     console.log(error);
@@ -85,14 +85,14 @@ class SetupProject extends Component {
             }else{
                 let userDetails = globalThis.props.user;
                 userDetails.projects.map(project => {
-                    if(project._id == globalThis.props.projectObject._id){
+                    if(project._id == globalThis.props.projectDetails.currentProject._id){
                         project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
                     }
                 });
                 globalThis.props.setUserState(userDetails);
-                let projectObject =  {...globalThis.props.projectObject};
-                projectObject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
-                globalThis.props.updateCurrentProject(projectObject);       
+                let currentProject =  {...globalThis.props.projectDetails.currentProject};
+                currentProject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
+                globalThis.props.updateCurrentProject(currentProject.boarddetails);       
             }   
         });
     }
@@ -133,7 +133,8 @@ class SetupProject extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer
+        user: state.userStateReducer,
+        projectDetails : state.projectStateReducer
     }
 };
 

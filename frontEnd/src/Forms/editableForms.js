@@ -229,7 +229,14 @@ export default class EditableForm extends Component {
                 }
             }
             this.setState({loadedTemplate : template},()=> {
-                this.props.setLoadedTemplate(this.state.loadedTemplate);
+                let groupedTemplate = this.groupTemplates();
+                let finalTemplate = [];
+                groupedTemplate.map(phaseTemplate => {
+                    phaseTemplate.map(template => {
+                        finalTemplate.push(template);
+                    });
+                });
+                this.props.setLoadedTemplate(finalTemplate);
                 this.hideChildren();
             });
             this.clearForm();

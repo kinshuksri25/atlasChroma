@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 
 import SetupProject from '../generalContainers/setupProject';
 import StoryForm from './storyForm';
-import Story from './story';
+import BoardColumn from './boardColumn';
+import setProjectAction from '../../store/actions/projectActions';
 import {urls} from '../../../../lib/constants/contants';
 
 class KanbanBoard extends Component {
@@ -13,15 +14,15 @@ class KanbanBoard extends Component {
     constructor(props){
         super(props);
         this.state={
-            currentProject:{},
             parentBoard:"",
             storyPopUp: false,
-            showStoryForm:false
+            showStoryForm:false,
+            componentWidth : screen.width
         };
         this.buildBoard = this.buildBoard.bind(this);
-        this.updateCurrentProject = this.updateCurrentProject.bind(this);
         this.addStory = this.addStory.bind(this);
-        this.placeStories = this.placeStories.bind(this);
+        this.updateCurrentProject = this.updateCurrentProject.bind(this);
+        this.groupTemplate = this.groupTemplate.bind(this);
     }
     //TODO --> directly hitting this page will immediately redirect to dashboard as the user is not available 
     //this needs to be fixed in the next refactor
@@ -36,23 +37,9 @@ class KanbanBoard extends Component {
         if(JSON.stringify(projectObject) == JSON.stringify({})){
             window.history.replaceState({}, "",urls.DASHBOARD);
         }else{
-            this.setState({currentProject:{...projectObject}},()=> {
-                if(this.state.currentProject.boarddetails.templatedetails != undefined)
-                {
-                    this.buildBoard();
-                }
-            });
+            this.props.updateProjectState({currentProject : projectObject, activePhases : [...projectObject.boarddetails.templatedetails]});
+            projectObject.boarddetails.templatedetails != undefined && this.buildBoard(projectObject.boarddetails);
         }
-    }
-
-    placeStories(stories){
-       stories.map(story => {
-            let parentPhase = document.getElementById(story.currentstatus);
-            let storyTile = document.createElement("DIV");
-            storyTile.innerHTML = story.storytitle;
-            storyTile.id = storyTile._id;
-            parentPhase.appendChild(storyTile); 
-       });
     }
 
     addStory(){
@@ -60,124 +47,69 @@ class KanbanBoard extends Component {
         this.setState({showStoryForm : showOrHide});
     }
 
-    updateCurrentProject(updatedProject){
-        this.setState({currentProject : updatedProject},()=> {
-            this.buildBoard();
+    groupTemplate(template){
+        let groupedTemplate = [];
+        template.map(element => {
+            element.CHILDREN.length == 0 && element.EXTENDS == "" && groupedTemplate.push(element);
+            if(element.CHILDREN.length != 0 && element.EXTENDS == ""){
+                template.map(childElement => {
+                    if(element.CHILDREN.includes(childElement.NAME)){
+                        element.CHILDREN.splice(element.CHILDREN.indexOf(childElement.NAME),1,childElement);
+                    }
+                });
+                groupedTemplate.push(element);
+            }
         });
+        return groupedTemplate;
+    }
+
+    updateCurrentProject(template){
+        this.props.updateProjectState({activePhases : [...template]});
+        buildBoard(template);
     }
     
-    buildBoard(template = this.state.currentProject.boarddetails){
-        let board = ""; 
-        let phaseContainerStyle = {};
-        let numberOfElements = 0;
-        template.templatedetails.map(template => {
-            if(template.EXTENDS == "")
-                numberOfElements +=1;  
+    buildBoard(template = this.props.projectDetails.currentProject.boarddetails){
+        let board = "";
+        let groupedTemplate = this.groupTemplate(template.templatedetails);
+        let width = this.state.componentWidth/groupedTemplate.length;
+        board = groupedTemplate.map(template => {
+            return(<BoardColumn columnDetails = {template} width = {width}/>);    
         });
-        let centralContainer = document.getElementById("boardContainer");
-        if(centralContainer != null){
-            
-            phaseContainerStyle = {
-                float : "left",
-                width : centralContainer.offsetWidth / numberOfElements
-            };  
-        }
-
-        board = template.templatedetails.map(template => {
-            if(template.EXTENDS == "" && template.CHILDREN.length == 0){
-                return(
-                    <div className="phaseContainer" id={template._id} style = {phaseContainerStyle}>
-                        <div className="phaseHeading">{template.NAME}</div>
-                        <div className="storiesContainer"></div>
-                    </div>
-                );
-            }else if(template.EXTENDS == "" && template.CHILDREN.length != 0){
-                return(
-                    <div className="phaseContainer" id={template._id} style = {phaseContainerStyle}>
-                        <div className="phaseHeading">{template.NAME}</div>
-                    </div>
-                );
-            }
-        });
-        //set the parentboard
-        this.setState({parentBoard : board}, () => {
-            this.renderChild();
-        });
-    }
-
-    renderChild(templateArr = this.state.currentProject.boarddetails){
-        templateArr.templatedetails.map(template => {
-                let parentTemplateID = "";
-                templateArr.templatedetails.map(parentTemp => {
-                    if(parentTemp.NAME == template.EXTENDS)
-                        parentTemplateID = parentTemp._id;
-                });
-
-                let phaseContainer = document.createElement("DIV");
-                let phaseHeading = document.createElement("DIV");
-
-                phaseContainer.className = "phaseContainer";
-                phaseContainer.id = template._id;
-                phaseHeading.innerHTML = template.NAME;
-
-                phaseContainer.appendChild(phaseHeading);
-                let style = {};
-            if(template.EXTENDS != "" && template.CHILDREN.length != 0){
-                let parentComponent = document.getElementById(parentTemplateID);
-                let numberOfElements = 0;
-                templateArr.templatedetails.map(temp => {
-                    if(temp.NAME == template.EXTENDS)
-                    numberOfElements = temp.CHILDREN.length;
-                });
-
-                phaseContainer.style.float = "left";
-                phaseContainer.style.width = parentComponent.offsetWidth/numberOfElements;
-                parentComponent.appendChild(phaseContainer);
-
-            } else if(template.EXTENDS != "" && template.CHILDREN.length == 0){
-                let storiesContainer = document.createElement("DIV");
-                storiesContainer.className = "storiesContainer";
-                phaseHeading.appendChild(storiesContainer);
-
-                let parentComponent = document.getElementById(parentTemplateID);
-                let style = {};
-                let numberOfElements = 0;
-                templateArr.templatedetails.map(temp => {
-                    if(temp.NAME == template.EXTENDS)
-                    numberOfElements = temp.CHILDREN.length;
-                });
-                phaseContainer.style.float = "left";
-                phaseContainer.style.width = parentComponent.offsetWidth/numberOfElements;
-                parentComponent.appendChild(phaseContainer);
-            }
-        });
-        let stories = [...this.state.currentProject.storydetails];
-        stories != undefined && this.placeStories(stories);
+        this.setState({parentBoard : board});
     }
 
     render(){
         let boardStyle = {
-            width : screen.width
+            width : this.state.componentWidth
         };
         let setupProject = "";
-        if(JSON.stringify(this.state.currentProject) != JSON.stringify({}) && this.state.currentProject.boarddetails.templatedetails == undefined){
-            setupProject = <SetupProject projectObject = {this.state.currentProject} updateCurrentProject = {this.updateCurrentProject}/>;
+        if(JSON.stringify(this.props.projectDetails.currentProject) != JSON.stringify({}) && this.props.projectDetails.currentProject.boarddetails.templatedetails == undefined){
+            setupProject = <SetupProject updateCurrentProject = {this.updateCurrentProject}/>;
         }
         return (<div>
-                    {this.state.showStoryForm && <StoryForm currentProject={this.state.currentProject} closeForm={this.addStory} placeStories={this.placeStories} currentMode = "ADD"/>}
+                    {this.state.showStoryForm && <StoryForm closeForm={this.addStory} currentMode = "ADD"/>}
                     {setupProject} 
                     <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
                         {this.state.parentBoard}
-                        {this.state.parentBoard != "" && <button onClick={this.addStory} id="addStoryButton">+</button>}
                     </div>
+                    {this.state.parentBoard != "" && <button onClick={this.addStory} id="addStoryButton">+</button>}
                 </div>);
     }
 }
 
+const mapDispatchToProps = dispatch => {
+    return {
+        updateProjectState: (project) => {
+            dispatch(setProjectAction(project));
+        }
+    };
+};
+
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer
+        user: state.userStateReducer,
+        projectDetails: state.projectStateReducer
     }
 };
 
-export default connect(mapStateToProps,null)(KanbanBoard); 
+export default connect(mapStateToProps,mapDispatchToProps)(KanbanBoard); 
