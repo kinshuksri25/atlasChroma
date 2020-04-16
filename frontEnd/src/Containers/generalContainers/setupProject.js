@@ -56,7 +56,7 @@ class SetupProject extends Component {
                     break;    
             }
             constants.map(constant => {
-                constant.WIP = constant.WIP ? this.props.projectDetails.currentDetails.contributors.length + 2 : false;
+                constant.WIP = constant.WIP ? this.props.projectDetails.currentProject.contributors.length + 2 : false;
                 constant._id = this.randValueGenerator();
                    
             });

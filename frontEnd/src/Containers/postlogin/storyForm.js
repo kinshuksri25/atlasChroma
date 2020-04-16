@@ -42,11 +42,13 @@ class StoryForm extends Component {
         });
     }
 
+    //this is a serious issue currentproject redux store is getting updated automatically this is not supposed to happen
     onStoryAddHandler(formObject){
         let globalThis = this;
         if(formObject.formData.Priority != "" && formObject.formData.Contributor != ""){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
             formObject.formData.currentStatus = this.props.projectDetails.currentProject.boarddetails.templatedetails[0]._id;
+            console.log(this.props.projectDetails.currentProject.boarddetails.templatedetails[0]._id);
             formObject.formData.projectID = this.props.projectDetails.currentProject._id;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
@@ -58,16 +60,12 @@ class StoryForm extends Component {
                     }
                 }else{
                     let updatedUser = {...globalThis.props.user};
-                    updatedUser.projects.map(project =>{
-                        if(project._id == globalThis.props.projectDetails.currentProject._id){
-                            project.storydetails.push(responseObject.PAYLOAD);
+                    for(let i = 0;i < updatedUser.projects.length;i++){
+                        if(updatedUser.projects[i]._id == globalThis.props.projectDetails.currentProject._id){
+                            updatedUser.projects[i].storydetails.push({...responseObject.PAYLOAD});
                         }
-                    });
-                    let currentProject = {...globalThis.props.projectDetails.currentProject};
-                    currentProject.storydetails.push(responseObject.PAYLOAD);
-
+                    }
                     globalThis.props.setUserState(updatedUser);
-                    globalThis.props.updateProjectState({currentProject : currentProject});
                 }
             });
         }else{
@@ -91,9 +89,6 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
-        },
-        updateProjectState: (project) => {
-            dispatch(setProjectAction(project));
         }
     };
 };

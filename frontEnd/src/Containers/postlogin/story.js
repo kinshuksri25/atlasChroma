@@ -24,8 +24,7 @@ class Story extends Component{
                         storyJSX : "",
                         columnPosition : ""
                      };
-        this.buildStoryTile = this.buildStoryTile.bind(this);     
-        this.onClickHandler = this.onClickHandler.bind(this);      
+        this.buildStoryTile = this.buildStoryTile.bind(this);      
         this.mouseOverHandler = this.mouseOverHandler.bind(this); 
         this.moveStory = this.moveStory.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
@@ -35,7 +34,7 @@ class Story extends Component{
     componentDidMount(){
         let columnPostion = 0;
         for(let i =0;i<this.props.projectDetails.activePhases.length;i++){
-            if(this.props.storyDetails._id == this.props.projectDetails.activePhases[i]){
+            if(this.props.storyDetails.currentstatus == this.props.projectDetails.activePhases[i]){
                 columnPostion = i;
                 break;
             }
@@ -59,8 +58,9 @@ class Story extends Component{
     }
 
     moveStory(event){
-        let newPosition = this.props.projectDetails.activePhases[this.props.projectDetails.activePhases.indexOf(this.state.currentStatus)];
+        let newPosition = this.props.projectDetails.activePhases.indexOf(this.state.currentStatus);
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+        let globalThis = this;
         switch(event.target.className){
             case "promoteStory" : 
                         newPosition += 1;
@@ -77,9 +77,9 @@ class Story extends Component{
         storyDetails.priority = this.state.priority;
         storyDetails.startdate = this.state.startDate;
         storyDetails.duedate = this.state.dueDate;
-        storyDetails.currentstatus = this.state.currentStatus;
-        storyDetails.comments = this.state.comments
-        httpsMiddleware.httpsRequest("/stories", PUT, headers, {projectID : this.props.projectDetails.currentProject._id, storyDetails: {...storyDetails}}, function(error,responseObject){
+        storyDetails.currentstatus = globalThis.props.projectDetails.activePhases[newPosition];
+        storyDetails.comments = this.state.comments;
+        httpsMiddleware.httpsRequest("/stories","PUT", headers, {projectID : this.props.projectDetails.currentProject._id, storyDetails: {...storyDetails}}, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     console.log(error);
@@ -88,39 +88,29 @@ class Story extends Component{
                     //TODO --> errormsg div(errorMsg)
                 }
             }else{
-                let updatedUser = {...this.props.user};
+                let updatedUser = {...globalThis.props.user};
                 let updatedProjectDetails;
 
                 updatedUser.projects.map(project => {
-                    if(project._id == this.projectDetails.currentProject._id){
+                    if(project._id == globalThis.props.projectDetails.currentProject._id){
                         project.storydetails.map(story => {
-                            if(story._id == this.state.id){
-                                story.currentstatus = this.props.projectDetails.activePhases[newPosition];
+                            if(story._id == globalThis.state.id){
+                                story.currentstatus = globalThis.props.projectDetails.activePhases[newPosition];
                             }
                         });
                         updatedProjectDetails = {...project};
                     }
                 });
-                this.props.setUserState(updatedUser);
-                this.props.updateProjectState({currentProject : {...updatedProjectDetails}});
-                this.setState({columnPosition : newPosition});
+                globalThis.props.setUserState(updatedUser);
             }
         });
     }
 
     deleteStory(event){
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        let storyDetails = {};
-        storyDetails._id = this.state.id;
-        storyDetails.storytitle = this.state.storyTitle;
-        storyDetails.description = this.state.storyDescription;
-        storyDetails.contributor = this.state.contributor;
-        storyDetails.priority = this.state.priority;
-        storyDetails.startdate = this.state.startDate;
-        storyDetails.duedate = this.state.dueDate;
-        storyDetails.currentstatus = this.state.currentStatus;
-        storyDetails.comments = this.state.comments
-        httpsMiddleware.httpsRequest("/stories", DELETE, headers, {projectID : this.props.projectDetails.currentProject._id, storyDetails: {...storyDetails}}, function(error,responseObject){
+        let globalThis = this;
+        let queryParams = "projectID="+this.props.projectDetails.currentProject._id+"&storyID="+this.state.id+"&contributor="+this.state.contributor;
+        httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     console.log(error);
@@ -129,13 +119,13 @@ class Story extends Component{
                     //TODO --> errormsg div(errorMsg)
                 }
             }else{
-                let updatedUser = {...this.props.user};
+                let updatedUser = {...globalThis.props.user};
                 let updatedProjectDetails;
 
                 updatedUser.projects.map(project => {
-                    if(project._id == this.projectDetails.currentProject._id){
+                    if(project._id == globalThis.props.projectDetails.currentProject._id){
                         for(let i=0;i<project.storydetails.length;i++){
-                            if(project.storydetails[i] == this.state.id){
+                            if(project.storydetails[i] == globalThis.state.id){
                                 while(i < project.storydetails.length){
                                     project.storydetails[i] = project.storydetails[i+1];
                                     i++;
@@ -147,9 +137,7 @@ class Story extends Component{
                         updatedProjectDetails = {...project};
                     }
                 });
-                this.props.setUserState(updatedUser);
-                this.props.updateProjectState({currentProject : {...updatedProjectDetails}});
-                this.setState({columnPosition : newPosition});
+                globalThis.props.setUserState(updatedUser);
             }
         });
     }
@@ -159,23 +147,23 @@ class Story extends Component{
         this.setState({storyJSX :  <div>
                                         <h3 className = "tileHeading">{this.state.storyTitle}</h3>
                                         <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="promoteStory">-\</button>
-                                        <button className="deleteStory">/_\</button>
+                                        <button className="promoteStory" onClick={this.moveStory}>-\</button>
+                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
                                     </div>});
-      }else if(this.state.columnPosition == this.props.stories.length-1){
+      }else if(this.state.columnPosition == this.props.projectDetails.activePhases.length-1){
         this.setState({storyJSX :  <div>
                                         <h3 className = "tileHeading">{this.state.storyTitle}</h3>
                                         <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="demoteStory">/-</button>
-                                        <button className="deleteStory">/_\</button>
+                                        <button className="demoteStory" onClick={this.moveStory}>/-</button>
+                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
                                     </div>});
       }else{
         this.setState({storyJSX :  <div>
                                         <h3 className = "tileHeading">{this.state.storyTitle}</h3>
                                         <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="promoteStory">-\</button>
-                                        <button className="demoteStory">/-</button>
-                                        <button className="deleteStory">/_\</button>
+                                        <button className="promoteStory" onClick={this.moveStory}>-\</button>
+                                        <button className="demoteStory" onClick={this.moveStory}>/-</button>
+                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
                                     </div>});
       } 
     }

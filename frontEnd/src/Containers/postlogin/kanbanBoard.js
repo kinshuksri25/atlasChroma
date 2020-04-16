@@ -33,11 +33,16 @@ class KanbanBoard extends Component {
             if(project._id == projectID)
                     projectObject = project;      
         });
-
         if(JSON.stringify(projectObject) == JSON.stringify({})){
             window.history.replaceState({}, "",urls.DASHBOARD);
         }else{
-            this.props.updateProjectState({currentProject : projectObject, activePhases : [...projectObject.boarddetails.templatedetails]});
+            let activePhases = [];
+            if(projectObject.boarddetails.templatedetails != undefined){
+                projectObject.boarddetails.templatedetails.map(template => {
+                    activePhases.push(template._id);
+                }); 
+            }
+            this.props.updateProjectState({currentProject : projectObject, activePhases : [...activePhases]});
             projectObject.boarddetails.templatedetails != undefined && this.buildBoard(projectObject.boarddetails);
         }
     }
@@ -64,8 +69,12 @@ class KanbanBoard extends Component {
     }
 
     updateCurrentProject(template){
-        this.props.updateProjectState({activePhases : [...template]});
-        buildBoard(template);
+        let activePhases = [];
+        template.templatedetails.map(temp => {
+                activePhases.push(temp._id);
+        });
+        this.props.updateProjectState({activePhases : [...activePhases]});
+        this.buildBoard(template);
     }
     
     buildBoard(template = this.props.projectDetails.currentProject.boarddetails){

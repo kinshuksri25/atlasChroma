@@ -130,31 +130,31 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
        };
 
     if(requestObject.reqBody.hasOwnProperty("projectID") && requestObject.reqBody.hasOwnProperty("storyDetails")){
-        mongo.read(DBCONST.projectCollection ,{id : requestObject.reqBody.projectID},{}).then(resolvedResult => {
+        mongo.read(DBCONST.projectCollection ,{_id : requestObject.reqBody.projectID},{}).then(resolvedResult => {
             let storyDetails = resolvedResult[0].storydetails;
             storyDetails.map(story => {
                 if(story._id == requestObject.reqBody.storyDetails._id){
-                    story.currentStatus = requestObject.reqBody.storyDetails.currenstatus;
+                    story.currentstatus = requestObject.reqBody.storyDetails.currentstatus;
                 }
             });
-            mongo.update(DBCONST.projectCollection,{id : requestObject.reqBody.projectID},{$set : {storydetails : [...storyDetails]}},{},SINGLE).then(resolvedResult => {
+            mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$set : {storydetails : [...storyDetails]}},{},SINGLE).then(resolvedResult => {
                 mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.storyDetails.contributor},{}).then(resolvedResult => {
                     let contributorEmailID = resolvedResult[0].email;
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY).then(resolvedResult => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY).then(resolvedResult => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = "story deleted successfully";
+                        response.SMSG = "story moved successfully";
                         resolve(response);
                     }).catch(rejectedResult => {
                         response.STATUS = 201;
                         response.PAYLOAD = {};
-                        response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                        response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
                         resolve(response);    
                     });
                 }).catch(rejectedResult => {
                     response.STATUS = 201;
                     response.PAYLOAD = {...newStory.getStoryDetails()};
-                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                    response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
@@ -184,10 +184,18 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
         PAYLOAD : {},
         SMSG : ""
        };
-
-    if(requestObject.reqBody.hasOwnProperty("projectID") && requestObject.reqBody.hasOwnProperty("storyDetails")){
-        mongo.update(DBCONST.update,{id : requestObject.reqBody.projectID},{$pull : {storydetails : requestObject.reqBody.storyDetails}},{},SINGLE).then(resolvedResult => {
-            mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.storyDetails.contributor},{}).then(resolvedResult => {
+    if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.storyID != undefined && requestObject.queryObject.contributor != undefined){
+       mongo.read(DBCONST.projectCollection ,{_id : requestObject.queryObject.projectID},{}).then(resolvedResult => {
+        let updatedStories = resolvedResult[0].storydetails;
+        let deletePosition = 0;
+        for(let i=0;i<updatedStories.length;i++){
+            if(updatedStories[i]._id == requestObject.queryObject.storyID){
+                deletePosition = i;
+            }   
+        }
+        updatedStories.splice(deletePosition,1);
+        mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$set : {storydetails : [...updatedStories]}},{},SINGLE).then(resolvedResult => {   
+            mongo.read(DBCONST.userCollection,{username: requestObject.queryObject.contributor },{}).then(resolvedResult => {;
                 let contributorEmailID = resolvedResult[0].email;
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY).then(resolvedResult => {
                     response.STATUS = 200;
@@ -202,7 +210,7 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
                 });
             }).catch(rejectedResult => {
                 response.STATUS = 201;
-                response.PAYLOAD = {...newStory.getStoryDetails()};
+                response.PAYLOAD = {};
                 response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
                 resolve(response);    
             });
@@ -211,6 +219,11 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
             response.EMSG = rejectedResult;
             reject(response);
         });
+       }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response);
+       });
     }else{   
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
