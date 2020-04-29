@@ -3,13 +3,15 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import SimpleForm from '../../Forms/simpleform';
-import httpsMiddleware from '../../middleware/httpsMiddleware';
-import formConstants from '../../Forms/formConstants';
-import EditableForm from '../../Forms/editableForms';
-import setUserAction from '../../store/actions/userActions';
-import cookieManager from '../../Components/cookieManager';
-import editableConstants from '../../Forms/editableFormConstants';
+import SimpleForm from '../../../Forms/simpleform';
+import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import formConstants from '../../../Forms/formConstants';
+import TemplateBuilder from './templateBuilder';
+import setMsgAction from '../../../store/actions/msgActions';
+import {msgObject} from '../../../../../lib/constants/storeConstants';
+import setUserAction from '../../../store/actions/userActions';
+import cookieManager from '../../../Components/cookieManager';
+import templateBuilderConstants from './templateBuilderConstants';
 
 class SetupProject extends Component {
 
@@ -23,6 +25,7 @@ class SetupProject extends Component {
         };
         this.formBuilder = this.formBuilder.bind(this);
         this.changePage = this.changePage.bind(this);
+        this.templateValidator = this.templateValidator.bind(this);
         this.setLoadedTemplate = this.setLoadedTemplate.bind(this);
         this.onTemplateSubmit = this.onTemplateSubmit.bind(this);
         this.randValueGenerator = this.randValueGenerator.bind(this);
@@ -43,16 +46,16 @@ class SetupProject extends Component {
             let constants = [];
             switch(this.state.currentTemplate){
                 case "SIMPLE" : 
-                    constants = editableConstants.SIMPLE;
+                    constants = templateBuilderConstants.SIMPLE;
                     break;
                 case "SDLC" : 
-                    constants = editableConstants.SDLC;
+                    constants = templateBuilderConstants.SDLC;
                     break;
                 case "MANUFACTURING" : 
-                    constants = editableConstants.MANUFACTURING;
+                    constants = templateBuilderConstants.MANUFACTURING;
                     break;
                 case "CUSTOM" : 
-                    constants = editableConstants.CUSTOM;
+                    constants = templateBuilderConstants.CUSTOM;
                     break;    
             }
             constants.map(constant => {
@@ -60,8 +63,9 @@ class SetupProject extends Component {
                 constant._id = this.randValueGenerator();
                    
             });
+            this.setLoadedTemplate(constants);
             return(<div>
-                      <EditableForm template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator} mouseover = {editableConstants.MOUSEOVEREVENTS}/>
+                      <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
                       <button onClick={this.changePage}>Back</button>
                     </div>);
         }
@@ -71,30 +75,51 @@ class SetupProject extends Component {
         this.setState({loadedTemplate : template});
     }
 
-    onTemplateSubmit(event){
-        let globalThis = this;
-        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectDetails.currentProject._id}, function(error,responseObject) {
-            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
-                if(error){
-                    console.log(error);
-                    //TODO --> errormsg div(ERR_CONN_SERVER)
-                }else{
-                    //TODO --> errormsg div(errorMsg)
-                }
-            }else{
-                let userDetails = globalThis.props.user;
-                userDetails.projects.map(project => {
-                    if(project._id == globalThis.props.projectDetails.currentProject._id){
-                        project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
-                    }
-                });
-                globalThis.props.setUserState(userDetails);
-                let currentProject =  {...globalThis.props.projectDetails.currentProject};
-                currentProject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
-                globalThis.props.updateCurrentProject(currentProject.boarddetails);       
-            }   
+    templateValidator(){
+        let finalTemplate = [...this.state.loadedTemplate];
+        let isTemplateValid = true;
+        finalTemplate.map(template => {
+            if(template.CHILDREN.length == 1){
+                isTemplateValid = false;
+            }
         });
+        return isTemplateValid;
+    }
+
+    onTemplateSubmit(event){
+        if(this.isTemplateValid()){
+            let globalThis = this;
+            let errorObject = {...msgObject};
+            let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectDetails.currentProject._id}, function(error,responseObject) {
+                if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                    if(error){
+                        errorObject.msg = error;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
+                    }else{
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
+                    }
+                }else{
+                    let userDetails = globalThis.props.user;
+                    userDetails.projects.map(project => {
+                        if(project._id == globalThis.props.projectDetails.currentProject._id){
+                            project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
+                        }
+                    });
+                    globalThis.props.setUserState(userDetails);
+                    let currentProject =  {...globalThis.props.projectDetails.currentProject};
+                    currentProject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
+                    globalThis.props.updateCurrentProject(currentProject.boarddetails);       
+                }   
+            });
+        }else{
+            errorObject.msg = "One of the Phases/Subphases has 1 Child This is invalid!!";
+            errorObject.status = "ERROR";
+            setMsgState(errorObject);
+        }
     }
 
     changePage(formObject){
@@ -103,8 +128,9 @@ class SetupProject extends Component {
                 let templateType = formObject.formData.TemplateType;
                 this.setState({nextPage : true, currentTemplate: templateType});   
             }else{
-                //TODO --> this needs to be added to error constants
-                console.log("template type cannot be left empty");
+                errorObject.msg = "template type cannot be left empty";
+                errorObject.status = "ERROR";
+                setMsgState(errorObject);
             }
         }
         else
@@ -142,7 +168,10 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
-        }
+        },
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
     };
 };
 

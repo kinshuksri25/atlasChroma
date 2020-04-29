@@ -1,4 +1,4 @@
-var editableConstants = {};
+var templateBuilderConstants = {};
 //sample structure -->
 // {
 //     Name : "",  ---> this is the parent structure
@@ -10,7 +10,7 @@ var editableConstants = {};
 //     WIP : false,
 //     EXTENDS : ""    
 // }
-editableConstants.SIMPLE = [
+templateBuilderConstants.SIMPLE = [
     {
         _id:"",
         NAME:"TODO",
@@ -34,7 +34,7 @@ editableConstants.SIMPLE = [
     }
 ];
 
-editableConstants.SDLC = [
+templateBuilderConstants.SDLC = [
 
     {
         _id:"",
@@ -94,7 +94,7 @@ editableConstants.SDLC = [
     },
 ];
  
-editableConstants.MANUFACTURING = [    
+templateBuilderConstants.MANUFACTURING = [    
     
     {
         _id:"",
@@ -141,25 +141,7 @@ editableConstants.MANUFACTURING = [
 
 ];
 
-editableConstants.CUSTOM = [];
-
-editableConstants.MOUSEOVEREVENTS = [
-    {
-        NAME : "EDIT",
-        CALLABLEFUNCTION : "",
-        IMAGEURL : "EDIT"
-    },
-    {
-        NAME : "INFO",
-        CALLABLEFUNCTION : "",
-        IMAGEURL : "INFO"
-    },
-    {
-        NAME : "REMOVE",
-        CALLABLEFUNCTION : "",
-        IMAGEURL : "REMOVE"
-    }
-];
+templateBuilderConstants.CUSTOM = [];
 
 //export the module
-export default editableConstants;
+export default templateBuilderConstants;

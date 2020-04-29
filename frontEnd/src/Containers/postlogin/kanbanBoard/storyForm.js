@@ -3,13 +3,11 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import {urls} from '../../../../lib/constants/contants';
-import setUserAction from '../../store/actions/userActions';
-import cookieManager from '../../Components/cookieManager';
-import SimpleForm from '../../Forms/simpleform';
-import setProjectAction from '../../store/actions/projectActions';
-import httpsMiddleware from '../../middleware/httpsMiddleware';
-import formConstants from '../../Forms/formConstants';
+import setUserAction from '../../../store/actions/userActions';
+import cookieManager from '../../../Components/cookieManager';
+import SimpleForm from '../../../Forms/simpleform';
+import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import formConstants from '../../../Forms/formConstants';
 
 class StoryForm extends Component {
 
@@ -80,8 +78,7 @@ class StoryForm extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer,
-        projectDetails: state.projectStateReducer
+        user: state.userStateReducer
     }
 };
 

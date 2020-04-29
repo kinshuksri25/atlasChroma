@@ -95,7 +95,7 @@ signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject)
     //check requestObject
     if(query != {} && requestObject.method == "GET"){
         //check email validity
-        mongo.read(DBCONST.userCollection,query, {}).then(resultSet => {  
+        mongo.read(DBCONST.userCollection,query, {projection : {_id : 0,email : 1}}).then(resultSet => {  
             if (JSON.stringify(resultSet) == JSON.stringify([])) {    
 
                 response.STATUS = 200;
@@ -133,7 +133,7 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check id validity
-         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1, password:1, firstname:1 } }).then(resultSet => {
+         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
@@ -164,7 +164,7 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
 
     }else{
           response.EMSG = EMSG.SVR_HNDLS_INREQ;
-          response.STATUS = 400; // --> request syntax is invalid
+          response.STATUS = 400;
           reject(response);   
     }
 });

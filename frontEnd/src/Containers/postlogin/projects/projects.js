@@ -2,8 +2,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import ProjectFilterForm from '../../Forms/projectFilterForm';
+import FilterForm from '../../../Forms/filterForm';
 import AddProject from './addProject';
+import filterFormConstants from '../../../Forms/filterFormConstants';
 import ProjectContainer from './projectContainer';
 
 class Projects extends Component {
@@ -36,12 +37,12 @@ class Projects extends Component {
         render(){
                 let addProject = this.state.addProject ? <AddProject cancel = {this.addProject}/> :"";
                 return (<div> 
-                           <ProjectFilterForm 
+                           <FilterForm 
                            orderBy={this.state.orderBy} 
-                           searchProject={this.searchProject}
-                           addProject={this.addProject}
+                           searchFunction={this.searchProject}
                            changeOrderBy={this.changeOrderBy}
-                           /> 
+                           options = {filterFormConstants.projectFilter}/> 
+                           <button onClick={this.addProject}>Add Project</button>
                            {addProject} 
                              <ProjectContainer orderBy = {this.state.orderBy}/> 
                         </div>);    

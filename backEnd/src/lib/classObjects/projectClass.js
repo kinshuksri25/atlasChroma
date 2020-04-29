@@ -11,7 +11,7 @@ class project{
                 contributors=[], 
                 creationdate= Date.now(),
                 modificationdate="",
-                boarddetails = {},
+                templatedetails = {},
                 storydetails = []}){
         
         this._id = _id;                    
@@ -21,7 +21,7 @@ class project{
         this.contributors=contributors;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
-        this.boarddetails = boarddetails;
+        this.templatedetails = templatedetails;
         this.storydetails = storydetails;
     }
 
@@ -34,7 +34,7 @@ class project{
             contributors:this.contributors,
             creationdate:this.creationdate,
             modificationdate:this.modificationdate,
-            boarddetails:this.boarddetails,
+            templatedetails:this.templatedetails,
             storydetails:this.storydetails
         } 
         return {...projectDetails};
@@ -47,7 +47,7 @@ class project{
                       contributors=this.contributors,
                       creationdate=this.creationdate,
                       modificationdate=this.modificationdate,
-                      boarddetails=this.boarddetails,
+                      templatedetails=this.templatedetails,
                       storydetails=this.storydetails}){
 
         this._id = _id;                
@@ -57,7 +57,7 @@ class project{
         this.conbtributors=contributors;
         this.creationdate=creationdate;
         this.modificationdate=modificationdate;
-        this.boarddetails=boarddetails;
+        this.templatedetails=templatedetails;
         this.storydetails=storydetails;
     }
 }

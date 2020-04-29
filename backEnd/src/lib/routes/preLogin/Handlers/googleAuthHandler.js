@@ -29,7 +29,7 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
     //check the request object
     if(requestObject.queryObject.Email != undefined && requestObject.method == "GET"){
 
-        mongo.read(DBCONST.userCollection,{ email: requestObject.queryObject.Email }, {}).then(resultSet => {
+        mongo.read(DBCONST.userCollection,{ email: requestObject.queryObject.Email }, {projection : {userName : 1}}).then(resultSet => {
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
                 //set user object
@@ -37,7 +37,6 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
                 //save user credentials 
                 mongo.insert(DBCONST.userCollection, googleSignUpUserObject, {}).then(insertSet => {
                     
-                    //TODO --> add google interface
                     //build auth url
                     response.STATUS = 200;
                     response.SMSG = SMSG.SVR_OATH_NURLSUC;
@@ -51,7 +50,6 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
             } else {
                 mongo.update(DBCONST.userCollection, { _id: resultSet[0]._id }, { $set: { state: state } }, {}, SINGLE).then(updateSet => {
                     
-                    //TODO --> add google interface
                     //build auth url
                     response.STATUS = 200;
                     response.SMSG = SMSG.SVR_OATH_URLSUC;
@@ -230,7 +228,7 @@ googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reje
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
          //check state validity
-         mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, { projection: { _id: 1,email: 1, firstname:1 } }).then(resultSet => {
+         mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, { projection: { _id: 1} }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
                 mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {

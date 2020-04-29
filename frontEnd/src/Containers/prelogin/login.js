@@ -4,10 +4,12 @@ import React, { Component } from 'react';
 import SimpleForm from '../../Forms/simpleform';
 import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
+import setMsgAction from '../../store/actions/msgActions';
+import {msgObject} from '../../../../lib/constants/storeConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {urls} from "../../../../lib/constants/contants";
 
-export default class Login extends Component {
+class Login extends Component {
 
     constructor(props) {
         super(props);
@@ -20,6 +22,7 @@ export default class Login extends Component {
 
     onSubmitHandler(formObject) {
         let headers = {};
+        let errorObject = {...msgObject};
         let gmailPatternError = "";
         if(formObject.route != "/login"){
             // let gmailRegex = new RegExp("/\S+@gmail+\.com+/");
@@ -31,10 +34,13 @@ export default class Login extends Component {
           httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
-                    console.log(error);
-                    //TODO --> errormsg div(ERR_CONN_SERVER)
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
-                    //TODO --> errormsg div(errorMsg)
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }
             }else{
                 if(formObject.route == "/login"){
@@ -50,7 +56,9 @@ export default class Login extends Component {
                     }
                 }else{
                     if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
-                        //TODO --> errormsg div(ERR_GGLCONN_CLI)    
+                        errorObject.msg = "Unable to connect to google servers";
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);  
                     }else{
                         window.location = responseObject.PAYLOAD.authURL;
                     }
@@ -58,8 +66,9 @@ export default class Login extends Component {
             }   
         });
         }else{
-            //TODO --> errormsg div(invalid email)
-            console.log("invalid email");
+            errorObject.msg = "Invalid Email ID";
+            errorObject.status = "ERROR";
+            setMsgState(errorObject);
         }
     }
 
@@ -83,3 +92,13 @@ export default class Login extends Component {
                     </div>);
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
+
+export default connect(null,mapDispatchToProps)(Login);

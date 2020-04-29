@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 
 import setUrlAction from "./store/actions/urlActions"; 
+import MsgContainer from './Containers/generalContainers/msgContainer';
 import cookieManager from './Components/cookieManager';
 import PreLoginRouter from './Components/prelogin/preLoginRouter';
 import PostLoginRouter from './Containers/postlogin/postLoginRouter';
@@ -26,7 +27,10 @@ class Router extends Component {
 
     render(){
         let router = cookieManager.getUserSessionDetails() ? <PostLoginRouter/> : < PreLoginRouter/>;
-        return ( <div> {router} </div>);
+        return ( <div> 
+                    <MsgContainer/>
+                    {router} 
+                </div>);
     }
 }
 

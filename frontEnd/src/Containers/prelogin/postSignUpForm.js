@@ -3,9 +3,11 @@ import React, { Component } from 'react';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {EMSG,urls} from "../../../../lib/constants/contants";
 import SimpleForm from '../../Forms/simpleform';
+import setMsgAction from '../../store/actions/msgActions';
+import {msgObject} from '../../../../lib/constants/storeConstants';
 import formConstants from '../../Forms/formConstants';
 
-export default class PostSignUpForm extends Component {
+class PostSignUpForm extends Component {
     constructor(props) {
         super(props);
         this.state={
@@ -27,28 +29,31 @@ export default class PostSignUpForm extends Component {
 
     onSubmitHandler(formObject){
         let headers = {};
+        let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('FirstName') && formObject.formData.hasOwnProperty('LastName') && formObject.formData.hasOwnProperty('Phone')) {
             formObject.formData.id = this.state.ID;
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                 if(error || responseObject.Status == "ERROR"){
                     if(error){
-                        console.log(error);
-                        //TODO --> add errormsg div(ERR_CONN_SERVER)
+                        errorObject.msg = error;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                     }else{
-                        //TODO --> add error msg div(errormsg)
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                     }
                 }else{
                     localStorage.clear();
-                    //set the session
-                    
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({},"",urls.DASHBOARD);
                 }
             });
         } else {
-                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                console.log(EMSG.CLI_MID_INVMET);
+                errorObject.msg = EMSG.CLI_MID_INVMET;
+                errorObject.status = "ERROR";
+                setMsgState(errorObject);
         }
     }
 
@@ -65,3 +70,13 @@ export default class PostSignUpForm extends Component {
                 </div>);
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
+
+export default connect(null,mapDispatchToProps)(PostSignUpForm);

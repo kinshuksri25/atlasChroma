@@ -104,43 +104,35 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
         || requestObject.reqBody.hasOwnProperty("description") 
         || requestObject.reqBody.hasOwnProperty("contributors") 
         || requestObject.reqBody.hasOwnProperty('projectleader') 
-        || requestObject.reqBody.hasOwnProperty("boarddetails")
-        || requestObject.reqBody.hasOwnProperty("storydetails")){
-            mongo.read(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{}).then(resolvedResult => {
-                if(JSON.stringify(resolvedResult) != JSON.stringify([])){
-                    let projectObject = resolvedResult[0];
-                    projectObject.title = requestObject.reqBody.hasOwnProperty("title") ? requestObject.reqBody.title : projectObject.title;
-                    projectObject.description = requestObject.reqBody.hasOwnProperty("description") ? requestObject.reqBody.description : projectObject.description;
-                    projectObject.contributors = requestObject.reqBody.hasOwnProperty("contributors") ? requestObject.reqBody.contributors : projectObject.contributors;
-                    projectObject.projectlead = requestObject.reqBody.hasOwnProperty("projectleader") ? requestObject.reqBody.projectleader : projectObject.projectlead;
-                    projectObject.boarddetails.templatedetails = requestObject.reqBody.hasOwnProperty("boarddetails") ? requestObject.reqBody.boarddetails : projectObject.boarddetails;
-                    projectObject.storydetails = requestObject.reqBody.hasOwnProperty("storydetails") ? requestObject.reqBody.storydetails : projectObject.storydetails;
+        || requestObject.reqBody.hasOwnProperty("templatedetails")){
 
-                    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{$set : {...projectObject}},{},SINGLE).then(resolvedSet => {
-                        response.STATUS = 200;
-                        response.PAYLOAD = {};
-                        response.SMSG = "board details updated successfully";
-                        resolve(response);
-                    }).catch(rejectedSet => {
-                       throw rejectedSet; 
-                    });
+    let push = {};
+    let set = {}; 
+    if(requestObject.reqBody.hasOwnProperty("title")){
+        set.title = requestObject.reqBody.title;
+    }if(requestObject.reqBody.hasOwnProperty("description")){
+        set.description = requestObject.reqBody.description;
+    }if(requestObject.reqBody.hasOwnProperty("contributors")){
+        push.contributors = requestObject.reqBody.contributors
+    }if(requestObject.reqBody.hasOwnProperty("projectleader")){
+        set.projectlead = requestObject.reqBody.projectlead;
+    }if(requestObject.reqBody.hasOwnProperty("templatedetails")){
+        set.templatedetails = requestObject.reqBody.templatedetails;
+    }
 
-                }else{
-                    response.STATUS = 400;
-                    response.EMSG = "Invalid project id";
-                    reject(response);    
-                }
-            }).catch(rejectedResult => {
-                response.STATUS = 500;
-                response.EMSG = rejectedResult;
-                reject(response);
-            });
-            
-        }else{
-            response.STATUS = 400;
-            response.EMSG = EMSG.SVR_HNDLS_INREQ;
-            reject(response);
-        }
+    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{$set : {...set},$push : {...push}},{},SINGLE).then(resolvedSet => {
+        response.STATUS = 200;
+        response.PAYLOAD = {};
+        response.SMSG = "board details updated successfully";
+        resolve(response);
+    }).catch(rejectedSet => {
+        throw rejectedSet; 
+    });
+    }else{
+        response.STATUS = 400;
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        reject(response);
+    }
 });
 
 //exporting the module

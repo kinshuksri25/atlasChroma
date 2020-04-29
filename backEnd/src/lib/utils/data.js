@@ -55,6 +55,38 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
     });
 });
 
+//aggregating and reading data
+//params --> collection - string, pipeline - array, options - object
+//returns --> promise
+mongo.aggregate = (collection,pipeline,options) => new Promise((resolve, reject) => {
+    mongo.openConnection(mongo.url).then(db => {
+
+        let resultArr = [];
+        let dbinstance = db.db(DBCONST.DB_NAME);
+        let col = dbinstance.collection(collection);
+        let cursor = col.aggregate(pipeline,options);
+        cursor.each(function(err, doc) {
+            if(err)
+            {
+                db.close();
+                console.log(err);
+                throw err;   
+            }else{
+                if(doc != null)
+                {
+                    resultArr.push(doc);
+                }else{
+
+                    db.close();
+                    resolve(resultArr);
+                }
+            }
+        });
+    }).catch(err => {
+        reject(EMSG.ERR_RD_DB);
+    });
+});
+
 //writing data
 //params-->collection - string, payload -array of object, options - object
 //returns --> promise

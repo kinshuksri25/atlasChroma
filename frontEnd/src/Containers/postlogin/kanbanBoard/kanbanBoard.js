@@ -3,11 +3,10 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import SetupProject from '../generalContainers/setupProject';
+import SetupProject from './setupProject';
 import StoryForm from './storyForm';
 import BoardColumn from './boardColumn';
-import setProjectAction from '../../store/actions/projectActions';
-import {urls} from '../../../../lib/constants/contants';
+import {urls} from '../../../../../lib/constants/contants';
 
 class KanbanBoard extends Component {
 
@@ -24,8 +23,7 @@ class KanbanBoard extends Component {
         this.updateCurrentProject = this.updateCurrentProject.bind(this);
         this.groupTemplate = this.groupTemplate.bind(this);
     }
-    //TODO --> directly hitting this page will immediately redirect to dashboard as the user is not available 
-    //this needs to be fixed in the next refactor
+    
     componentDidMount(){
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         let projectObject = {};
@@ -73,7 +71,7 @@ class KanbanBoard extends Component {
         template.templatedetails.map(temp => {
                 activePhases.push(temp._id);
         });
-        this.props.updateProjectState({activePhases : [...activePhases]});
+        //this is where the project has to be updated in redux
         this.buildBoard(template);
     }
     
@@ -106,18 +104,9 @@ class KanbanBoard extends Component {
     }
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
-        updateProjectState: (project) => {
-            dispatch(setProjectAction(project));
-        }
-    };
-};
-
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer,
-        projectDetails: state.projectStateReducer
+        user: state.userStateReducer
     }
 };
 

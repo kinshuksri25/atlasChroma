@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import setMsg from '../../store/actions/msgActions';
+import setMsgAction from '../../store/actions/msgActions';
 
-class msgContainer extends Component {
+class MsgContainer extends Component {
   
   constructor(props){
     super(props);
@@ -32,7 +32,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
         resetMsgState: (msgObject) => {
-          dispatch(setMsg(msgObject));
+          dispatch(setMsgAction(msgObject));
       } 
     }
 };

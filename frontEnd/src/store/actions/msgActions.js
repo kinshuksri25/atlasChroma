@@ -3,7 +3,7 @@
 //Dependencies
 import {actionTypes} from "../../../../lib/constants/contants";
 
-export default function setMsg(msgObject) {
+export default function setMsgAction(msgObject) {
     return ({
         type: actionTypes.CHANGEMSG,
         payload: msgObject

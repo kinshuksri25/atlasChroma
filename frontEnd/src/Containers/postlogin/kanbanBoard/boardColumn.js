@@ -4,7 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 
-import StoryContainer from './storyContainer';
+//import StoryContainer from './storyContainer';
 
 class BoardColumn extends Component{
     constructor(props){
@@ -32,7 +32,7 @@ class BoardColumn extends Component{
                           this.buildColumn();
                       });
     }
-
+    //<StoryContainer columnID = {this.state.columnID}/>
     buildColumn(){
         let style = {
             float : "left",
@@ -42,7 +42,7 @@ class BoardColumn extends Component{
             this.setState({columnJSX : <div style = {style} className = "phaseContainer" id = {this.state.columnID}>
                                             <div className = "phaseHeading">{this.state.columnHeading}</div>
                                             <div className="storiesContainer">
-                                                <StoryContainer columnID = {this.state.columnID}/>
+                                                
                                             </div>
                                         </div>});
         }else{

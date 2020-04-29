@@ -5,12 +5,14 @@ import url from 'url';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import {EMSG,urls} from "../../../../lib/constants/contants";
+import setMsgAction from '../../store/actions/msgActions';
+import {msgObject} from '../../../../lib/constants/storeConstants';
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
 
 //TODO --> add phone check functionality
 
-export default class postAuth extends Component{
+class postAuth extends Component{
 
     constructor(props){
             super(props);
@@ -40,12 +42,14 @@ export default class postAuth extends Component{
 
     postAuthReq(queryObject){
             let headers = {};
+            let errorObject = {...msgObject};
             let globalThis = this;
             httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject, function(error,responseObject) {
                         if(error || responseObject.STATUS != 200){
-                            //TODO --> add error msg div
-                            //TODO --> use set timeout to display errormsg
-                            //return the user to login page
+                            errorObject.msg = error;
+                            errorObject.status = "ERROR";
+                            setMsgState(errorObject);
+                            window.history.pushState({},"",urls.LOGIN);
                     }else{
                             if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
                                 //TODO --> change the pushState 'state' and 'title'
@@ -63,6 +67,7 @@ export default class postAuth extends Component{
 
     onSubmitHandler(formObject){
             let headers = {};
+            let errorObject = {...msgObject};
             let globalThis = this;
             if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Phone') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
                 var errorMsgObject = globalThis.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
@@ -73,10 +78,13 @@ export default class postAuth extends Component{
                         httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                             if(error || responseObject.Status == "ERROR"){
                                 if(error){
-                                    console.log(error);
-                                    //TODO --> add errormsg div(ERR_CONN_SERVER)
+                                    errorObject.msg = error;
+                                    errorObject.status = "ERROR";
+                                    setMsgState(errorObject);
                                 }else{
-                                    //TODO --> add error msg div(errormsg)
+                                    errorObject.msg = responseObject.EMSG;
+                                    errorObject.status = "ERROR";
+                                    setMsgState(errorObject);
                                 }
                             }else{
                                 //set the session
@@ -86,18 +94,25 @@ export default class postAuth extends Component{
                             }
                         });
                     } else {
-                            //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
+                            errorObject.msg = "ERR_INPASS_CLI/ERR_PASSMIS_CLI";
+                            errorObject.status = "ERROR";
+                            setMsgState(errorObject);
                     } 
                 } else {
                     if(globalThis.state.isCheckingUsername){
-                        //TODO --> add errormsg div (WAR_CHCKUSER_CLI)
+                        errorObject.msg = "WAR_CHCKUSER_CLI";
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                     }else{
-                        //TODO --> add errormsg div (ERR_INVUSR_CLI)
+                        errorObject.msg = "ERR_INVUSR_CLI";
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                     }
                 }
             } else {
-                    //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                    console.log(EMSG.CLI_MID_INVMET);
+                    errorObject.msg = EMSG.CLI_MID_INVMET;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
             }
     }
 
@@ -111,6 +126,7 @@ export default class postAuth extends Component{
 
     userNameValidator(userName, globalThis) {
         var userNameCheckQueryString = 'UserName=' + userName;
+        let errorObject = {...msgObject};
         var headers = {};
 
         this.setState({
@@ -118,11 +134,14 @@ export default class postAuth extends Component{
         }, () => {
             httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
                 if(error){
-                    //TODO --> add error msg div (ERR_CONN_SERVER)
-                    console.log(error);
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
                     if (responseObject.Status == "ERROR") {
-                        //TODO --> add error msg div
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                         globalThis.setState({
                             "validUserName": false,
                             "isCheckingUsername": false
@@ -163,3 +182,13 @@ export default class postAuth extends Component{
             return (<div>{postAuthContainer}</div>);
     }             
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
+
+export default connect(null,mapDispatchToProps)(POSTAUTH);

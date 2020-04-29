@@ -1,13 +1,11 @@
 import React,{ Component } from "react";
 
-//REFACTOR OF THIS CLASS IS VERY IMPORTANT DURING THE NEXT MILESTONE
-export default class EditableForm extends Component {
+export default class TemplateBuilder extends Component {
     
     constructor(props){
         super(props);
         this.state ={
             loadedTemplate : [],
-            selectedTemplate : {},
             formData : {NAME : "",
                         WIP : false,
                         PHASE:"Phase",
@@ -17,46 +15,23 @@ export default class EditableForm extends Component {
             editForm : true,
             isSubPhase : true
         };
+        this.addPhase = this.addPhase.bind(this);
+        this.clearForm = this.clearForm.bind(this);
+        this.submitPhase = this.submitPhase.bind(this);
+        this.formBuilder = this.formBuilder.bind(this);
         this.hideChildren = this.hideChildren.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
-        this.mouseLeaveButton = this.mouseLeaveButton.bind(this);
-        this.mouseOverButton = this.mouseOverButton.bind(this);
-        this.getTemplate = this.getTemplate.bind(this);
-        this.editPhase = this.editPhase.bind(this);
-        this.getInfo = this.getInfo.bind(this);
-        this.onPhaseOptionChange = this.onPhaseOptionChange.bind(this);
-        this.submitPhase = this.submitPhase.bind(this);
-        this.clearForm = this.clearForm.bind(this);
-        this.addPhase = this.addPhase.bind(this);
-        this.removePhase = this.removePhase.bind(this);
-        this.formBuilder = this.formBuilder.bind(this);
+        this.mouseOverClick = this.mouseOverClick.bind(this);
         this.toggleChildren = this.toggleChildren.bind(this);
         this.groupTemplates = this.groupTemplates.bind(this);
+        this.getSinglePhase = this.getSinglePhase.bind(this);
+        this.mouseOverButton = this.mouseOverButton.bind(this);
+        this.mouseLeaveButton = this.mouseLeaveButton.bind(this);
+        this.onPhaseOptionChange = this.onPhaseOptionChange.bind(this);
     }
 
     componentDidMount(){
-        this.setState({loadedTemplate:[...this.props.template]},() => {
-            this.props.setLoadedTemplate(this.state.loadedTemplate);
-        });
-    }
-
-    getTemplate(templateName){
-        let selectedTemplate = {};
-        this.state.loadedTemplate.map(template => {
-            if(template.NAME == templateName)
-                selectedTemplate = template;
-        });
-        this.setState({selectedTemplate : selectedTemplate});
-        return selectedTemplate;
-    }
-
-    hideChildren(){
-        this.state.loadedTemplate.map(element => {
-            if(element.EXTENDS != ""){
-                let childComponent = document.getElementById(element.NAME);
-                childComponent.hidden = true;
-            }
-        });
+        this.setState({loadedTemplate:[...this.props.template]});
     }
 
     formBuilder(){
@@ -82,6 +57,24 @@ export default class EditableForm extends Component {
         });
         let addButton = <button onClick={this.addPhase}>+</button>    
         return (<div>{template}{addButton}</div>);
+    }
+
+    hideChildren(){
+        this.state.loadedTemplate.map(element => {
+            if(element.EXTENDS != ""){
+                let childComponent = document.getElementById(element.NAME);
+                childComponent.hidden = true;
+            }
+        });
+    }
+
+    getSinglePhase(templateName){
+        let selectedPhase = {};
+        this.state.loadedTemplate.map(template => {
+            if(template.NAME == templateName)
+            selectedPhase = template;
+        });
+        return selectedPhase;
     }
 
     toggleChildren(event){
@@ -134,31 +127,20 @@ export default class EditableForm extends Component {
                         }
                     }
                 }
-                if(insertPosition == undefined || selectedPosition == undefined){
+                if(insertPosition == undefined || selectedPosition == undefined){ 
                     groupedTemplate[parentI].splice(parentJ+1,0,element);
                 }else{
-                        parentI = selectedPosition;
-                        parentJ = insertPosition+1;
-                        let found = false;
-                    while(parentJ <= groupedTemplate[parentI].length){
-                       if(parentJ == groupedTemplate[parentI].length){
+                    parentJ = insertPosition+1;
+                    while(parentJ <= groupedTemplate[selectedPosition].length){
+                       if(parentJ == groupedTemplate[selectedPosition].length){
                             break;
                        }else{
-                            let count = parentJ-1;
-                            while(count >= insertPosition){
-                                if(groupedTemplate[selectedPosition][count].CHILDREN.includes(groupedTemplate[selectedPosition][parentJ]))
-                                {
-                                    count--;
-                                }else{
-                                    found = true;
-                                    break;
-                                }
-                            }
-                           if(found){
-                               break;
-                           }else{
-                               parentJ++;
-                           }    
+                            if(groupedTemplate[selectedPosition][parentJ-1].CHILDREN.includes(groupedTemplate[selectedPosition][parentJ].NAME)
+                             || groupedTemplate[selectedPosition][parentJ-1].EXTENDS == groupedTemplate[selectedPosition][parentJ].EXTENDS){
+                                    parentJ++;
+                            }else{
+                              break;
+                            }    
                        }
                     }
                     groupedTemplate[selectedPosition].splice(parentJ,0,element);
@@ -196,10 +178,7 @@ export default class EditableForm extends Component {
                    if(formData.OLDNAME == element.EXTENDS){
                         element.EXTENDS = formData.NAME;
                    }
-                   if(element.CHILDREN.includes(formData.OLDNAME)){
-                        element.CHILDREN.splice(element.CHILDREN.indexOf(formData.OLDNAME),1);
-                        element.CHILDREN.push(formData.NAME);
-                   }
+                   element.CHILDREN.includes(formData.OLDNAME) && element.CHILDREN.splice(element.CHILDREN.indexOf(formData.OLDNAME),1,formData.NAME);
                 });
             }else{
                 formData.WIP = formData.WIP == "" ? false : formData.WIP;
@@ -259,47 +238,48 @@ export default class EditableForm extends Component {
         this.setState({formData : {...formData}});
     }
 
-    removePhase(event){
-        let childrenArray = this.getTemplate(event.target.className).CHILDREN;
-        let refreshedTemplate = [];
-        let template = [... this.state.loadedTemplate];
-        if(childrenArray == undefined){
-            template.map(element => {
-                if(element.NAME != event.target.className){
-                    refreshedTemplate.push(element);
+    mouseOverClick(event){
+        switch(event.target.id){
+            case "EDIT":
+                let selectedTemplate = this.getSinglePhase(event.target.className);
+                let formData = {...this.state.formData};
+                formData.NAME = selectedTemplate.NAME;
+                formData.WIP = selectedTemplate.WIP;
+                formData.OLDNAME = selectedTemplate.NAME;
+                this.setState({editForm:false,formData:formData,isFeildDisabled:false,currentAction:"EDIT"});
+                break;
+            case "INFO":
+                let selectedTemplate = this.getSinglePhase(event.target.className);
+                let formData = {...this.state.formData};
+                formData.NAME = selectedTemplate.NAME;
+                formData.WIP = selectedTemplate.WIP;
+                delete formData.OLDNAME;
+                this.setState({editForm:false,formData:formData,isFeildDisabled:true,currentAction:"INFO"});
+                break;
+            case "REMOVE":
+                let childrenArray = this.getSinglePhase(event.target.className).CHILDREN;
+                let refreshedTemplate = [];
+                let template = [... this.state.loadedTemplate];
+                if(childrenArray == undefined){
+                    template.map(element => {
+                        if(element.NAME != event.target.className){
+                            refreshedTemplate.push(element);
+                        }
+                    });
+                }else{
+                    template.map(element => {
+                        if(element.CHILDREN != undefined && element.CHILDREN.includes(event.target.className)){
+                            element.CHILDREN.splice(element.CHILDREN.indexOf(event.target.className),1);
+                        }
+                        if(!childrenArray.includes(element.NAME) && element.NAME != event.target.className){
+                            refreshedTemplate.push(element);
+                        }
+                    });
                 }
-            });
-        }else{
-            template.map(element => {
-                if(element.CHILDREN != undefined && element.CHILDREN.includes(event.target.className)){
-                    element.CHILDREN.splice(element.CHILDREN.indexOf(event.target.className),1);
-                }
-                if(!childrenArray.includes(element.NAME) && element.NAME != event.target.className){
-                    refreshedTemplate.push(element);
-                }
-            });
+                this.setState({loadedTemplate : refreshedTemplate,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},editForm : true});
+                this.props.setLoadedTemplate(refreshedTemplate);
+                break;        
         }
-        event.target.className == this.state.formData.NAME && this.setState({loadedTemplate : refreshedTemplate,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},editForm : true});
-        event.target.className == this.state.formData.NAME || this.setState({loadedTemplate : refreshedTemplate});
-        this.props.setLoadedTemplate(refreshedTemplate);
-    }
-
-    editPhase(event){
-        let selectedTemplate = this.getTemplate(event.target.className);
-        let formData = {...this.state.formData};
-        formData.NAME = selectedTemplate.NAME;
-        formData.WIP = selectedTemplate.WIP;
-        formData.OLDNAME = selectedTemplate.NAME;
-        this.setState({editForm:false,formData:formData,isFeildDisabled:false,currentAction:"EDIT"});
-    }
-
-    getInfo(event){
-        let selectedTemplate = this.getTemplate(event.target.className);
-        let formData = {...this.state.formData};
-        formData.NAME = selectedTemplate.NAME;
-        formData.WIP = selectedTemplate.WIP;
-        delete formData.OLDNAME;
-        this.setState({editForm:false,formData:formData,isFeildDisabled:true,currentAction:"INFO"});
     }
 
     addPhase(){
@@ -316,14 +296,26 @@ export default class EditableForm extends Component {
 
     mouseOverButton(event){ 
         if(this.state.currentAction == ""){
-            this.props.mouseover[0].CALLABLEFUNCTION = this.editPhase;
-            this.props.mouseover[1].CALLABLEFUNCTION = this.getInfo;
-            this.props.mouseover[2].CALLABLEFUNCTION = this.removePhase; 
-            this.props.mouseover.map(mouseovr => {
+            mouseoverArray = [
+                {
+                    NAME : "EDIT",
+                    IMAGEURL : "EDIT"
+                },
+                {
+                    NAME : "INFO",
+                    IMAGEURL : "INFO"
+                },
+                {
+                    NAME : "REMOVE",
+                    IMAGEURL : "REMOVE"
+                }
+            ];
+            this.props.mouseoverArray.map(mouseovr => {
                 let button = document.createElement("Button");
                 button.innerHTML = mouseovr.IMAGEURL;
+                button.id = mouseovr.NAME;
                 button.className = event.target.id; 
-                button.onclick = mouseovr.CALLABLEFUNCTION;
+                button.onclick = this.mouseOverClick;
                 event.target.appendChild(button);   
             });  
         }

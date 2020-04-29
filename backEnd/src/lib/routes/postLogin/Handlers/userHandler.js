@@ -51,61 +51,47 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
         PAYLOAD : {},
         SMSG : ""
        };
-    let projection = {
-        projection: {username:1,email: 1}
-    };
-    let query ={};
 
     if(requestObject.queryObject.userID != undefined){
-        projection.projection = { _id: 0, password:0,refreshToken:0,state:0};
-        query={_id : requestObject.queryObject.userID};
-    }
-
-    mongo.read(DBCONST.userCollection,{...query},{...projection}).then(resultSet => {
-        if(resultSet.length != 0){    
-              if( resultSet[0].projects != undefined && resultSet[0].projects.length != 0){
-                let projectList = resultSet[0].projects;
-                mongo.read(DBCONST.projectCollection,{ _id: { $in: projectList } },{}).then(resolveSet => {
-                    if(resolveSet.length != 0){
-                        resultSet[0].projects = resolveSet;
-                        if( resultSet[0].storydetails != undefined && resultSet[0].storydetails.length != 0){
-                            let storyList = resultSet[0].projects.storydetails;
-                            mongo.read(DBCONST.storyCollection,{_id:{$in : storyList}},{}).then(storySet => {
-                                resultSet[0].projects.storydetails = storySet;
-                                response.STATUS = 200;
-                                response.PAYLOAD.users = {...resultSet[0]};
-                                response.SMSG = SMSG.SVR_UHH_RDUSR;   
-                                resolve(response);
-                            }).catch(rejectedSet => {
-                                throw rejectedSet;
-                            });
-                        }else{
-                            response.STATUS = 200;
-                            response.PAYLOAD.users = {...resultSet[0]};
-                            response.SMSG = SMSG.SVR_UHH_RDUSR; 
-                            resolve(response);
-                        }
-                    }
-                }).catch(rejectedSet =>{
-                    throw rejectedSet;
-                });     
-              }else{
+        mongo.aggregate(DBCONST.userCollection,[{$match : {_id : requestObject.queryObject.userID}},
+                                                {$lookup : {
+                                                    from: DBCONST.projectCollection,
+                                                    localField: "projects",
+                                                    foreignField: "_id",
+                                                    as: "projects"
+                                                 }},
+                                                {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {
+                    
+            if(resultSet.length != 0){
                 response.STATUS = 200;
-                response.PAYLOAD.users = {...resultSet[0]};
-                response.SMSG = SMSG.SVR_UHH_RDUSR;  
-                resolve(response);
-              } 
-        }else{
-            response.STATUS = 400;
-            response.EMSG = EMSG.SVR_HNDLS_INREQ;
-            reject(response);     
-        }
-    }).catch(rejectedResult => {
-        response.STATUS = 500;
-        response.EMSG = rejectedResult;
-        reject(response);
-    });
-
+                response.PAYLOAD.user = {...resultSet[0]};
+                response.SMSG = SMSG.SVR_UHH_RDUSR; 
+                resolve(response); 
+            }else{
+                response.STATUS = 400;
+                response.EMSG = "Invalid userID";  
+                reject(response); 
+            }                                   
+                                                    
+        }).catch(rejectedResult =>{
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response);
+        });
+    }else{
+        mongo.read(DBCONST.userCollection,{},{projection:{username:1,email: 1,firstname: 1,lastname: 1}}).then(resultSet => {
+            if(resultSet.length != 0){   
+                response.STATUS = 200;
+                response.PAYLOAD.userList = {...resultSet[0]};
+                response.SMSG = SMSG.SVR_UHH_RDUSR; 
+                resolve(response); 
+            }
+        }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response);
+        });    
+    }
 });
 
 //user post route

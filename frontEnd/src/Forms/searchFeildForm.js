@@ -1,67 +1,59 @@
 //Dependencies
 import React,{Component} from 'react';
+import SuggestionComponent from './suggestions';
 
 export default class SearchFeild extends Component{
 
     constructor(props){
         super(props);
-        this.state ={
-            autoComplete: "",
-            suggestions:""
-        };
+        this.state ={};
+        this.buildJSX = this.buildJSX.bind(this);
         this.onChange = this.onChange.bind(this);
-        this.onClick = this.onClick.bind(this);
+        this.onSuggestionClick = this.onSuggestionClick.bind(this);
+    }
+
+    componentDidMount(){
+        let searchState = {};
+        this.props.constants.map(constant => {
+            searchState["constant.id"] = "";
+        });
+        this.setState({...searchState});
     }
 
     onChange(event){
-        this.setState({suggestions : ""});
-        let globalThis = this
-        this.setState({autoComplete:event.target.value},() => {
-            if(this.state.autoComplete != ""){
-                //IMP!!! --> using eval for evaluating conditions is a security risk 
-                let comparingQuery = "";
-                for(let i =0;i<this.props.constants.searchCriteria.length;i++){
-                    if(i == this.props.constants.searchCriteria.length -1){
-                        comparingQuery += "el."+ globalThis.props.constants.searchCriteria[i] +".substring(0,globalThis.state.autoComplete.length) == globalThis.state.autoComplete";
-                    }
-                    else{
-                        comparingQuery += "el."+ globalThis.props.constants.searchCriteria[i] +".substring(0,globalThis.state.autoComplete.length) == globalThis.state.autoComplete || ";
-                    }
-                }
-                let resultSet = [];
-                this.props.list.map(el => {
-                    if(eval(comparingQuery)){
-                      resultSet.push(el);  
-                    }
-                });
-                let suggestionContainer = <ul>
-                                            {
-                                                resultSet.map( el => {
-                                                    return( <li id = {el.username} onClick = {this.onClick}>{el.username}</li> );
-                                                })
-                                            }
-                                          </ul>
-                this.setState({suggestions : suggestionContainer});                          
-            }
-        });
+        let searchState = {...this.state};
+        searchState["event.target.id"] = event.target.value;
+        this.setState({...searchState});
     }
 
-    onClick(event){
-        this.setState({  autoComplete: "",suggestions:""});
-        this.props.onSuggestionClick(event.target.id);
+    buildJSX(){
+        let searchJSX = this.props.constants.map(constant => {
+            return(<div className = 'searchBox'>
+                    <input type="text" 
+                    name = {this.props.constant.name}
+                    id = {this.props.constant.id}
+                    placeholder = {this.props.constant.placeholder} 
+                    value = {this.state["this.props.constant.id"]} 
+                    className = {this.props.constant.className}
+                    onChange = {this.onChange}/>
+                    <SuggestionComponent searchCriteria = {this.props.constant.searchCriteria} 
+                                         searchQuery = {this.state["this.props.constant.id"]} 
+                                         unfilteredList = {this.props.unfilteredList["this.props.constant.id"]}
+                                         id = {this.props.constant.id}
+                                         onSuggestionClick = {this.onSuggestionClick}/>
+                </div>);
+        });
+        return (<div>{searchJSX}</div>);
     }
-    
+
+    onSuggestionClick(selectedValue,searchBoxID){   
+        let updatedState = this.state; 
+        updatedState[searchBoxID] = "";
+        this.setState({...updatedState});
+        this.props.onSuggestionClick(selectedValue,searchBoxID);
+    }
 
     render(){
-        return(<div>
-                <input type="text" 
-                name = {this.props.constants.name}
-                id = {this.props.constants.id}
-                placeholder = {this.props.constants.placeholder} 
-                value = {this.state.autoComplete} 
-                className = {this.props.constants.className}
-                onChange = {this.onChange}/>
-                {this.state.suggestions}
-            </div>);
+        return(<div>{this.buildJSX()}</div>);
     }
 }

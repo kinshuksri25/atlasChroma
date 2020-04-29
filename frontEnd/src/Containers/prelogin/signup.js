@@ -3,10 +3,12 @@ import React, { Component } from 'react';
 
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
+import setMsgAction from '../../store/actions/msgActions';
+import {msgObject} from '../../../../lib/constants/storeConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {EMSG,urls} from "../../../../lib/constants/contants";
 
-export default class SignUp extends Component {
+class SignUp extends Component {
 
     constructor(props) {
         super(props);
@@ -44,12 +46,16 @@ export default class SignUp extends Component {
             "isCheckingEmail": true
         }, () => {
             httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, emailCheckQueryString, function(error,responseObject) {
+                let errorObject = {...msgObject};
                 if(error){
-                    //TODO --> add error msg div (ERR_CONN_SERVER)
-                    console.log(error);
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
                     if (responseObject.ERRORMSG != "") {
-                        //TODO --> add error msg div
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                         globalThis.setState({
                             "validEmail": false,
                             "isCheckingEmail": false
@@ -74,12 +80,16 @@ export default class SignUp extends Component {
             "isCheckingUsername": true
         }, () => {
             httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
+                let errorObject = {...msgObject};
                 if(error){
-                    //TODO --> add error msg div (ERR_CONN_SERVER)
-                    console.log(error);
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
                     if (responseObject.ERRORMSG != "") {
-                        //TODO --> add error msg div
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                         globalThis.setState({
                             "validUserName": false,
                             "isCheckingUsername": false
@@ -98,6 +108,7 @@ export default class SignUp extends Component {
 
     onSubmitHandler(formObject) {
         let headers = {};
+        let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
             var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
@@ -106,10 +117,13 @@ export default class SignUp extends Component {
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
                         if(responseObject.STATUS != 200 || error){
                             if(error){
-                                console.log(error);
-                                //TODO --> add errormsg div(ERR_CONN_SERVER)
+                                errorObject.msg = error;
+                                errorObject.status = "ERROR";
+                                setMsgState(errorObject);
                             }else{
-                                //TODO --> add error msg div(errormsg)
+                                errorObject.msg = responseObject.EMSG;
+                                errorObject.status = "ERROR";
+                                setMsgState(errorObject);
                             }
                         }else{
                             //set the localstorage
@@ -119,18 +133,25 @@ export default class SignUp extends Component {
                         }
                     });
                 } else {
-                        //TODO --> add errormsg div (ERR_INPASS_CLI/ERR_PASSMIS_CLI)
+                        errorObject.msg = "Invalid Password/Password Mismatch";
+                        errorObject.status = "ERROR";
+                        setMsgState(errorObject);
                 } 
             } else {
                 if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
-                    //TODO --> add errormsg div (WAR_CHCKUSEREML_CLI)
+                    errorObject.msg = "Please wait while we check if the email is correct";
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
-                    //TODO --> add errormsg div (ERR_INVUSREML_CLI)
+                    errorObject.msg = "Invalid email";
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }
             }
         } else {
-                //TODO --> add error msg div (ERR_DISINVREQ_CLI)
-                console.log(EMSG.CLI_REQ_INVREQ);
+            errorObject.msg = EMSG.CLI_REQ_INVREQ;
+            errorObject.status = "ERROR";
+            setMsgState(errorObject);
         }
     }
      
@@ -154,3 +175,13 @@ export default class SignUp extends Component {
                 </div>);
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
+
+export default connect(null,mapDispatchToProps)(SignUp);

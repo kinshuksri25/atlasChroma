@@ -5,13 +5,16 @@ import { connect } from 'react-redux';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
-import KanbanBoard from './kanbanBoard';
-import Projects from './projects';
+import KanbanBoard from './kanbanBoard/kanbanBoard';
+import Projects from './kanbanBoard/projects';
 import IssueTracker from './issueTracker';
 import Highlight from './highlight';
 import Scheduler from './scheduler';
 import Menu from '../../Menu/menu';
+import setMsgAction from '../../store/actions/msgActions';
 import menuConstants from '../../Menu/menuConstants';
+import {msgObject} from '../../../../lib/constants/storeConstants';
+import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
@@ -40,15 +43,18 @@ class PostLoginRouter extends Component {
     getUserData(headers,queryString,action){  
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
+                let errorObject = {...msgObject};
                 if(error){
-                    console.log(error);
-                    //TODO --> add errormsg div(ERR_CONN_SERVER)
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
-                    cookieManager.clearUserSession(); 
-                    window.history.pushState({}, "",urls.LANDING);
-                    //TODO --> errorMSG - your session is invalid please log in again
-                    //TODO --> add error msg div(errormsg)
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }
+                cookieManager.clearUserSession(); 
+                window.history.pushState({}, "",urls.LANDING);
             }else{
                 action({...responseObject.PAYLOAD.users});
             }
@@ -57,6 +63,7 @@ class PostLoginRouter extends Component {
 
     //Router
     containerSelector() {
+      if(JSON.stringify(this.props.user) != JSON.stringify({})){
         let boardRegex = new RegExp(/boards\/[a-z|0-9]*/);
         let issueRegex = new RegExp(/issuetracker\/[a-z|0-9]*/);
         let path = window.location.pathname.substring(1).toLowerCase();
@@ -83,7 +90,6 @@ class PostLoginRouter extends Component {
                         window.history.replaceState({}, "",urls.LANDING);
                         break;        
                     default:
-                        //TODO --> change the pushState 'state' and 'title'
                         window.history.replaceState({}, "",urls.DASHBOARD);
                         return <DashBoard/>;
                         break;
@@ -98,7 +104,10 @@ class PostLoginRouter extends Component {
                 window.history.replaceState({}, "",urls.DASHBOARD);
                 return <DashBoard/>;
             }
-        }      
+        }  
+      }else{
+          return <LoadingComponent/>;
+      }    
     }
    
 
@@ -113,7 +122,8 @@ class PostLoginRouter extends Component {
 
 const mapStateToProps = state => {
     return {
-        currentUrl : state.urlStateReducer.currentUrl
+        currentUrl : state.urlStateReducer.currentUrl,
+        user : state.userStateReducer
     }
 }
 
@@ -124,7 +134,10 @@ const mapDispatchToProps = dispatch => {
         },
         setUserListState : (userList) => {
             dispatch(setUserListStateAction(userList));    
-        }
+        }, 
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
     };
 };
 

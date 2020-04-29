@@ -3,10 +3,9 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import httpsMiddleware from '../../middleware/httpsMiddleware';
-import setUserAction from '../../store/actions/userActions';
-import cookieManager from '../../Components/cookieManager';
-import setProjectAction from '../../store/actions/projectActions';
+import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import setUserAction from '../../../store/actions/userActions';
+import cookieManager from '../../../Components/cookieManager';
 
 class Story extends Component{
     constructor(props){
@@ -191,17 +190,13 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
-        },
-        updateProjectState: (project) => {
-            dispatch(setProjectAction(project));
         }
     };
 };
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer,
-        projectDetails: state.projectStateReducer
+        user: state.userStateReducer
     }
 };
 
