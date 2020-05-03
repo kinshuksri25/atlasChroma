@@ -18,9 +18,8 @@ class SetupProject extends Component {
     constructor(props){
         super(props);
         this.state = {
-            boarddetails : {},
+            currentProject : {},
             nextPage : false,
-            loadedTemplate : [],
             currentTemplate: "" 
         };
         this.formBuilder = this.formBuilder.bind(this);
@@ -33,7 +32,12 @@ class SetupProject extends Component {
     }
     
     componentDidMount(){ 
-        this.setState({boarddetails:this.props.projectDetails.currentProject.boarddetails});
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        this.props.user.projects.map(project => {
+            if(project._id == projectID)
+                    projectObject = project;      
+        });
+        this.setState({currentProject:{...projectObject}});
     }
 
     formBuilder(){
@@ -59,7 +63,7 @@ class SetupProject extends Component {
                     break;    
             }
             constants.map(constant => {
-                constant.WIP = constant.WIP ? this.props.projectDetails.currentProject.contributors.length + 2 : false;
+                constant.WIP = constant.WIP ? this.state.currentProject.contributors.length + 2 : false;
                 constant._id = this.randValueGenerator();
                    
             });
@@ -72,11 +76,13 @@ class SetupProject extends Component {
     }
 
     setLoadedTemplate(template){
-        this.setState({loadedTemplate : template});
+        let currentProject = {...this.state.currentProject};
+        currentProject.templatedetails = template;
+        this.setState({currentProject : {...currentProject}});
     }
 
     templateValidator(){
-        let finalTemplate = [...this.state.loadedTemplate];
+        let finalTemplate = [...this.state.currentProject.templatedetails];
         let isTemplateValid = true;
         finalTemplate.map(template => {
             if(template.CHILDREN.length == 1){
@@ -87,11 +93,11 @@ class SetupProject extends Component {
     }
 
     onTemplateSubmit(event){
-        if(this.isTemplateValid()){
+        if(this.templateValidator()){
             let globalThis = this;
             let errorObject = {...msgObject};
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{boarddetails : [...globalThis.state.loadedTemplate],projectID : globalThis.props.projectDetails.currentProject._id}, function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{templateDetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id}, function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -106,13 +112,10 @@ class SetupProject extends Component {
                     let userDetails = globalThis.props.user;
                     userDetails.projects.map(project => {
                         if(project._id == globalThis.props.projectDetails.currentProject._id){
-                            project.boarddetails.boardTemplate = globalThis.state.loadedTemplate;
+                            project.templatedetails = globalThis.state.currentProject.templatedetails;
                         }
                     });
-                    globalThis.props.setUserState(userDetails);
-                    let currentProject =  {...globalThis.props.projectDetails.currentProject};
-                    currentProject.boarddetails.templatedetails =  globalThis.state.loadedTemplate;
-                    globalThis.props.updateCurrentProject(currentProject.boarddetails);       
+                    globalThis.props.setUserState(userDetails);    
                 }   
             });
         }else{
@@ -152,15 +155,14 @@ class SetupProject extends Component {
         let setupContainer = this.formBuilder();
         return(<div>
                 {setupContainer}
-                <button onClick={this.onTemplateSubmit} disabled={this.state.currentTemplate == "" ? true : this.state.loadedTemplate.length ==0 ? true : false}>Go</button>
+                <button onClick={this.onTemplateSubmit} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>Go</button>
                </div>);
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer,
-        projectDetails : state.projectStateReducer
+        user: state.userStateReducer
     }
 };
 

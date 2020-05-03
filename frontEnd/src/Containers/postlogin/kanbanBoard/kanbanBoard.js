@@ -13,41 +13,17 @@ class KanbanBoard extends Component {
     constructor(props){
         super(props);
         this.state={
-            parentBoard:"",
-            storyPopUp: false,
             showStoryForm:false,
             componentWidth : screen.width
         };
-        this.buildBoard = this.buildBoard.bind(this);
         this.addStory = this.addStory.bind(this);
-        this.updateCurrentProject = this.updateCurrentProject.bind(this);
+        this.buildBoard = this.buildBoard.bind(this);
+        this.selectProject = this.selectProject.bind(this);
         this.groupTemplate = this.groupTemplate.bind(this);
     }
     
     componentDidMount(){
-        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-        let projectObject = {};
-        this.props.user.projects.map(project => {
-            if(project._id == projectID)
-                    projectObject = project;      
-        });
-        if(JSON.stringify(projectObject) == JSON.stringify({})){
-            window.history.replaceState({}, "",urls.DASHBOARD);
-        }else{
-            let activePhases = [];
-            if(projectObject.boarddetails.templatedetails != undefined){
-                projectObject.boarddetails.templatedetails.map(template => {
-                    activePhases.push(template._id);
-                }); 
-            }
-            this.props.updateProjectState({currentProject : projectObject, activePhases : [...activePhases]});
-            projectObject.boarddetails.templatedetails != undefined && this.buildBoard(projectObject.boarddetails);
-        }
-    }
-
-    addStory(){
-        let showOrHide = !this.state.showStoryForm;
-        this.setState({showStoryForm : showOrHide});
+        JSON.stringify(this.selectProject()) == JSON.stringify({}) && window.history.replaceState({}, "",urls.DASHBOARD);
     }
 
     groupTemplate(template){
@@ -66,40 +42,47 @@ class KanbanBoard extends Component {
         return groupedTemplate;
     }
 
-    updateCurrentProject(template){
-        let activePhases = [];
-        template.templatedetails.map(temp => {
-                activePhases.push(temp._id);
+    selectProject(){
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        let projectObject = {};
+        this.props.user.projects.map(project => {
+            if(project._id == projectID)
+                    projectObject = project;      
         });
-        //this is where the project has to be updated in redux
-        this.buildBoard(template);
+        return projectObject;
     }
     
-    buildBoard(template = this.props.projectDetails.currentProject.boarddetails){
+    buildBoard(template = this.selectProject().templatedetails){
         let board = "";
-        let groupedTemplate = this.groupTemplate(template.templatedetails);
+        let groupedTemplate = this.groupTemplate(template);
         let width = this.state.componentWidth/groupedTemplate.length;
         board = groupedTemplate.map(template => {
             return(<BoardColumn columnDetails = {template} width = {width}/>);    
         });
-        this.setState({parentBoard : board});
+        return (<div>{board}</div>);
+    }
+
+    addStory(){
+        let showOrHide = !this.state.showStoryForm;
+        this.setState({showStoryForm : showOrHide});
     }
 
     render(){
         let boardStyle = {
             width : this.state.componentWidth
         };
-        let setupProject = "";
-        if(JSON.stringify(this.props.projectDetails.currentProject) != JSON.stringify({}) && this.props.projectDetails.currentProject.boarddetails.templatedetails == undefined){
-            setupProject = <SetupProject updateCurrentProject = {this.updateCurrentProject}/>;
-        }
+        let currentProject = this.selectProject();
+        let boardJSX = JSON.stringify(currentProject) != JSON.stringify({}) ? "" : 
+                            JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() :
+                                 <SetupProject/>;
         return (<div>
-                    {this.state.showStoryForm && <StoryForm closeForm={this.addStory} currentMode = "ADD"/>}
-                    {setupProject} 
+                    {this.state.showStoryForm && <StoryForm closeForm={this.addStory} currentMode = "ADD" projectDetails = {currentProject} />}
                     <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
-                        {this.state.parentBoard}
+                        {boardJSX}
                     </div>
-                    {this.state.parentBoard != "" && <button onClick={this.addStory} id="addStoryButton">+</button>}
+                    {JSON.stringify(currentProject) != JSON.stringify({}) && 
+                        JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) && 
+                            <button onClick={this.addStory} id="addStoryButton">+</button>}
                 </div>);
     }
 }

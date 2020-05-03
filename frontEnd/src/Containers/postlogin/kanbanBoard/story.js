@@ -4,6 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import setMsgAction from '../../../store/actions/msgActions';
 import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 
@@ -11,45 +12,35 @@ class Story extends Component{
     constructor(props){
         super(props);
         this.state = {
-                        storyTitle : "",
-                        storyDescription : "",
-                        currentStatus : "",
-                        id : "",
-                        contributor : "",
-                        priority : "",
-                        startDate : "",
-                        dueDate : "",
-                        comments : "",
-                        storyJSX : "",
                         columnPosition : ""
                      };
-        this.buildStoryTile = this.buildStoryTile.bind(this);      
-        this.mouseOverHandler = this.mouseOverHandler.bind(this); 
         this.moveStory = this.moveStory.bind(this);
-        this.deleteStory = this.deleteStory.bind(this);
         this.editStory = this.editStory.bind(this);
+        this.deleteStory = this.deleteStory.bind(this);
+        this.currentProject = this.currentProject.bind(this);
+        this.buildStoryTile = this.buildStoryTile.bind(this); 
+        
     }
 
     componentDidMount(){
         let columnPostion = 0;
-        for(let i =0;i<this.props.projectDetails.activePhases.length;i++){
-            if(this.props.storyDetails.currentstatus == this.props.projectDetails.activePhases[i]){
+        for(let i =0;i<this.currentProject().templatedetails.length;i++){
+            if(this.props.storyDetails.currentstatus == this.currentProject().templatedetails[i]._id){
                 columnPostion = i;
                 break;
             }
         }
-        this.setState({storyTitle:this.props.storyDetails.storytitle,
-                       storyDescription:this.props.storyDetails.description,
-                       currentStatus:this.props.storyDetails.currentstatus,
-                       id:this.props.storyDetails._id,
-                       contributor:this.props.storyDetails.contributor,
-                       priority:this.props.storyDetails.priority,
-                       startDate:this.props.storyDetails.startdate,
-                       dueDate : this.props.storyDetails.duedate,
-                       comments:this.props.storyDetails.comments,
-                       columnPosition:columnPostion},() => {
-                        this.buildStoryTile();
-                       });                      
+        this.setState({columnPosition:columnPostion});                      
+    }
+
+    currentProject(){
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        let projectObject = {};
+        this.props.user.projects.map(project => {
+            if(project._id == projectID)
+                    projectObject = project;      
+        });
+        return projectObject;
     }
 
     editStory(event){
@@ -57,7 +48,7 @@ class Story extends Component{
     }
 
     moveStory(event){
-        let newPosition = this.props.projectDetails.activePhases.indexOf(this.state.currentStatus);
+        let newPosition = this.state.columnPosition;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         switch(event.target.className){
@@ -66,38 +57,33 @@ class Story extends Component{
                         break;
             case "demoteStory" : 
                         newPosition -= 1;
-                        break;                        
+                        break;
+                                                                       
         }
         let storyDetails = {};
-        storyDetails._id = this.state.id;
-        storyDetails.storytitle = this.state.storyTitle;
-        storyDetails.description = this.state.storyDescription;
-        storyDetails.contributor = this.state.contributor;
-        storyDetails.priority = this.state.priority;
-        storyDetails.startdate = this.state.startDate;
-        storyDetails.duedate = this.state.dueDate;
-        storyDetails.currentstatus = globalThis.props.projectDetails.activePhases[newPosition];
-        storyDetails.comments = this.state.comments;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers, {projectID : this.props.projectDetails.currentProject._id, storyDetails: {...storyDetails}}, function(error,responseObject){
+        storyDetails._id = this.props.storyDetails._id;
+        storyDetails.currentStatus = globalThis.currentProject().templatedetails[newPosition]._id;
+        httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}}, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
-                    console.log(error);
-                    //TODO --> errormsg div(ERR_CONN_SERVER)
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
-                    //TODO --> errormsg div(errorMsg)
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }
             }else{
                 let updatedUser = {...globalThis.props.user};
-                let updatedProjectDetails;
-
+                let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
                 updatedUser.projects.map(project => {
-                    if(project._id == globalThis.props.projectDetails.currentProject._id){
+                    if(project._id == projectID){
                         project.storydetails.map(story => {
-                            if(story._id == globalThis.state.id){
-                                story.currentstatus = globalThis.props.projectDetails.activePhases[newPosition];
+                            if(story._id == this.props.storyDetails._id){
+                                story.currentstatus = project.templatedetails[newPosition]._id;
                             }
                         });
-                        updatedProjectDetails = {...project};
                     }
                 });
                 globalThis.props.setUserState(updatedUser);
@@ -108,32 +94,29 @@ class Story extends Component{
     deleteStory(event){
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
-        let queryParams = "projectID="+this.props.projectDetails.currentProject._id+"&storyID="+this.state.id+"&contributor="+this.state.contributor;
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id+"&contributor="+this.props.storyDetails.contributor;
         httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
-                    console.log(error);
-                    //TODO --> errormsg div(ERR_CONN_SERVER)
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }else{
-                    //TODO --> errormsg div(errorMsg)
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    setMsgState(errorObject);
                 }
             }else{
                 let updatedUser = {...globalThis.props.user};
-                let updatedProjectDetails;
-
                 updatedUser.projects.map(project => {
-                    if(project._id == globalThis.props.projectDetails.currentProject._id){
+                    if(project._id == projectID){
                         for(let i=0;i<project.storydetails.length;i++){
-                            if(project.storydetails[i] == globalThis.state.id){
-                                while(i < project.storydetails.length){
-                                    project.storydetails[i] = project.storydetails[i+1];
-                                    i++;
-                                }
+                            if(project.storydetails[i] == this.props.storyDetails._id){
+                                project.storydetails.splice(i,1);
                                 break;
                             }
                         }
-                        project.storydetails.pop();
-                        updatedProjectDetails = {...project};
                     }
                 });
                 globalThis.props.setUserState(updatedUser);
@@ -141,47 +124,53 @@ class Story extends Component{
         });
     }
 
-    mouseOverHandler(event){
-      if(this.state.columnPosition == 0){
-        this.setState({storyJSX :  <div>
-                                        <h3 className = "tileHeading">{this.state.storyTitle}</h3>
-                                        <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="promoteStory" onClick={this.moveStory}>-\</button>
-                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                                    </div>});
-      }else if(this.state.columnPosition == this.props.projectDetails.activePhases.length-1){
-        this.setState({storyJSX :  <div>
-                                        <h3 className = "tileHeading">{this.state.storyTitle}</h3>
-                                        <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="demoteStory" onClick={this.moveStory}>/-</button>
-                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                                    </div>});
-      }else{
-        this.setState({storyJSX :  <div>
-                                        <h3 className = "tileHeading">{this.state.storyTitle}</h3>
-                                        <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                                        <button className="promoteStory" onClick={this.moveStory}>-\</button>
-                                        <button className="demoteStory" onClick={this.moveStory}>/-</button>
-                                        <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                                    </div>});
-      } 
-    }
-
-    buildStoryTile(){
-        this.setState({
-            storyJSX : <div>
-                            <h3 className = "tileHeading">{this.state.storyTitle}</h3>
-                            <h4 className = "tileDescription">{this.state.storyDescription}</h4>
-                        </div>});
+    buildStoryTile(mouseOver){
+        let storyJSX;
+        if(mouseOver){
+             storyJSX = <div>
+                            <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
+                            <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
+                        </div>;
+        }else{
+            if(this.state.columnPosition == 0){
+                storyJSX = <div>
+                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
+                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
+                                <button className="promoteStory" onClick={this.updateStory}>-\</button>
+                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
+                            </div>;
+              }else if(this.state.columnPosition == this.currentProject().templatedetails.length-1){
+                storyJSX = <div>
+                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
+                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
+                                <button className="promoteStory" onClick={this.updateStory}>/-</button>
+                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
+                            </div>;
+              }else{
+                  storyJSX = <div>
+                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
+                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
+                                <button className="promoteStory" onClick={this.updateStory}>-\</button>
+                                <button className="demoteStory" onClick={this.updateStory}>/-</button>
+                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
+                            </div>;
+              } 
+        }
+        return storyJSX;
     }
 
     render(){
+        let mouseOver = false;
+        function mouseOverHandlerEvent (){
+            mouseOver = !mouseOver;
+        }
         return(<div className = "storyTileContainer" 
-                    id = {this.state.id} 
+                    id = {this.props.storyDetails._id} 
                     onClick={this.editStory} 
-                    onMouseOver = {this.mouseOverHandler}
-                    onMouseLeave = {this.buildStoryTile}>
-                        {this.state.storyJSX}
+                    onMouseOver = {mouseOverHandlerEvent}
+                    onMouseLeave = {mouseOverHandlerEvent}>
+                        {this.props.storyDetails.storyTitle != "" && this.props.storyDetails.storyDescription != "" && this.buildStoryTile(mouseOver)}
+                        {this.props.storyDetails.storyTitle != "" || ""}
                 </div>);
     }
 }
@@ -190,7 +179,10 @@ const mapDispatchToProps = dispatch => {
     return {
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
-        }
+        },       
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
     };
 };
 
