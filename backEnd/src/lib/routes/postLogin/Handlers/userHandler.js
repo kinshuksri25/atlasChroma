@@ -62,9 +62,9 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
                                                  }},
                                                 {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {
                     
-            if(resultSet.length != 0){
+            if(resolvedResult.length != 0){
                 response.STATUS = 200;
-                response.PAYLOAD.user = {...resultSet[0]};
+                response.PAYLOAD.user = {...resolvedResult[0]};
                 response.SMSG = SMSG.SVR_UHH_RDUSR; 
                 resolve(response); 
             }else{

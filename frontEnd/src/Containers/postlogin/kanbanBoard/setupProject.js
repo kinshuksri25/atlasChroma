@@ -33,6 +33,7 @@ class SetupProject extends Component {
     
     componentDidMount(){ 
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        let projectObject = {};
         this.props.user.projects.map(project => {
             if(project._id == projectID)
                     projectObject = project;      
@@ -67,7 +68,6 @@ class SetupProject extends Component {
                 constant._id = this.randValueGenerator();
                    
             });
-            this.setLoadedTemplate(constants);
             return(<div>
                       <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
                       <button onClick={this.changePage}>Back</button>
@@ -93,25 +93,25 @@ class SetupProject extends Component {
     }
 
     onTemplateSubmit(event){
+        let globalThis = this;
+        let errorObject = {};
         if(this.templateValidator()){
-            let globalThis = this;
-            let errorObject = {...msgObject};
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{templateDetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id}, function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{templatedetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id}, function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }
                 }else{
                     let userDetails = globalThis.props.user;
                     userDetails.projects.map(project => {
-                        if(project._id == globalThis.props.projectDetails.currentProject._id){
+                        if(project._id == globalThis.state.currentProject._id){
                             project.templatedetails = globalThis.state.currentProject.templatedetails;
                         }
                     });
@@ -121,7 +121,7 @@ class SetupProject extends Component {
         }else{
             errorObject.msg = "One of the Phases/Subphases has 1 Child This is invalid!!";
             errorObject.status = "ERROR";
-            setMsgState(errorObject);
+            globalThis.props.setMsgState(errorObject);
         }
     }
 
@@ -133,7 +133,7 @@ class SetupProject extends Component {
             }else{
                 errorObject.msg = "template type cannot be left empty";
                 errorObject.status = "ERROR";
-                setMsgState(errorObject);
+                this.props.setMsgState(errorObject);
             }
         }
         else

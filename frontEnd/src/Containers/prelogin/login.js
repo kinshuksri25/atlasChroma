@@ -1,5 +1,6 @@
 //Dependencies
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import SimpleForm from '../../Forms/simpleform';
 import cookieManager from '../../Components/cookieManager';
@@ -24,6 +25,7 @@ class Login extends Component {
         let headers = {};
         let errorObject = {...msgObject};
         let gmailPatternError = "";
+        let globalThis = this;
         if(formObject.route != "/login"){
             // let gmailRegex = new RegExp("/\S+@gmail+\.com+/");
             // gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid email";
@@ -36,11 +38,11 @@ class Login extends Component {
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.EMSG;
+                    errorObject.msg = responseObject.ERRORMSG;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }
             }else{
                 if(formObject.route == "/login"){
@@ -58,7 +60,7 @@ class Login extends Component {
                     if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
                         errorObject.msg = "Unable to connect to google servers";
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);  
+                        globalThis.props.setMsgState(errorObject);  
                     }else{
                         window.location = responseObject.PAYLOAD.authURL;
                     }
@@ -68,7 +70,7 @@ class Login extends Component {
         }else{
             errorObject.msg = "Invalid Email ID";
             errorObject.status = "ERROR";
-            setMsgState(errorObject);
+            globalThis.props.setMsgState(errorObject);
         }
     }
 

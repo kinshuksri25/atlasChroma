@@ -1,5 +1,6 @@
 //Dependencies
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import url from 'url';
 
 import httpsMiddleware from '../../middleware/httpsMiddleware';
@@ -12,7 +13,7 @@ import formConstants from '../../Forms/formConstants';
 
 //TODO --> add phone check functionality
 
-class postAuth extends Component{
+class PostAuth extends Component{
 
     constructor(props){
             super(props);
@@ -48,7 +49,7 @@ class postAuth extends Component{
                         if(error || responseObject.STATUS != 200){
                             errorObject.msg = error;
                             errorObject.status = "ERROR";
-                            setMsgState(errorObject);
+                            this.props.setMsgState(errorObject);
                             window.history.pushState({},"",urls.LOGIN);
                     }else{
                             if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
@@ -80,11 +81,11 @@ class postAuth extends Component{
                                 if(error){
                                     errorObject.msg = error;
                                     errorObject.status = "ERROR";
-                                    setMsgState(errorObject);
+                                    globalThis.props.setMsgState(errorObject);
                                 }else{
-                                    errorObject.msg = responseObject.EMSG;
+                                    errorObject.msg = responseObject.ERRORMSG;
                                     errorObject.status = "ERROR";
-                                    setMsgState(errorObject);
+                                    globalThis.props.setMsgState(errorObject);
                                 }
                             }else{
                                 //set the session
@@ -96,23 +97,23 @@ class postAuth extends Component{
                     } else {
                             errorObject.msg = "ERR_INPASS_CLI/ERR_PASSMIS_CLI";
                             errorObject.status = "ERROR";
-                            setMsgState(errorObject);
+                            globalThis.props.setMsgState(errorObject);
                     } 
                 } else {
                     if(globalThis.state.isCheckingUsername){
                         errorObject.msg = "WAR_CHCKUSER_CLI";
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }else{
                         errorObject.msg = "ERR_INVUSR_CLI";
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }
                 }
             } else {
                     errorObject.msg = EMSG.CLI_MID_INVMET;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
             }
     }
 
@@ -128,7 +129,6 @@ class postAuth extends Component{
         var userNameCheckQueryString = 'UserName=' + userName;
         let errorObject = {...msgObject};
         var headers = {};
-
         this.setState({
             "isCheckingUsername": true
         }, () => {
@@ -136,12 +136,12 @@ class postAuth extends Component{
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
                     if (responseObject.Status == "ERROR") {
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
                             "validUserName": false,
                             "isCheckingUsername": false
@@ -191,4 +191,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(null,mapDispatchToProps)(POSTAUTH);
+export default connect(null,mapDispatchToProps)(PostAuth);

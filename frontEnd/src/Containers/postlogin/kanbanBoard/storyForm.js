@@ -34,11 +34,11 @@ class StoryForm extends Component {
                     if(error){
                         errorObject.msg = error;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }
                 }else{
                     let updatedUser = {...globalThis.props.user};
@@ -53,7 +53,7 @@ class StoryForm extends Component {
         }else{
             errorObject.msg = "priority or contributors is empty";
             errorObject.status = "ERROR";
-            setMsgState(errorObject);
+            globalThis.props.setMsgState(errorObject);
         }
     }
 

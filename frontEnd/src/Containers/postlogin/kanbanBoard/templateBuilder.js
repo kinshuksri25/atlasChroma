@@ -1,6 +1,9 @@
 import React,{ Component } from "react";
+import { connect } from 'react-redux';
 
-export default class TemplateBuilder extends Component {
+import setMsgAction from '../../../store/actions/msgActions';
+
+class TemplateBuilder extends Component {
     
     constructor(props){
         super(props);
@@ -31,7 +34,9 @@ export default class TemplateBuilder extends Component {
     }
 
     componentDidMount(){
-        this.setState({loadedTemplate:[...this.props.template]});
+        this.setState({loadedTemplate:[...this.props.template]},() => {
+            this.props.setLoadedTemplate(this.state.loadedTemplate);
+        });
     }
 
     formBuilder(){
@@ -168,27 +173,28 @@ export default class TemplateBuilder extends Component {
     submitPhase(){
         let formData = {...this.state.formData};
         let template = [...this.state.loadedTemplate];
-        if(formData.NAME != ""){
+        let errorObject = {};
+        let condition = formData.NAME == "" ? false : formData.PHASE == "Phase" ? true : formData.EXTENDS == "" ? false : true;
+        if(condition){
             if(this.state.currentAction == "EDIT"){
                 template.map(element => {
-                   if(element.NAME == formData.OLDNAME){
+                    if(element.NAME == formData.OLDNAME){
                         element.NAME = formData.NAME;
                         element.WIP = formData.WIP;
-                   } 
-                   if(formData.OLDNAME == element.EXTENDS){
+                    } 
+                    if(formData.OLDNAME == element.EXTENDS){
                         element.EXTENDS = formData.NAME;
-                   }
-                   element.CHILDREN.includes(formData.OLDNAME) && element.CHILDREN.splice(element.CHILDREN.indexOf(formData.OLDNAME),1,formData.NAME);
+                    }
+                    element.CHILDREN.includes(formData.OLDNAME) && element.CHILDREN.splice(element.CHILDREN.indexOf(formData.OLDNAME),1,formData.NAME);
                 });
             }else{
                 formData.WIP = formData.WIP == "" ? false : formData.WIP;
-                formData._id = this.props.randValueGenerator();
-                formData.EXTENDS = formData.PHASE == "Phase" ? formData.EXTENDS : formData.EXTENDS == "" ? template[0].NAME : formData.EXTENDS; 
+                formData._id = this.props.randValueGenerator(); 
                 let newTemplate = {
-                  NAME : formData.NAME,
-                  WIP : formData.WIP,
-                  EXTENDS : formData.EXTENDS,
-                  CHILDREN : []              
+                    NAME : formData.NAME,
+                    WIP : formData.WIP,
+                    EXTENDS : formData.EXTENDS,
+                    CHILDREN : []              
                 };
                 let phaseExists = false;
                 template.map( element => {
@@ -204,7 +210,9 @@ export default class TemplateBuilder extends Component {
                         newTemplate.EXTENDS == element.NAME && element.CHILDREN.push(newTemplate.NAME);
                     });
                 }else{
-                    console.log("this name already exists");        
+                    errorObject.msg = "This name already exists";
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);    
                 }
             }
             this.setState({loadedTemplate : template},()=> {
@@ -220,7 +228,12 @@ export default class TemplateBuilder extends Component {
             });
             this.clearForm();
         }else{
-            console.log("please enter required feilds : name");
+            let errorMsg = formData.NAME == "" ?
+                             "Please Enter a Name for the "+formData.PHASE : template.length == 0 ? 
+                                "Please add a Phase before adding a subPhase" : "Please select a parent phase for "+formData.NAME; 
+            errorObject.msg = errorMsg;
+            errorObject.status = "ERROR";
+            this.props.setMsgState(errorObject);   
         }
     }
 
@@ -239,18 +252,18 @@ export default class TemplateBuilder extends Component {
     }
 
     mouseOverClick(event){
+        let selectedTemplate;
+        let formData = {...this.state.formData};
         switch(event.target.id){
             case "EDIT":
-                let selectedTemplate = this.getSinglePhase(event.target.className);
-                let formData = {...this.state.formData};
+                selectedTemplate = this.getSinglePhase(event.target.className);
                 formData.NAME = selectedTemplate.NAME;
                 formData.WIP = selectedTemplate.WIP;
                 formData.OLDNAME = selectedTemplate.NAME;
                 this.setState({editForm:false,formData:formData,isFeildDisabled:false,currentAction:"EDIT"});
                 break;
             case "INFO":
-                let selectedTemplate = this.getSinglePhase(event.target.className);
-                let formData = {...this.state.formData};
+                selectedTemplate = this.getSinglePhase(event.target.className);
                 formData.NAME = selectedTemplate.NAME;
                 formData.WIP = selectedTemplate.WIP;
                 delete formData.OLDNAME;
@@ -296,21 +309,21 @@ export default class TemplateBuilder extends Component {
 
     mouseOverButton(event){ 
         if(this.state.currentAction == ""){
-            mouseoverArray = [
-                {
-                    NAME : "EDIT",
-                    IMAGEURL : "EDIT"
-                },
-                {
-                    NAME : "INFO",
-                    IMAGEURL : "INFO"
-                },
-                {
-                    NAME : "REMOVE",
-                    IMAGEURL : "REMOVE"
-                }
-            ];
-            this.props.mouseoverArray.map(mouseovr => {
+            let mouseoverArray = [
+                    {
+                        NAME : "EDIT",
+                        IMAGEURL : "EDIT"
+                    },
+                    {
+                        NAME : "INFO",
+                        IMAGEURL : "INFO"
+                    },
+                    {
+                        NAME : "REMOVE",
+                        IMAGEURL : "REMOVE"
+                    }
+                ];
+            mouseoverArray.map(mouseovr => {
                 let button = document.createElement("Button");
                 button.innerHTML = mouseovr.IMAGEURL;
                 button.id = mouseovr.NAME;
@@ -332,6 +345,7 @@ export default class TemplateBuilder extends Component {
                         <option value="SubPhase">SubPhase</option>   
                     </select>
                     <select id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
+                        <option>Parent Phase</option>  
                         {
                             !showPhaseSelector && this.groupTemplates().map(template => {
                                                         return(template.map(opt => {
@@ -348,3 +362,13 @@ export default class TemplateBuilder extends Component {
                </div>);
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {      
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
+
+export default connect(null,mapDispatchToProps)(TemplateBuilder); 

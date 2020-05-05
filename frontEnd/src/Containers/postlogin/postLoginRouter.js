@@ -6,7 +6,7 @@ import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
 import KanbanBoard from './kanbanBoard/kanbanBoard';
-import Projects from './kanbanBoard/projects';
+import Projects from './projects/projects';
 import IssueTracker from './issueTracker';
 import Highlight from './highlight';
 import Scheduler from './scheduler';
@@ -18,6 +18,7 @@ import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
+import {userList,userObject} from "../../../../lib/constants/storeConstants";
 
 class PostLoginRouter extends Component {
 
@@ -40,30 +41,32 @@ class PostLoginRouter extends Component {
         }
     }
 
-    getUserData(headers,queryString,action){  
+    getUserData(headers,queryString,action){ 
+        let globalThis = this;
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 let errorObject = {...msgObject};
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }
                 cookieManager.clearUserSession(); 
                 window.history.pushState({}, "",urls.LANDING);
             }else{
-                action({...responseObject.PAYLOAD.users});
+                responseObject.PAYLOAD.userList == undefined && action({...responseObject.PAYLOAD.user});
+                responseObject.PAYLOAD.user == undefined && action({...responseObject.PAYLOAD.userList});
             }
         });
     }
 
     //Router
     containerSelector() {
-      if(JSON.stringify(this.props.user) != JSON.stringify({})){
+      if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
         let boardRegex = new RegExp(/boards\/[a-z|0-9]*/);
         let issueRegex = new RegExp(/issuetracker\/[a-z|0-9]*/);
         let path = window.location.pathname.substring(1).toLowerCase();
@@ -123,7 +126,8 @@ class PostLoginRouter extends Component {
 const mapStateToProps = state => {
     return {
         currentUrl : state.urlStateReducer.currentUrl,
-        user : state.userStateReducer
+        user : state.userStateReducer,
+        userList : state.userListStateReducer
     }
 }
 

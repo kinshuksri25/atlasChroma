@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {EMSG,urls} from "../../../../lib/constants/contants";
@@ -38,11 +39,11 @@ class PostSignUpForm extends Component {
                     if(error){
                         errorObject.msg = error;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                     }
                 }else{
                     localStorage.clear();
@@ -53,7 +54,7 @@ class PostSignUpForm extends Component {
         } else {
                 errorObject.msg = EMSG.CLI_MID_INVMET;
                 errorObject.status = "ERROR";
-                setMsgState(errorObject);
+                globalThis.props.setMsgState(errorObject);
         }
     }
 

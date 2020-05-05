@@ -72,7 +72,7 @@ class KanbanBoard extends Component {
             width : this.state.componentWidth
         };
         let currentProject = this.selectProject();
-        let boardJSX = JSON.stringify(currentProject) != JSON.stringify({}) ? "" : 
+        let boardJSX = JSON.stringify(currentProject) == JSON.stringify({}) ? "" : 
                             JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() :
                                  <SetupProject/>;
         return (<div>
@@ -93,4 +93,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps,mapDispatchToProps)(KanbanBoard); 
+export default connect(mapStateToProps)(KanbanBoard); 

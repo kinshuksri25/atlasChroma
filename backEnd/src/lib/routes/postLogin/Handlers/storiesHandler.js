@@ -141,7 +141,7 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("EndDate")){
             set["storydetails.$.enddate"] = requestObject.reqBody.storyDetails.EndDate;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("currentStatus")){
-            set["storydetails.$.currentstatus"] = requestObject.reqBody.storyDetails.currentstatus;
+            set["storydetails.$.currentstatus"] = requestObject.reqBody.storyDetails.currentStatus;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Comments")){
             set["storydetails.$.comments"] = requestObject.reqBody.storyDetails.Comments;
         }
@@ -161,8 +161,9 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
+                console.log(rejectedResult);
                 response.STATUS = 201;
-                response.PAYLOAD = {...newStory.getStoryDetails()};
+                response.PAYLOAD = {};
                 response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
                 resolve(response);    
             });

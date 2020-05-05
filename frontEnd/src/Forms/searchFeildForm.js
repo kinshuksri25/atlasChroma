@@ -1,6 +1,6 @@
 //Dependencies
 import React,{Component} from 'react';
-import SuggestionComponent from './suggestions';
+import SuggestionComponent from './suggestion';
 
 export default class SearchFeild extends Component{
 
@@ -12,36 +12,40 @@ export default class SearchFeild extends Component{
         this.onSuggestionClick = this.onSuggestionClick.bind(this);
     }
 
-    componentDidMount(){
-        let searchState = {};
-        this.props.constants.map(constant => {
-            searchState["constant.id"] = "";
-        });
-        this.setState({...searchState});
+    static getDerivedStateFromProps(props, state){
+       if(JSON.stringify(state) == JSON.stringify({})){
+            let searchState = {};
+            props.constants.map(constant => {
+                searchState[constant.id] = "";
+            });
+            return {...searchState};
+       }else{
+            return null;
+       }
     }
 
     onChange(event){
         let searchState = {...this.state};
-        searchState["event.target.id"] = event.target.value;
+        searchState[event.target.id] = event.target.value;
         this.setState({...searchState});
     }
 
     buildJSX(){
         let searchJSX = this.props.constants.map(constant => {
-            return(<div className = 'searchBox'>
-                    <input type="text" 
-                    name = {this.props.constant.name}
-                    id = {this.props.constant.id}
-                    placeholder = {this.props.constant.placeholder} 
-                    value = {this.state["this.props.constant.id"]} 
-                    className = {this.props.constant.className}
-                    onChange = {this.onChange}/>
-                    <SuggestionComponent searchCriteria = {this.props.constant.searchCriteria} 
-                                         searchQuery = {this.state["this.props.constant.id"]} 
-                                         unfilteredList = {this.props.unfilteredList["this.props.constant.id"]}
-                                         id = {this.props.constant.id}
-                                         onSuggestionClick = {this.onSuggestionClick}/>
-                </div>);
+                return(<div className = 'searchBox'>
+                <input type="text" 
+                name = {constant.name}
+                id = {constant.id}
+                placeholder = {constant.placeholder} 
+                value = {this.state[constant.id]} 
+                className = {constant.className}
+                onChange = {this.onChange}/>
+                <SuggestionComponent searchCriteria = {constant.searchCriteria} 
+                                     searchQuery = {this.state[constant.id]} 
+                                     unfilteredList = {this.props.unfilteredList}
+                                     id = {constant.id}
+                                     onSuggestionClick = {this.onSuggestionClick}/>
+            </div>);
         });
         return (<div>{searchJSX}</div>);
     }
@@ -54,6 +58,7 @@ export default class SearchFeild extends Component{
     }
 
     render(){
-        return(<div>{this.buildJSX()}</div>);
+        let searchFeildJSX = this.buildJSX();
+        return(<div>{searchFeildJSX}</div>);
     }
 }

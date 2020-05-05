@@ -1,5 +1,6 @@
 //Dependencies
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
@@ -41,7 +42,6 @@ class SignUp extends Component {
     emailValidator(email, globalThis) {
         var emailCheckQueryString = 'Email=' + email;
         var headers = { "Origin": "https://localhost:3000" };
-
         this.setState({
             "isCheckingEmail": true
         }, () => {
@@ -50,12 +50,12 @@ class SignUp extends Component {
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
                     if (responseObject.ERRORMSG != "") {
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
                             "validEmail": false,
                             "isCheckingEmail": false
@@ -84,12 +84,12 @@ class SignUp extends Component {
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
                     if (responseObject.ERRORMSG != "") {
-                        errorObject.msg = responseObject.EMSG;
+                        errorObject.msg = responseObject.ERRORMSG;
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
                             "validUserName": false,
                             "isCheckingUsername": false
@@ -119,11 +119,11 @@ class SignUp extends Component {
                             if(error){
                                 errorObject.msg = error;
                                 errorObject.status = "ERROR";
-                                setMsgState(errorObject);
+                                globalThis.props.setMsgState(errorObject);
                             }else{
-                                errorObject.msg = responseObject.EMSG;
+                                errorObject.msg = responseObject.ERRORMSG;
                                 errorObject.status = "ERROR";
-                                setMsgState(errorObject);
+                                globalThis.props.setMsgState(errorObject);
                             }
                         }else{
                             //set the localstorage
@@ -135,23 +135,23 @@ class SignUp extends Component {
                 } else {
                         errorObject.msg = "Invalid Password/Password Mismatch";
                         errorObject.status = "ERROR";
-                        setMsgState(errorObject);
+                        globalThis.props.setMsgState(errorObject);
                 } 
             } else {
                 if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
                     errorObject.msg = "Please wait while we check if the email is correct";
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
                     errorObject.msg = "Invalid email";
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }
             }
         } else {
             errorObject.msg = EMSG.CLI_REQ_INVREQ;
             errorObject.status = "ERROR";
-            setMsgState(errorObject);
+            globalThis.props.setMsgState(errorObject);
         }
     }
      

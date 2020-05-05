@@ -108,6 +108,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
 
     let push = {};
     let set = {}; 
+    let updateQuery = {};
     if(requestObject.reqBody.hasOwnProperty("title")){
         set.title = requestObject.reqBody.title;
     }if(requestObject.reqBody.hasOwnProperty("description")){
@@ -120,7 +121,14 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
         set.templatedetails = requestObject.reqBody.templatedetails;
     }
 
-    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{$set : {...set},$push : {...push}},{},SINGLE).then(resolvedSet => {
+    if(JSON.stringify(set)!=JSON.stringify({})){
+        updateQuery["$set"] = {...set};
+    } 
+    if(JSON.stringify(push)!=JSON.stringify({})){
+        updateQuery["$push"] = {...push};
+    }
+    
+    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{},SINGLE).then(resolvedSet => {
         response.STATUS = 200;
         response.PAYLOAD = {};
         response.SMSG = "board details updated successfully";

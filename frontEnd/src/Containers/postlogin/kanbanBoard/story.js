@@ -12,20 +12,23 @@ class Story extends Component{
     constructor(props){
         super(props);
         this.state = {
-                        columnPosition : ""
+                        columnPosition : "",
+                        hover : false
                      };
         this.moveStory = this.moveStory.bind(this);
         this.editStory = this.editStory.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
         this.currentProject = this.currentProject.bind(this);
-        this.buildStoryTile = this.buildStoryTile.bind(this); 
-        
+        this.onMouseOver = this.onMouseOver.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
+        this.generateColumnArray = this.generateColumnArray.bind(this); 
     }
 
     componentDidMount(){
         let columnPostion = 0;
-        for(let i =0;i<this.currentProject().templatedetails.length;i++){
-            if(this.props.storyDetails.currentstatus == this.currentProject().templatedetails[i]._id){
+        let columns = this.generateColumnArray();
+        for(let i =0;i<columns.length;i++){
+            if(this.props.storyDetails.currentstatus == columns[i]._id){
                 columnPostion = i;
                 break;
             }
@@ -47,10 +50,19 @@ class Story extends Component{
 
     }
 
+    generateColumnArray(){
+        let columnArray = [];
+        this.currentProject().templatedetails.map(template => {
+            template.CHILDREN.length == 0 && columnArray.push(template);
+        });
+        return columnArray;
+    }
+
     moveStory(event){
         let newPosition = this.state.columnPosition;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
+        let columns = globalThis.generateColumnArray();
         switch(event.target.className){
             case "promoteStory" : 
                         newPosition += 1;
@@ -62,17 +74,18 @@ class Story extends Component{
         }
         let storyDetails = {};
         storyDetails._id = this.props.storyDetails._id;
-        storyDetails.currentStatus = globalThis.currentProject().templatedetails[newPosition]._id;
+        storyDetails.currentStatus = columns[newPosition]._id;
+        storyDetails.contributor = this.props.storyDetails.contributor;
         httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}}, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.EMSG;
+                    errorObject.msg = responseObject.ERRORMSG;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }
             }else{
                 let updatedUser = {...globalThis.props.user};
@@ -80,8 +93,8 @@ class Story extends Component{
                 updatedUser.projects.map(project => {
                     if(project._id == projectID){
                         project.storydetails.map(story => {
-                            if(story._id == this.props.storyDetails._id){
-                                story.currentstatus = project.templatedetails[newPosition]._id;
+                            if(story._id == globalThis.props.storyDetails._id){
+                                story.currentstatus = columns[newPosition]._id;
                             }
                         });
                     }
@@ -101,11 +114,11 @@ class Story extends Component{
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.EMSG;
+                    errorObject.msg = responseObject.ERRORMSG;
                     errorObject.status = "ERROR";
-                    setMsgState(errorObject);
+                    globalThis.props.setMsgState(errorObject);
                 }
             }else{
                 let updatedUser = {...globalThis.props.user};
@@ -124,54 +137,32 @@ class Story extends Component{
         });
     }
 
-    buildStoryTile(mouseOver){
-        let storyJSX;
-        if(mouseOver){
-             storyJSX = <div>
-                            <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
-                            <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
-                        </div>;
-        }else{
-            if(this.state.columnPosition == 0){
-                storyJSX = <div>
-                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
-                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
-                                <button className="promoteStory" onClick={this.updateStory}>-\</button>
-                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                            </div>;
-              }else if(this.state.columnPosition == this.currentProject().templatedetails.length-1){
-                storyJSX = <div>
-                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
-                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
-                                <button className="promoteStory" onClick={this.updateStory}>/-</button>
-                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                            </div>;
-              }else{
-                  storyJSX = <div>
-                                <h3 className = "tileHeading">{this.props.storyDetails.storyTitle}</h3>
-                                <h4 className = "tileDescription">{this.props.storyDetails.storyDescription}</h4>
-                                <button className="promoteStory" onClick={this.updateStory}>-\</button>
-                                <button className="demoteStory" onClick={this.updateStory}>/-</button>
-                                <button className="deleteStory" onClick={this.deleteStory}>/_\</button>
-                            </div>;
-              } 
-        }
-        return storyJSX;
+    onMouseLeave(){
+        this.setState({hover:false});
+    }
+
+    onMouseOver(){
+        this.setState({hover:true});
     }
 
     render(){
-        let mouseOver = false;
-        function mouseOverHandlerEvent (){
-            mouseOver = !mouseOver;
-        }
-        return(<div className = "storyTileContainer" 
-                    id = {this.props.storyDetails._id} 
-                    onClick={this.editStory} 
-                    onMouseOver = {mouseOverHandlerEvent}
-                    onMouseLeave = {mouseOverHandlerEvent}>
-                        {this.props.storyDetails.storyTitle != "" && this.props.storyDetails.storyDescription != "" && this.buildStoryTile(mouseOver)}
-                        {this.props.storyDetails.storyTitle != "" || ""}
-                </div>);
+        let demoteShow = this.state.columnPosition != 0 && this.state.hover ? false : true;
+        let promoteShow = this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
+        let storyJSX = this.props.storyDetails.storyTitle != "" && 
+                        this.props.storyDetails.storyDescription != "" ? 
+                            <div className = "storyTileContainer" 
+                                id = {this.props.storyDetails._id} 
+                                onClick={this.editStory}
+                                onMouseOver={this.onMouseOver}
+                                onMouseLeave={this.onMouseLeave}>
+                                <h3 className = "tileHeading">{this.props.storyDetails.storytitle}</h3>
+                                <h4 className = "tileDescription">{this.props.storyDetails.storydescription}</h4>
+                                <button className="promoteStory" hidden={promoteShow} onClick={this.moveStory}>-\</button>
+                                <button className="demoteStory" hidden={demoteShow} onClick={this.moveStory}>/-</button>
+                                <button className="deleteStory" hidden={!this.state.hover} onClick={this.deleteStory}>/_\</button>
+                            </div> 
+                            :"";
+        return(<div>{storyJSX}</div>);
     }
 }
 

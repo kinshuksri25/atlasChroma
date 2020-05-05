@@ -1,8 +1,7 @@
 //Dependencies
 import React,{Component} from 'react';
-import SuggestionComponent from './suggestions';
 
-export default class SearchFeild extends Component{
+export default class SuggestionComponent extends Component{
 
     constructor(props){
         super(props);
@@ -13,12 +12,12 @@ export default class SearchFeild extends Component{
 
     buildJSX(){
         let suggestionlist = this.generateSuggestionList();
-        if(this.suggestionlist.length == 0){
+        if(suggestionlist.length == 0){
             return "";
         }else{
             return (<ul className = "suggestionBox">
-                        {this.suggestionlist.map(suggestion => {
-                            return(<li id = {el.id} onClick = {this.onClick}>{el.title}</li>);
+                        {suggestionlist.map(suggestion => {
+                            return(<li id = {suggestion.id} onClick = {this.onClick}>{suggestion.title}</li>);
                         })}
                     </ul>);
         }

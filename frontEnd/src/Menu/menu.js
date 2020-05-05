@@ -4,7 +4,7 @@ import { Dispatch } from 'redux';
 import React,{ Component } from 'react';
 
 import {EMSG} from '../../../lib/constants/contants';
-import setUrlAction from "../store/actions/urlActions";
+import setMsgAction from '../store/actions/msgActions';
 
 class Menu extends Component{
 
@@ -24,7 +24,9 @@ class Menu extends Component{
 
     renderMenu(){
         if(this.props.menuArray == [] || this.props.menuArray == "" || this.props.menuArray == {} || this.props.menuArray == undefined){
-            console.log(EMSG.CLI_MNU_IMNUARR);
+            errorObject.msg = EMSG.CLI_MNU_IMNUARR;
+            errorObject.status = "ERROR";
+            globalThis.props.setMsgState(errorObject);
             return '';
         }else{
             let menuArray = this.props.menuArray;
@@ -62,6 +64,12 @@ const mapStateToProps = (state) => {
     }
 };
 
+const mapDispatchToProps = dispatch => {
+    return {
+        setMsgState: (msgObject) => {
+            dispatch(setMsgAction(msgObject));
+        } 
+    };
+};
 
-
-export default connect(mapStateToProps, null)(Menu);
+export default connect(mapStateToProps, mapDispatchToProps)(Menu);
