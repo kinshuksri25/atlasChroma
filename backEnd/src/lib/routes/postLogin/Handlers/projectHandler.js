@@ -114,7 +114,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
     }if(requestObject.reqBody.hasOwnProperty("description")){
         set.description = requestObject.reqBody.description;
     }if(requestObject.reqBody.hasOwnProperty("contributors")){
-        push.contributors = requestObject.reqBody.contributors
+        set.contributors = requestObject.reqBody.contributors
     }if(requestObject.reqBody.hasOwnProperty("projectleader")){
         set.projectlead = requestObject.reqBody.projectlead;
     }if(requestObject.reqBody.hasOwnProperty("templatedetails")){

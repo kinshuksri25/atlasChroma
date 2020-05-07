@@ -47,7 +47,7 @@ class Story extends Component{
     }
 
     editStory(event){
-
+        this.props.editStory(this.props.storyDetails._id);
     }
 
     generateColumnArray(){

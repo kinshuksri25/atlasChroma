@@ -15,7 +15,8 @@ class BoardColumn extends Component{
                         columnExtends:"",
                         columnWIPLimit: ""
                      }; 
-        this.buildColumn = this.buildColumn.bind(this);                                    
+        this.buildColumn = this.buildColumn.bind(this);  
+        this.editStory = this.editStory.bind(this);                                  
     }
 
     componentDidMount(){
@@ -28,6 +29,10 @@ class BoardColumn extends Component{
                          columnWIPLimit:this.props.columnDetails.WIP
                       });
     }
+
+    editStory(storyID){
+        this.props.editStory(storyID);
+    }
     
     buildColumn(){
         let style = {
@@ -38,7 +43,7 @@ class BoardColumn extends Component{
             return(<div style = {style} className = "phaseContainer" id = {this.state.columnID}>
                         <div className = "phaseHeading">{this.state.columnHeading}</div>
                         <div className="storiesContainer">
-                            <StoryContainer columnID = {this.state.columnID}/>
+                            <StoryContainer editStory = {this.editStory} columnID = {this.state.columnID}/>
                         </div>
                     </div>);
         }else{

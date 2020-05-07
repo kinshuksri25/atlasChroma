@@ -6,22 +6,29 @@ class ProjectContainer extends Component{
     
     constructor(props){
         super(props);
+        this.state = {
+            projects : {}
+        }
         this.renderProjectTabs = this.renderProjectTabs.bind(this);
         this.sortProjects = this.sortProjects.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.showEdit = this.showEdit.bind(this);
+        this.hideEdit = this.hideEdit.bind(this);
     }
 
     renderProjectTabs(){
       if(this.props.user.projects.length != 0){
         let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.projects);
         let projectContainer = sortedProjectArray.map(project => {
+            let buttonHidden = this.state.projects[project._id] == undefined ? true : this.state.projects[project._id];
             return(
                     //TODO add the project lead's photo (link)  
                     //TODO add a list of contributors (profilePhotos)(link)
-                <button className = {project._id} onClick = {this.onClick}>
+                <button className = {project._id} onClick = {this.onClick} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
                     <h3 className = {project._id}>{project.title}</h3>
                     <h4 className = {project._id}>Project Lead:</h4>
                     <h5 className = {project._id}>{project.description}</h5>
+                    <button hidden = {buttonHidden} onClick = {this.props.showEditProject} className = {project._id}>/\</button>
                 </button>   
             );
         });
@@ -30,6 +37,18 @@ class ProjectContainer extends Component{
             //TODO add in dataConstants
           return (<h1>You are not collaborating on any projects...</h1>);
       }
+    }
+
+    hideEdit(event){
+        let projects = this.state.projects;
+        projects[event.target.className] = true;
+        this.setState({projects : {...projects}}); 
+    }
+
+    showEdit(event){
+        let projects = this.state.projects;
+        projects[event.target.className] = false;
+        this.setState({projects : {...projects}});
     }
 
     onClick(event){

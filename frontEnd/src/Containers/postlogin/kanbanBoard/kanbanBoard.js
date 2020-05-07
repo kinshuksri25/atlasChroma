@@ -14,9 +14,13 @@ class KanbanBoard extends Component {
         super(props);
         this.state={
             showStoryForm:false,
-            componentWidth : screen.width
+            componentWidth : screen.width,
+            currentMode : "",
+            storyID : ""
         };
         this.addStory = this.addStory.bind(this);
+        this.closeStory = this.closeStory.bind(this);
+        this.editStory = this.editStory.bind(this);
         this.buildBoard = this.buildBoard.bind(this);
         this.selectProject = this.selectProject.bind(this);
         this.groupTemplate = this.groupTemplate.bind(this);
@@ -42,6 +46,10 @@ class KanbanBoard extends Component {
         return groupedTemplate;
     }
 
+    editStory(storyID){
+        this.setState({showStoryForm : true,currentMode : "EDIT",storyID : storyID}); 
+    }
+
     selectProject(){
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         let projectObject = {};
@@ -57,14 +65,17 @@ class KanbanBoard extends Component {
         let groupedTemplate = this.groupTemplate(template);
         let width = this.state.componentWidth/groupedTemplate.length;
         board = groupedTemplate.map(template => {
-            return(<BoardColumn columnDetails = {template} width = {width}/>);    
+            return(<BoardColumn editStory = {this.editStory} columnDetails = {template} width = {width}/>);    
         });
         return (<div>{board}</div>);
     }
 
     addStory(){
-        let showOrHide = !this.state.showStoryForm;
-        this.setState({showStoryForm : showOrHide});
+        this.setState({showStoryForm : true,currentMode : "ADD",storyID : ""});
+    }
+
+    closeStory(){
+        this.setState({showStoryForm : false,currentMode : "",storyID : ""});      
     }
 
     render(){
@@ -76,7 +87,7 @@ class KanbanBoard extends Component {
                             JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() :
                                  <SetupProject/>;
         return (<div>
-                    {this.state.showStoryForm && <StoryForm closeForm={this.addStory} currentMode = "ADD" projectDetails = {currentProject} />}
+                    {this.state.showStoryForm && <StoryForm closeForm={this.closeStory} storyID = {this.state.storyID} currentMode = {this.state.currentMode} projectDetails = {currentProject} />}
                     <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
                         {boardJSX}
                     </div>

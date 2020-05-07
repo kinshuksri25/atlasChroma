@@ -6,6 +6,7 @@ import FilterForm from '../../../Forms/filterForm';
 import AddProject from './addProject';
 import filterFormConstants from '../../../Forms/filterFormConstants';
 import ProjectContainer from './projectContainer';
+import EditProject from './editProject';
 
 class Projects extends Component {
 
@@ -14,11 +15,15 @@ class Projects extends Component {
                 this.state = {
                     search:"",
                     orderBy:"Recently Created",
-                    addProject:false
+                    addProject:false,
+                    editProject:'',
+                    hideEdit:true
                 };
                 this.searchProject = this.searchProject.bind(this);
                 this.addProject = this.addProject.bind(this);
                 this.changeOrderBy = this.changeOrderBy.bind(this);
+                this.showEditProject = this.showEditProject.bind(this);
+                this.hideEditProject = this.hideEditProject.bind(this);
         }
 
         searchProject(projectName){
@@ -34,18 +39,36 @@ class Projects extends Component {
             this.setState({orderBy:event.target.value});
         }
 
+        showEditProject(event){
+            event.stopPropagation();
+            let editProject = {};
+            this.props.user.projects.map(project => {
+                if(project._id == event.target.className){
+                    editProject = {...project};
+                }
+            });
+            this.setState({editProject : editProject, hideEdit : false});     
+        }
+
+        hideEditProject(){
+            this.setState({editProject : {}, hideEdit : true});     
+        }
+
         render(){
                 let addProject = this.state.addProject ? <AddProject cancel = {this.addProject}/> :"";
-                return (<div> 
-                           <FilterForm 
-                           orderBy={this.state.orderBy} 
-                           searchFunction={this.searchProject}
-                           changeOrderBy={this.changeOrderBy}
-                           options = {filterFormConstants.projectFilter}/> 
-                           <button onClick={this.addProject}>Add Project</button>
-                           {addProject} 
-                             <ProjectContainer orderBy = {this.state.orderBy}/> 
-                        </div>);    
+                let projectJSX = this.state.hideEdit ? <div> 
+                                                            <FilterForm 
+                                                            orderBy={this.state.orderBy} 
+                                                            searchFunction={this.searchProject}
+                                                            changeOrderBy={this.changeOrderBy}
+                                                            options = {filterFormConstants.projectFilter}/> 
+                                                            <button onClick={this.addProject}>Add Project</button>
+                                                            {addProject} 
+                                                            <ProjectContainer showEditProject = {this.showEditProject} orderBy = {this.state.orderBy}/> 
+                                                        </div> 
+                                                        : 
+                                                        <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.hideEditProject}/>;
+                return (<div>{projectJSX}</div>);    
         }
         
 }
