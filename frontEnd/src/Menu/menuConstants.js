@@ -17,11 +17,6 @@ menuConstants=[
         icon:'fas fa-calendar-check'
     },
     {
-        title:'IssueTracker',
-        route:'issuetracker',
-        icon:'fas fa-exclamation-triangle'
-    },
-    {
         title:'Logout',
         route:'logout',
         icon:'fa fa-sign-out'

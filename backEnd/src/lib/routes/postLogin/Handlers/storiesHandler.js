@@ -77,7 +77,6 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
         description : requestObject.reqBody.Description,
         contributor : requestObject.reqBody.Contributor,
         priority : requestObject.reqBody.Priority,
-        startdate : Date.now(),
         duedate : requestObject.reqBody.EndDate,
         currentstatus : requestObject.reqBody.currentStatus,
         comments : requestObject.reqBody.Comments}); 
@@ -129,7 +128,7 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
         SMSG : ""
        };
     let set = {};
-    if(requestObject.reqBody.hasOwnProperty("storyDetails") && requestObject.reqBody.storyDetails.hasOwnProperty("_id")){
+    if(requestObject.reqBody.hasOwnProperty("storyDetails") && requestObject.reqBody.storyDetails.hasOwnProperty("_id") && requestObject.reqBody.storyDetails.hasOwnProperty("contributorUsername")){
         if(requestObject.reqBody.storyDetails.hasOwnProperty("StoryTitle")){
             set["storydetails.$.storytitle"] = requestObject.reqBody.storyDetails.StoryTitle;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Description")){
@@ -147,7 +146,7 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
         }
 
         mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{},SINGLE).then(resolvedResult => {
-            mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.storyDetails.contributor},{}).then(resolvedResult => {
+            mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.contributorUsername},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY).then(resolvedResult => {
                     response.STATUS = 200;

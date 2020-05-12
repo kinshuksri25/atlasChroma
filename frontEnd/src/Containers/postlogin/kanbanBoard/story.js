@@ -125,7 +125,7 @@ class Story extends Component{
                 updatedUser.projects.map(project => {
                     if(project._id == projectID){
                         for(let i=0;i<project.storydetails.length;i++){
-                            if(project.storydetails[i] == this.props.storyDetails._id){
+                            if(project.storydetails[i]._id == globalThis.props.storyDetails._id){
                                 project.storydetails.splice(i,1);
                                 break;
                             }

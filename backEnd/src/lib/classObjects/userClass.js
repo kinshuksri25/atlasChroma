@@ -13,7 +13,9 @@ class userObject{
               projects = [],
               phonenumber = "",
               state = "",
-              refreshtoken = ""}){
+              refreshtoken = "",
+              events = [],
+              notes = []}){
     
     this._id = _id;
     this.username = username;
@@ -26,6 +28,8 @@ class userObject{
     this.phoneno = phonenumber;
     this.state = state;
     this.refreshToken = refreshtoken;
+    this.events = events;
+    this.notes = notes;
   }
  
   getUserObject(){
@@ -39,7 +43,9 @@ class userObject{
           projects : this.projects,
           phonenumber : this.phoneno,
           state : this.state,
-          refreshtoken : this.refreshtoken});
+          refreshtoken : this.refreshtoken,
+          events : this.events,
+          notes : this.notes});
   }
   
   setUserObject({_id = this._id,
@@ -52,7 +58,9 @@ class userObject{
                 projects = this.projects,
                 phoneno = this.phoneno,
                 state = this.state,
-                refreshtoken = this.refreshtoken}){
+                refreshtoken = this.refreshtoken,
+                events = this.events,
+                notes = this.notes}){
   
     this._id = _id;
     this.username = username;
@@ -65,6 +73,8 @@ class userObject{
     this.phoneno = phoneno;
     this.state = state;
     this.refreshtoken = refreshtoken;
+    this.events = events;
+    this.notes = notes;
   }
 }
 

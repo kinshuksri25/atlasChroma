@@ -1,5 +1,5 @@
 //Dependencies
-const {randValueGenerator} = require("../utils/helper");
+const {randValueGenerator,generateCurrentDate} = require("../utils/helper");
 
 //Blueprint for story object
 class story{
@@ -8,7 +8,7 @@ class story{
                 description="",
                 contributor="",
                 priority="",
-                startdate="",
+                startdate= generateCurrentDate(),
                 duedate="",
                 currentstatus="",
                 comments=""}) {

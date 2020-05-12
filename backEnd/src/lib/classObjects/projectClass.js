@@ -1,5 +1,5 @@
 //Dependencies
-const {randValueGenerator} = require("../utils/helper");
+const {randValueGenerator,generateCurrentDate} = require("../utils/helper");
 
 //Blueprint for project objects
 class project{
@@ -9,7 +9,7 @@ class project{
                 description="",
                 projectlead="",
                 contributors=[], 
-                creationdate= Date.now(),
+                creationdate= generateCurrentDate(),
                 modificationdate="",
                 templatedetails = {},
                 storydetails = []}){

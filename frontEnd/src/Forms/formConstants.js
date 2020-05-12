@@ -348,5 +348,41 @@ formConstants.storyForm = [
     
 ];
 
+formConstants.addEvent = [
+    {
+        id: "addEvent",
+        type: "form",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded" 
+    },
+    {
+        name: "EventTitle",
+        type: "text",
+        placeholder: "Event Title",
+        id: "addEventTitle",
+        className: "addEventAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Description",
+        type: "textarea",
+        rows: "4",
+        cols: "50",
+        placeholder: "Description",
+        id: "addEventDescription",
+        className: "addStoryAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "ADD",
+        type: "button",
+        route: '/event',
+        id: "templateNextButton",
+        className: "addEventAttributes"
+    }
+];
+
 //export the module
 export default formConstants;

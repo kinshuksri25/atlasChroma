@@ -4,7 +4,9 @@
 
 //Dependencies
 const mongo = require("../../../utils/data");
-const {EMSG,SMSG,SINGLE,DBCONST} = require("../../../../../../lib/constants/contants");
+const {generateCurrentDate} = require('../../../utils/helper');
+const {EMSG,SMSG,SINGLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
+const googleApis = require("../../../googleApis/googleAPI");
 const project = require("../../../classObjects/projectClass");
 
 
@@ -40,6 +42,11 @@ projectHandler.project = (route,requestObject) => new Promise((resolve,reject) =
                 }); 
               break;
           case "DELETE" : 
+            projectHandler.project.delete(route,requestObject).then(resolvedResult => {
+                    resolve(resolvedResult);
+                }).catch(rejectedResult => {
+                    reject(rejectedResult);
+                }); 
               break;
         }
     }else{
@@ -120,7 +127,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
     }if(requestObject.reqBody.hasOwnProperty("templatedetails")){
         set.templatedetails = requestObject.reqBody.templatedetails;
     }
-
+    set.modificationdate = generateCurrentDate();
     if(JSON.stringify(set)!=JSON.stringify({})){
         updateQuery["$set"] = {...set};
     } 
@@ -134,13 +141,49 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
         response.SMSG = "board details updated successfully";
         resolve(response);
     }).catch(rejectedSet => {
-        throw rejectedSet; 
+        response.STATUS = 500;
+        response.EMSG = rejectedSet;
+        reject(response); 
     });
     }else{
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
         reject(response);
     }
+});
+
+//project delete route
+//params --> route - string, requestObject - object
+//returns --> promise - object
+projectHandler.project.delete = (route,requestObject) => new Promise((resolve,reject) => {
+    let response = {
+        EMSG : "",
+        PAYLOAD : {},
+        SMSG : ""
+       };
+    if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.contributors != undefined){
+        mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{},SINGLE).then( resolvedResult => {
+            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, SINGLE).then(resolvedSet => {
+                response.STATUS = 200;
+                response.PAYLOAD = {};
+                response.SMSG = "Project deleted successfully";
+                reject(response); 
+            }).catch(rejectedSet => {
+                //need to add a cron here 
+                response.STATUS = 500;
+                response.EMSG = rejectedSet;
+                reject(response); 
+            });        
+        }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = rejectedResult;
+            reject(response); 
+        });
+    }else{
+        response.STATUS = 400;
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        reject(response);
+    } 
 });
 
 //exporting the module

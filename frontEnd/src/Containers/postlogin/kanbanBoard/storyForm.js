@@ -69,11 +69,57 @@ class StoryForm extends Component {
     }
 
     updateFormhandler(){
-
+        let globalThis = this;
+        let storyObject = {};
+        let errorObject = {};
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()}
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        if(this.state.storyTitle != this.state.oldStoryDetails.storytitle){
+            storyObject.StoryTitle = this.state.storyTitle;
+        }if(this.state.storyDescription != this.state.oldStoryDetails.description){
+            storyObject.Description = this.state.storyDescription;
+        }if(this.state.storyComments != this.state.oldStoryDetails.comments){
+            storyObject.Comments = this.state.storyComments;
+        }if(this.state.storyContributor != this.state.oldStoryDetails.contributor){
+            storyObject.Contributor = this.state.storyContributor;
+        }if(this.state.storyPriority != this.state.oldStoryDetails.priority){
+            storyObject.Priority = this.state.storyPriority;
+        }
+        storyObject._id = this.props.storyID;
+        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject},contributorUsername : this.state.storyContributor}, function(error,responseObject) {
+            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                if(error){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }else{
+                    errorObject.msg = responseObject.ERRORMSG;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }
+            }else{
+                let updatedUser = {...globalThis.props.user};
+                updatedUser.projects.map(project => {
+                    if(project._id == projectID){
+                        project.storydetails.map(story => {
+                            if(story._id == globalThis.props.storyID){
+                                story.storytitle = globalThis.state.storyTitle;
+                                story.description = globalThis.state.storyDescription;
+                                story.comments = globalThis.state.storyComments;
+                                story.contributor = globalThis.state.storyContributor;
+                                story.priority = globalThis.state.storyPriority;
+                            }
+                        });
+                    }
+                });
+                globalThis.props.setUserState(updatedUser);
+            }
+        });  
     }
 
     onStoryAddHandler(formObject){
         let globalThis = this;
+        let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         if(formObject.formData.Priority != "" && formObject.formData.Contributor != ""){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};

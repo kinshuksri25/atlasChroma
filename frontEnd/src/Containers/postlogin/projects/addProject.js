@@ -36,6 +36,7 @@ class AddProject extends Component{
     }
 
     suggestionAllocator(selectedValue,searchBoxID){
+        let errorObject = {};
         switch(searchBoxID){
             case "projectLead":
                 let leadExists = this.state.projectLeader == selectedValue ? true : false;
@@ -49,6 +50,11 @@ class AddProject extends Component{
                 let contributorExists = contributor.find(el => el == selectedValue) != undefined ? true : false;
                 if(!contributorExists){
                     contributor.push(selectedValue);
+                }else{
+                    let errorMsg = selectedValue == this.state.projectLeader ? "ProjectLeader is already a contributor" : "The contributor has already been added";
+                    errorObject.msg = errorMsg;
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);
                 }
                 this.setState({contributors : contributor});
                 break;    

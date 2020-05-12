@@ -7,6 +7,7 @@ const userHandler = require("./Handlers/userHandler");
 const projectHandler = require("./Handlers/projectHandler");
 const cookieHandler = require("../../utils/cookieHandler");
 const storyHandler = require("./Handlers/storiesHandler");
+const eventHandler = require("./Handlers/eventHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
 
@@ -25,6 +26,7 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
                 let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
                 resolve(response.getResponseObject());
             }).catch(rejectedResult => {
+                console.log(rejectedResult);
                 let response = new responseObject(rejectedResult.STATUS,SMSG.NOSUCCESS,{},rejectedResult.EMSG);
                 reject(response.getResponseObject());
             });
@@ -45,7 +47,7 @@ postLoginRouter.routeChecker = (route) => {
 
     route = route.substring(1);
     let index = route.indexOf("/");
-    route = index != -1 ? "/"+route.subString(0,index) : "/"+route;
+    route = index != -1 ? "/"+route.substring(0,index) : "/"+route;
     //select the correct router
     let chosenHandler = postLoginRouter.routes.hasOwnProperty(route) ? postLoginRouter.routes[route] : postLoginRouter.notFound;
     return chosenHandler;
@@ -65,7 +67,8 @@ postLoginRouter.notFound = (route,requestObject) => new Promise((resolve,reject)
 postLoginRouter.routes = {
  "/user" : userHandler.user,
  "/project" : projectHandler.project,
- "/stories" : storyHandler.stories
+ "/stories" : storyHandler.stories,
+ "/event" : eventHandler.event
 };
 
 //export the module

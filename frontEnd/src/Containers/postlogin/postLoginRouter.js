@@ -7,7 +7,6 @@ import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
 import KanbanBoard from './kanbanBoard/kanbanBoard';
 import Projects from './projects/projects';
-import IssueTracker from './issueTracker';
 import Highlight from './highlight';
 import Scheduler from './scheduler';
 import Menu from '../../Menu/menu';
@@ -68,7 +67,7 @@ class PostLoginRouter extends Component {
     containerSelector() {
       if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
         let boardRegex = new RegExp(/boards\/[a-z|0-9]*/);
-        let issueRegex = new RegExp(/issuetracker\/[a-z|0-9]*/);
+        let schedulerRegex = new RegExp(/scheduler\/[0-9]*/);
         let path = window.location.pathname.substring(1).toLowerCase();
 
         if(!/[a-z]+\/[a-z|0-9]+/g.test(path))
@@ -81,9 +80,6 @@ class PostLoginRouter extends Component {
                         break;
                     case "projects":
                         return <Projects/>;
-                        break;    
-                    case "issuetracker":
-                        return <IssueTracker/>;
                         break;
                     case "scheduler":
                         return <Scheduler/>;
@@ -100,9 +96,9 @@ class PostLoginRouter extends Component {
             }  
         else{
             if(boardRegex.test(path)){
-                return <KanbanBoard/>
-            }else if(issueRegex.test(path)){
-                console.path(path);
+                return <KanbanBoard/>;
+            }else if(schedulerRegex.test(path)){
+                return <Scheduler/>;
             }else{
                 window.history.replaceState({}, "",urls.DASHBOARD);
                 return <DashBoard/>;

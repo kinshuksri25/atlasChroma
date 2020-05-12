@@ -19,5 +19,15 @@ helperFunctions.randValueGenerator = (valueLength = 10) => {
   return randomValue;
 }
 
+helperFunctions.generateCurrentDate = (date = new Date()) => {
+  let currentDate = date;
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth();
+  let currentDay = currentDate.getDate();
+
+  currentDate = currentYear+"-"+currentMonth+"-"+currentDay;
+  return currentDate;
+}
+
 //exporting the module
 module.exports = {...helperFunctions};
