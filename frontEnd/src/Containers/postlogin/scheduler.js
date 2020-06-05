@@ -20,8 +20,9 @@ class Scheduler extends Component {
         }
 
         componentDidMount(){
+                let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
                 this.setState({
-                    currentMonth : new Date().getMonth(),
+                    currentMonth : currentMonth,
                     currentYear : new Date().getFullYear()    
                 });
         }
@@ -50,28 +51,34 @@ class Scheduler extends Component {
         }
 
         changeMonth(event){
+                let currentMonth = this.state.currentMonth;
+                if(currentMonth < "09"){
+                        currentMonth = event.target.className == "next" ? "0"+(parseInt(currentMonth)+1) : "0"+(parseInt(currentMonth)-1);
+                }else{
+                        currentMonth = event.target.className == "next" ? parseInt(currentMonth)+1 : currentMonth <= 10 ? "0"+(parseInt(currentMonth)-1) : parseInt(currentMonth)-1;
+                }
                 switch(event.target.className){
                         case "next" :   
                                 if(this.state.currentMonth == "11"){
                                         this.setState({
-                                                currentMonth : 0,
+                                                currentMonth : "00",
                                                 currentYear : this.state.currentYear + 1
                                         });
                                 }else{
                                         this.setState({
-                                                currentMonth : this.state.currentMonth + 1
+                                                currentMonth : currentMonth
                                         });
                                 }
                                 break;
                         case "previous" :
-                                if(this.state.currentMonth == "0"){
+                                if(this.state.currentMonth == "00"){
                                         this.setState({
-                                                currentMonth : 11,
+                                                currentMonth : "11",
                                                 currentYear : this.state.currentYear - 1
                                         });
                                 }else{
                                         this.setState({
-                                                currentMonth : this.state.currentMonth - 1
+                                                currentMonth : currentMonth
                                         });
                                 }
                                 break;
@@ -128,19 +135,19 @@ class Scheduler extends Component {
 
         render(){
                 let month = {
-                        "0" : "January",
-                        "1" : "Februray",
-                        "2" : "March",
-                        "3" : "April",
-                        "4" : "May",
-                        "5" : "June",
-                        "6" : "July",
-                        "7" : "August",
-                        "8" : "September",
-                        "9" : "October",
+                        "00" : "January",
+                        "01" : "Februray",
+                        "02" : "March",
+                        "03" : "April",
+                        "04" : "May",
+                        "05" : "June",
+                        "06" : "July",
+                        "07" : "August",
+                        "08" : "September",
+                        "09" : "October",
                         "10" : "November",
                         "11"  : "December"                           
-                     }                     
+                     }                                                
                 let schedulerJSX = this.state.currentMonth == "" && this.state.currentYear == "" ? "" :
                                          this.state.currentDate == "" ?  <div> 
                                                 <button onClick = {this.changeMonth} className = "previous">"Previous"</button>

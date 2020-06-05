@@ -10,7 +10,6 @@ import setMsgAction from '../../../store/actions/msgActions';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
 
-//end date can also be edited
 class StoryForm extends Component {
 
     constructor(props){
@@ -22,6 +21,7 @@ class StoryForm extends Component {
             storyTitle : "",
             storyDescription : "",
             storyComments : "",
+            duedate : "",
             storyContributor : "",
             storyPriority : "",
             oldStoryDetails : {}
@@ -40,6 +40,7 @@ class StoryForm extends Component {
                         storyTitle : story.storytitle,
                         storyDescription : story.description,
                         storyComments : story.comments,
+                        duedate : story.duedate, 
                         storyContributor : story.contributor,
                         storyPriority : story.priority
                     });
@@ -62,6 +63,9 @@ class StoryForm extends Component {
             case "priority":
                 this.setState({storyPriority : event.target.value});
                 break;
+            case "duedate":
+                this.setState({duedate : event.target.value});
+                break;    
             case "contributor":
                 this.setState({storyContributor : event.target.value});
                 break;        
@@ -84,6 +88,8 @@ class StoryForm extends Component {
             storyObject.Contributor = this.state.storyContributor;
         }if(this.state.storyPriority != this.state.oldStoryDetails.priority){
             storyObject.Priority = this.state.storyPriority;
+        }if(this.state.duedate != this.state.oldStoryDetails.duedate){
+            storyObject.DueDate = this.state.oldStoryDetails.duedate;
         }
         storyObject._id = this.props.storyID;
         httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject},contributorUsername : this.state.storyContributor}, function(error,responseObject) {
@@ -106,6 +112,7 @@ class StoryForm extends Component {
                                 story.storytitle = globalThis.state.storyTitle;
                                 story.description = globalThis.state.storyDescription;
                                 story.comments = globalThis.state.storyComments;
+                                story.duedate = globalThis.state.duedate;
                                 story.contributor = globalThis.state.storyContributor;
                                 story.priority = globalThis.state.storyPriority;
                             }
@@ -113,6 +120,7 @@ class StoryForm extends Component {
                     }
                 });
                 globalThis.props.setUserState(updatedUser);
+                globalThis.props.closeForm();
             }
         });  
     }
@@ -121,7 +129,9 @@ class StoryForm extends Component {
         let globalThis = this;
         let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-        if(formObject.formData.Priority != "" && formObject.formData.Contributor != ""){
+        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
+        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        if(formObject.formData.Priority != "" && formObject.formData.Contributor != "" && formObject.formData.EndDate > currentDate){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
             formObject.formData.currentStatus = this.props.projectDetails.templatedetails[0]._id;
             formObject.formData.projectID = projectID;
@@ -144,21 +154,29 @@ class StoryForm extends Component {
                         }
                     }
                     globalThis.props.setUserState(updatedUser);
+                    globalThis.props.closeForm();
                 }
             });
         }else{
-            errorObject.msg = "priority or contributors is empty";
-            errorObject.status = "ERROR";
-            globalThis.props.setMsgState(errorObject);
+            if(formObject.formData.EndDate < currentDate){
+                errorObject.msg = "End Date cannot be less than Current Date";
+                errorObject.status = "ERROR";
+                globalThis.props.setMsgState(errorObject);
+            }else{
+                errorObject.msg = "priority or contributors is empty";
+                errorObject.status = "ERROR";
+                globalThis.props.setMsgState(errorObject);
+            }
         }
     }
 
     render(){
-        let disableUpdate = this.state.currentMode == "ADD" ? true : this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
-                                                                        this.state.storyDescription != this.state.oldStoryDetails.description ||
-                                                                            this.state.storyComments != this.state.oldStoryDetails.comments ||
-                                                                                this.state.storyContributor != this.state.oldStoryDetails.contributor ||
-                                                                                    this.state.storyPriority != this.state.oldStoryDetails.priority ? false : true;                                                                                 
+        let disableUpdate = this.state.currentMode == "ADD" ? true : this.state.storyTitle != this.state.oldStoryDetails.storytitle && this.state.storyTitle != ""|| 
+                                                                        this.state.storyDescription != this.state.oldStoryDetails.description && this.state.storyDescription != ""||
+                                                                            this.state.storyComments != this.state.oldStoryDetails.comments  && this.storyComments != "" ||
+                                                                                this.state.storyContributor != this.state.oldStoryDetails.contributor && this.state.storyContributor != "Contributors" ||
+                                                                                    this.state.duedate != this.state.oldStoryDetails.duedate && this.state.duedate != "" ||
+                                                                                        this.state.storyPriority != this.state.oldStoryDetails.priority && this.state.storyPriority != "StoryPriority"? false : true;                                                                                 
                                                                                 
         let storyFormJSX = this.props.currentMode == "ADD" ? <SimpleForm formAttributes = { formConstants.storyForm }
                                                             submitHandler = { this.onStoryAddHandler }
@@ -168,6 +186,7 @@ class StoryForm extends Component {
                                                                     <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
                                                                     <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
                                                                     <input type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
+                                                                    <input type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
                                                                     <select className = "priority" onChange = {this.onChangeHandler}>
                                                                         {
                                                                             this.state.priorityList.map(priority => {

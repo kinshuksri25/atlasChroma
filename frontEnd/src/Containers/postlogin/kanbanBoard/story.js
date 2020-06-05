@@ -59,7 +59,9 @@ class Story extends Component{
     }
 
     moveStory(event){
+        event.stopPropagation();
         let newPosition = this.state.columnPosition;
+        let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         let columns = globalThis.generateColumnArray();
@@ -75,8 +77,7 @@ class Story extends Component{
         let storyDetails = {};
         storyDetails._id = this.props.storyDetails._id;
         storyDetails.currentStatus = columns[newPosition]._id;
-        storyDetails.contributor = this.props.storyDetails.contributor;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}}, function(error,responseObject){
+        httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails},contributorUsername :this.props.storyDetails.contributor}, function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -105,8 +106,10 @@ class Story extends Component{
     }
 
     deleteStory(event){
+        event.stopPropagation();
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
+        let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id+"&contributor="+this.props.storyDetails.contributor;
         httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams, function(error,responseObject){

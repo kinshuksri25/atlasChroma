@@ -73,14 +73,28 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
                                         contributors : requestObject.reqBody.contributors});
         
         let projectObject = projectClass.getProjectDetails();  
-        mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {
-            
+        mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
             mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
-                response.STATUS = 200;
-                response.PAYLOAD = resolveResult.ops[0];
-                response.SMSG = SMSG.SVR_PHH_USRUP;        
-                resolve(response);     
+                mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
+                    let recipientList = [];
+                    resolvedSet.map(user => {
+                        recipientList.push(user.email);
+                    });
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = resolveResult.ops[0];
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        resolve(response);  
+                    }).catch(rejectedResult => {
+                        throw rejectedResult;
+                    });
+                }).catch(rejectedSet => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = resolveResult.ops[0];
+                    response.SMSG = "Project added, unabled to nortify the contributors";        
+                    resolve(response);  
+                });
             }).catch(rejectSet => {
                 throw rejectSet;
             });
@@ -136,10 +150,75 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
     }
     
     mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{},SINGLE).then(resolvedSet => {
-        response.STATUS = 200;
-        response.PAYLOAD = {};
-        response.SMSG = "board details updated successfully";
-        resolve(response);
+        let editedContributors = [...requestObject.reqBody.contributors];
+        let newContributors = [];
+        let oldContributors = [];
+        let removedContributors = [];
+        
+        requestObject.reqBody.oldContributors.map(oldContri => {
+            editedContributors.indexOf(oldContri) == -1 && removedContributors.push(oldContri);
+            editedContributors.indexOf(oldContri) != -1 && oldContributors.push(oldContri);
+        });
+
+        editedContributors.map(contri => {
+            oldContributors.indexOf(contri) == -1 && newContributors.push(contri);
+        });
+
+        mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
+
+            let newContributorsEmail = [];
+            let oldContributorsEmail = [];
+            let removedContributorsEmail = [];
+
+            resolvedSet.map(user => {
+                newContributors.indexOf(user.username) != -1 && newContributorsEmail.push(user.email);
+                oldContributors.indexOf(user.username) != -1 && oldContributorsEmail.push(user.email);
+                removedContributors.indexOf(user.username) != -1 && removedContributorsEmail.push(user.email);
+            });
+
+            //send emails to respective groups
+            if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER).then(resolvedResult => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        resolve(response); 
+                    }).catch(rejectedResult => {
+                        throw rejectedResult;
+                    });
+                }).catch(rejectedResult => {
+                    throw rejectedResult;
+                });
+            }else if(removedContributorsEmail.length == 0 && newContributorsEmail.length != 0){
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDUSER).then(resolvedResult => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        resolve(response); 
+                    }).catch(rejectedResult => {
+                        throw rejectedResult;
+                    });
+                }).catch(rejectedResult => {
+                    throw rejectedResult;
+                });
+            }else{
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                    resolve(response); 
+                }).catch(rejectedResult => {
+                    throw rejectedResult;
+                });
+            }
+        }).catch(rejectedSet => {
+            response.STATUS = 201;
+            response.PAYLOAD = {};
+            response.SMSG = "board details updated successfully, unable to nortify contributors";
+            resolve(response);
+        });
     }).catch(rejectedSet => {
         response.STATUS = 500;
         response.EMSG = rejectedSet;
@@ -164,10 +243,25 @@ projectHandler.project.delete = (route,requestObject) => new Promise((resolve,re
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.contributors != undefined){
         mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{},SINGLE).then( resolvedResult => {
             mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, SINGLE).then(resolvedSet => {
-                response.STATUS = 200;
-                response.PAYLOAD = {};
-                response.SMSG = "Project deleted successfully";
-                reject(response); 
+               mongo.read(DBCONST.userCollection,{username: { $in: requestObject.queryObject.contributors }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
+                let recipientList = [];
+                resolvedSet.map(user => {
+                    recipientList.push(user.email);
+                });
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = resolveResult.ops[0];
+                    response.SMSG = "Project deleted successfully";    
+                    resolve(response);  
+                }).catch(rejectedResult => {
+                    throw rejectedResult;
+                });
+               }).catch(rejectedSet => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = {};
+                    response.SMSG = "Project deleted successfully, unable to nortify the contributors";
+                    reject(response); 
+               });
             }).catch(rejectedSet => {
                 //need to add a cron here 
                 response.STATUS = 500;

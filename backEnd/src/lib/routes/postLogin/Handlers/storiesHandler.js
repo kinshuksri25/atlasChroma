@@ -128,7 +128,7 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
         SMSG : ""
        };
     let set = {};
-    if(requestObject.reqBody.hasOwnProperty("storyDetails") && requestObject.reqBody.storyDetails.hasOwnProperty("_id") && requestObject.reqBody.storyDetails.hasOwnProperty("contributorUsername")){
+    if(requestObject.reqBody.hasOwnProperty("storyDetails") && requestObject.reqBody.storyDetails.hasOwnProperty("_id") && requestObject.reqBody.hasOwnProperty("contributorUsername")){
         if(requestObject.reqBody.storyDetails.hasOwnProperty("StoryTitle")){
             set["storydetails.$.storytitle"] = requestObject.reqBody.storyDetails.StoryTitle;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Description")){
@@ -137,8 +137,8 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
             set["storydetails.$.contributor"] = requestObject.reqBody.storyDetails.Contributor;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Priority")){
             set["storydetails.$.priority"] = requestObject.reqBody.storyDetails.Priority;
-        }if(requestObject.reqBody.storyDetails.hasOwnProperty("EndDate")){
-            set["storydetails.$.enddate"] = requestObject.reqBody.storyDetails.EndDate;
+        }if(requestObject.reqBody.storyDetails.hasOwnProperty("DueDate")){
+            set["storydetails.$.duedate"] = requestObject.reqBody.storyDetails.DueDate;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("currentStatus")){
             set["storydetails.$.currentstatus"] = requestObject.reqBody.storyDetails.currentStatus;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Comments")){

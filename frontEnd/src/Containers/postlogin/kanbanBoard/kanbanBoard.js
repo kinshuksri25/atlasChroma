@@ -2,11 +2,13 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import url from 'url';
 
 import SetupProject from './setupProject';
 import StoryForm from './storyForm';
 import BoardColumn from './boardColumn';
 import {urls} from '../../../../../lib/constants/contants';
+import story from './story';
 
 class KanbanBoard extends Component {
 
@@ -28,6 +30,11 @@ class KanbanBoard extends Component {
     
     componentDidMount(){
         JSON.stringify(this.selectProject()) == JSON.stringify({}) && window.history.replaceState({}, "",urls.DASHBOARD);
+        let storyObject = url.parse(window.location.href,true);
+        let storyID = storyObject.query.storyID;
+        if(storyID != undefined){
+            this.editStory(storyID);
+        }
     }
 
     groupTemplate(template){

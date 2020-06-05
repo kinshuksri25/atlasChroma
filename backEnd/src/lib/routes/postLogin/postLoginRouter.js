@@ -26,7 +26,6 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
                 let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
                 resolve(response.getResponseObject());
             }).catch(rejectedResult => {
-                console.log(rejectedResult);
                 let response = new responseObject(rejectedResult.STATUS,SMSG.NOSUCCESS,{},rejectedResult.EMSG);
                 reject(response.getResponseObject());
             });

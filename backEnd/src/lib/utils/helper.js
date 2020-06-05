@@ -22,7 +22,7 @@ helperFunctions.randValueGenerator = (valueLength = 10) => {
 helperFunctions.generateCurrentDate = (date = new Date()) => {
   let currentDate = date;
   let currentYear = currentDate.getFullYear();
-  let currentMonth = currentDate.getMonth();
+  let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
   let currentDay = currentDate.getDate();
 
   currentDate = currentYear+"-"+currentMonth+"-"+currentDay;

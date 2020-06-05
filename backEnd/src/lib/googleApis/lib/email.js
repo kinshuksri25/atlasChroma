@@ -10,7 +10,7 @@ const email = {};
 
 
 //function for sending emails
-//params --> senderEmail - string, recieverEmail - string, refreshToken - string, clientID - string, clientSecret - string, subject - string, data - string, senderAccessToken - string
+//params --> senderEmail - string, recieverEmail - string/array, refreshToken - string, clientID - string, clientSecret - string, subject - string, data - string, senderAccessToken - string
 //returns --> promise - boolean
 email.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,subject,data,senderAccessTokenObject) => new Promise((resolve,reject) => {
             const smtpTransport = nodemailer.createTransport({

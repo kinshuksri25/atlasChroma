@@ -14,7 +14,7 @@ const {OAuthCONST,EMSG} = require("../../../../lib/constants/contants");
 const googleApis = {};
 
 //function for sending emails
-//params --> senderEmail - string, recieverEmail - string, refreshToken - string, clientID - string, clientSecret - string, emailTemplate - object
+//params --> senderEmail - string, recieverEmail - string/array, refreshToken - string, clientID - string, clientSecret - string, emailTemplate - object
 //returns --> promise - boolean
 googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate) => new Promise((resolve,reject) => {
    //get the template data
