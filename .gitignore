@@ -1,6 +1,6 @@
 ## following folders/files should be ignored
 backEnd/node_modules
 frontEnd/node_modules
-frontEnd/src/dist
+frontEnd/dist
 lib/Certificates
 lib/constants/projectDetails.txt
