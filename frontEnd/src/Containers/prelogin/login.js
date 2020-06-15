@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import "../../StyleSheets/login.css";
 import SimpleForm from '../../Forms/simpleform';
 import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
@@ -15,7 +16,9 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            "loginForm": ""
+            "loginForm": <SimpleForm formAttributes = { formConstants.login }
+                        submitHandler = { this.onSubmitHandler }
+                        changeFieldNames = {[]}/>
         };
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
         this.onClickHandler = this.onClickHandler.bind(this);
@@ -87,10 +90,15 @@ class Login extends Component {
     }
 
     render() {
-            return ( <div>
-                        <button id = "login" onClick = { this.onClickHandler } > Login </button> 
-                        <button id = "googleLogin" onClick = { this.onClickHandler } > Login with Google </button> 
-                        { this.state.loginForm }  
+            return (<div className="loginPageContainer">
+                        <h1 className="loginTitle">Login using your credentials, or just use google!</h1>
+                        <div className="loginContainer">
+                            <div className="loginButtonsContainer">
+                                <button id = "login" onClick = { this.onClickHandler } > Login </button> 
+                                <button id = "googleLogin" onClick = { this.onClickHandler } > Login with Google </button> 
+                            </div>
+                            { this.state.loginForm }  
+                        </div>
                     </div>);
     }
 }

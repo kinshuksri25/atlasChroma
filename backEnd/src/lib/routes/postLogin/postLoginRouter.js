@@ -7,6 +7,7 @@ const userHandler = require("./Handlers/userHandler");
 const projectHandler = require("./Handlers/projectHandler");
 const cookieHandler = require("../../utils/cookieHandler");
 const storyHandler = require("./Handlers/storiesHandler");
+const notesHandler = require("./Handlers/notesHandler");
 const eventHandler = require("./Handlers/eventHandler");
 const responseObject = require("../../classObjects/responseClass");
 const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
@@ -67,7 +68,8 @@ postLoginRouter.routes = {
  "/user" : userHandler.user,
  "/project" : projectHandler.project,
  "/stories" : storyHandler.stories,
- "/event" : eventHandler.event
+ "/event" : eventHandler.event,
+ "/notes" : notesHandler.notes
 };
 
 //export the module

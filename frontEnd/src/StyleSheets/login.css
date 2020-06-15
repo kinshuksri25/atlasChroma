@@ -1,0 +1,121 @@
+.loginPageContainer{
+    height: 100vh;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to bottom right, rgb(161, 248, 187), rgb(11, 240, 79));
+}
+
+.loginContainer{
+    width: 30%;
+    background-color: white;
+    border-radius: 5px;
+    border: none;
+}
+
+#login,#googleLogin{
+    font-family: 'Dosis', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    color:white;
+    cursor: pointer;
+    margin-top: 20px;
+    height: 30px;
+    margin: 2%;
+    width: 37%;
+    outline: none;
+    border: none;
+    border-radius: 3px;
+}
+
+.loginTitle{
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: 'Dosis', sans-serif;
+    color: white;
+    text-shadow: 2px 2px 4px slategrey;  
+}
+
+#login{
+    background-color: rgb(77, 191, 226);
+}
+
+#login:hover{
+    background-color: rgb(27, 184, 231);
+}
+
+#login:active{
+    background-color: rgb(27, 184, 231);
+    transform: scale(0.9);
+}
+
+#googleLogin{
+    background-color: rgb(248, 111, 96);
+}
+
+#googleLogin:hover{
+    background-color: rgb(253, 90, 71);
+}
+
+#googleLogin:active{
+    background-color: rgb(253, 90, 71);
+    transform: scale(0.9);
+}
+
+.loginButtonsContainer{
+    margin: 10px 0;
+    display: flex;
+    margin-bottom: 0px;
+    justify-content: center;
+}
+
+#simpleFormID{
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
+#loginForm{
+    display:flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loginAttributes{
+    font-family: 'Dosis', sans-serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    width: 80%;
+    margin-top: 20px;
+    border-radius: 3px;
+    padding: 3px;
+    border: lightblue 1px solid;
+    background-color: whitesmoke;
+    height: 25px;
+}
+
+#googleLoginButton,#loginButton{
+    font-family: 'Dosis', sans-serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    color:white;
+    margin-top: 20px;
+    background-color: rgb(77, 191, 226);
+    height: 35px;
+    margin-left: 1%;
+    width: 65%;
+
+}
+
+#googleLoginButton:hover,#loginButton:hover{
+    background-color: rgb(27, 184, 231);
+    cursor: pointer;
+}
+
+#googleLoginButton:active,#loginButton:active{
+    outline: none;
+    background-color: rgb(27, 184, 231);
+    transform: scale(0.9);
+    cursor: pointer;
+}

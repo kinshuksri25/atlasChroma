@@ -1,0 +1,64 @@
+.signUpContainer{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    background-image: linear-gradient(to bottom right, rgb(137,207,240), rgb(0,115,207));
+}
+
+.simpleForm{
+    background-color: white;
+    border-radius: 5px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    min-width: 30%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#signUpForm{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    margin: 0px;
+}
+
+.signUpAttributes{
+    margin-top: 30px;
+    border-radius: 3px;
+    padding: 3px;
+    border: lightblue 1px solid;
+    background-color: whitesmoke;
+    height: 25px;
+}
+
+#signUpButton{
+    margin-top: 20px;
+    background-color: rgb(248, 111, 96);
+    height: 35px;
+    margin-left: 5%;
+    width: 90%;
+
+}
+
+#signUpButton:hover{
+    background-color: rgb(253, 90, 71);
+    cursor: pointer;
+}
+
+#signUpButton:active{
+    outline: none;
+    background-color: rgb(253, 90, 71);
+    transform: scale(0.9);
+    cursor: pointer;
+}
+
+.signUpTitle{
+    font-size: 3rem;
+    font-weight: 700;
+    font-family: 'Dosis', sans-serif;
+    color: white;
+    text-shadow: 2px 2px 4px slategrey;
+}

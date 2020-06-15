@@ -23,7 +23,7 @@ helperFunctions.generateCurrentDate = (date = new Date()) => {
   let currentDate = date;
   let currentYear = currentDate.getFullYear();
   let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-  let currentDay = currentDate.getDate();
+  let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
 
   currentDate = currentYear+"-"+currentMonth+"-"+currentDay;
   return currentDate;

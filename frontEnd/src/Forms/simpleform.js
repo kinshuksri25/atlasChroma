@@ -172,7 +172,7 @@ class SimpleForm extends Component {
 
     render() {
         let form = this.buildForm();
-        return ( <div> { form } </div>);
+        return ( <div className="simpleForm" id="simpleFormID"> { form } </div>);
     }
 }
 export default SimpleForm;

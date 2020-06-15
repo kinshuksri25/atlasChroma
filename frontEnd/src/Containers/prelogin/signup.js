@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import '../../StyleSheets/signUp.css';
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
 import setMsgAction from '../../store/actions/msgActions';
@@ -167,7 +168,8 @@ class SignUp extends Component {
     };
 
     render() {
-        return ( <div>
+        return ( <div className="signUpContainer">
+                    <h1 className="signUpTitle">All right! Lets get started.</h1>
                     <SimpleForm formAttributes = { formConstants.signup }
                     submitHandler = { this.onSubmitHandler }
                     changeHandler = { this.changeHandler }

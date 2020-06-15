@@ -34,6 +34,7 @@ class Events extends Component{
         this.timedJSX = this.timedJSX.bind(this);
         this.updateEvent = this.updateEvent.bind(this);
         this.onEventClick = this.onEventClick.bind(this);
+        this.deleteEvent = this.deleteEvent.bind(this);
         this.onStoryClick = this.onStoryClick.bind(this);
         this.addEventHandler = this.addEventHandler.bind(this);
         this.checkUpdate = this.checkUpdate.bind(this);
@@ -48,7 +49,8 @@ class Events extends Component{
 
     setCurrentTime(){
         let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
+        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         if(currentDate == eventDate)
             this.setState({currentTime : new Date().getHours().toString()+":00"});
@@ -137,13 +139,106 @@ class Events extends Component{
 
     updateEvent(){
         let eventObject = {};
+        let errorObject = {};
+        let globalThis = this;
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+
+        if(this.state.EventTitle != this.state.selectedEvent.EventTitle){
+            eventObject.EventTitle = this.state.EventTitle;
+        } if(this.state.Description != this.state.selectedEvent.Description){
+            eventObject.Description = this.state.Description;
+        } if(this.state.eventType != this.state.selectedEvent.EventType){
+            eventObject.eventType = this.state.EventType;
+        } if(this.state.eventType == "Timed"){
+            if(this.state.endTime != this.state.selectedEvent.EndTime){
+                eventObject.EndTime = this.state.endTime;
+            }
+            if(this.state.endTime != this.state.selectedEvent.StartTime){
+                eventObject.StartTime = this.state.startTime;
+            }
+        }
+        eventObject.emailID = this.props.user.email;
+        eventObject._id = this.state.selectedEvent._id;
+        httpsMiddleware.httpsRequest("/event","PUT",headers,{...eventObject},function(error,responseObject){
+            if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
+                if(error){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }else{
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }
+            }
+            else{
+                let userObject = {...globalThis.props.user};
+                let count = 0;
+                userObject.events.map(event => {
+                    if(event._id == globalThis.state.selectedEvent._id){
+                        if(eventObject.hasOwnProperty("EventTitle")){
+                            event.EventTitle = eventObject.EventTitle;
+                        } if(eventObject.hasOwnProperty("Description")){
+                            event.Description = eventObject.Description;
+                        } if(eventObject.hasOwnProperty("EventType")){
+                            event.EventType = eventObject.EventType;
+                            if(eventObject.EventType == "Timed"){
+                                if(eventObject.hasOwnProperty("EndTime")){
+                                    event.EndTime = eventObject.EndTime;
+                                } if(eventObject.hasOwnProperty("StartTime")){
+                                    event.StartTime = eventObject.StartTime;
+                                }
+                            }
+                        } 
+                    }else{
+                        count++;
+                    }
+                });
+                globalThis.props.setUserState(userObject);
+                globalThis.setState({showEditForm : false,eventType : "",startTime:"",endTime:"",EventTitle:"",Description:""}); 
+            }
+        });
+    }
+
+    deleteEvent(){
+        let errorObject = {};
+        let globalThis = this;
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+        let eventIDQuery = "eventID="+this.state.selectedEvent._id+"&emailID="+this.props.user.email;
+        httpsMiddleware.httpsRequest("/event","DELETE",headers,eventIDQuery,function(error,responseObject) {
+            if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
+                if(error){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }else{
+                    errorObject.msg = responseObject.EMSG;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }
+            }
+            else{
+                let userObject = {...globalThis.props.user};
+                let count = 0;
+                userObject.events.map(event => {
+                    if(event._id == globalThis.state.selectedEvent._id){
+                        userObject.events.splice(count,1);
+                    }else{
+                        count++;
+                    }
+                });
+                globalThis.props.setUserState(userObject);
+                globalThis.setState({showEditForm : false,eventType : "",startTime:"",endTime:"",EventTitle:"",Description:""}); 
+            }
+        });
     }
 
     timedJSX(){
         let sortedEvent = this.sortStories(this.state.timedEvents,"TimedEvents");
         let timedJSX = [];
         let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
+        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         sortedEvent.map(event => {
             let status = "";
@@ -156,7 +251,7 @@ class Events extends Component{
             }
             let className = status+" eventTab";
             timedJSX.push(<div className = {className} id = {event._id} onClick={this.onEventClick}>  
-                            <h3>{event.EventTitle}                {status}</h3>
+                            <h3>{event.EventTitle}{status}</h3>
                             <h4>{event.Description}</h4>
                             <h5>Starts At: {event.StartTime}   Ends At: {event.EndTime}</h5>
                         </div>);
@@ -203,7 +298,7 @@ class Events extends Component{
         let errorObject = {};
         let globalThis = this;
         if(this.state.eventType != ""){
-            let result = this.state.eventType != "Timed" ? true : this.state.startTime != "" && this.state.endTime != "" && this.state.startTime != this.state.endTime && this.state.startTime.substring(0,3) < this.state.endTime.substring(0,3) ? true : false;
+            let result = this.state.eventType != "Timed" ? true : this.state.startTime != "" && this.state.endTime != "" && this.state.startTime != this.state.endTime && this.state.startTime < this.state.endTime ? true : false;
             result && this.state.timedEvents.map(event => {
                 if(event.startTime <= this.state.startTime && event.endTime >=this.state.startTime || 
                     event.endTime >= this.state.endTime && event.startTime <=this.state.startTime){
@@ -233,6 +328,7 @@ class Events extends Component{
                             globalThis.props.setMsgState(errorObject);
                         }
                     }else{
+                        eventObject._id = responseObject.PAYLOAD.eventID;
                         let userObject = {...globalThis.props.user};
                         userObject.events.push(eventObject);
                         globalThis.props.setUserState(userObject);
@@ -280,50 +376,52 @@ class Events extends Component{
         }
     }
 
-    //need to work on this
     checkUpdate(){
-        let enableUpdate = true;
-        if(this.state.eventType != ""){
-            if(this.state.eventType == "All Day"){
-                enableUpdate =  this.state.EventTitle != "" || this.state.Description != this.state.selectedEvent.Description && this.state.Description != "" ? false : true;
-            }else{
-                if(this.state.startTime != "" && this.state.endTime != "" && this.state.startTime < this.state.endTime && 
-                    this.state.startTime != this.state.selectedEvent.StartTime || this.state.endTime != this.state.selectedEvent.EndTime)
-                {
-                    let stateStartTime = this.state.startTime.indexOf(":") == 1 ? this.state.startTime.substring(0,1) : this.state.startTime.substring(0,2);
-                    let stateEndTime =  this.state.endTime.indexOf(":") == 1 ? this.state.endTime.substring(0,1) : this.state.endTime.substring(0,2);
-                    let invalidTime = false;
+        if(this.state.eventType != "" && this.state.EventTitle != "" && this.state.Description != ""){
+            let enableUpdate = ((this.state.EventTitle != this.state.selectedEvent.EventTitle) || 
+                                    (this.state.Description != this.state.selectedEvent.Description)) ? false : true;
+            if(this.state.eventType == "Timed"){
+                let invalidTime = false;
+                if(this.state.timedEvents.length == 1 && (this.state.startTime == this.state.selectedEvent.StartTime
+                                                            && this.state.endTime == this.state.selectedEvent.EndTime)){
+                    invalidTime = true;                                            
+                }else{
                     this.state.timedEvents.map(event => {
-                        let eventStartTime = event.StartTime.indexOf(":") == 1 ? event.StartTime.substring(0,1) : event.StartTime.substring(0,2);
-                        let eventEndTime = event.EndTime.indexOf(":") == 1 ? event.EndTime.substring(0,1) : event.EndTime.substring(0,2);
-                       if(event._id != this.state.selectedEvent._id){
-                            if((stateStartTime < eventStartTime && eventEndTime <= eventStartTime) ||
-                                    (eventEndTime > eventEndTime && stateStartTime >= eventEndTime)){
-                            }else{
-                                invalidTime = true;
-                            }
+                        if(event._id != this.state.selectedEvent._id){
+                            if(this.state.endTime == "" ||
+                                this.state.startTime == "" ||
+                                    this.state.endTime <= this.state.startTime ||
+                                        (this.state.startTime == this.state.selectedEvent.StartTime
+                                            && this.state.endTime == this.state.selectedEvent.EndTime)||
+                                        (this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
+                                            (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
+                                                invalidTime = true;
+                                }
                        }
-                    });
-                    enableUpdate = !invalidTime && this.state.EventTitle != "" || this.state.Description != this.state.selectedEvent.Description && this.state.Description != "" ? false : true;
+                    }); 
                 }
-            }   
+                enableUpdate = !invalidTime || !enableUpdate ? false : true;         
+            }  
+            return enableUpdate;
+        }else{
+            return true;
         }
-        return enableUpdate;
     }
 
     render(){
-        let enableUpdate = false;//this.checkUpdate();
+        let enableUpdate = this.state.showEditForm && this.checkUpdate();
         let displayTimedDropDown = this.state.eventType == "Timed";
         let allDayJSX = this.allDayJSX();
         let timeJSX = this.timedJSX();
-        let timeArray = ["0:00","1:00","2:00","3:00","4:00",
-                        "5:00","6:00","7:00","8:00",
-                        "9:00","10:00","11:00","12:00",
+        let timeArray = ["00:00","01:00","02:00","03:00","04:00",
+                        "05:00","06:00","07:00","08:00",
+                        "09:00","10:00","11:00","12:00",
                         "13:00","14:00","15:00","16:00",
                         "17:00","18:00","19:00","20:00",
                         "21:00","22:00","23:00"];
         let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
+        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;                        
         let options = ["All Day","Timed"];
         let simpleForm = this.state.addNewEvent && !this.state.showEditForm ? <div>
@@ -393,8 +491,9 @@ class Events extends Component{
                                                                                 <input type = "text" value = {this.state.EventTitle} className = "title" onChange={this.onDropDownChange}/>
                                                                                 <input type = "text" value = {this.state.Description} className = "description" onChange={this.onDropDownChange}/>
                                                                                 <button onClick = {this.updateEvent} disabled={enableUpdate}>Update</button>
+                                                                                <button onClick = {this.deleteEvent}>Delete</button>
                                                                                 <button onClick = {this.onEventClick} className = "back">Back</button>
-                                                                            </div> : "";        
+                                                                            </div> : "";                                                                                                                                                       
         return(<div>
                     <button disabled = {this.state.addNewEvent} hidden = {eventDate < currentDate || this.state.showEditForm} className = "addEvent" onClick = {this.addEventHandler}>+</button>
                     {simpleForm}

@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 
+import '../../StyleSheets/landingPage.css';
 import {urls} from "../../../../lib/constants/contants";
 
 export default function Landing (props) {
@@ -21,8 +22,16 @@ export default function Landing (props) {
 		}
 	}
 
-	return (<div> "Landing Page" 
-				<button id = "SignUp" onClick = {onClickHandler}>SignUp</button>
-				<button id = "Login" onClick = {onClickHandler}>Login</button>
+	return (<div className="backgroundDiv">
+				<div className="landingPageContainer">
+					<div className = "titleContainer">
+						<h1 className = "landingTitle">Welcome to Atlas Chroma</h1>	 
+						<h2 className = "landingSubtitle">A complete, customizable solution to all you project management needs</h2>
+					</div>				
+					<div className="buttonContainer">
+						<button className = "signUpButton" id = "SignUp" onClick = {onClickHandler}>SignUp</button>
+						<button className = "loginButton" id = "Login" onClick = {onClickHandler}>Login</button>
+					</div>
+				</div>
 			</div>);
 }

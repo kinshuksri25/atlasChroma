@@ -123,8 +123,9 @@ class Scheduler extends Component {
         onClickHandler(event){
            switch(event.target.className){
                 case "calenderButton" : 
-                        window.history.replaceState({}, "",window.location.pathname+"/"+event.target.id);
-                        this.setState({currentDate : event.target.id});
+                        let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
+                        window.history.replaceState({}, "",window.location.pathname+"/"+currentDay);
+                        this.setState({currentDate : currentDay});
                         break;
                 default : 
                         window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/")));

@@ -1,0 +1,19 @@
+html{
+    height: 100vh;
+    margin : 0;
+}
+
+body{
+    height: 100vh;
+    margin : 0;
+}
+
+.routerContainer{
+    height: 100vh;
+    margin : 0;
+}
+
+.preRouterContainer{
+    margin : 0;
+    height: 100vh;
+}

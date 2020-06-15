@@ -148,7 +148,7 @@ formConstants.signup = [
         type: "button",
         route: '/signup',
         id: "signUpButton",
-        className: "signUpAttributes"
+        className: "signUpButton"
     }
 
 ];
@@ -371,7 +371,7 @@ formConstants.addEvent = [
         cols: "50",
         placeholder: "Description",
         id: "addEventDescription",
-        className: "addStoryAttributes",
+        className: "addEventAttributes",
         isHidden: false,
         isRequired: true
     },
@@ -381,6 +381,42 @@ formConstants.addEvent = [
         route: '/event',
         id: "templateNextButton",
         className: "addEventAttributes"
+    }
+];
+
+formConstants.addNotes = [
+    {
+        id: "addNotes",
+        type: "form",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded" 
+    },
+    {
+        name: "NotesTitle",
+        type: "text",
+        placeholder: "Notes Title",
+        id: "addNotesTitle",
+        className: "addNotesAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Description",
+        type: "textarea",
+        rows: "4",
+        cols: "50",
+        placeholder: "Description",
+        id: "addNotesDescription",
+        className: "addNotesAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "ADD",
+        type: "button",
+        route: '/notes',
+        id: "addNotesButton",
+        className: "addNotesAttributes"
     }
 ];
 
