@@ -18,6 +18,15 @@ searchFeildConstants.addProject = [
       searchCriteria: ["email","username"] 
    }
 ];
+
+searchFeildConstants.addParticipants = [{
+   name: "Participants",
+   placeholder: "Add Participants",
+   id: "participants",
+   className: "searchBox",
+   suggestionStateName: "participantsSuggestionList",
+   searchCriteria: ["email","username"] 
+}];
                                    
 //export the module
 export default searchFeildConstants;                                                             

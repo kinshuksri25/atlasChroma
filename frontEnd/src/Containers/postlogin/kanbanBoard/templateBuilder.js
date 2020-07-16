@@ -16,7 +16,8 @@ class TemplateBuilder extends Component {
             currentAction : "",
             isFeildDisabled : true,
             editForm : true,
-            isSubPhase : true
+            isSubPhase : true,
+            disableWIP : false,
         };
         this.addPhase = this.addPhase.bind(this);
         this.clearForm = this.clearForm.bind(this);
@@ -208,6 +209,12 @@ class TemplateBuilder extends Component {
                     template.push(newTemplate);
                     template.map(element => {
                         newTemplate.EXTENDS == element.NAME && element.CHILDREN.push(newTemplate.NAME);
+                        if(element.WIP > 0 && newTemplate.EXTENDS == element.NAME){
+                            element.WIP = 0;
+                            errorObject.msg = "Phases with children cannot have WIP, setting it to zero";
+                            errorObject.status = "ERROR";
+                            this.props.setMsgState(errorObject);                                    
+                        }
                     });
                 }else{
                     errorObject.msg = "This name already exists";
@@ -238,7 +245,7 @@ class TemplateBuilder extends Component {
     }
 
     clearForm(){
-        this.setState({editForm : true,currentAction:"",formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""}});
+        this.setState({editForm : true,currentAction:"",formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},disableWIP : false});
     }
     
     onPhaseOptionChange(event){
@@ -260,14 +267,15 @@ class TemplateBuilder extends Component {
                 formData.NAME = selectedTemplate.NAME;
                 formData.WIP = selectedTemplate.WIP;
                 formData.OLDNAME = selectedTemplate.NAME;
-                this.setState({editForm:false,formData:formData,isFeildDisabled:false,currentAction:"EDIT"});
+                let disableWIP = selectedTemplate.CHILDREN.length > 0 ? true : false;
+                this.setState({editForm:false,formData:formData,isFeildDisabled:false,currentAction:"EDIT",disableWIP : disableWIP});
                 break;
             case "INFO":
                 selectedTemplate = this.getSinglePhase(event.target.className);
                 formData.NAME = selectedTemplate.NAME;
                 formData.WIP = selectedTemplate.WIP;
                 delete formData.OLDNAME;
-                this.setState({editForm:false,formData:formData,isFeildDisabled:true,currentAction:"INFO"});
+                this.setState({editForm:false,formData:formData,isFeildDisabled:true,currentAction:"INFO",disableWIP : true});
                 break;
             case "REMOVE":
                 let childrenArray = this.getSinglePhase(event.target.className).CHILDREN;
@@ -289,14 +297,14 @@ class TemplateBuilder extends Component {
                         }
                     });
                 }
-                this.setState({loadedTemplate : refreshedTemplate,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},editForm : true});
+                this.setState({loadedTemplate : refreshedTemplate,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},editForm : true,disableWIP : false});
                 this.props.setLoadedTemplate(refreshedTemplate);
                 break;        
         }
     }
 
     addPhase(){
-        this.setState({editForm:false,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},isFeildDisabled:false,currentAction:"ADD"});
+        this.setState({editForm:false,formData : {NAME : "",WIP : false,PHASE:"Phase",EXTENDS:""},isFeildDisabled:false,currentAction:"ADD",disableWIP : false});
     }
 
     mouseLeaveButton(event){
@@ -355,9 +363,9 @@ class TemplateBuilder extends Component {
                     </select>
                     <div hidden = {this.state.editForm}>
                         <input type="text" id = "NAME" value={this.state.formData.NAME} onChange = {this.changeHandler} placeholder="Name" disabled = {this.state.isFeildDisabled}/>
-                        <input type="number" id = "WIP" value={this.state.formData.WIP} onChange = {this.changeHandler} placeholder="WIP" disabled = {this.state.isFeildDisabled}/>
+                        <input type="number" id = "WIP" value={this.state.formData.WIP} onChange = {this.changeHandler} placeholder="WIP" disabled = {this.state.isFeildDisabled || this.state.disableWIP}/>
                         <button onClick={this.clearForm}>Back</button>
-                        <button onClick={this.submitPhase}>Submit</button>
+                        <button onClick={this.submitPhase} hidden = {this.state.isFeildDisabled}>Submit</button>
                     </div> 
                </div>);
     }

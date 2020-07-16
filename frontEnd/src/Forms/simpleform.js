@@ -69,9 +69,9 @@ class SimpleForm extends Component {
     onChangeHandler(event) {
         let formData = this.state.formData;
         formData[event.target.name] = event.target.value;
-            this.setState({
-                formData
-            });
+        this.setState({
+            formData
+        });
     }
 
     buildForm() {
@@ -138,9 +138,9 @@ class SimpleForm extends Component {
                                                         onChange = { this.onChangeHandler }
                                                         hidden = { param.isHidden }
                                                         required = { param.isRequired }/> );
-                                                break;
+                                                break;                                                                
 
-                                }                
+                                } 
                                 default:{ return <input type = { param.type }
                                                   name = { param.name }
                                                   placeholder = { param.placeholder }

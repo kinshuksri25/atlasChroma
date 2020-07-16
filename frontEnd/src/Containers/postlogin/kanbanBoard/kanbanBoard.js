@@ -54,7 +54,7 @@ class KanbanBoard extends Component {
     }
 
     editStory(storyID){
-        this.setState({showStoryForm : true,currentMode : "EDIT",storyID : storyID}); 
+        this.state.showStoryForm || this.setState({showStoryForm : true,currentMode : "EDIT",storyID : storyID}); 
     }
 
     selectProject(){
@@ -100,7 +100,7 @@ class KanbanBoard extends Component {
                     </div>
                     {JSON.stringify(currentProject) != JSON.stringify({}) && 
                         JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) && 
-                            <button onClick={this.addStory} id="addStoryButton">+</button>}
+                            <button hidden = {this.state.showStoryForm} onClick={this.addStory} id="addStoryButton">+</button>}
                 </div>);
     }
 }

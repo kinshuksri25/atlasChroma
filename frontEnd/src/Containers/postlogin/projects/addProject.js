@@ -64,7 +64,7 @@ class AddProject extends Component{
     onChangeHandler(projectName){
         let found = false;
         this.props.user.projects.map(project => {
-            if(project.name == projectName){
+            if(project.title == projectName){
                 found = true;
             }
         });
@@ -84,7 +84,7 @@ class AddProject extends Component{
             formData.projectleader = this.state.projectLeader;
             delete formData.Description;
             delete formData.Title;
-            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
+            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,{},function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){
                         errorObject.msg = error;
@@ -99,6 +99,7 @@ class AddProject extends Component{
                      let userStateObject = {...globalThis.props.user};
                      userStateObject.projects.push({...responseObject.PAYLOAD});
                      globalThis.props.setUserState(userStateObject);
+                     globalThis.props.cancel();
                 }
             });
         }else{
@@ -110,6 +111,7 @@ class AddProject extends Component{
 
     render(){
         return(<div>
+                <button onClick={this.props.cancel}>X</button>
                 <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
                 <SimpleForm formAttributes = { formConstants.addProject }
                     changeHandler = { this.onChangeHandler }

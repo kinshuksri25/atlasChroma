@@ -16,12 +16,18 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            "loginForm": <SimpleForm formAttributes = { formConstants.login }
-                        submitHandler = { this.onSubmitHandler }
-                        changeFieldNames = {[]}/>
+            "loginForm": ""                      
         };
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
         this.onClickHandler = this.onClickHandler.bind(this);
+    }
+
+    componentDidMount(){
+        this.setState({
+            "loginForm" : <SimpleForm formAttributes = { formConstants.login }
+            submitHandler = { this.onSubmitHandler }
+            changeFieldNames = {[]}/>  
+        });
     }
 
     onSubmitHandler(formObject) {
@@ -36,7 +42,7 @@ class Login extends Component {
                     formObject.formData = "Email="+formObject.formData.Email;
         }
         if(gmailPatternError == ""){ 
-          httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
+          httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,{},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -107,7 +113,7 @@ const mapDispatchToProps = dispatch => {
     return {
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
-        } 
+        }
     };
 };
 

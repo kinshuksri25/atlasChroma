@@ -20,7 +20,7 @@ module.exports = merge(common,{
             key: fs.readFileSync('../lib/Certificates/private.key'),
             cert: fs.readFileSync('../lib/Certificates/private.crt')
         },
-        hotOnly: true,
+        //hotOnly: true,
         historyApiFallback: true
     },
      plugins : [new webpack.HotModuleReplacementPlugin()]

@@ -52,7 +52,7 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
                     //send the response 
                     response.SMSG = SMSG.SVR_SNGH_SGNSUC;
                     response.STATUS = 200;
-                    response.PAYLOAD.unquieID = result.PAYLOAD.unquieID;
+                    response.PAYLOAD.uniqueID = result.PAYLOAD.uniqueID;
                     resolve(response);       
                 }).catch(error => {
                     mongo.delete(DBCONST.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
@@ -124,18 +124,18 @@ signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject)
 //params -->  requestObject -- object
 //return --> promise(object)
 signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject) => {
-    
+
     let response = {
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
        };
     //check the requestObject
-    if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
+    if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.reqBody.hasOwnProperty('ProfilePhoto') && requestObject.method == "POST"){
          //check id validity
          mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
-                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {}, SINGLE).then(updateSet => {
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
                         response.STATUS = 200;
                         response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
@@ -161,7 +161,6 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
             response.EMSG = error;
             reject(response);
         });
-
     }else{
           response.EMSG = EMSG.SVR_HNDLS_INREQ;
           response.STATUS = 400;

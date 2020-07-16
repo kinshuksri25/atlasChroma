@@ -25,7 +25,7 @@ formConstants.postAuthForm = [
         className: "postAuthAttributes",
         isHidden: false,
         isRequired: false
-    },
+    }, 
     {
         name: "Password",
         type: "password",
@@ -92,7 +92,7 @@ formConstants.postSignup = [
     {
         name: "Continue",
         type: "button",
-        route: '/postSignupForm',
+        route: '/signup/postSignupDetails',
         id: "postSignupButton",
         className: "postSignupAttributes"
     }
@@ -417,6 +417,31 @@ formConstants.addNotes = [
         route: '/notes',
         id: "addNotesButton",
         className: "addNotesAttributes"
+    }
+];
+
+formConstants.chat = [
+    {
+        id: "chat",
+        type: "form",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded" 
+    },
+    {
+        name: "Message",
+        type: "text",
+        placeholder: "Message",
+        id: "message",
+        className: "chatAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
+        name: "Send",
+        type: "button",
+        route: '',
+        id: "sendMessage",
+        className: "chatAttributes"
     }
 ];
 

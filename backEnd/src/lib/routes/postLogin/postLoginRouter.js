@@ -20,13 +20,14 @@ const postLoginRouter = {};
 //params --> route -- string, requestObject -- object
 //returns --> promise(object)
 postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) => {
-    cookieHandler.checkCookie(requestObject.cookieid).then(validCookie => {
+    cookieHandler.getCookie(requestObject.cookieid).then(validCookie => {
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);
             chosenHandler(route,requestObject).then(resolvedResult => {
                 let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
                 resolve(response.getResponseObject());
             }).catch(rejectedResult => {
+                console.log(rejectedResult);
                 let response = new responseObject(rejectedResult.STATUS,SMSG.NOSUCCESS,{},rejectedResult.EMSG);
                 reject(response.getResponseObject());
             });

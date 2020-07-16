@@ -17,6 +17,11 @@ menuConstants=[
         icon:'fas fa-calendar-check'
     },
     {
+        title:'Profile',
+        route:'profile',
+        icon: ''
+    },
+    {
         title:'Logout',
         route:'logout',
         icon:'fa fa-sign-out'

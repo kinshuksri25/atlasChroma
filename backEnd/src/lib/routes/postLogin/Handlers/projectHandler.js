@@ -5,7 +5,7 @@
 //Dependencies
 const mongo = require("../../../utils/data");
 const {generateCurrentDate} = require('../../../utils/helper');
-const {EMSG,SMSG,SINGLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
+const {EMSG,SMSG,SINGLE,MULTIPLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
 const googleApis = require("../../../googleApis/googleAPI");
 const project = require("../../../classObjects/projectClass");
 
@@ -68,14 +68,15 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
        };
     if(requestObject.reqBody.hasOwnProperty('description') && requestObject.reqBody.hasOwnProperty('title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectleader')){
         let projectClass = new project({title : requestObject.reqBody.title,
-                                        description : requestObject.reqBody.description,
-                                        projectlead : requestObject.reqBody.projectleader,
-                                        contributors : requestObject.reqBody.contributors});
-        
-        let projectObject = projectClass.getProjectDetails();  
+            description : requestObject.reqBody.description,
+            projectlead : requestObject.reqBody.projectleader,
+            contributors : requestObject.reqBody.contributors});
+
+        let projectObject = projectClass.getProjectDetails();
+
         mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
-            mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {}, SINGLE).then(updateSet => {
+            mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(updateSet => {
                 mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                     let recipientList = [];
                     resolvedSet.map(user => {
@@ -101,9 +102,9 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
                 
         }).catch(rejectedResult => {
             response.STATUS = 500;
-            response.EMSG = rejectedResult;
+            response.EMSG = rejectedSet;
             reject(response);
-        });    
+        }); 
     }else{
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
@@ -135,7 +136,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
     }if(requestObject.reqBody.hasOwnProperty("description")){
         set.description = requestObject.reqBody.description;
     }if(requestObject.reqBody.hasOwnProperty("contributors")){
-        set.contributors = requestObject.reqBody.contributors
+        set.contributors = requestObject.reqBody.contributors;
     }if(requestObject.reqBody.hasOwnProperty("projectleader")){
         set.projectlead = requestObject.reqBody.projectlead;
     }if(requestObject.reqBody.hasOwnProperty("templatedetails")){
@@ -235,22 +236,23 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
 //params --> route - string, requestObject - object
 //returns --> promise - object
 projectHandler.project.delete = (route,requestObject) => new Promise((resolve,reject) => {
+
     let response = {
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
-       };
+       };    
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.contributors != undefined){
         mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{},SINGLE).then( resolvedResult => {
-            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, SINGLE).then(resolvedSet => {
-               mongo.read(DBCONST.userCollection,{username: { $in: requestObject.queryObject.contributors }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
+            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedResult => {
+               mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                 let recipientList = [];
                 resolvedSet.map(user => {
                     recipientList.push(user.email);
                 });
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT).then(emailResolve => {
                     response.STATUS = 200;
-                    response.PAYLOAD = resolveResult.ops[0];
+                    response.PAYLOAD = resolvedResult;
                     response.SMSG = "Project deleted successfully";    
                     resolve(response);  
                 }).catch(rejectedResult => {

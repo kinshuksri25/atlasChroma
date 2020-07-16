@@ -19,7 +19,7 @@ loginHandler.login = (requestObject) => new Promise((resolve,reject) => {
                     EMSG : "",
                     PAYLOAD : {},
                     SMSG : ""
-                   };
+                   };                 
     //check the requestobject
     if(requestObject.reqBody.hasOwnProperty('Email') && requestObject.reqBody.hasOwnProperty('Password')){
         //check email validity

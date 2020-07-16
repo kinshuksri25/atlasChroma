@@ -25,10 +25,9 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
-       };
+       };  
     //check the request object
     if(requestObject.queryObject.Email != undefined && requestObject.method == "GET"){
-
         mongo.read(DBCONST.userCollection,{ email: requestObject.queryObject.Email }, {projection : {userName : 1}}).then(resultSet => {
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
@@ -226,12 +225,12 @@ googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reje
         SMSG : ""
        };
     //check the requestObject
-    if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.method == "POST"){
+    if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.reqBody.hasOwnProperty('ProfilePhoto') && requestObject.method == "POST"){
          //check state validity
          mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, { projection: { _id: 1} }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
-                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone}}, {}, SINGLE).then(updateSet => {
+                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {}, SINGLE).then(updateSet => {
                     cookieHandler.createCookies(resultSet[0]._id,requestObject.reqBody.UserName).then(resolvedResult => {
                          response.PAYLOAD.cookieDetails =resolvedResult;
                          response.SMSG = SMSG.SVR_OATH_LGNSUC;

@@ -4,8 +4,9 @@
 
 //Dependencies
 const mongo = require("../../../utils/data");
-const {EMSG,SMSG,SINGLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
+const {EMSG,SMSG,SINGLE,MULTIPLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
 const googleApis = require("../../../googleApis/googleAPI");
+const helperFunctions = require("../../../utils/helper");
 const {randValueGenerator,generateCurrentDate} = require("../../../utils/helper");
 const project = require("../../../classObjects/projectClass");
 
@@ -66,18 +67,31 @@ eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject)
        };
     requestObject.reqBody.eventObject._id = randValueGenerator();
     if(requestObject.reqBody.hasOwnProperty("eventObject")){
-        mongo.update(DBCONST.userCollection , {_id : requestObject.cookieid},{$push:{events : {...requestObject.reqBody.eventObject}}},{},SINGLE).then(resolvedSet => {
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
-                response.STATUS = 200;
-                response.PAYLOAD = {eventID : requestObject.reqBody.eventObject._id};
-                response.SMSG = "board details updated successfully";
-                resolve(response);
-            }).catch(rejectedResult => {
-                response.STATUS = 201;
-                response.PAYLOAD = {eventID : requestObject.reqBody.eventObject._id};
-                response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
-                resolve(response);    
+        let isMeeting = requestObject.reqBody.eventObject.EventType == "Meeting" ? true : false;
+        let query = isMeeting ? {username : {$in : [...requestObject.reqBody.eventObject.participants]}} : {_id : requestObject.cookieid};
+        requestObject.reqBody.eventObject.password = helperFunctions.randValueGenerator(6);
+        mongo.update(DBCONST.userCollection , query,{$push:{events : {...requestObject.reqBody.eventObject}}},{},MULTIPLE).then(resolvedSet => {
+            mongo.read(DBCONST.userCollection,query,{projection : {email : 1 ,_id : 0}}).then(resolvedSet => {
+                let recipientList = [];
+                resolvedSet.map(user => {
+                    recipientList.push(user.email);
+                });
+                let payload = isMeeting ? {eventID : requestObject.reqBody.eventObject._id,password : requestObject.reqBody.eventObject.password} : {eventID : requestObject.reqBody.eventObject._id};
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {...payload};
+                    response.SMSG = "board details updated successfully";
+                    resolve(response);
+                }).catch(rejectedResult => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = {...payload};
+                    response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
+                    resolve(response);    
+                });
+            }).catch(rejectedSet => {
+                throw rejectedSet; 
             });
+            
         }).catch(rejectedSet => {
             throw rejectedSet; 
         });
@@ -113,23 +127,16 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
                     set["events.$.StartTime"] = requestObject.reqBody.StartTime;
                 }if(requestObject.reqBody.hasOwnProperty("EndTime")){
                     set["events.$.EndTime"] = requestObject.reqBody.EndTime;
+                }if(requestObject.reqBody.hasOwnProperty("participants")){
+                    set["events.$.participants"] = requestObject.reqBody.participants;
                 }
+
                 set.modificationdate = generateCurrentDate();
                 if(JSON.stringify(set)!=JSON.stringify({})){
                     updateQuery["$set"] = {...set};
                 } 
-                mongo.update(DBCONST.userCollection,{"events._id" : requestObject.reqBody._id},{$set : {...set}},{},SINGLE).then(resolvedSet => {
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.emailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITEVENT).then(resolvedResult => {
-                        response.STATUS = 200;
-                        response.PAYLOAD = {};
-                        response.SMSG = "event edited successfully";
-                        resolve(response);
-                    }).catch(rejectedResult => {
-                        response.STATUS = 201;
-                        response.PAYLOAD = {};
-                        response.SMSG = "event edited successfully, unable to nortify the contributor"; //add a cron here
-                        resolve(response);    
-                    });
+                mongo.update(DBCONST.userCollection,{"events._id" : requestObject.reqBody._id},{$set : {...set}},{},MULTIPLE).then(resolvedSet => {
+               
                 }).catch(rejectedSet => {
                     console.log(rejectedSet);
                     response.STATUS = 500;
@@ -153,25 +160,33 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
         SMSG : ""
        };
 
-    if(requestObject.queryObject.eventID != undefined && requestObject.queryObject.emailID != undefined){
-        mongo.update(DBCONST.userCollection,{email : requestObject.queryObject.emailID},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},SINGLE).then(resultSet => {
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.queryObject.emailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT).then(resolvedResult => {
-                console.log(resolvedResult);
-                response.STATUS = 200;
-                response.PAYLOAD = {};
-                response.SMSG = "Event deleted successfully";    
-                resolve(response);  
-            }).catch(rejectedResult => {
-                response.STATUS = 201;
-                response.PAYLOAD = {};
-                response.SMSG = "Event deleted successfully, unable to nortify the user";
-                reject(response); 
+    if(requestObject.queryObject.eventID != undefined){
+
+        mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
+            let recipientList = [];
+            resolvedSet.map(user => {
+                recipientList.push(user.email);
+            });
+            mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resultSet => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = "Event deleted successfully";    
+                    resolve(response);  
+                }).catch(rejectedResult => {
+                    response.STATUS = 201;
+                    response.PAYLOAD = {};
+                    response.SMSG = "Event deleted successfully, unable to nortify the user";
+                    reject(response); 
+                });
+            }).catch(rejectedSet => {
+                throw rejectedSet;
             });
         }).catch(rejectedSet => {
-             //need to add a cron here 
-             response.STATUS = 500;
-             response.EMSG = rejectedSet;
-             reject(response); 
+            //need to add a cron here 
+            response.STATUS = 500;
+            response.EMSG = rejectedSet;
+            reject(response); 
         });
     }else{
         response.STATUS = 400;

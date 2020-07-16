@@ -34,7 +34,7 @@ class userObject{
  
   getUserObject(){
   return({_id : this._id,
-          userName : this.username,
+          username : this.username,
           email : this.email,
           photo : this.photo,
           password : this.password,

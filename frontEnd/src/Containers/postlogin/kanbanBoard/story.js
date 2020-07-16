@@ -22,6 +22,7 @@ class Story extends Component{
         this.onMouseOver = this.onMouseOver.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
         this.generateColumnArray = this.generateColumnArray.bind(this); 
+        this.checkMovementValidity = this.checkMovementValidity.bind(this);
     }
 
     componentDidMount(){
@@ -58,51 +59,80 @@ class Story extends Component{
         return columnArray;
     }
 
-    moveStory(event){
-        event.stopPropagation();
-        let newPosition = this.state.columnPosition;
-        let errorObject = {};
-        let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        let globalThis = this;
-        let columns = globalThis.generateColumnArray();
-        switch(event.target.className){
+    checkMovementValidity(columnArray,position,eventType){
+        switch(eventType){
             case "promoteStory" : 
-                        newPosition += 1;
+                        position += 1;
                         break;
             case "demoteStory" : 
-                        newPosition -= 1;
-                        break;
-                                                                       
+                        position -= 1;
+                        break;                                                           
         }
-        let storyDetails = {};
-        storyDetails._id = this.props.storyDetails._id;
-        storyDetails.currentStatus = columns[newPosition]._id;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails},contributorUsername :this.props.storyDetails.contributor}, function(error,responseObject){
-            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
-                if(error){
-                    errorObject.msg = error;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }else{
-                    errorObject.msg = responseObject.ERRORMSG;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }
-            }else{
-                let updatedUser = {...globalThis.props.user};
-                let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-                updatedUser.projects.map(project => {
-                    if(project._id == projectID){
-                        project.storydetails.map(story => {
-                            if(story._id == globalThis.props.storyDetails._id){
-                                story.currentstatus = columns[newPosition]._id;
-                            }
-                        });
-                    }
-                });
-                globalThis.props.setUserState(updatedUser);
-            }
+        let selectedColumn = columnArray[position];
+
+        if(selectedColumn.WIP == 0)
+            return true;
+
+        let queueCounter = 0;
+        this.currentProject().storydetails.map(story =>{
+            story.currentStatus == selectedColumn._id && queueCounter++;
         });
+        let isMoveValid = queueCounter < selectedColumn.WIP ? true : false;
+        return isMoveValid;
+    }
+
+    moveStory(event){
+        event.stopPropagation();
+        let globalThis = this;
+        let newPosition = globalThis.state.columnPosition;
+        let columns = globalThis.generateColumnArray();
+        let isMoveValid = globalThis.checkMovementValidity(columns,newPosition,event.target.className);
+        let errorObject = {};
+        if(isMoveValid){
+            let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+            switch(event.target.className){
+                case "promoteStory" : 
+                            newPosition += 1;
+                            break;
+                case "demoteStory" : 
+                            newPosition -= 1;
+                            break;
+                                                                        
+            }
+            let storyDetails = {};
+            storyDetails._id = this.props.storyDetails._id;
+            storyDetails.currentStatus = columns[newPosition]._id;
+            httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails},contributorUsername :this.props.storyDetails.contributor},{},function(error,responseObject){
+                if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                    if(error){
+                        errorObject.msg = error;
+                        errorObject.status = "ERROR";
+                        globalThis.props.setMsgState(errorObject);
+                    }else{
+                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.status = "ERROR";
+                        globalThis.props.setMsgState(errorObject);
+                    }
+                }else{
+                    let updatedUser = {...globalThis.props.user};
+                    let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+                    updatedUser.projects.map(project => {
+                        if(project._id == projectID){
+                            project.storydetails.map(story => {
+                                if(story._id == globalThis.props.storyDetails._id){
+                                    story.currentstatus = columns[newPosition]._id;
+                                }
+                            });
+                        }
+                    });
+                    globalThis.props.setUserState(updatedUser);
+                }
+            });
+        }else{
+            errorObject.msg = "Cannot promote this story due to WIP limits";
+            errorObject.status = "ERROR";
+            globalThis.props.setMsgState(errorObject);
+        }
     }
 
     deleteStory(event){
@@ -112,7 +142,7 @@ class Story extends Component{
         let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id+"&contributor="+this.props.storyDetails.contributor;
-        httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams, function(error,responseObject){
+        httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams,{},function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;

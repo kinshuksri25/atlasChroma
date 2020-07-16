@@ -6,8 +6,16 @@
 const https = require('https');
 const url = require('url');
 const fs = require('fs');
+const connect = require('connect');
+const socket = require('./lib/utils/socket');
 const router = require("./lib/routes/centalRouter");
+const cluster = require("cluster");
+const os = require('os');
+const soc = require("socket.io");
 const stringDecoder = require('string_decoder').StringDecoder;
+const cookieHandler = require('./lib/utils/cookieHandler');
+
+var app = connect();
 
 //server object definition
 const server = {};
@@ -20,10 +28,10 @@ server.certParams = {
     'cert': fs.readFileSync('../lib/Certificates/private.crt')
 };
 
-server.https = https.createServer(server.certParams, (req, res) => {
+server.https = https.createServer(server.certParams, app);
 
+app.use((req, res, next) => {
     server.unifiedServer(req, res);
-                        
 });
 
 // combined server for all routes
@@ -47,10 +55,9 @@ server.unifiedServer = (req, res) => {
     });
     //this is called regardless of the method of the req
     req.on("end", function() {
-        //this is specific to post req
-        requestBodyString += decoder.end();
-
-        requestBodyString = method == "POST" || method == "PUT" ? JSON.parse(requestBodyString) : {};
+        //this is specific to post req (exception is the socket.io route)
+        requestBodyString += decoder.end(); 
+        requestBodyString = requestBodyString != "" ? JSON.parse(requestBodyString) : requestBodyString;
         //the request object sent to the handlers
         requestObject.method = method;
         requestObject.reqBody = requestBodyString;
@@ -59,10 +66,16 @@ server.unifiedServer = (req, res) => {
         if(headers.hasOwnProperty("cookieid")){
             requestObject.cookieid = headers.cookieid;
         }
-        res.writeHead(200,{"Access-Control-Allow-Origin":"*",
-                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid",
-                           "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
 
+        if(headers.hasOwnProperty("socketid")){
+            requestObject.socketid = headers.socketid;
+        }
+
+        res.writeHead(200,{"Access-Control-Allow-Origin":"https://localhost:3000",
+                           "Access-Control-Allow-Credentials" : "true",
+                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid,socketid",
+                           "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
+                           
         router.centralRouter(route,requestObject).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();
@@ -73,13 +86,34 @@ server.unifiedServer = (req, res) => {
     }); 
 };
 
-
 //function for starting the server
 server.init = (runtimeEnvironment,port) => {
-    //start the https server
-    server.https.listen(port, function() {
-        console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
-    });
+    if(cluster.isMaster) {
+        const cpuCount = os.cpus().length;
+        for(var i=0;i < cpuCount;i++){
+            cluster.fork();
+        }
+        cluster.on('online', function(worker) {
+            console.log('Worker ' + worker.process.pid + ' is online');
+        });
+    
+        cluster.on('exit', function(worker, code, signal) {
+            console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
+            console.log('Starting a new worker');
+            cluster.fork();
+        });
+    }
+    else{
+        //start the https server
+        server.https.listen(port, function() {
+            console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
+        });
+
+        //clear all cookies before server start
+        //cookieHandler.clearCookies();
+        let io = new soc(server.https);
+        socket.handleEvents(io);
+    }
 };
 
 //export the module

@@ -8,7 +8,7 @@ export default function userListStateReducer (state = userList, action) {
 
     switch(action.type){
         case actionTypes.SETUSERLIST : 
-            return [...state,action.payload];
+            return [...action.payload];
             break;
         default :
             return [...state];

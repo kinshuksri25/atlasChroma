@@ -35,7 +35,7 @@ class EditProject extends Component{
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let projectQuery = "projectID="+globalThis.props.projectDetails._id+"&contributors="+JSON.stringify(globalThis.props.projectDetails.contributors);
 
-        httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery, function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,{},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -73,13 +73,15 @@ class EditProject extends Component{
             contributors : this.state.contributors,
             oldContributors : this.props.projectDetails.contributors
         };
+        
         let duplicateTitle = false;
         this.props.user.projects.map(project => {
-            if(project.title == this.state.title)
+            if(project.title == this.state.title && project._id != this.props.projectDetails._id)
                 duplicateTitle = true;
         });
+
         if(!duplicateTitle){
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject}, function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},{},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -182,10 +184,11 @@ class EditProject extends Component{
     }
 
     render(){
-        let disableUpdate = this.state.title != this.props.projectDetails.title && this.state.title != "" || 
-                                this.state.description != this.props.projectDetails.description && this.state.description != "" || 
-                                    this.state.projectleader != this.props.projectDetails.projectlead && this.state.projectleader != "" ||
-                                    JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors) ? false : true;
+        let disableUpdate = this.state.title != this.props.projectDetails.title || 
+                                this.state.description != this.props.projectDetails.description || 
+                                    this.state.projectleader != this.props.projectDetails.projectlead ||
+                                    JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors) && 
+                                        (this.state.title != "" && this.state.description != "" && this.state.projectleader != "")  ? false : true;
         let editProjectJSX = this.state.deleteProject ? <div>
                                                             <h3>Do you want to delete {this.props.projectDetails.title} ? </h3>
                                                             <button onClick = {this.deleteProject}>Yes</button>

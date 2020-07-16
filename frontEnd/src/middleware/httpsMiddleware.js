@@ -20,10 +20,9 @@ var methods = {
 var decoder = new stringdecoder('utf-8');
 
 //backend http request
-var httpsRequest = function(path, method, headers, data, callback) {
+var httpsRequest = function(path, method, headers, data, bodyData = {},callback) {
 
     console.log("Https request initiated to the backend");
-
     var builtUrl = connectionConstants.secureProtocol + "//" + connectionConstants.hostname + ":" + connectionConstants.backEndPort + path;
     var requestMethod = checkMethod(method);
     if (requestMethod != '') {
@@ -54,8 +53,8 @@ var httpsRequest = function(path, method, headers, data, callback) {
             });
         });
         //write data to request body	
-        if (requestMethod == methods["post"] || requestMethod == methods["put"]) {
-            data = JSON.stringify(data);
+        if (requestMethod == methods["post"] || requestMethod == methods["put"] || JSON.stringify(bodyData) != JSON.stringify({})) {
+            data = JSON.stringify(bodyData) == JSON.stringify({}) ? JSON.stringify(data) : JSON.stringify(bodyData);
             backendRequest.write(data);
         }
 

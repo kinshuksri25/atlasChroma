@@ -62,7 +62,7 @@ class Projects extends Component {
                                                             searchFunction={this.searchProject}
                                                             changeOrderBy={this.changeOrderBy}
                                                             options = {filterFormConstants.projectFilter}/> 
-                                                            <button onClick={this.addProject}>Add Project</button>
+                                                            <button onClick={this.addProject} hidden = {this.state.addProject}>Add Project</button>
                                                             {addProject} 
                                                             <ProjectContainer showEditProject = {this.showEditProject} orderBy = {this.state.orderBy}/> 
                                                         </div> 

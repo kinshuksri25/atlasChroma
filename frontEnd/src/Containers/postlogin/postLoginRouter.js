@@ -8,8 +8,10 @@ import DashBoard from './dashboard';
 import KanbanBoard from './kanbanBoard/kanbanBoard';
 import Projects from './projects/projects';
 import Highlight from './highlight';
-import Scheduler from './scheduler';
+import Scheduler from './calender/scheduler';
 import Menu from '../../Menu/menu';
+import Profile from './profile';
+import clientSocket from 'socket.io-client';
 import setMsgAction from '../../store/actions/msgActions';
 import menuConstants from '../../Menu/menuConstants';
 import {msgObject} from '../../../../lib/constants/storeConstants';
@@ -17,7 +19,9 @@ import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
+import MessageBox from "../postlogin/messaging/messageBox";
 import {userList,userObject} from "../../../../lib/constants/storeConstants";
+import setSocketObject from "../../store/actions/socketActions";
 
 class PostLoginRouter extends Component {
 
@@ -25,10 +29,11 @@ class PostLoginRouter extends Component {
         super(props);
         this.getUserData = this.getUserData.bind(this);
         this.containerSelector = this.containerSelector.bind(this);
+        this.initialSocketConnection = this.initialSocketConnection.bind(this);
     }
 
-    componentDidMount(){
-        let userID = cookieManager.getUserSessionDetails(); 
+    componentDidMount(){ 
+        let userID = cookieManager.getUserSessionDetails();
         let queryString = "";
         if(userID){
             let cookieDetails = {"CookieID" : userID};
@@ -40,9 +45,32 @@ class PostLoginRouter extends Component {
         }
     }
 
+    //this is will handle all use cases except when a new user gets added/deleted while userlist state is being set
+    initialSocketConnection(userID){
+        let io = clientSocket('https://localhost:5000',{transports: ['websocket']});
+        this.props.setSocketState(io); 
+
+        //connect to server socket
+        io.on("connect",() => {console.log("socket connected to server");});
+        io.emit('login',userID);
+
+        io.emit("refreshUserStatus");
+        io.on("refreshedUserStatus",(userStatus) => {
+            let timer = this.props.userList.length == 0 ? 3000 : 0;
+            setTimeout(() => {
+                let userList = [...this.props.userList];
+                console.log(userList);
+                userList.map(user => {
+                    user.status = userStatus.includes(user.username) ? true : false;
+                }); 
+                this.props.setUserListState([...userList]);   
+            },timer);
+        });
+    }
+
     getUserData(headers,queryString,action){ 
         let globalThis = this;
-        httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString, function(error,responseObject) {
+        httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString,{},function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 let errorObject = {...msgObject};
                 if(error){
@@ -57,8 +85,11 @@ class PostLoginRouter extends Component {
                 cookieManager.clearUserSession(); 
                 window.history.pushState({}, "",urls.LANDING);
             }else{
+
+                //dispatch needs to have a callback or use setTimeout 
                 responseObject.PAYLOAD.userList == undefined && action({...responseObject.PAYLOAD.user});
-                responseObject.PAYLOAD.user == undefined && action({...responseObject.PAYLOAD.userList});
+                responseObject.PAYLOAD.user == undefined && action([...responseObject.PAYLOAD.userList]); 
+                responseObject.PAYLOAD.user == undefined && globalThis.initialSocketConnection(headers.CookieID);
             }
         });
     }
@@ -84,8 +115,12 @@ class PostLoginRouter extends Component {
                     case "scheduler":
                         return <Scheduler/>;
                         break;
+                    case "profile":
+                        return <Profile/>;
+                        break;                        
                     case "logout":
-                        cookieManager.clearUserSession(); 
+                        this.props.io.emit("terminate",{cookieID : cookieManager.getUserSessionDetails(), username : this.props.user.username});
+                        cookieManager.clearUserSession();
                         window.history.replaceState({}, "",urls.LANDING);
                         break;        
                     default:
@@ -111,11 +146,14 @@ class PostLoginRouter extends Component {
    
 
     render(){
+        let messageContainer =  this.props.io == "" && 
+                                    JSON.stringify(this.props.user) == JSON.stringify(userObject) ? "" : <MessageBox/>;
         return ( <div>
-            <Menu menuArray = {menuConstants}/> 
-            { this.containerSelector() }
-            <Highlight/> 
-        </div>);
+                    <Menu menuArray = {menuConstants}/> 
+                    { this.containerSelector() }
+                    <Highlight/> 
+                    {messageContainer}
+                </div>);
     }
 }
 
@@ -123,7 +161,8 @@ const mapStateToProps = state => {
     return {
         currentUrl : state.urlStateReducer.currentUrl,
         user : state.userStateReducer,
-        userList : state.userListStateReducer
+        userList : state.userListStateReducer,
+        io : state.socketStateReducer.io
     }
 }
 
@@ -133,10 +172,13 @@ const mapDispatchToProps = dispatch => {
             dispatch(setUserAction(userObject));
         },
         setUserListState : (userList) => {
-            dispatch(setUserListStateAction(userList));    
+            dispatch(setUserListStateAction(userList));   
         }, 
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
+        },
+        setSocketState: (io) => {
+            dispatch(setSocketObject(io));
         } 
     };
 };

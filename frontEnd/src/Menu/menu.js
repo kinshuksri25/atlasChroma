@@ -31,11 +31,15 @@ class Menu extends Component{
         }else{
             let menuArray = this.props.menuArray;
             let menu = menuArray.map(menuElement => {
+                let menu = menuElement.title != "Profile" ? <button title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
+                                                                <i className={menuElement.icon}></i>
+                                                            </button> :
+                                                            <button title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
+                                                                <img src={this.props.user.photo} width = "20" height = "20"/>
+                                                            </button>;
                 return(
                          <div className = "menuButtonContainer">
-                            <button title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
-                                <i className={menuElement.icon}></i>
-                            </button>   
+                            {menu}   
                          </div>   
                       );
             });
@@ -60,7 +64,8 @@ class Menu extends Component{
 
 const mapStateToProps = (state) => {
     return {
-        url: state.urlStateReducer.currentUrl
+        url: state.urlStateReducer.currentUrl,
+        user : state.userStateReducer
     }
 };
 

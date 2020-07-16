@@ -7,6 +7,7 @@ import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import {EMSG,urls} from "../../../../lib/constants/contants";
 import setMsgAction from '../../store/actions/msgActions';
+import ProfilePicture from "../generalContainers/profilePictureGen";
 import {msgObject} from '../../../../lib/constants/storeConstants';
 import SimpleForm from '../../Forms/simpleform';
 import formConstants from '../../Forms/formConstants';
@@ -22,11 +23,15 @@ class PostAuth extends Component{
                     "isCheckingUsername": false,
                     "validUserName": false,
                     "username": "",
-                    "state": ""  
+                    "state": "",
+                    "photo": "",
+                    "displayPhotoSel" : false  
             };
             this.postAuthReq = this.postAuthReq.bind(this);
             this.onSubmitHandler = this.onSubmitHandler.bind(this);
+            this.changeProfilePic = this.changeProfilePic.bind(this);
             this.onChangeHandler = this.onChangeHandler.bind(this);
+            this.showPhotoSelector = this.showPhotoSelector.bind(this);
             this.userNameValidator = this.userNameValidator.bind(this);
             this.checkPasswordValidity = this.checkPasswordValidity.bind(this);
     }
@@ -45,11 +50,11 @@ class PostAuth extends Component{
             let headers = {};
             let errorObject = {...msgObject};
             let globalThis = this;
-            httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject, function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,{},function(error,responseObject) {
                         if(error || responseObject.STATUS != 200){
                             errorObject.msg = error;
                             errorObject.status = "ERROR";
-                            this.props.setMsgState(errorObject);
+                            globalThis.props.setMsgState(errorObject);
                             window.history.pushState({},"",urls.LOGIN);
                     }else{
                             if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
@@ -66,6 +71,10 @@ class PostAuth extends Component{
             });  
     }
 
+    showPhotoSelector(){
+        this.setState({displayPhotoSel : !this.state.displayPhotoSel});
+    }
+
     onSubmitHandler(formObject){
             let headers = {};
             let errorObject = {...msgObject};
@@ -76,7 +85,8 @@ class PostAuth extends Component{
                     if(errorMsgObject == ""){
                         delete formObject.formData.confirmPassword;
                         formObject.formData.state = globalThis.state.state;
-                        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData, function(error,responseObject) {
+                        formObject.formData.ProfilePhoto = this.state.photo;
+                        httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,{},function(error,responseObject) {
                             if(error || responseObject.Status == "ERROR"){
                                 if(error){
                                     errorObject.msg = error;
@@ -89,7 +99,7 @@ class PostAuth extends Component{
                                 }
                             }else{
                                 //set the session
-                                cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
+                                cookieManager.setUserSessionDetails(responseObject.PAYLOAD.cookieDetails);
                                 //TODO --> change the pushState 'state' and 'title'
                                 window.history.pushState({},"",urls.DASHBOARD);
                             }
@@ -117,6 +127,10 @@ class PostAuth extends Component{
             }
     }
 
+    changeProfilePic(event){
+        this.setState({'photo': event.target.src, displayPhotoSel : !this.state.displayPhotoSel});
+    }
+
     onChangeHandler(formObject){
             var globalThis = this;
             formObject.UserName != this.state.username && this.userNameValidator(formObject.UserName, globalThis);
@@ -132,7 +146,7 @@ class PostAuth extends Component{
         this.setState({
             "isCheckingUsername": true
         }, () => {
-            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString, function(error,responseObject) {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,{},function(error,responseObject) {
                 if(error){
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
@@ -170,12 +184,16 @@ class PostAuth extends Component{
     };
 
     render(){
+            let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
             let postAuthContainer = this.state.displayForm ? 
-
-            <SimpleForm formAttributes = { formConstants.postAuthForm }
-            submitHandler = { this.onSubmitHandler }
-            changeHandler = { this.onChangeHandler }
-            changeFieldNames = {["UserName","Phone"]}/>  
+            <div>
+                <button onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                {this.state.displayPhotoSel && <ProfilePicture selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
+                <SimpleForm formAttributes = { formConstants.postAuthForm }
+                submitHandler = { this.onSubmitHandler }
+                changeHandler = { this.onChangeHandler }
+                changeFieldNames = {["UserName","Phone"]}/> 
+            </div>
             : 
             <div>loading wheel goes here</div>
 
@@ -183,11 +201,12 @@ class PostAuth extends Component{
     }             
 }
 
+
 const mapDispatchToProps = dispatch => {
     return {
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
-        } 
+        }
     };
 };
 

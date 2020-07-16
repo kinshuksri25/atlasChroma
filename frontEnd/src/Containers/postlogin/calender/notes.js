@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import SimpleForm from '../../Forms/simpleform';
-import cookieManager from '../../Components/cookieManager';
-import httpsMiddleware from '../../middleware/httpsMiddleware';
-import formConstants from '../../Forms/formConstants';
-import setMsgAction from '../../store/actions/msgActions';
-import setUserAction from '../../store/actions/userActions';
+import SimpleForm from '../../../Forms/simpleform';
+import cookieManager from '../../../Components/cookieManager';
+import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import formConstants from '../../../Forms/formConstants';
+import setMsgAction from '../../../store/actions/msgActions';
+import setUserAction from '../../../store/actions/userActions';
 
 
 class Notes extends Component{
@@ -46,7 +46,7 @@ class Notes extends Component{
         let notesObject = {};
         notesObject.title = formObject.formData.NotesTitle;
         notesObject.description = formObject.formData.Description;
-        httpsMiddleware.httpsRequest("/notes","POST",headers,{...notesObject,emailID : globalThis.props.user.email},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","POST",headers,{...notesObject,emailID : globalThis.props.user.email},{},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -74,7 +74,7 @@ class Notes extends Component{
         let globalThis = this;
         let queryString = "notesID="+this.state.notesID+"&emailID="+this.props.user.email;
 
-        httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,{},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -115,7 +115,7 @@ class Notes extends Component{
         notesObject._id = this.state.notesID;
         notesObject.emailID = this.props.user.email;
 
-        httpsMiddleware.httpsRequest("/notes","PUT",headers,{...notesObject},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","PUT",headers,{...notesObject},{},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -177,10 +177,10 @@ class Notes extends Component{
     }
 
     render(){
-        let bodyJSX = this.buildJSX();
-        let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle && this.state.editedNotesTitle != "" ||
-                                this.state.editedNotesDescription != this.state.selectedNotesDescription && this.state.editedNotesDescription != "" ? false : true;        return(
-            <div> 
+    let bodyJSX = this.buildJSX();
+    let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
+                            (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
+    return(<div> 
                 <button className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
                 <div className = "addNotesForm" hidden={this.state.hideNotesForm}>
                     <SimpleForm formAttributes = { formConstants.addNotes }
