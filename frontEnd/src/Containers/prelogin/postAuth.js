@@ -46,33 +46,89 @@ class PostAuth extends Component{
                 window.history.pushState({},"",urls.LANDING);
     };
 
+    userNameValidator(userName, globalThis) {
+        var userNameCheckQueryString = 'UserName=' + userName;
+        let errorObject = {...msgObject};
+        var headers = {};
+        this.setState({
+            "isCheckingUsername": true
+        }, () => {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,{},function(error,responseObject) {
+                if(error){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }else{
+                    if (responseObject.Status == "ERROR") {
+                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.status = "ERROR";
+                        globalThis.props.setMsgState(errorObject);
+                        globalThis.setState({
+                            "validUserName": false,
+                            "isCheckingUsername": false
+                        })
+                    } else {
+                        //set the state
+                        globalThis.setState({
+                            "validUserName": true,
+                            "isCheckingUsername": false
+                        });
+                    }
+                }
+            }); 
+        });
+    }    
+
+    checkPasswordValidity(password, confirmPassword) {
+        var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
+        if (!regex.test(password)) {
+            return EMSG.CLI_SGN_INPASS;
+        }
+        if (password != confirmPassword) {
+            return EMSG.CLI_SGN_PASSMIS;
+        }
+        return "";
+    };
+
+    changeProfilePic(event){
+        this.setState({'photo': event.target.src, displayPhotoSel : !this.state.displayPhotoSel});
+    }
+
+    onChangeHandler(formObject){
+            var globalThis = this;
+            formObject.UserName != this.state.username && this.userNameValidator(formObject.UserName, globalThis);
+            this.setState({
+                    "username": formObject.UserName
+            });
+    }
+    
+    showPhotoSelector(){
+        this.setState({displayPhotoSel : !this.state.displayPhotoSel});
+    }
+
     postAuthReq(queryObject){
             let headers = {};
             let errorObject = {...msgObject};
             let globalThis = this;
             httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,{},function(error,responseObject) {
-                        if(error || responseObject.STATUS != 200){
-                            errorObject.msg = error;
-                            errorObject.status = "ERROR";
-                            globalThis.props.setMsgState(errorObject);
-                            window.history.pushState({},"",urls.LOGIN);
+                if(error || responseObject.STATUS != 200){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGIN);
+                }else{
+                    if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
+                        //TODO --> change the pushState 'state' and 'title'
+                        window.history.pushState({},"",urls.POSTAUTH);
+                        globalThis.setState({displayForm:true});            
                     }else{
-                            if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
-                                //TODO --> change the pushState 'state' and 'title'
-                                window.history.pushState({},"",urls.POSTAUTH);
-                                globalThis.setState({displayForm:true});            
-                            }else{
-                                //set the session 
-                                cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
-                                //TODO --> change the pushState 'state' and 'title'
-                                window.history.pushState({},"",urls.DASHBOARD);
-                            }
+                        //set the session 
+                        cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
+                        //TODO --> change the pushState 'state' and 'title'
+                        window.history.pushState({},"",urls.DASHBOARD);
                     }
+                }
             });  
-    }
-
-    showPhotoSelector(){
-        this.setState({displayPhotoSel : !this.state.displayPhotoSel});
     }
 
     onSubmitHandler(formObject){
@@ -126,62 +182,6 @@ class PostAuth extends Component{
                     globalThis.props.setMsgState(errorObject);
             }
     }
-
-    changeProfilePic(event){
-        this.setState({'photo': event.target.src, displayPhotoSel : !this.state.displayPhotoSel});
-    }
-
-    onChangeHandler(formObject){
-            var globalThis = this;
-            formObject.UserName != this.state.username && this.userNameValidator(formObject.UserName, globalThis);
-            this.setState({
-                    "username": formObject.UserName
-            });
-    }
-
-    userNameValidator(userName, globalThis) {
-        var userNameCheckQueryString = 'UserName=' + userName;
-        let errorObject = {...msgObject};
-        var headers = {};
-        this.setState({
-            "isCheckingUsername": true
-        }, () => {
-            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,{},function(error,responseObject) {
-                if(error){
-                    errorObject.msg = error;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }else{
-                    if (responseObject.Status == "ERROR") {
-                        errorObject.msg = responseObject.ERRORMSG;
-                        errorObject.status = "ERROR";
-                        globalThis.props.setMsgState(errorObject);
-                        globalThis.setState({
-                            "validUserName": false,
-                            "isCheckingUsername": false
-                        })
-                    } else {
-                        //set the state
-                        globalThis.setState({
-                            "validUserName": true,
-                            "isCheckingUsername": false
-                        });
-                    }
-                }
-            }); 
-        });
-    }    
-
-    checkPasswordValidity(password, confirmPassword) {
-        var regex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
-        if (!regex.test(password)) {
-            return EMSG.CLI_SGN_INPASS;
-        }
-        if (password != confirmPassword) {
-            return EMSG.CLI_SGN_PASSMIS;
-        }
-        return "";
-    };
 
     render(){
             let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;

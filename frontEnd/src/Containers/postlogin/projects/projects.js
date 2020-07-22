@@ -1,6 +1,7 @@
 //Dependencies
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Modal from 'react-modal';
 
 import FilterForm from '../../../Forms/filterForm';
 import AddProject from './addProject';
@@ -17,7 +18,7 @@ class Projects extends Component {
                     orderBy:"Recently Created",
                     addProject:false,
                     editProject:'',
-                    hideEdit:true
+                    hideEdit:false
                 };
                 this.searchProject = this.searchProject.bind(this);
                 this.addProject = this.addProject.bind(this);
@@ -47,28 +48,33 @@ class Projects extends Component {
                     editProject = {...project};
                 }
             });
-            this.setState({editProject : editProject, hideEdit : false});     
+            this.setState({editProject : editProject, hideEdit : true});     
         }
 
         hideEditProject(){
-            this.setState({editProject : {}, hideEdit : true});     
+            this.setState({editProject : {}, hideEdit : false});     
         }
 
         render(){
-                let addProject = this.state.addProject ? <AddProject cancel = {this.addProject}/> :"";
-                let projectJSX = this.state.hideEdit ? <div> 
-                                                            <FilterForm 
-                                                            orderBy={this.state.orderBy} 
-                                                            searchFunction={this.searchProject}
-                                                            changeOrderBy={this.changeOrderBy}
-                                                            options = {filterFormConstants.projectFilter}/> 
-                                                            <button onClick={this.addProject} hidden = {this.state.addProject}>Add Project</button>
-                                                            {addProject} 
-                                                            <ProjectContainer showEditProject = {this.showEditProject} orderBy = {this.state.orderBy}/> 
-                                                        </div> 
-                                                        : 
-                                                        <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.hideEditProject}/>;
-                return (<div>{projectJSX}</div>);    
+                return (<div>
+                            <FilterForm 
+                            orderBy={this.state.orderBy} 
+                            searchFunction={this.searchProject}
+                            changeOrderBy={this.changeOrderBy}
+                            options = {filterFormConstants.projectFilter}/> 
+                            <button onClick={this.addProject} hidden = {this.state.addProject}>Add Project</button>
+                            <ProjectContainer showEditProject = {this.showEditProject} orderBy = {this.state.orderBy}/> 
+                            <Modal
+                            isOpen={this.state.addProject}
+                            contentLabel="">
+                                <AddProject cancel = {this.addProject}/>
+                            </Modal> 
+                            <Modal
+                            isOpen={this.state.hideEdit}
+                            contentLabel="">
+                                <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.hideEditProject}/>
+                            </Modal>                            
+                        </div>);    
         }
         
 }

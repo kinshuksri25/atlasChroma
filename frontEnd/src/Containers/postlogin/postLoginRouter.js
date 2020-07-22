@@ -37,15 +37,15 @@ class PostLoginRouter extends Component {
         let queryString = "";
         if(userID){
             let cookieDetails = {"CookieID" : userID};
-            this.getUserData(cookieDetails,queryString,this.props.setUserListState);
-            queryString+="&userID="+userID;
-            this.getUserData(cookieDetails,queryString,this.props.setUserState);
+            this.getUserData(cookieDetails,queryString,this.props.setUserListState,()=>{
+                queryString+="&userID="+userID;
+                this.getUserData(cookieDetails,queryString,this.props.setUserState);
+            });
         }else{
             window.history.pushState({}, "",urls.LANDING);
         }
     }
 
-    //this is will handle all use cases except when a new user gets added/deleted while userlist state is being set
     initialSocketConnection(userID){
         let io = clientSocket('https://localhost:5000',{transports: ['websocket']});
         this.props.setSocketState(io); 
@@ -59,7 +59,6 @@ class PostLoginRouter extends Component {
             let timer = this.props.userList.length == 0 ? 3000 : 0;
             setTimeout(() => {
                 let userList = [...this.props.userList];
-                console.log(userList);
                 userList.map(user => {
                     user.status = userStatus.includes(user.username) ? true : false;
                 }); 
@@ -68,7 +67,7 @@ class PostLoginRouter extends Component {
         });
     }
 
-    getUserData(headers,queryString,action){ 
+    getUserData(headers,queryString,action,callback){ 
         let globalThis = this;
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString,{},function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
@@ -85,11 +84,14 @@ class PostLoginRouter extends Component {
                 cookieManager.clearUserSession(); 
                 window.history.pushState({}, "",urls.LANDING);
             }else{
-
                 //dispatch needs to have a callback or use setTimeout 
-                responseObject.PAYLOAD.userList == undefined && action({...responseObject.PAYLOAD.user});
-                responseObject.PAYLOAD.user == undefined && action([...responseObject.PAYLOAD.userList]); 
-                responseObject.PAYLOAD.user == undefined && globalThis.initialSocketConnection(headers.CookieID);
+                if(responseObject.PAYLOAD.userList == undefined){
+                    action({...responseObject.PAYLOAD.user});
+                    globalThis.initialSocketConnection(headers.CookieID);
+                }else{
+                    action([...responseObject.PAYLOAD.userList]);
+                    callback();
+                }
             }
         });
     }
@@ -97,8 +99,8 @@ class PostLoginRouter extends Component {
     //Router
     containerSelector() {
       if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
-        let boardRegex = new RegExp(/boards\/[a-z|0-9]*/);
-        let schedulerRegex = new RegExp(/scheduler\/[0-9]*/);
+        let boardRegex = new RegExp(/projects\/[a-z0-9]+$/g);
+        let schedulerRegex = new RegExp(/scheduler\/[a-z0-9]+$/g);
         let path = window.location.pathname.substring(1).toLowerCase();
 
         if(!/[a-z]+\/[a-z|0-9]+/g.test(path))
@@ -130,9 +132,12 @@ class PostLoginRouter extends Component {
                 }
             }  
         else{
+            let nestedPath = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
             if(boardRegex.test(path)){
-                return <KanbanBoard/>;
+                path != ("projects/"+nestedPath.toLowerCase()) && window.history.replaceState({}, "",urls.DASHBOARD);
+                return <KanbanBoard projectID = {nestedPath}/>;
             }else if(schedulerRegex.test(path)){
+                path != "scheduler/"+nestedPath.toLowerCase() && window.history.replaceState({}, "",urls.DASHBOARD);
                 return <Scheduler/>;
             }else{
                 window.history.replaceState({}, "",urls.DASHBOARD);
@@ -147,10 +152,10 @@ class PostLoginRouter extends Component {
 
     render(){
         let messageContainer =  this.props.io == "" && 
-                                    JSON.stringify(this.props.user) == JSON.stringify(userObject) ? "" : <MessageBox/>;
+                                    JSON.stringify(this.props.user) == JSON.stringify(userObject) ? "" : <MessageBox/>;                                    
         return ( <div>
                     <Menu menuArray = {menuConstants}/> 
-                    { this.containerSelector() }
+                    {JSON.stringify(this.props.user) == JSON.stringify(userObject) || this.containerSelector() }
                     <Highlight/> 
                     {messageContainer}
                 </div>);

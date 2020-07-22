@@ -28,7 +28,7 @@ class Router extends Component {
 
     render(){
         let router = cookieManager.getUserSessionDetails() ? <PostLoginRouter/> : < PreLoginRouter/>;
-        return ( <div className="routerContainer"> 
+        return (<div className="routerContainer"> 
                     <MsgContainer/>
                     {router} 
                 </div>);

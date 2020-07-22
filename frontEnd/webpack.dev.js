@@ -6,10 +6,11 @@ const merge = require("webpack-merge");
 
 module.exports = merge(common,{
     mode: "development",
-    //public path is not required since we are serving the bundle from same folder and same level
+    //public path is required since we are always serving the bundle from the root of dist
     output: {
         path: path.resolve(__dirname, "dist/"),
-        filename: "[name].js"
+        filename: "[name].js",
+        publicPath: '/'
     },
     //contentBase – This property tells Webpack what static file it should serve and from where. 
     //publicPath – Defines what the browser path will look like when serving public assets. https://localhost:3000/assets/...

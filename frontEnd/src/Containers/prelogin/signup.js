@@ -169,6 +169,7 @@ class SignUp extends Component {
 
     render() {
         return ( <div className="signUpContainer">
+                    <button onClick={this.props.closeModal}>X</button>
                     <h1 className="signUpTitle">All right! Lets get started.</h1>
                     <SimpleForm formAttributes = { formConstants.signup }
                     submitHandler = { this.onSubmitHandler }

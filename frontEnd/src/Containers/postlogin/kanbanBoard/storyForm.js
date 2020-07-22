@@ -15,7 +15,6 @@ class StoryForm extends Component {
         this.state = {
             priorityList : ["StoryPriority","Urgent","High","Medium","Low","OnHold"],
             contributorList : ["Contributors",...this.props.projectDetails.contributors],
-            currentMode: this.props.currentMode,
             currentStatus: "",
             storyTitle : "",
             storyDescription : "",
@@ -23,33 +22,15 @@ class StoryForm extends Component {
             duedate : "",
             storyContributor : "",
             storyPriority : "",
-            columnArray : [],
-            oldStoryDetails : {}
+            columnArray : []
         };
         this.onStoryAddHandler = this.onStoryAddHandler.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.generateColumnArray = this.generateColumnArray.bind(this);
-        this.updateFormhandler = this.updateFormhandler.bind(this);
     }
 
     componentDidMount(){
-        if(this.state.currentMode != "ADD"){
-            this.props.projectDetails.storydetails.map(story => {
-                if(this.props.storyID == story._id){
-                    this.setState({
-                        oldStoryDetails : {...story},
-                        storyTitle : story.storytitle,
-                        storyDescription : story.description,
-                        storyComments : story.comments,
-                        duedate : story.duedate, 
-                        storyContributor : story.contributor,
-                        storyPriority : story.priority
-                    });
-                }
-            });
-        }else{
-            this.state.columnArray.length==0 && this.setState({columnArray : [...this.generateColumnArray()]});
-        }
+        this.state.columnArray.length==0 && this.setState({columnArray : [...this.generateColumnArray()]});
     }
 
     onChangeHandler(event){
@@ -78,67 +59,13 @@ class StoryForm extends Component {
         }
     }
 
-    updateFormhandler(){
-        let globalThis = this;
-        let storyObject = {};
-        let errorObject = {};
-        let headers = {"CookieID" : cookieManager.getUserSessionDetails()}
-        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-        if(this.state.storyTitle != this.state.oldStoryDetails.storytitle){
-            storyObject.StoryTitle = this.state.storyTitle;
-        }if(this.state.storyDescription != this.state.oldStoryDetails.description){
-            storyObject.Description = this.state.storyDescription;
-        }if(this.state.storyComments != this.state.oldStoryDetails.comments){
-            storyObject.Comments = this.state.storyComments;
-        }if(this.state.storyContributor != this.state.oldStoryDetails.contributor){
-            storyObject.Contributor = this.state.storyContributor;
-        }if(this.state.storyPriority != this.state.oldStoryDetails.priority){
-            storyObject.Priority = this.state.storyPriority;
-        }if(this.state.duedate != this.state.oldStoryDetails.duedate){
-            storyObject.DueDate = this.state.oldStoryDetails.duedate;
-        }
-        storyObject._id = this.props.storyID;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject},contributorUsername : this.state.storyContributor},{},function(error,responseObject) {
-            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
-                if(error){
-                    errorObject.msg = error;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }else{
-                    errorObject.msg = responseObject.ERRORMSG;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }
-            }else{
-                let updatedUser = {...globalThis.props.user};
-                updatedUser.projects.map(project => {
-                    if(project._id == projectID){
-                        project.storydetails.map(story => {
-                            if(story._id == globalThis.props.storyID){
-                                story.storytitle = globalThis.state.storyTitle;
-                                story.description = globalThis.state.storyDescription;
-                                story.comments = globalThis.state.storyComments;
-                                story.duedate = globalThis.state.duedate;
-                                story.contributor = globalThis.state.storyContributor;
-                                story.priority = globalThis.state.storyPriority;
-                            }
-                        });
-                    }
-                });
-                globalThis.props.setUserState(updatedUser);
-                globalThis.props.closeForm();
-            }
-        });  
-    }
-
     onStoryAddHandler(){
         let globalThis = this;
         let errorObject = {};
-
         let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+(new Date().getMonth()+1) : (new Date().getMonth()+1);
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
         if(this.state.storyTitle != "" && this.state.storyDescription != "" && 
-            this.state.storyContributor != "" && this.state.duedate > currentDate && this.state.storyPriority != "" &&
+            this.state.storyContributor != "" && this.state.duedate >= currentDate && this.state.storyPriority != "" &&
                 this.state.currentStatus != "" && this.state.storyComments != ""){
 
             let formData = {
@@ -201,19 +128,7 @@ class StoryForm extends Component {
         return columnsArray;
     }
 
-    render(){
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+(new Date().getMonth()+1) : (new Date().getMonth()+1);
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
-        let disableUpdate = this.state.currentMode == "ADD" ? true : (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
-                                                                        this.state.storyDescription != this.state.oldStoryDetails.description || 
-                                                                            this.state.storyComments != this.state.oldStoryDetails.comments || 
-                                                                                this.state.storyContributor != this.state.oldStoryDetails.contributor || 
-                                                                                    this.state.duedate != this.state.oldStoryDetails.duedate ||
-                                                                                        this.state.storyPriority != this.state.oldStoryDetails.priority) && (this.state.storyTitle != "" && 
-                                                                                            this.state.storyDescription != "" && this.state.storyComments != "" && 
-                                                                                                this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
-                                                                                                    this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;                                                                                 
-                                                                                
+    render(){                                                                   
         let storyFormJSX =  <div>
                                 <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
                                 <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
@@ -222,24 +137,18 @@ class StoryForm extends Component {
                                 <select className = "priority" onChange = {this.onChangeHandler}>
                                     {
                                         this.state.priorityList.map(priority => {
-                                            if(this.state.storyPriority == priority  && this.props.currentMode != "ADD")
-                                                return (<option value = { priority } selected>{priority}</option>);
-                                            else
-                                                return (<option value = { priority }>{priority}</option>);
+                                            return (<option value = { priority }>{priority}</option>);
                                         })
                                     }
                                 </select>
                                 <select className = "contributor" onChange = {this.onChangeHandler}>
                                     {
                                         this.state.contributorList.map(contributor => {
-                                            if(this.state.storyContributor == contributor && this.props.currentMode != "ADD")
-                                                return (<option value = { contributor } selected>{contributor}</option>);
-                                            else
-                                                return (<option value = { contributor }>{contributor}</option>);
+                                            return (<option value = { contributor }>{contributor}</option>);
                                         })
                                     }
                                 </select>
-                                <select className = "selectPhase" onChange = {this.onChangeHandler} hidden = {this.props.currentMode != "ADD"}>
+                                <select className = "selectPhase" onChange = {this.onChangeHandler}>
                                     <option value = "" selected>Select Phase</option>
                                     {
                                         this.state.columnArray.map(column => {
@@ -249,12 +158,11 @@ class StoryForm extends Component {
                                         })
                                     }
                                 </select>
-                                <button hidden = {this.props.currentMode == "ADD"} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</button>
-                                <button hidden = {this.props.currentMode != "ADD"} onClick = {this.onStoryAddHandler}>Add</button>
+                                <button onClick = {this.onStoryAddHandler}>Add</button>
                             </div>;
         return (<div> 
                     {storyFormJSX}
-                    <button onClick = {this.props.closeForm}>Back</button>
+                    <button onClick = {this.props.closeForm}>X</button>
                 </div>);
     }
 }

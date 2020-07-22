@@ -29,7 +29,6 @@ class JitsiContainer extends Component {
         api.on("readyToClose",()=> {
            if(this.state.api == ""){
                 this.props.onClose();
-                this.state.api.dispose();
            }else{
                 this.cleanMeeting();
            }

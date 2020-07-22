@@ -25,12 +25,12 @@ class PostSignUpForm extends Component {
     } 
 
     componentDidMount() {
-        let id = localStorage.uniqueID;
-        let sessionExists = id == undefined ? false : true;
+        let ID = localStorage.uniqueID;
+        let sessionExists = ID == undefined ? false : true;
         if (!sessionExists) {
             window.history.pushState({},"",urls.LANDING);
         }else{
-            this.setState({ID:id});
+            this.setState({ID:ID});
         }
     }
 
@@ -41,6 +41,9 @@ class PostSignUpForm extends Component {
     changeProfilePic(event){
         this.setState({'photo': event.target.src, displayPhotoSel : !this.state.displayPhotoSel});
     }
+
+    onChangeHandler(formObject){
+    };
 
     onSubmitHandler(formObject){
         let headers = {};
@@ -68,15 +71,11 @@ class PostSignUpForm extends Component {
                 }
             });
         } else {
-                errorObject.msg = EMSG.CLI_MID_INVMET;
-                errorObject.status = "ERROR";
-                globalThis.props.setMsgState(errorObject);
+            errorObject.msg = EMSG.CLI_MID_INVMET;
+            errorObject.status = "ERROR";
+            globalThis.props.setMsgState(errorObject);
         }
     }
-
-    onChangeHandler(formObject){
-    };
-
 
     render() {
         let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;

@@ -10,7 +10,6 @@ class StoryContainer extends Component{
         super(props);
         this.getStories = this.getStories.bind(this);  
         this.sortStories = this.sortStories.bind(this);
-        this.editStory = this.editStory.bind(this);
         this.buildStoryContainer = this.buildStoryContainer.bind(this);  
     }
 
@@ -23,10 +22,6 @@ class StoryContainer extends Component{
             });    
         });
         return stories;
-    }
-
-    editStory(storyID){
-        this.props.editStory(storyID);
     }
 
     sortStories(stories){
@@ -68,7 +63,7 @@ class StoryContainer extends Component{
         let stories = this.getStories();
         stories = this.sortStories(stories);
         let storyContainer = stories.map(story => {
-            return <Story storyDetails = {story} editStory = {this.editStory}/>
+            return <Story storyDetails = {story}/>
         });
         return(<div>{storyContainer}</div>);
     }

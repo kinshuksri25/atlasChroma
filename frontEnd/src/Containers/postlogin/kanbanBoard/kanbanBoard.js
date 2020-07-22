@@ -2,13 +2,12 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
-import url from 'url';
+import Modal from 'react-modal';
 
 import SetupProject from './setupProject';
 import StoryForm from './storyForm';
 import BoardColumn from './boardColumn';
 import {urls} from '../../../../../lib/constants/contants';
-import story from './story';
 
 class KanbanBoard extends Component {
 
@@ -16,25 +15,17 @@ class KanbanBoard extends Component {
         super(props);
         this.state={
             showStoryForm:false,
-            componentWidth : screen.width,
-            currentMode : "",
-            storyID : ""
+            componentWidth : screen.width
         };
         this.addStory = this.addStory.bind(this);
         this.closeStory = this.closeStory.bind(this);
-        this.editStory = this.editStory.bind(this);
         this.buildBoard = this.buildBoard.bind(this);
         this.selectProject = this.selectProject.bind(this);
         this.groupTemplate = this.groupTemplate.bind(this);
     }
     
     componentDidMount(){
-        JSON.stringify(this.selectProject()) == JSON.stringify({}) && window.history.replaceState({}, "",urls.DASHBOARD);
-        let storyObject = url.parse(window.location.href,true);
-        let storyID = storyObject.query.storyID;
-        if(storyID != undefined){
-            this.editStory(storyID);
-        }
+        JSON.stringify(this.selectProject()) == JSON.stringify({}) && window.history.pushState({}, "",urls.PROJECT);
     }
 
     groupTemplate(template){
@@ -53,12 +44,8 @@ class KanbanBoard extends Component {
         return groupedTemplate;
     }
 
-    editStory(storyID){
-        this.state.showStoryForm || this.setState({showStoryForm : true,currentMode : "EDIT",storyID : storyID}); 
-    }
-
     selectProject(){
-        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        let projectID = this.props.projectID;
         let projectObject = {};
         this.props.user.projects.map(project => {
             if(project._id == projectID)
@@ -72,17 +59,17 @@ class KanbanBoard extends Component {
         let groupedTemplate = this.groupTemplate(template);
         let width = this.state.componentWidth/groupedTemplate.length;
         board = groupedTemplate.map(template => {
-            return(<BoardColumn editStory = {this.editStory} columnDetails = {template} width = {width}/>);    
+            return(<BoardColumn columnDetails = {template} width = {width}/>);    
         });
         return (<div>{board}</div>);
     }
 
     addStory(){
-        this.setState({showStoryForm : true,currentMode : "ADD",storyID : ""});
+        this.setState({showStoryForm : true});
     }
 
     closeStory(){
-        this.setState({showStoryForm : false,currentMode : "",storyID : ""});      
+        this.setState({showStoryForm : false});      
     }
 
     render(){
@@ -94,13 +81,17 @@ class KanbanBoard extends Component {
                             JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() :
                                  <SetupProject/>;
         return (<div>
-                    {this.state.showStoryForm && <StoryForm closeForm={this.closeStory} storyID = {this.state.storyID} currentMode = {this.state.currentMode} projectDetails = {currentProject} />}
+                    <Modal
+                    isOpen={this.state.showStoryForm}
+                    contentLabel="">
+                        <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
+                    </Modal>
                     <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
                         {boardJSX}
                     </div>
                     {JSON.stringify(currentProject) != JSON.stringify({}) && 
                         JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) && 
-                            <button hidden = {this.state.showStoryForm} onClick={this.addStory} id="addStoryButton">+</button>}
+                            <button onClick={this.addStory} id="addStoryButton">+</button>}
                 </div>);
     }
 }

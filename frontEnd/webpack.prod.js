@@ -9,7 +9,8 @@ module.exports = merge(common,{
     //public path is not required since we are serving the bundle from same folder and same level
     output: {
         path: path.resolve(__dirname, "dist/"),
-        filename: "[name].[hash].js"
+        filename: "[name].[hash].js",
+        publicPath: '/'
     },
     plugins : [new CleanWebpackPlugin()]
 });

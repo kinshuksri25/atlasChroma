@@ -4,6 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 import CalenderDate from './calenderDate';
+import {urls} from "../../../../../lib/constants/contants";
 
 class Scheduler extends Component {
         constructor(props){
@@ -22,9 +23,23 @@ class Scheduler extends Component {
         componentDidMount(){
                 let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
                 this.setState({
-                    currentMonth : currentMonth,
-                    currentYear : new Date().getFullYear()    
-                });
+                        currentMonth : currentMonth,
+                        currentYear : new Date().getFullYear()  
+                },()=>{
+                        let currentDate = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+                        currentDate = currentDate.length == 1 && currentDate <= 9 && currentDate >0 ? "0"+currentDate : currentDate;
+                        if(currentDate.length == 2 && currentDate <= this.getMonthDays() && currentDate > 0){
+                                window.history.pushState({}, "",urls.SCHEDULER+"/"+currentDate);   
+                                let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
+                                this.setState({
+                                    currentDate : currentDate   
+                                });                 
+                        }else{
+                                if(currentDate != "scheduler"){
+                                        window.history.pushState({}, "",urls.SCHEDULER);     
+                                }
+                        }
+                }); 
         }
 
         getMonthDays(){

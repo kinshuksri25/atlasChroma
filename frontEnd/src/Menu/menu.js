@@ -30,11 +30,12 @@ class Menu extends Component{
             return '';
         }else{
             let menuArray = this.props.menuArray;
+            let url = window.location.pathname.substring(1).toLowerCase();
             let menu = menuArray.map(menuElement => {
-                let menu = menuElement.title != "Profile" ? <button title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
+                let menu = menuElement.title != "Profile" ? <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
                                                                 <i className={menuElement.icon}></i>
                                                             </button> :
-                                                            <button title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
+                                                            <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
                                                                 <img src={this.props.user.photo} width = "20" height = "20"/>
                                                             </button>;
                 return(

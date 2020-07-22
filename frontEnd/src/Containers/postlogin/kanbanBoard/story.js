@@ -2,9 +2,11 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import url from 'url';
 
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
+import Modal from 'react-modal';
 import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 
@@ -12,12 +14,26 @@ class Story extends Component{
     constructor(props){
         super(props);
         this.state = {
+                        priorityList : ["StoryPriority","Urgent","High","Medium","Low","OnHold"],
+                        contributorList : [],
                         columnPosition : "",
-                        hover : false
+                        hover : false,
+                        isOpen : false,
+                        oldStoryDetails : {...this.props.storyDetails},
+                        storyTitle : "",
+                        storyDescription : "",
+                        storyComments : "",
+                        duedate : "",
+                        columnArray : [],
+                        storyContributor : "",
+                        storyPriority : ""
                      };
+                          
         this.moveStory = this.moveStory.bind(this);
         this.editStory = this.editStory.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
+        this.updateFormhandler = this.updateFormhandler.bind(this);
+        this.onChangeHandler = this.onChangeHandler.bind(this);   
         this.currentProject = this.currentProject.bind(this);
         this.onMouseOver = this.onMouseOver.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
@@ -26,6 +42,19 @@ class Story extends Component{
     }
 
     componentDidMount(){
+        let storyID = url.parse(window.location.href,true).query.storyID;
+        if(storyID != undefined && storyID == this.props.storyDetails._id){
+            window.history.pushState({}, "",this.currentProject()._id+"?storyID="+storyID);
+            this.setState({isOpen : true,
+                            contributorList : ["Contributors",...this.currentProject().contributors],
+                            oldStoryDetails : {...this.props.storyDetails},
+                            storyTitle : this.props.storyDetails.storytitle,
+                            storyDescription : this.props.storyDetails.description,
+                            storyComments : this.props.storyDetails.comments,
+                            duedate : this.props.storyDetails.duedate, 
+                            storyContributor : this.props.storyDetails.contributor,
+                            storyPriority : this.props.storyDetails.priority});
+        }
         let columnPostion = 0;
         let columns = this.generateColumnArray();
         for(let i =0;i<columns.length;i++){
@@ -35,6 +64,29 @@ class Story extends Component{
             }
         }
         this.setState({columnPosition:columnPostion});                      
+    }
+
+    onChangeHandler(event){
+        switch(event.target.className){
+            case "storyTitle":
+                this.setState({storyTitle : event.target.value});
+                break;
+            case "storyDescription":
+                this.setState({storyDescription : event.target.value});
+                break;
+            case "comments":
+                this.setState({storyComments : event.target.value});
+                break;
+            case "priority":
+                this.setState({storyPriority : event.target.value});
+                break;
+            case "duedate":
+                this.setState({duedate : event.target.value});
+                break;    
+            case "contributor":
+                this.setState({storyContributor : event.target.value});
+                break;      
+        }
     }
 
     currentProject(){
@@ -48,7 +100,28 @@ class Story extends Component{
     }
 
     editStory(event){
-        this.props.editStory(this.props.storyDetails._id);
+        if(event.target.id != this.props.storyDetails._id){
+            window.history.pushState({}, "",this.currentProject()._id);
+            this.setState({isOpen : false,
+                            oldStoryDetails : {},
+                            storyTitle : "",
+                            storyDescription : "",
+                            storyComments : "",
+                            duedate : "", 
+                            storyContributor : "",
+                            storyPriority : ""});
+        }else{
+            window.history.pushState({}, "",this.currentProject()._id+"?storyID="+this.props.storyDetails._id);
+            this.setState({isOpen : true,
+                            contributorList : ["Contributors",...this.currentProject().contributors],
+                            oldStoryDetails : {...this.props.storyDetails},
+                            storyTitle : this.props.storyDetails.storytitle,
+                            storyDescription : this.props.storyDetails.description,
+                            storyComments : this.props.storyDetails.comments,
+                            duedate : this.props.storyDetails.duedate, 
+                            storyContributor : this.props.storyDetails.contributor,
+                            storyPriority : this.props.storyDetails.priority});
+        }
     }
 
     generateColumnArray(){
@@ -79,6 +152,59 @@ class Story extends Component{
         });
         let isMoveValid = queueCounter < selectedColumn.WIP ? true : false;
         return isMoveValid;
+    }
+
+    updateFormhandler(){
+        let globalThis = this;
+        let storyObject = {};
+        let errorObject = {};
+        let headers = {"CookieID" : cookieManager.getUserSessionDetails()}
+        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+        if(this.state.storyTitle != this.state.oldStoryDetails.storytitle){
+            storyObject.StoryTitle = this.state.storyTitle;
+        }if(this.state.storyDescription != this.state.oldStoryDetails.description){
+            storyObject.Description = this.state.storyDescription;
+        }if(this.state.storyComments != this.state.oldStoryDetails.comments){
+            storyObject.Comments = this.state.storyComments;
+        }if(this.state.storyContributor != this.state.oldStoryDetails.contributor){
+            storyObject.Contributor = this.state.storyContributor;
+        }if(this.state.storyPriority != this.state.oldStoryDetails.priority){
+            storyObject.Priority = this.state.storyPriority;
+        }if(this.state.duedate != this.state.oldStoryDetails.duedate){
+            storyObject.DueDate = this.state.oldStoryDetails.duedate;
+        }
+        storyObject._id = this.props.storyID;
+        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject},contributorUsername : this.state.storyContributor},{},function(error,responseObject) {
+            if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                if(error){
+                    errorObject.msg = error;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }else{
+                    errorObject.msg = responseObject.ERRORMSG;
+                    errorObject.status = "ERROR";
+                    globalThis.props.setMsgState(errorObject);
+                }
+            }else{
+                let updatedUser = {...globalThis.props.user};
+                updatedUser.projects.map(project => {
+                    if(project._id == projectID){
+                        project.storydetails.map(story => {
+                            if(story._id == globalThis.props.storyID){
+                                story.storytitle = globalThis.state.storyTitle;
+                                story.description = globalThis.state.storyDescription;
+                                story.comments = globalThis.state.storyComments;
+                                story.duedate = globalThis.state.duedate;
+                                story.contributor = globalThis.state.storyContributor;
+                                story.priority = globalThis.state.storyPriority;
+                            }
+                        });
+                    }
+                });
+                globalThis.props.setUserState(updatedUser);
+                globalThis.props.closeForm();
+            }
+        });  
     }
 
     moveStory(event){
@@ -179,6 +305,17 @@ class Story extends Component{
     }
 
     render(){
+        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+(new Date().getMonth()+1) : (new Date().getMonth()+1);
+        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        let disableUpdate = this.state.currentMode == "ADD" ? true : (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
+                                                                        this.state.storyDescription != this.state.oldStoryDetails.description || 
+                                                                            this.state.storyComments != this.state.oldStoryDetails.comments || 
+                                                                                this.state.storyContributor != this.state.oldStoryDetails.contributor ||
+                                                                                    this.state.duedate != this.state.oldStoryDetails.duedate ||
+                                                                                        this.state.storyPriority != this.state.oldStoryDetails.priority) && (this.state.storyTitle != "" && 
+                                                                                            this.state.storyDescription != "" && this.state.storyComments != "" && 
+                                                                                                this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
+                                                                                                    this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;                                                                                 
         let demoteShow = this.state.columnPosition != 0 && this.state.hover ? false : true;
         let promoteShow = this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
         let storyJSX = this.props.storyDetails.storyTitle != "" && 
@@ -195,7 +332,39 @@ class Story extends Component{
                                 <button className="deleteStory" hidden={!this.state.hover} onClick={this.deleteStory}>/_\</button>
                             </div> 
                             :"";
-        return(<div>{storyJSX}</div>);
+        return(<div>
+                {storyJSX}
+                <Modal
+				isOpen={this.state.isOpen}
+				onRequestClose={this.editStory}
+				contentLabel="">
+                    <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
+                    <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
+                    <input type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
+                    <input type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
+                    <select className = "priority" onChange = {this.onChangeHandler}>
+                        {
+                            this.state.priorityList.map(priority => {
+                                if(this.state.storyPriority == priority)
+                                    return (<option value = { priority } selected>{priority}</option>);
+                                else
+                                    return (<option value = { priority }>{priority}</option>);
+                            })
+                        }
+                    </select>
+                    <select className = "contributor" onChange = {this.onChangeHandler}>
+                        {
+                            this.state.contributorList.map(contributor => {
+                                if(this.state.storyContributor == contributor)
+                                    return (<option value = { contributor } selected>{contributor}</option>);
+                                else
+                                    return (<option value = { contributor }>{contributor}</option>);
+                            })
+                        }
+                    </select>
+                    <button disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</button>
+				</Modal>
+               </div>);
     }
 }
 
