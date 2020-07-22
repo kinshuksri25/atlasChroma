@@ -83,7 +83,6 @@ class Events extends Component{
             return null;
         }
     }
-
     //DONE
     removeParticipant(event){
         let participants = [...this.state.participants];
@@ -117,7 +116,7 @@ class Events extends Component{
                                         endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]});
         }
     }
-
+    //DONE
     updateEvent(){
         let eventObject = {};
         let errorObject = {};
@@ -174,11 +173,11 @@ class Events extends Component{
                     }
                 });
                 globalThis.props.setUserState(userObject);
-                globalThis.setState({showEditForm : false,eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
+                globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
     }
-
+    //DONE
     deleteEvent(){
         let errorObject = {};
         let globalThis = this;
@@ -207,11 +206,11 @@ class Events extends Component{
                     }
                 });
                 globalThis.props.setUserState(userObject);
-                globalThis.setState({showEditForm : false,eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
+                globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
     }
-
+    //DONE
     addEvent(formObject){
         let errorObject = {};
         let globalThis = this;
@@ -219,7 +218,7 @@ class Events extends Component{
         if(this.state.eventType != ""){
 
             if(this.state.eventType == "Timed" || this.state.eventType == "Meeting"){
-                this.state.timedEvents.map(event => {
+                [...this.state.timedEvents,...this.state.meetings].map(event => {
                     if(this.state.endTime == "" ||
                         this.state.startTime == "" ||
                             this.state.endTime <= this.state.startTime ||
@@ -227,16 +226,7 @@ class Events extends Component{
                                     (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
                                         invalidTime = true;
                     }
-                });
-                this.state.meetings.map(event => {
-                    if(this.state.endTime == "" ||
-                        this.state.startTime == "" ||
-                            this.state.endTime <= this.state.startTime ||
-                                (this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
-                                    (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
-                                        invalidTime = true;
-                    }
-                });  
+                }); 
             }
 
             if(!invalidTime){
@@ -282,7 +272,7 @@ class Events extends Component{
                         let userObject = {...globalThis.props.user};
                         userObject.events.push(eventObject);
                         globalThis.props.setUserState(userObject);
-                        globalThis.setState({addNewEvent : false,eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants : [globalThis.props.user.username]});
+                        globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants : [globalThis.props.user.username]});
                     }
                 });
             }else{
@@ -296,7 +286,6 @@ class Events extends Component{
             globalThis.props.setMsgState(errorObject);
         }
     }
-
     //DONE
     onChangeHandler(event){
 
@@ -318,7 +307,7 @@ class Events extends Component{
                 break;                                                                      
         }
     }
-
+    //DONE
     checkUpdate(){
         if(this.state.eventType != "" && this.state.EventTitle != "" && this.state.Description != ""){
             let enableUpdate = ((this.state.EventTitle != this.state.selectedEvent.EventTitle) || 
@@ -331,7 +320,7 @@ class Events extends Component{
                                                             && this.state.endTime == this.state.selectedEvent.EndTime)){
                     invalidTime = true;                                            
                 }else{
-                    this.state.timedEvents.map(event => {
+                    [...this.state.timedEvents,...this.state.meetings].map(event => {
                         if(event._id != this.state.selectedEvent._id){
                             if(this.state.endTime == "" ||
                                 this.state.startTime == "" ||
@@ -343,20 +332,7 @@ class Events extends Component{
                                                 invalidTime = true;
                                 }
                        }
-                    }); 
-                    this.state.meetings.map(event => {
-                        if(event._id != this.state.selectedEvent._id){
-                            if(this.state.endTime == "" ||
-                                this.state.startTime == "" ||
-                                    this.state.endTime <= this.state.startTime ||
-                                        (this.state.startTime == this.state.selectedEvent.StartTime
-                                            && this.state.endTime == this.state.selectedEvent.EndTime)||
-                                        (this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
-                                            (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
-                                                invalidTime = true;
-                                }
-                       }
-                    }); 
+                    });
                 }
                 enableUpdate = !invalidTime || !enableUpdate ? false : true;         
             }  
@@ -365,14 +341,12 @@ class Events extends Component{
             return true;
         }
     }
-
     //DONE
     suggestionAllocator(selectedValue,searchBoxID){
         let participants = [...this.state.participants];
         participants.indexOf(selectedValue) > 0 || participants.push(selectedValue);
         this.setState({participants : participants});
     }
-
     //DONE
     createUnfilteredList(){
         let userList = [...this.props.userList];
