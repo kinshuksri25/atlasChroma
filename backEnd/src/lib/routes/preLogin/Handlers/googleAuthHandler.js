@@ -83,6 +83,10 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
     };
     if(requestObject.reqBody.hasOwnProperty("state") && requestObject.method == "POST"){
         mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, {}).then(resultSet => {
+            let templateObject = {
+                userName : resultSet[0].email.toUpperCase(),
+                supportEmail : OAuthCONST.appAuth.senderEmail
+            };
             if(requestObject.reqBody.code != undefined && requestObject.reqBody.error == undefined){
                 if (JSON.stringify(resultSet) != JSON.stringify([])){
                     if(resultSet[0].refreshToken == ""){
@@ -91,24 +95,27 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                             //check for new user 
                             if(resultSet[0].password == "" && resultSet[0].username == ""){
                                 //send welcome mail
-                                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,resultSet[0].email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => { 
-                                    googleApis.getUserDetails(refreshTokenObject.refresh_token).then(result => {
-                                        mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshToken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
-                                            response.SMSG = SMSG.SVR_OATH_LGNSUC;
-                                            response.STATUS = 200;
-                                            resolve(response);
-                                        }).catch(error => {
-                                            throw error;
-                                        });
-                                    }).catch(reject => {
-                                        throw reject;
+                                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,resultSet[0].email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL,templateObject).catch(error => {
+                                    let payload = {
+                                        "participants" : [resultSet[0].email],
+                                        "template" : "WELCOMEMAIL",
+                                        "templateData" : {...templateObject}
+                                    };
+                                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                                });  
+                                googleApis.getUserDetails(refreshTokenObject.refresh_token).then(result => {
+                                    mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name, refreshToken: refreshTokenObject.refresh_token}}, {}, SINGLE).then(updateSet => {
+                                        response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                                        response.STATUS = 200;
+                                        resolve(response);
+                                    }).catch(error => {
+                                        throw error;
                                     });
-                                }).catch(error => {
-                                    console.log(error);
+                                }).catch(reject => {
                                     response.STATUS = 500;
                                     response.EMSG = EMSG.SVR_OATH_LGNUSUC;
                                     reject(response);
-                                });  
+                                });
                             }else{
                                 //TODO --> handle condition to check fname and lname
                                 //set userSession
@@ -140,25 +147,28 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
                         //check for new user 
                         if(resultSet[0].password == "" && resultSet[0].username == ""){
                             //send welcome mail
-                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,resultSet[0].email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {  
-                                googleApis.getUserDetails(resultSet[0].refreshToken).then(result => {
-                                    mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name}}, {}, SINGLE).then(updateSet => {
-                                        response.PAYLOAD = {};
-                                        response.SMSG = SMSG.SVR_OATH_LGNSUC;
-                                        response.STATUS = 200;
-                                        resolve(response);
-                                    }).catch(error => {
-                                        throw error;    
-                                    });
-                                }).catch(reject => {
-                                    throw reject;
+                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,resultSet[0].email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL,templateObject).catch(error => {
+                                let payload = {
+                                    "participants" : [resultSet[0].email],
+                                    "template" : "WELCOMEMAIL",
+                                    "templateData" : {...templateObject}
+                                };
+                                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                            }); 
+                            googleApis.getUserDetails(resultSet[0].refreshToken).then(result => {
+                                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { firstname: result.given_name, lastname: result.family_name}}, {}, SINGLE).then(updateSet => {
+                                    response.PAYLOAD = {};
+                                    response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                                    response.STATUS = 200;
+                                    resolve(response);
+                                }).catch(error => {
+                                    throw error;    
                                 });
-                            }).catch(error => {
-                                console.log(error);
+                            }).catch(reject => {
                                 response.STATUS = 500;
                                 response.EMSG = EMSG.SVR_OATH_LGNUSUC;
                                 reject(response);
-                            }); 
+                            });
                         }else{
                             //set userSession
                             cookieHandler.createCookies(resultSet[0]._id,resultSet[0].username).then(resolvedResult => {

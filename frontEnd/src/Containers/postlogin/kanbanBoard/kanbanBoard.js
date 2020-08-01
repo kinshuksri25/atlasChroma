@@ -24,8 +24,17 @@ class KanbanBoard extends Component {
         this.groupTemplate = this.groupTemplate.bind(this);
     }
     
-    componentDidMount(){
-        JSON.stringify(this.selectProject()) == JSON.stringify({}) && window.history.pushState({}, "",urls.PROJECT);
+    static getDerivedStateFromProps(props,state){
+        let projectObject = {};
+        props.user.projects.map(project => {
+            if(project._id == props.projectID)
+                    projectObject = project;      
+        });
+        if(JSON.stringify(projectObject) == JSON.stringify({}))
+        {
+            window.history.replaceState({}, "",urls.PROJECT);
+        }
+        return null;    
     }
 
     groupTemplate(template){
@@ -45,10 +54,9 @@ class KanbanBoard extends Component {
     }
 
     selectProject(){
-        let projectID = this.props.projectID;
         let projectObject = {};
         this.props.user.projects.map(project => {
-            if(project._id == projectID)
+            if(project._id == this.props.projectID)
                     projectObject = project;      
         });
         return projectObject;
@@ -77,9 +85,7 @@ class KanbanBoard extends Component {
             width : this.state.componentWidth
         };
         let currentProject = this.selectProject();
-        let boardJSX = JSON.stringify(currentProject) == JSON.stringify({}) ? "" : 
-                            JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() :
-                                 <SetupProject/>;
+        let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
         return (<div>
                     <Modal
                     isOpen={this.state.showStoryForm}

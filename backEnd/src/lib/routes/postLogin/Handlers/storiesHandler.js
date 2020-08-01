@@ -73,24 +73,36 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
       requestObject.reqBody.hasOwnProperty("Comments")&&
       requestObject.reqBody.hasOwnProperty("projectID")){
      //create the stories object
-     let newStory = new story({storytitle : requestObject.reqBody.StoryTitle,
-        description : requestObject.reqBody.Description,
-        contributor : requestObject.reqBody.Contributor,
-        priority : requestObject.reqBody.Priority,
-        duedate : requestObject.reqBody.EndDate,
-        currentstatus : requestObject.reqBody.currentStatus,
-        comments : requestObject.reqBody.Comments}); 
+        let newStory = new story({storytitle : requestObject.reqBody.StoryTitle,
+            description : requestObject.reqBody.Description,
+            contributor : requestObject.reqBody.Contributor,
+            priority : requestObject.reqBody.Priority,
+            duedate : requestObject.reqBody.EndDate,
+            currentstatus : requestObject.reqBody.currentStatus,
+            comments : requestObject.reqBody.Comments}); 
+
+        let template = {
+            storyLink : "https://localhost:3000/projects/"+requestObject.reqBody.projectID+"?storyID="+newStory.getStoryDetails()._id,
+            storyName : requestObject.reqBody.StoryTitle,
+            projectName : requestObject.reqBody.ProjectName
+        };
 
     mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{},SINGLE).then(resolvedResult =>{
         
         mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.Contributor},{}).then(resolvedResult => {
             let contributorEmailID = resolvedResult[0].email;
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY).then(resolvedResult => {
+            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY,template).then(resolvedResult => {
                 response.STATUS = 200;
                 response.PAYLOAD = {...newStory.getStoryDetails()};
                 response.SMSG = "board details updated successfully";
                 resolve(response);
             }).catch(rejectedResult => {
+                let payload = {
+                    "participants" : [contributorEmailID],
+                    "template" : "ADDSTORY",
+                    "templateData" : template
+                };
+                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                 response.STATUS = 201;
                 response.PAYLOAD = {...newStory.getStoryDetails()};
                 response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
@@ -145,15 +157,28 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
             set["storydetails.$.comments"] = requestObject.reqBody.storyDetails.Comments;
         }
 
+        let template = {
+            storyName : requestObject.reqBody.oldStoryName,
+            projectName : requestObject.reqBody.projectName,
+            storyLink : requestObject.reqBody.storyDetails._id,
+            status : requestObject.reqBody.storyDetails.hasOwnProperty("currentStatus") ? "moved to a different phase" : "edited",
+        };
+
         mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{},SINGLE).then(resolvedResult => {
             mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.contributorUsername},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = "story moved successfully";
                     resolve(response);
                 }).catch(rejectedResult => {
+                    let payload = {
+                        "participants" : [contributorEmailID],
+                        "template" : "MOVESTORY",
+                        "templateData" : template
+                    };
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
                     response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
@@ -192,12 +217,23 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
         mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{},SINGLE).then(resolvedResult => {   
             mongo.read(DBCONST.userCollection,{username: requestObject.queryObject.contributor },{}).then(resolvedResult => {;
                 let contributorEmailID = resolvedResult[0].email;
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY).then(resolvedResult => {
+                let template = {
+                    "storyName" : requestObject.queryObject.storyName,
+                    "projectName" : requestObject.queryObject.projectName,
+                    "projectLink" : "https://localhost:3000/projects/"+requestObject.queryObject.projectID
+                };
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY,template).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = "story deleted successfully";
                     resolve(response);
                 }).catch(rejectedResult => {
+                    let payload = {
+                        "participants" : [contributorEmailID],
+                        "template" : "DELETESTORY",
+                        "templateData" : template
+                    };
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
                     response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here

@@ -8,6 +8,7 @@ const auth = require("./lib/auth");
 const profile = require("./lib/profile");
 const email = require("./lib/email");
 const {OAuthCONST,EMSG} = require("../../../../lib/constants/contants");
+const {interpolate} = require("../utils/helper");
 
 
 //declaring the module
@@ -16,13 +17,14 @@ const googleApis = {};
 //function for sending emails
 //params --> senderEmail - string, recieverEmail - string/array, refreshToken - string, clientID - string, clientSecret - string, emailTemplate - object
 //returns --> promise - boolean
-googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate) => new Promise((resolve,reject) => {
+googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate,replacementData) => new Promise((resolve,reject) => {
    //get the template data
    fs.readFile(emailTemplate.templateLocation, function(error, data) {  
     if (error) {
         console.log(error);
         reject(false);
     } else { 
+        data = JSON.stringify(replacementData) == JSON.stringify({}) ? data : interpolate(data,replacementData);
         //get access token 
         googleApis.getAccessToken(refreshToken).then(resolvedResult => {
             //send the email

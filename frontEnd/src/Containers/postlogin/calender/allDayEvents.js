@@ -61,7 +61,7 @@ class AllDayEvent extends Component{
                             </div>);
         });
         this.props.allDayEvents.map(event => {      //this has to come from props
-            allDayJSX.push(<div className = "eventTab" id = {event._id} onClick={this.props.onEventClick}>  
+            allDayJSX.push(<div className = "eventTab" id = {event._id} onClick={this.props.onClick}>  
                 <h3>{event.EventTitle}</h3>
                 <h4>{event.Description}</h4>
             </div>);

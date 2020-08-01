@@ -100,12 +100,11 @@ class PostLoginRouter extends Component {
     containerSelector() {
       if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
         let boardRegex = new RegExp(/projects\/[a-z0-9]+$/g);
-        let schedulerRegex = new RegExp(/scheduler\/[a-z0-9]+$/g);
+        let schedulerRegex = new RegExp(/scheduler\/[0-9]+$/g);
         let path = window.location.pathname.substring(1).toLowerCase();
-
-        if(!/[a-z]+\/[a-z|0-9]+/g.test(path))
+        if(!/[a-z]+\/[a-z|0-9]+/g.test(path)){
             if (/[a-z]+\//g.test(path)) {
-                window.location.pathname = "/" + path.substring(0, path.length - 1);
+                window.history.replaceState({}, "", "/" + path.substring(0, path.length - 1));
             } else {
                 switch (path) {
                     case "dashboard":
@@ -130,8 +129,8 @@ class PostLoginRouter extends Component {
                         return <DashBoard/>;
                         break;
                 }
-            }  
-        else{
+            }
+        } else{
             let nestedPath = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
             if(boardRegex.test(path)){
                 path != ("projects/"+nestedPath.toLowerCase()) && window.history.replaceState({}, "",urls.DASHBOARD);
@@ -150,14 +149,12 @@ class PostLoginRouter extends Component {
     }
    
 
-    render(){
-        let messageContainer =  this.props.io == "" && 
-                                    JSON.stringify(this.props.user) == JSON.stringify(userObject) ? "" : <MessageBox/>;                                    
+    render(){                                  
         return ( <div>
                     <Menu menuArray = {menuConstants}/> 
                     {JSON.stringify(this.props.user) == JSON.stringify(userObject) || this.containerSelector() }
                     <Highlight/> 
-                    {messageContainer}
+                    {this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject) && <MessageBox/>}
                 </div>);
     }
 }

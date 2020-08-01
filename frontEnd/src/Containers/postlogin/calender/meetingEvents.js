@@ -2,14 +2,18 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
-import Model from 'react-modal';
+import Modal from 'react-modal';
 
+import DateHelper from '../../generalContainers/date';
 import JitsiContainer from '../jitsi';
 
 class MeetingEvent extends Component{
     constructor(props){
         super(props);
-        this.state = {currentTime : "",isOpen : false};
+        this.state = {  dateHelper : new DateHelper(),
+                        currentTime : "",
+                        eventDate : props.currentYear+"-"+props.currentMonth+"-"+props.currentDate,
+                        isOpen : false};
         this.meetingJSX = this.meetingJSX.bind(this);
         this.setCurrentTime = this.setCurrentTime.bind(this);
         this.sortStories = this.sortStories.bind(this);
@@ -56,20 +60,18 @@ class MeetingEvent extends Component{
     meetingJSX(){
         let sortedEvent = this.sortStories(this.props.meetings);
         let meetings = [];
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
-        let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
+        let currentDateObject = this.state.dateHelper.currentDateGenerator();
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         sortedEvent.map(event => {
             let status = "";
             let startTime = event.StartTime.indexOf(":") == 2 ? event.StartTime.substring(0,2) : event.StartTime.substring(0,1);
             let currentTime = this.state.currentTime.indexOf(":") == 2 ? this.state.currentTime.substring(0,2) : this.state.currentTime.substring(0,1);
             if(this.state.currentTime == ""){
-                status = currentDate < eventDate ? "Yet to Start" : "Finished"
+                status = currentDate < this.state.eventDate ? "Yet to Start" : "Finished"
             }else{
                 status = startTime > currentTime ? "Yet to Start" : startTime <= currentTime ? "Finished" : "Current Active";
             }
-            meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.onEventClick}>  
+            meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.onClick}>  
                             <h3>RoomName: {event.EventTitle}{status}</h3>
                             <h4><span>MeetingCreator: {event.creator}</span> <span>MeetingCode: {event.password}</span></h4>
                             <h4>{event.Description}</h4>  <button className = {event._id} onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
@@ -110,4 +112,10 @@ class MeetingEvent extends Component{
     }
 }
 
-export default connect(null,null)(MeetingEvent); 
+const mapStateToProps = (state) => {
+    return {
+        user : state.userStateReducer
+    }
+};
+
+export default connect(mapStateToProps,null)(MeetingEvent); 

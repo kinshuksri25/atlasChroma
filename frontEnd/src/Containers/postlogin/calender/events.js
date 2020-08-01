@@ -7,6 +7,9 @@ import Modal from 'react-modal';
 import formConstants from '../../../Forms/formConstants';
 import cookieManager from '../../../Components/cookieManager';
 import SearchFeild from '../../../Forms/searchFeildForm';
+import AllDayEvent from './allDayEvents';
+import TimedEvent from './timedEvents';
+import MeetingEvent from './meetingEvents';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import SimpleForm from '../../../Forms/simpleform';
@@ -40,50 +43,67 @@ class Events extends Component{
         this.updateEvent = this.updateEvent.bind(this);
         this.triggerModal = this.triggerModal.bind(this);
         this.deleteEvent = this.deleteEvent.bind(this);
-        this.addEventHandler = this.addEventHandler.bind(this);
         this.checkUpdate = this.checkUpdate.bind(this);
     }
 
     static getDerivedStateFromProps(props,state){
-        if(JSON.stringify(state.allDayEvents) == JSON.stringify([]) || JSON.stringify(state.allDayStories) == JSON.stringify([])){
-            let allDayEvents = [];
-            let allDayStories = [];
-            let timedEvents = [];
-            let meetings = [];
-            props.user.projects.map(project => {
-                project.storydetails.map(story => {
-                    let allDayEvent = {...story};
-                    allDayEvent.projectID = project._id;
-                    let currentAdjustedMonth = 1+parseInt(props.currentMonth);
-                    allDayEvent.contributor == props.user.username && 
-                    allDayEvent.duedate == props.currentYear+"-"+"0"+currentAdjustedMonth+"-"+props.currentDate && allDayStories.push(allDayEvent);
-                });
+        let allDayEvents = [];
+        let allDayStories = [];
+        let timedEvents = [];
+        let meetings = [];
+        props.user.projects.map(project => {
+            project.storydetails.map(story => {
+                let allDayEvent = {...story};
+                allDayEvent.projectID = project._id;
+                let currentAdjustedMonth = 1+parseInt(props.currentMonth);
+                currentAdjustedMonth = currentAdjustedMonth < 10 ? "0"+currentAdjustedMonth : currentAdjustedMonth;
+                allDayEvent.contributor == props.user.username && 
+                allDayEvent.duedate == props.currentYear+"-"+currentAdjustedMonth+"-"+props.currentDate && allDayStories.push(allDayEvent);
             });
-            
-            props.user.events.map(event => {
-                if(event.EventType == "All Day" && 
-                    props.currentYear+"-"+props.currentMonth+"-"+props.currentDate == event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate)
-                    allDayEvents.push(event);
-                if(event.EventType == "Timed" && 
-                    props.currentYear+"-"+props.currentMonth+"-"+props.currentDate == event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate) 
-                    timedEvents.push(event); 
-                    
-                if(event.EventType == "Meeting" && 
-                    props.currentYear+"-"+props.currentMonth+"-"+props.currentDate == event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate) 
-                    meetings.push(event);                    
-            });
+        });
+        
+        props.user.events.map(event => {
+            if(props.currentYear+"-"+props.currentMonth+"-"+props.currentDate == event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate){
+                switch(event.EventType){
+                    case "All Day":
+                        allDayEvents.push(event);
+                        break;
+                    case "Timed":
+                        timedEvents.push(event);
+                        break;
+                    case "Meeting":
+                        meetings.push(event);
+                        break;                        
+                }
+            }                   
+        });
 
-            let newState = {...state};
-            newState.allDayStories = [...allDayStories];
-            newState.allDayEvents = [...allDayEvents];
-            newState.timedEvents = [...timedEvents];
-            newState.meetings = [...meetings];
-            return {...newState};
-        }else{
-            return null;
+        let newState = {...state};
+        newState.allDayStories = [...allDayStories];
+        newState.allDayEvents = [...allDayEvents];
+        newState.timedEvents = [...timedEvents];
+        newState.meetings = [...meetings];
+        return {...newState};
+    }
+
+    componentDidMount(){
+        let eventID = url.parse(window.location.href,true).query.eventID;
+        if(eventID != ""){
+            let selectedEvent = {};
+            let combinedArray = [...this.state.allDayStories,...this.state.allDayEvents,...this.state.timedEvents];
+            combinedArray.map(event => {
+
+                selectedEvent = eventID == event._id ? event : selectedEvent;
+            });
+            JSON.stringify(selectedEvent) == JSON.stringify({}) && window.history.pushState({},"","scheduler/"+this.props.currentYear+this.state.currentMonth+this.state.currentDate);
+            JSON.stringify(selectedEvent) != JSON.stringify({}) && this.setState({
+                currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
+                endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]
+            });
         }
     }
-    //DONE
+
+    
     removeParticipant(event){
         let participants = [...this.state.participants];
         let errorObject = {};
@@ -96,11 +116,12 @@ class Events extends Component{
         participants.indexOf(event.target.id) > 0 && participants.splice(participants.indexOf(event.target.id),1);
         this.setState({participants : participants});
     }
-    //DONE
+    
     triggerModal(event){
-        if(event.target.id == "ADD"){
+        if(event.target.className == "ADD"){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
-        }else if(event.target.id == "CLOSE"){
+        }else if(event.target.className == "CLOSE"){
+            this.state.currentMode == "ADD" && window.history.pushState({}, "","/scheduler"+this.props.currentYear+this.props.currentMonth+this.props.currentDate);
             this.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
         }else{
             let combinedArray = [...this.state.allDayEvents,...this.state.timedEvents,...this.state.meetings];
@@ -113,10 +134,12 @@ class Events extends Component{
             }); 
             let participants = selectedEvent.hasOwnProperty("participants") ? selectedEvent.participants : this.state.participants;
             this.setState({currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
-                                        endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]});
+                                        endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]},() => {
+                                            window.history.pushState({}, "","/scheduler"+this.props.currentYear+this.props.currentMonth+this.props.currentDate+"?eventID="+event.target.id);
+                                        });
         }
     }
-    //DONE
+    
     updateEvent(){
         let eventObject = {};
         let errorObject = {};
@@ -138,6 +161,8 @@ class Events extends Component{
             }
         }
         eventObject._id = this.state.selectedEvent._id;
+        eventObject.EventType = this.state.selectedEvent.eventType;
+        eventObject.oldTitle = this.state.selectedEvent.EventTitle;
         httpsMiddleware.httpsRequest("/event","PUT",headers,{...eventObject},{},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
@@ -177,7 +202,7 @@ class Events extends Component{
             }
         });
     }
-    //DONE
+    
     deleteEvent(){
         let errorObject = {};
         let globalThis = this;
@@ -210,7 +235,7 @@ class Events extends Component{
             }
         });
     }
-    //DONE
+    
     addEvent(formObject){
         let errorObject = {};
         let globalThis = this;
@@ -286,7 +311,7 @@ class Events extends Component{
             globalThis.props.setMsgState(errorObject);
         }
     }
-    //DONE
+    
     onChangeHandler(event){
 
         switch(event.target.className){
@@ -307,7 +332,7 @@ class Events extends Component{
                 break;                                                                      
         }
     }
-    //DONE
+    
     checkUpdate(){
         if(this.state.eventType != "" && this.state.EventTitle != "" && this.state.Description != ""){
             let enableUpdate = ((this.state.EventTitle != this.state.selectedEvent.EventTitle) || 
@@ -341,13 +366,13 @@ class Events extends Component{
             return true;
         }
     }
-    //DONE
+    
     suggestionAllocator(selectedValue,searchBoxID){
         let participants = [...this.state.participants];
         participants.indexOf(selectedValue) > 0 || participants.push(selectedValue);
         this.setState({participants : participants});
     }
-    //DONE
+    
     createUnfilteredList(){
         let userList = [...this.props.userList];
         userList.map(user => {
@@ -374,7 +399,7 @@ class Events extends Component{
                     isOpen={this.state.currentMode != ""}
                     contentLabel="">
                             <button onClick = {this.triggerModal} className = "CLOSE">X</button>
-                            <select className="eventTypeDropDown" onChange={this.onChangeHandler} disabled = {true}>
+                            <select className="eventTypeDropDown" onChange={this.onChangeHandler} disabled = {this.state.currentMode == "EDIT"}>
                                 <option value = "">EventType</option>
                                 {
                                     this.state.options.map(option => {
@@ -385,7 +410,7 @@ class Events extends Component{
                                     })
                                 }
                             </select>
-                            <select className="stateTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day"}>
+                            <select className="stateTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
                                     <option value = "">Start Time</option>
                                 {
                                     timeArray.map(time => {
@@ -396,7 +421,7 @@ class Events extends Component{
                                     })
                                 }
                             </select>
-                            <select className="endTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day"}>
+                            <select className="endTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
                                     <option value = "">End Time</option>
                                 {
                                     timeArray.map(time => {
@@ -431,13 +456,13 @@ class Events extends Component{
                     </Modal>
                     <h3>All Day Events</h3>
                     <hr/>
-                    
+                    <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
                     <h3>Timed Events</h3>
                     <hr/>
-                    
+                    <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
                     <h3>Meetings</h3>
                     <hr/>
-
+                    <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
                 </div>);
     }
 }

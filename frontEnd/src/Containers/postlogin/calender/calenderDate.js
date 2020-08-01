@@ -27,16 +27,15 @@ class CalenderDate extends Component{
 
     render(){
         let heading = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
-        let bodyJSX = this.state.activeTab == "Events" ? <Events currentMonth = {this.props.currentMonth} 
-                                                            currentYear = {this.props.currentYear} 
-                                                            currentDate = {this.props.currentDate}/> : 
-                                                         <Notes calenderDate = {heading}/>;
         return(<div>
                     <button onClick={this.props.onClickHandler}>X</button>
                     <button id="Events" onClick={this.changeActiveTab}>Events</button>
                     <button id="Notes" onClick={this.changeActiveTab}>Notes</button>
                     <div className = "calenderHeading">{heading}</div>
-                    <div>{bodyJSX}</div>
+                    {this.state.activeTab == "Events" && <Events currentMonth = {this.props.currentMonth} 
+                                                            currentYear = {this.props.currentYear} 
+                                                            currentDate = {this.props.currentDate}/> }
+                    {this.state.activeTab == "Events" || <Notes calenderDate = {heading}/>}                                                            
                </div>);
     }
 }

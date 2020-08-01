@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import DateHelper from '../../generalContainers/date';
 import CalenderDate from './calenderDate';
 import {urls} from "../../../../../lib/constants/contants";
 
@@ -12,57 +13,36 @@ class Scheduler extends Component {
                 this.state={
                     currentMonth : "",
                     currentYear : "",
-                    currentDate : "",   
+                    currentDate : "", 
+                    dateHelper : new DateHelper()
                 };
                 this.buildCalender = this.buildCalender.bind(this);
-                this.getMonthDays = this.getMonthDays.bind(this);
                 this.changeMonth = this.changeMonth.bind(this);
                 this.onClickHandler = this.onClickHandler.bind(this);
         }
 
-        componentDidMount(){
-                let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-                this.setState({
-                        currentMonth : currentMonth,
-                        currentYear : new Date().getFullYear()  
-                },()=>{
-                        let currentDate = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-                        currentDate = currentDate.length == 1 && currentDate <= 9 && currentDate >0 ? "0"+currentDate : currentDate;
-                        if(currentDate.length == 2 && currentDate <= this.getMonthDays() && currentDate > 0){
-                                window.history.pushState({}, "",urls.SCHEDULER+"/"+currentDate);   
-                                let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-                                this.setState({
-                                    currentDate : currentDate   
-                                });                 
-                        }else{
-                                if(currentDate != "scheduler"){
-                                        window.history.pushState({}, "",urls.SCHEDULER);     
-                                }
-                        }
-                }); 
-        }
+        static getDerivedStateFromProps(props,state){
+                let fullDate = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+                if(fullDate.length == "8"){
+                        let date=fullDate.substring(6);
+                        let month=fullDate.substring(4,6) - 1;
+                        let year = fullDate.substring(0,4);
 
-        getMonthDays(){
-                let noOfDays = 0;
-                let currentMonth = this.state.currentMonth;
-                let currentYear = this.state.currentYear;
-                if(currentMonth == 0 
-                || currentMonth == 2 
-                || currentMonth == 4 
-                || currentMonth == 6 
-                || currentMonth == 7
-                || currentMonth == 9
-                || currentMonth == 11){
-                        noOfDays = 31;
-                } else if(currentMonth == 3
-                        || currentMonth == 5
-                        || currentMonth == 8
-                        || currentMonth == 10){
-                        noOfDays = 30;        
-                } else{
-                        noOfDays = currentYear%4 && currentYear%100 && currentYear%400 ? 29 : 28;
+                        if( 1940 <= year && year <= 2200 && 0 <= month && month <= 11 && 1 <= date && date <= state.dateHelper.getMonthDays(month,year)){
+                                return{ currentDate : date,
+                                        currentMonth : month,
+                                        currentYear : year };  
+                        }else{
+                                window.history.pushState({}, "",urls.SCHEDULER);    
+                        }
+
+                }else if(fullDate == "scheduler"){ 
+                        let currentDateObject = state.dateHelper.currentDateGenerator();
+                        return{ currentMonth : currentDateObject.month,
+                                currentYear : currentDateObject.year };    
+                }else{
+                        window.history.pushState({}, "",urls.SCHEDULER); 
                 }
-                return noOfDays;      
         }
 
         changeMonth(event){
@@ -102,7 +82,7 @@ class Scheduler extends Component {
 
         buildCalender(){
                 let globalThis = this;
-                let noOfDays = this.getMonthDays();
+                let noOfDays = this.state.dateHelper.getMonthDays(this.state.currentMonth,this.state.currentYear);
                 let dayCounter = 1;
                 let firstDay = new Date(this.state.currentYear,this.state.currentMonth,1).toDateString().substring(0,3);
                 let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -139,12 +119,14 @@ class Scheduler extends Component {
            switch(event.target.className){
                 case "calenderButton" : 
                         let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
-                        window.history.replaceState({}, "",window.location.pathname+"/"+currentDay);
-                        this.setState({currentDate : currentDay});
+                        this.setState({currentDate : currentDay},() => {
+                                window.history.replaceState({}, "",window.location.pathname+"/"+this.state.currentYear+this.state.currentMonth+this.state.currentDate);
+                        });
                         break;
                 default : 
-                        window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/")));
-                        this.setState({currentDate : ""});
+                        this.setState({currentDate : ""},() => {
+                                window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/")));
+                        });
                         break;                        
            }     
         }
@@ -163,19 +145,19 @@ class Scheduler extends Component {
                         "09" : "October",
                         "10" : "November",
                         "11"  : "December"                           
-                     }                                                
-                let schedulerJSX = this.state.currentMonth == "" && this.state.currentYear == "" ? "" :
-                                         this.state.currentDate == "" ?  <div> 
-                                                <button onClick = {this.changeMonth} className = "previous">"Previous"</button>
-                                                <div className = "monthYear">{month[this.state.currentMonth]},{this.state.currentYear}</div>
-                                                <button onClick = {this.changeMonth} className = "next">"Next"</button>
-                                                {this.buildCalender()}
-                                          </div> : <CalenderDate currentMonth = {this.state.currentMonth} 
-                                                        currentYear = {this.state.currentYear} 
-                                                        currentDate = {this.state.currentDate} 
-                                                        onClickHandler={this.onClickHandler}/>;
+                     } 
                 return(<div>
-                            {schedulerJSX}
+                                {this.state.currentDate == "" &&   <div> 
+                                                                        <button onClick = {this.changeMonth} className = "previous">"Previous"</button>
+                                                                        <div className = "monthYear">{month[this.state.currentMonth]},{this.state.currentYear}</div>
+                                                                        <button onClick = {this.changeMonth} className = "next">"Next"</button>
+                                                                        {this.buildCalender()}
+                                                                   </div>}
+
+                                {this.state.currentDate == "" || <CalenderDate currentMonth = {this.state.currentMonth} 
+                                                                  currentYear = {this.state.currentYear} 
+                                                                  currentDate = {this.state.currentDate} 
+                                                                  onClickHandler={this.onClickHandler}/>}                                                                
                         </div>);
         }
 }

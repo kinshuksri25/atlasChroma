@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import SimpleForm from '../../../Forms/simpleform';
+import {storyConstant} from '../../../Forms/formConstants';
 import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager'
 import setMsgAction from '../../../store/actions/msgActions';

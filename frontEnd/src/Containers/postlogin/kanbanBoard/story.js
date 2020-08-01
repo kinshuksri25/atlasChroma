@@ -7,6 +7,7 @@ import url from 'url';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
+import {urls} from '../../../../../lib/constants/contants';
 import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 
@@ -100,28 +101,16 @@ class Story extends Component{
     }
 
     editStory(event){
-        if(event.target.id != this.props.storyDetails._id){
-            window.history.pushState({}, "",this.currentProject()._id);
-            this.setState({isOpen : false,
-                            oldStoryDetails : {},
-                            storyTitle : "",
-                            storyDescription : "",
-                            storyComments : "",
-                            duedate : "", 
-                            storyContributor : "",
-                            storyPriority : ""});
-        }else{
-            window.history.pushState({}, "",this.currentProject()._id+"?storyID="+this.props.storyDetails._id);
-            this.setState({isOpen : true,
-                            contributorList : ["Contributors",...this.currentProject().contributors],
-                            oldStoryDetails : {...this.props.storyDetails},
-                            storyTitle : this.props.storyDetails.storytitle,
-                            storyDescription : this.props.storyDetails.description,
-                            storyComments : this.props.storyDetails.comments,
-                            duedate : this.props.storyDetails.duedate, 
-                            storyContributor : this.props.storyDetails.contributor,
-                            storyPriority : this.props.storyDetails.priority});
-        }
+        window.history.pushState({}, "",this.currentProject()._id+"?storyID="+this.props.storyDetails._id);
+        this.setState({isOpen : true,
+                        contributorList : ["Contributors",...this.currentProject().contributors],
+                        oldStoryDetails : {...this.props.storyDetails},
+                        storyTitle : this.props.storyDetails.storytitle,
+                        storyDescription : this.props.storyDetails.description,
+                        storyComments : this.props.storyDetails.comments,
+                        duedate : this.props.storyDetails.duedate, 
+                        storyContributor : this.props.storyDetails.contributor,
+                        storyPriority : this.props.storyDetails.priority});
     }
 
     generateColumnArray(){

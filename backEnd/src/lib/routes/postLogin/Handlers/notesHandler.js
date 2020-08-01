@@ -73,17 +73,11 @@ notesHandler.notes.post = (route, requestObject) => new Promise((resolve,reject)
             "creationdate" : generateCurrentDate()
         };
         mongo.update(DBCONST.userCollection , {email : requestObject.reqBody.emailID},{$push:{notes : {...notesObject}}},{},SINGLE).then(resolvedSet => {
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.emailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDNOTES).then(resolvedResult => {
-                response.STATUS = 200;
-                response.PAYLOAD = {"notesID" : notesObject._id,"creationdate" : notesObject.creationdate};
-                response.SMSG = "notes added successfully";
-                resolve(response);
-            }).catch(rejectedResult => {
-                response.STATUS = 201;
-                response.PAYLOAD = {notesID : requestObject.reqBody._id,creationdate : requestObject.reqBody.creationdate};
-                response.SMSG = "notes added successfully, unable to nortify the contributor"; //add a cron here
-                resolve(response);    
-            });
+            response.STATUS = 200;
+            response.PAYLOAD = {"notesID" : notesObject._id,"creationdate" : notesObject.creationdate};
+            response.SMSG = "notes added successfully";
+            resolve(response);
+            
         }).catch(rejectedSet => {
             throw rejectedSet; 
         });
@@ -104,34 +98,27 @@ notesHandler.notes.put = (route, requestObject) => new Promise((resolve,reject) 
         SMSG : ""
        };
     if(requestObject.reqBody.hasOwnProperty("title") || requestObject.reqBody.hasOwnProperty("description")){
-                
-                let set = {}; 
-                let updateQuery = {};
-                if(requestObject.reqBody.hasOwnProperty("title")){
-                    set["notes.$.title"] = requestObject.reqBody.title;
-                }if(requestObject.reqBody.hasOwnProperty("description")){
-                    set["notes.$.description"] = requestObject.reqBody.description;
-                }
-                if(JSON.stringify(set)!=JSON.stringify({})){
-                    updateQuery["$set"] = {...set};
-                } 
-                mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.reqBody._id},{$set : {...set}},{},SINGLE).then(resolvedSet => {
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.emailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITNOTES).then(resolvedResult => {
-                        response.STATUS = 200;
-                        response.PAYLOAD = {};
-                        response.SMSG = "notes edited successfully";
-                        resolve(response);
-                    }).catch(rejectedResult => {
-                        response.STATUS = 201;
-                        response.PAYLOAD = {};
-                        response.SMSG = "notes edited successfully, unable to nortify the contributor"; //add a cron here
-                        resolve(response);    
-                    });
-                }).catch(rejectedSet => {
-                    response.STATUS = 500;
-                    response.EMSG = rejectedSet;
-                    reject(response);
-                });
+        
+        let set = {}; 
+        let updateQuery = {};
+        if(requestObject.reqBody.hasOwnProperty("title")){
+            set["notes.$.title"] = requestObject.reqBody.title;
+        }if(requestObject.reqBody.hasOwnProperty("description")){
+            set["notes.$.description"] = requestObject.reqBody.description;
+        }
+        if(JSON.stringify(set)!=JSON.stringify({})){
+            updateQuery["$set"] = {...set};
+        } 
+        mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.reqBody._id},{$set : {...set}},{},SINGLE).then(resolvedSet => {
+            response.STATUS = 200;
+            response.PAYLOAD = {};
+            response.SMSG = "notes edited successfully";
+            resolve(response);
+        }).catch(rejectedSet => {
+            response.STATUS = 500;
+            response.EMSG = rejectedSet;
+            reject(response);
+        });
     }else{
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
@@ -151,17 +138,10 @@ notesHandler.notes.delete = (route, requestObject) => new Promise((resolve,rejec
 
     if(requestObject.queryObject.notesID != undefined && requestObject.queryObject.emailID != undefined){
         mongo.update(DBCONST.userCollection,{email : requestObject.queryObject.emailID},{ $pull: {notes : {_id: requestObject.queryObject.notesID}}},{},SINGLE).then(resultSet => {
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.queryObject.emailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETENOTES).then(resolvedResult => {
-                response.STATUS = 200;
-                response.PAYLOAD = {};
-                response.SMSG = "Event deleted successfully";    
-                resolve(response);  
-            }).catch(rejectedResult => {
-                response.STATUS = 201;
-                response.PAYLOAD = {};
-                response.SMSG = "Event deleted successfully, unable to nortify the user";
-                reject(response); 
-            });
+            response.STATUS = 200;
+            response.PAYLOAD = {};
+            response.SMSG = "Event deleted successfully";    
+            resolve(response);  
         }).catch(rejectedSet => {
              //need to add a cron here 
              response.STATUS = 500;

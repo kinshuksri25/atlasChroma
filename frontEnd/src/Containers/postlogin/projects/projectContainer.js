@@ -2,6 +2,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import {urls} from '../../../../../lib/constants/contants';
+
 class ProjectContainer extends Component{
     
     constructor(props){
@@ -53,7 +55,7 @@ class ProjectContainer extends Component{
 
     onClick(event){
         let projectID = event.target.className;
-        window.history.pushState({},"","/projects/"+projectID);
+        window.history.pushState({},"",urls.PROJECT+"/"+projectID);
     }
 
     sortProjects(orderBy,projectArray){

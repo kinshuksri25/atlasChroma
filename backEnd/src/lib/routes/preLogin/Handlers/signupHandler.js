@@ -42,25 +42,34 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
                 queryObject: {}
             };
 
+            let templateObject = {
+                userName : requestObject.reqBody.UserName.toUpperCase(),
+                supportEmail : OAuthCONST.appAuth.senderEmail
+            };
+
             loginObject.reqBody.Email = requestObject.reqBody.Email;
             loginObject.reqBody.Password = requestObject.reqBody.Password;
 
             //call the login function to log user in
             loginHandler.login(loginObject).then(result => {
                 //send welcome mail
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL).then(resolveResult => {   
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL,templateObject).then(resolveResult => {   
                     //send the response 
                     response.SMSG = SMSG.SVR_SNGH_SGNSUC;
                     response.STATUS = 200;
                     response.PAYLOAD.uniqueID = result.PAYLOAD.uniqueID;
                     resolve(response);       
                 }).catch(error => {
-                    mongo.delete(DBCONST.userCollection, { _id: userObject.getUser().id }, {}, SINGLE).then(updateSet => {})
-                    .catch(error => {
-                        //TODO --> add this delete to cron job     
-                    });
-                    response.STATUS = 500;
-                    response.EMSG = EMSG.SVR_SGNH_UNSGNUP;
+                    let payload = {
+                        "participants" : [requestObject.reqBody.Email],
+                        "template" : "WELCOMEMAIL",
+                        "templateData" : {...templateObject}
+                    };
+                    mongo.delete(DBCONST.userCollection, { _id: userObject.getUser().id }, {}, SINGLE);
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                    response.STATUS = 201;
+                    response.PAYLOAD.uniqueID = result.PAYLOAD.uniqueID;
+                    response.SMSG = "Signup successFull, unable to nortify the user";
                     reject(response);
                 });    
             }).catch(error =>{

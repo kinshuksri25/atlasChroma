@@ -21,9 +21,10 @@ class AddProject extends Component{
             projectLeader:"",
             projectExists:true
         };
+        this.titleChecker = this.titleChecker.bind(this);
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
-        this.onChangeHandler = this.onChangeHandler.bind(this);
         this.suggestionAllocator = this.suggestionAllocator.bind(this);
+        this.createUnfilteredList = this.createUnfilteredList.bind(this);
     }
 
     createUnfilteredList(){
@@ -61,7 +62,7 @@ class AddProject extends Component{
         }
     }
 
-    onChangeHandler(projectName){
+    titleChecker(projectName){
         let found = false;
         this.props.user.projects.map(project => {
             if(project.title == projectName){
@@ -114,7 +115,7 @@ class AddProject extends Component{
                 <button onClick={this.props.cancel}>X</button>
                 <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
                 <SimpleForm formAttributes = { formConstants.addProject }
-                    changeHandler = { this.onChangeHandler }
+                    changeHandler = { this.titleChecker }
                     submitHandler = { this.onSubmitHandler }
                     changeFieldNames = {["Title"]}/>
                </div>);

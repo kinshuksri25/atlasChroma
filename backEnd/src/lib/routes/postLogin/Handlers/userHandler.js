@@ -153,17 +153,10 @@ userHandler.user.put = (route,requestObject) => new Promise((resolve,reject) => 
         }
 
         mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{},SINGLE).then(resultSet => {
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITUSER).then(resolvedResult => {
-                response.STATUS = 200;
-                response.PAYLOAD = {};
-                response.SMSG = "User details updated";        
-                resolve(response); 
-            }).catch(rejectedResult => {
-                response.STATUS = 201;
-                response.PAYLOAD = {};
-                response.SMSG = "User details updated, unable to nortify the user";        
-                resolve(response); 
-            });
+            response.STATUS = 200;
+            response.PAYLOAD = {};
+            response.SMSG = "User details updated";        
+            resolve(response); 
         }).catch(rejectedSet => {
             response.STATUS = 500;
             response.EMSG = rejectedSet;
@@ -184,17 +177,27 @@ userHandler.user.delete = (route,requestObject) => new Promise((resolve,reject) 
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
-        };
+        };   
+        
+    let template = {
+        supportEmail : OAuthCONST.appAuth.senderEmail
+    };    
     
     if(requestObject.reqBody.hasOwnProperty("projectIDs") && requestObject.queryObject.username != undefined && requestObject.reqBody.hasOwnProperty("email")){
         mongo.update(DBCONST.projectCollection , {_id:{$in : [...requestObject.reqBody.projectIDs]}},{$pull:{contributors : requestObject.queryObject.username}},{},MULTIPLE).then(resolvedSet => {
             mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{},SINGLE).then(resolvedSet => {
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = "User deleted";        
                     resolve(response); 
                 }).catch(rejectedResult => {
+                    let payload = {
+                        "participants" : [requestObject.reqBody.email],
+                        "template" : "DELETEUSER",
+                        "templateData" : template
+                    };
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
                     response.SMSG = "User deleted, unable to nortify the user";        

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import Modal from 'react-modal';
 
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import cookieManager from '../../../Components/cookieManager';
@@ -18,7 +19,7 @@ class EditProject extends Component{
             projectleader : this.props.projectDetails.projectlead,
             contributors : this.props.projectDetails.contributors,
             disableUpdate : true,
-            deleteProject : false       
+            isOpen : false       
         }
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
@@ -115,8 +116,8 @@ class EditProject extends Component{
     }
 
     deleteProjectAlert(event){
-        event.target.className == "deleteAlert" && this.setState({deleteProject : true});
-        event.target.className == "deleteAlert" || this.setState({deleteProject : false});
+        event.target.className == "deleteAlert" && this.setState({isOpen : true});
+        event.target.className == "deleteAlert" || this.setState({isOpen : false});
     }
 
     deleteContributor(event){
@@ -189,27 +190,31 @@ class EditProject extends Component{
                                     this.state.projectleader != this.props.projectDetails.projectlead ||
                                     JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors) && 
                                         (this.state.title != "" && this.state.description != "" && this.state.projectleader != "")  ? false : true;
-        let editProjectJSX = this.state.deleteProject ? <div>
-                                                            <h3>Do you want to delete {this.props.projectDetails.title} ? </h3>
-                                                            <button onClick = {this.deleteProject}>Yes</button>
-                                                            <button className = "deleteNo" onClick = {this.deleteProjectAlert}>No</button>
-                                                        </div> 
-                                                        : <div className = "editProject">
-                                                                <input type = "text" value = {this.state.title} className = "projectTitle" onChange = {this.onChangeHandler}/>
-                                                                <input type = "text" value = {this.state.description} className = "projectDescription" onChange = {this.onChangeHandler}/>
-                                                                <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
-                                                                <ul className = "contributorList">
-                                                                    {
-                                                                        this.state.contributors.map( contributor => {
-                                                                            return(<li onClick={this.deleteContributor} className={contributor}>{contributor}</li>);
-                                                                        })
-                                                                    }
-                                                                </ul>
-                                                                <button disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
-                                                                <button onClick = {this.props.disableProjectForm}>Back</button>
-                                                                <button className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
-                                                            </div>                            
-        return (<div>{editProjectJSX}</div>);
+
+        return (<div>     
+                    <div className = "editProject">
+                        <input type = "text" value = {this.state.title} className = "projectTitle" onChange = {this.onChangeHandler}/>
+                        <input type = "text" value = {this.state.description} className = "projectDescription" onChange = {this.onChangeHandler}/>
+                        <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
+                        <ul className = "contributorList">
+                            {
+                                this.state.contributors.map( contributor => {
+                                    return(<li onClick={this.deleteContributor} className={contributor}>{contributor}</li>);
+                                })
+                            }
+                        </ul>
+                        <button disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
+                        <button onClick = {this.props.disableProjectForm}>Back</button>
+                        <button className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
+                    </div> 
+                    <Modal
+                    isOpen={this.state.isOpen}
+                    contentLabel="">   
+                        <h3>Do you want to delete {this.props.projectDetails.title} ? </h3>
+                        <button onClick = {this.deleteProject}>Yes</button>
+                        <button className = "deleteNo" onClick = {this.deleteProjectAlert}>No</button>
+                    </Modal>                                                
+                </div>);
     }
 }
 

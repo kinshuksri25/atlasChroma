@@ -24,7 +24,7 @@ class Profile extends Component{
             phonenumber : this.props.user.phonenumber,
             password : "",
             confirmPassword : "",
-            "displayPhotoSel" : false
+            displayPhotoSel : false
         };
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.onSubmitHandler = this.onSubmitHandler.bind(this);

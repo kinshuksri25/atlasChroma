@@ -71,27 +71,48 @@ eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject)
         let query = isMeeting ? {username : {$in : [...requestObject.reqBody.eventObject.participants]}} : {_id : requestObject.cookieid};
         requestObject.reqBody.eventObject.password = helperFunctions.randValueGenerator(6);
         mongo.update(DBCONST.userCollection , query,{$push:{events : {...requestObject.reqBody.eventObject}}},{},MULTIPLE).then(resolvedSet => {
-            mongo.read(DBCONST.userCollection,query,{projection : {email : 1 ,_id : 0}}).then(resolvedSet => {
-                let recipientList = [];
-                resolvedSet.map(user => {
-                    recipientList.push(user.email);
+            if(isMeeting){
+                mongo.read(DBCONST.userCollection,{username : {$in : [...requestObject.reqBody.eventObject.participants]}},{projection : {email : 1 ,_id : 0}}).then(resolvedSet => {
+                    let recipientList = [];
+                    resolvedSet.map(user => {
+                        recipientList.push(user.email);
+                    });
+                    let meetingDate = requestObject.reqBody.eventObject.CreationYear+"-"+requestObject.reqBody.eventObject.CreationMonth+"-"+requestObject.reqBody.eventObject.CreationDate;
+                    let template = {
+                        "meetingName" : requestObject.reqBody.eventObject.EventTitle,
+                        "meetingLink" : "",
+                        "date" : meetingDate,
+                        "startTime" : requestObject.reqBody.eventObject.StartTime,
+                        "participants" : [...requestObject.reqBody.eventObject.participants],
+                        "creator" : requestObject.reqBody.eventObject.creator
+                    };
+                    let payload = {eventID : requestObject.reqBody.eventObject._id,password : requestObject.reqBody.eventObject.password};
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT,template).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {...payload};
+                        response.SMSG = "board details updated successfully";
+                        resolve(response);
+                    }).catch(rejectedResult => {
+                        let payload = {
+                            "participants" : [...recipientList],
+                            "template" : "ADDEVENT",
+                            "templateData" : template
+                        };
+                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                        response.STATUS = 201;
+                        response.PAYLOAD = {...payload};
+                        response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
+                        resolve(response);    
+                    });
+                }).catch(rejectedSet => {
+                    throw rejectedSet; 
                 });
-                let payload = isMeeting ? {eventID : requestObject.reqBody.eventObject._id,password : requestObject.reqBody.eventObject.password} : {eventID : requestObject.reqBody.eventObject._id};
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
-                    response.STATUS = 200;
-                    response.PAYLOAD = {...payload};
-                    response.SMSG = "board details updated successfully";
-                    resolve(response);
-                }).catch(rejectedResult => {
-                    response.STATUS = 201;
-                    response.PAYLOAD = {...payload};
-                    response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
-                    resolve(response);    
-                });
-            }).catch(rejectedSet => {
-                throw rejectedSet; 
-            });
-            
+            }else{
+                response.STATUS = 200;
+                response.PAYLOAD = {eventID : requestObject.reqBody.eventObject._id};
+                response.SMSG = "board details updated successfully";
+                resolve(response); 
+            }
         }).catch(rejectedSet => {
             throw rejectedSet; 
         });
@@ -121,8 +142,6 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
                     set["events.$.EventTitle"] = requestObject.reqBody.EventTitle;
                 }if(requestObject.reqBody.hasOwnProperty("Description")){
                     set["events.$.Description"] = requestObject.reqBody.Description;
-                }if(requestObject.reqBody.hasOwnProperty("EventType")){
-                    set["events.$.EventType"] = requestObject.reqBody.EventType;
                 }if(requestObject.reqBody.hasOwnProperty("StartTime")){
                     set["events.$.StartTime"] = requestObject.reqBody.StartTime;
                 }if(requestObject.reqBody.hasOwnProperty("EndTime")){
@@ -134,15 +153,50 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
                 set.modificationdate = generateCurrentDate();
                 if(JSON.stringify(set)!=JSON.stringify({})){
                     updateQuery["$set"] = {...set};
-                } 
+                }
                 mongo.update(DBCONST.userCollection,{"events._id" : requestObject.reqBody._id},{$set : {...set}},{},MULTIPLE).then(resolvedSet => {
-               
+                   if(requestObject.reqBody.EventType != "Meeting"){
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = "event edited successfully";
+                        resolve(response);
+                   }else{
+                        let template = {
+                            "meetingLink" : "",
+                            "meetingName" : requestObject.reqBody.oldTitle
+                        };
+                        mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.reqBody._id}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
+                            let recipientList = [];
+                            resolvedSet.map(user => {
+                                recipientList.push(user.email);
+                            });
+                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITEVENT,template).then(resolvedResult => {
+                                response.STATUS = 200;
+                                response.PAYLOAD = {};
+                                response.SMSG = "event edited successfully";
+                                resolve(response);
+                            }).catch(rejectedResult => {
+                                let payload = {
+                                    "participants" : [...recipientList],
+                                    "template" : "EDITEVENT",
+                                    "templateData" : template
+                                };
+                                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                                response.STATUS = 201;
+                                response.PAYLOAD = {};
+                                response.SMSG = "event edited successfully, unable to nortify the contributor"; //add a cron here
+                                resolve(response);    
+                            });
+                        }).catch(rejectedSet => {
+                            throw rejectedSet;
+                        });                
+                   }            
                 }).catch(rejectedSet => {
-                    console.log(rejectedSet);
                     response.STATUS = 500;
                     response.EMSG = rejectedSet;
                     reject(response);
                 });
+              
     }else{
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
@@ -162,26 +216,42 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
 
     if(requestObject.queryObject.eventID != undefined){
 
-        mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
-            let recipientList = [];
-            resolvedSet.map(user => {
-                recipientList.push(user.email);
-            });
-            mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resultSet => {
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT).then(resolvedResult => {
-                    response.STATUS = 200;
-                    response.PAYLOAD = {};
-                    response.SMSG = "Event deleted successfully";    
-                    resolve(response);  
-                }).catch(rejectedResult => {
-                    response.STATUS = 201;
-                    response.PAYLOAD = {};
-                    response.SMSG = "Event deleted successfully, unable to nortify the user";
-                    reject(response); 
-                });
-            }).catch(rejectedSet => {
-                throw rejectedSet;
-            });
+        mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resultSet => {
+            if(requestObject.queryObject.EventType == "Meeting"){
+                mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
+                    let recipientList = [];
+                    resolvedSet.map(user => {
+                        recipientList.push(user.email);
+                    });
+                    let template = {
+                        eventName : requestObject.queryObject.eventName
+                    };
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT,template).then(resolvedResult => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = "Event deleted successfully";    
+                        resolve(response);  
+                    }).catch(rejectedResult => {
+                        let payload = {
+                            "participants" : [...recipientList],
+                            "template" : "DELETEEVENT",
+                            "templateData" : template
+                        };
+                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                        response.STATUS = 201;
+                        response.PAYLOAD = {};
+                        response.SMSG = "Event deleted successfully, unable to nortify the user";
+                        reject(response); 
+                    });
+                }).catch(rejectedSet => {
+                    throw rejectedSet;
+                });    
+            }else{
+                response.STATUS = 200;
+                response.PAYLOAD = {};
+                response.SMSG = "Event deleted successfully";    
+                resolve(response);  
+            }
         }).catch(rejectedSet => {
             //need to add a cron here 
             response.STATUS = 500;

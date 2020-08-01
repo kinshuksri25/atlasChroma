@@ -7,6 +7,7 @@ const https = require('https');
 const url = require('url');
 const fs = require('fs');
 const connect = require('connect');
+const cron = require('./lib/utils/cron');
 const socket = require('./lib/utils/socket');
 const router = require("./lib/routes/centalRouter");
 const cluster = require("cluster");
@@ -113,6 +114,9 @@ server.init = (runtimeEnvironment,port) => {
         //cookieHandler.clearCookies();
         let io = new soc(server.https);
         socket.handleEvents(io);
+
+        //setting up crons 
+        cron.startJobs();
     }
 };
 
