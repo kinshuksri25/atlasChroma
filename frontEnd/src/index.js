@@ -4,9 +4,9 @@ import { Provider } from "react-redux";
 
 import Router from "./router.js";
 import "./StyleSheets/common.css";
-import storeCreator from "./store/store";
+import store from "./store/store";
 
-const store = storeCreator();
+//const store = storeCreator();
 
 ReactDOM.render(<Provider store = { store }> 
                     <Router/> 

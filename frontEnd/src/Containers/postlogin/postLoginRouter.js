@@ -19,6 +19,7 @@ import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
 import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
+import listener from '../generalContainers/asyncListener';
 import MessageBox from "../postlogin/messaging/messageBox";
 import {userList,userObject} from "../../../../lib/constants/storeConstants";
 import setSocketObject from "../../store/actions/socketActions";
@@ -63,6 +64,7 @@ class PostLoginRouter extends Component {
                     user.status = userStatus.includes(user.username) ? true : false;
                 }); 
                 this.props.setUserListState([...userList]);   
+                listener.listenEvents(io);
             },timer);
         });
     }

@@ -14,7 +14,7 @@ const storyHandler = {};
 //router for all the story routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories = (route,requestObject) => new Promise((resolve,reject) => {
+storyHandler.stories = (route,requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -25,21 +25,21 @@ storyHandler.stories = (route,requestObject) => new Promise((resolve,reject) => 
             case "GET" :
                 break;
             case "POST" : 
-                storyHandler.stories.post(route,requestObject).then(resolvedResult => {
+                storyHandler.stories.post(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 });
                 break;
             case "PUT" :
-                storyHandler.stories.put(route,requestObject).then(resolvedResult => {
+                storyHandler.stories.put(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 });
                 break;
             case "DELETE" : 
-                storyHandler.stories.delete(route,requestObject).then(resolvedResult => {
+                storyHandler.stories.delete(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -56,7 +56,7 @@ storyHandler.stories = (route,requestObject) => new Promise((resolve,reject) => 
 //story post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject) => {
+storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -87,14 +87,15 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
             projectName : requestObject.reqBody.ProjectName
         };
 
-    mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{},SINGLE).then(resolvedResult =>{
+    mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{returnOriginal: false},SINGLE).then(resolvedResult =>{
         
         mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.Contributor},{}).then(resolvedResult => {
             let contributorEmailID = resolvedResult[0].email;
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY,template).then(resolvedResult => {
                 response.STATUS = 200;
-                response.PAYLOAD = {...newStory.getStoryDetails()};
+                response.PAYLOAD = {};
                 response.SMSG = "board details updated successfully";
+                io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails()}});
                 resolve(response);
             }).catch(rejectedResult => {
                 let payload = {
@@ -103,15 +104,13 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
                     "templateData" : template
                 };
                 mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                response.STATUS = 201;
-                response.PAYLOAD = {...newStory.getStoryDetails()};
-                response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
-                resolve(response);    
+                throw rejectedResult;
             });
         }).catch(rejectedResult => {
             response.STATUS = 201;
-            response.PAYLOAD = {...newStory.getStoryDetails()};
-            response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
+            response.PAYLOAD = {};
+            response.SMSG = "board details updated successfully, unable to nortify the contributor";
+            io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails()}});
             resolve(response);    
         });
         
@@ -132,7 +131,7 @@ storyHandler.stories.post = (route,requestObject) => new Promise((resolve,reject
 //story put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject) => {
+storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -164,13 +163,15 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
             status : requestObject.reqBody.storyDetails.hasOwnProperty("currentStatus") ? "moved to a different phase" : "edited",
         };
 
-        mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{},SINGLE).then(resolvedResult => {
+        mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{returnOriginal: false},SINGLE).then(resolvedResult => {
+            let updatedData = resolvedResult;
             mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.contributorUsername},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = "story moved successfully";
+                    io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                     resolve(response);
                 }).catch(rejectedResult => {
                     let payload = {
@@ -181,14 +182,15 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
+                    response.SMSG = "story moved successfully, unable to nortify the contributor";
+                    io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
-                console.log(rejectedResult);
                 response.STATUS = 201;
                 response.PAYLOAD = {};
-                response.SMSG = "story moved successfully, unable to nortify the contributor"; //add a cron here
+                response.SMSG = "story moved successfully, unable to nortify the contributor";
+                io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                 resolve(response);    
             });
         }).catch(rejectedResult => {
@@ -206,7 +208,7 @@ storyHandler.stories.put = (route,requestObject) => new Promise((resolve,reject)
 //story delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reject) => {
+storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -214,7 +216,8 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
         SMSG : ""
        };
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.storyID != undefined && requestObject.queryObject.contributor != undefined){
-        mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{},SINGLE).then(resolvedResult => {   
+        mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{returnOriginal: false},SINGLE).then(resolvedResult => { 
+            let deletedData = resolvedResult;  
             mongo.read(DBCONST.userCollection,{username: requestObject.queryObject.contributor },{}).then(resolvedResult => {;
                 let contributorEmailID = resolvedResult[0].email;
                 let template = {
@@ -236,13 +239,16 @@ storyHandler.stories.delete = (route,requestObject) => new Promise((resolve,reje
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; 
+                    io.emit("updatingDetails",{event : "deletingStory", data : deletedData});
+
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
                 response.STATUS = 201;
                 response.PAYLOAD = {};
-                response.SMSG = "story deleted successfully, unable to nortify the contributor"; //add a cron here
+                response.SMSG = "story deleted successfully, unable to nortify the contributor"; 
+                io.emit("updatingDetails",{event : "deletingStory", data : deletedData});
                 resolve(response);    
             });
         }).catch(rejectedResult => {

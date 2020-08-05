@@ -16,7 +16,7 @@ const eventHandler = {};
 //router for all the event routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event = (route,requestObject) => new Promise((resolve,reject) => {
+eventHandler.event = (route,requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -28,21 +28,21 @@ eventHandler.event = (route,requestObject) => new Promise((resolve,reject) => {
           case "GET" :
               break;
           case "POST" : 
-            eventHandler.event.post(route,requestObject).then(resolvedResult => {
+            eventHandler.event.post(route,requestObject,io).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
               });
               break;
           case "PUT" :
-            eventHandler.event.put(route,requestObject).then(resolvedResult => {
+            eventHandler.event.put(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 }); 
               break;
           case "DELETE" : 
-            eventHandler.event.delete(route,requestObject).then(resolvedResult => {
+            eventHandler.event.delete(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -59,7 +59,7 @@ eventHandler.event = (route,requestObject) => new Promise((resolve,reject) => {
 //event post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject) => {
+eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -89,8 +89,9 @@ eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject)
                     let payload = {eventID : requestObject.reqBody.eventObject._id,password : requestObject.reqBody.eventObject.password};
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT,template).then(resolvedResult => {
                         response.STATUS = 200;
-                        response.PAYLOAD = {...payload};
+                        response.PAYLOAD = {};
                         response.SMSG = "board details updated successfully";
+                        io.emit("updatingDetails",{event : "addingMeeting", data : {...payload}});  
                         resolve(response);
                     }).catch(rejectedResult => {
                         let payload = {
@@ -100,8 +101,9 @@ eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject)
                         };
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                         response.STATUS = 201;
-                        response.PAYLOAD = {...payload};
-                        response.SMSG = "board details updated successfully, unable to nortify the contributor"; //add a cron here
+                        response.PAYLOAD = {};
+                        response.SMSG = "board details updated successfully, unable to nortify the contributor";
+                        io.emit("updatingDetails",{event : "addingMeeting", data : {...payload}});  
                         resolve(response);    
                     });
                 }).catch(rejectedSet => {
@@ -126,12 +128,13 @@ eventHandler.event.post = (route, requestObject) => new Promise((resolve,reject)
 //event put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) => {
+eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
        };
+    let selectedEvent = {};
     if(requestObject.reqBody.hasOwnProperty("EventTitle") || requestObject.reqBody.hasOwnProperty("Description") ||
         requestObject.reqBody.hasOwnProperty("EventType") || requestObject.reqBody.hasOwnProperty("StartTime") ||
             requestObject.reqBody.hasOwnProperty("EndTime")){
@@ -165,15 +168,21 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
                             "meetingLink" : "",
                             "meetingName" : requestObject.reqBody.oldTitle
                         };
-                        mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.reqBody._id}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
+                        mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.reqBody._id}},{projection : {email : 1, _id :0,events : 1}}).then(resolvedSet => {
                             let recipientList = [];
                             resolvedSet.map(user => {
                                 recipientList.push(user.email);
+                            });
+
+                            resolvedSet.map(event => {
+                                if(event._id == requestObject.reqBody._id)
+                                    selectedEvent = event;
                             });
                             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITEVENT,template).then(resolvedResult => {
                                 response.STATUS = 200;
                                 response.PAYLOAD = {};
                                 response.SMSG = "event edited successfully";
+                                io.emit("updatingDetails",{event : "editingMeeting", data : {...selectedEvent}});  
                                 resolve(response);
                             }).catch(rejectedResult => {
                                 let payload = {
@@ -184,7 +193,8 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
                                 mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                                 response.STATUS = 201;
                                 response.PAYLOAD = {};
-                                response.SMSG = "event edited successfully, unable to nortify the contributor"; //add a cron here
+                                response.SMSG = "event edited successfully, unable to nortify the contributor"; 
+                                io.emit("updatingDetails",{event : "editingMeeting", data : {...selectedEvent}}); 
                                 resolve(response);    
                             });
                         }).catch(rejectedSet => {
@@ -207,7 +217,7 @@ eventHandler.event.put = (route, requestObject) => new Promise((resolve,reject) 
 //event delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.delete = (route, requestObject) => new Promise((resolve,reject) => {
+eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -215,7 +225,6 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
        };
 
     if(requestObject.queryObject.eventID != undefined){
-
         mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resultSet => {
             if(requestObject.queryObject.EventType == "Meeting"){
                 mongo.read(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{projection : {email : 1, _id :0}}).then(resolvedSet => {
@@ -229,7 +238,8 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT,template).then(resolvedResult => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = "Event deleted successfully";    
+                        response.SMSG = "Event deleted successfully";   
+                        io.emit("updatingDetails",{event : "deletingMeeting", data : {meetingID : requestObject.queryObject.eventID}});   
                         resolve(response);  
                     }).catch(rejectedResult => {
                         let payload = {
@@ -241,6 +251,7 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
                         response.STATUS = 201;
                         response.PAYLOAD = {};
                         response.SMSG = "Event deleted successfully, unable to nortify the user";
+                        io.emit("updatingDetails",{event : "deletingMeeting", data : {meetingID : requestObject.queryObject.eventID}});
                         reject(response); 
                     });
                 }).catch(rejectedSet => {
@@ -253,10 +264,7 @@ eventHandler.event.delete = (route, requestObject) => new Promise((resolve,rejec
                 resolve(response);  
             }
         }).catch(rejectedSet => {
-            //need to add a cron here 
-            response.STATUS = 500;
-            response.EMSG = rejectedSet;
-            reject(response); 
+            throw rejectedSet;d
         });
     }else{
         response.STATUS = 400;

@@ -128,7 +128,7 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
         let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
 
-        selectionType == SINGLE && col.deleteOne(query, options).then(result => {
+        selectionType == SINGLE && col.findOneAndUpdate(query,{},options).then(result => {
             db.close();
             resolve(result);
         }).catch(err => {
@@ -160,7 +160,7 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
         let dbinstance = db.db(DBCONST.DB_NAME);
         let col = dbinstance.collection(collection);
 
-        selectionType == SINGLE && col.updateOne(query, updatedPayload, options).then(result => {
+        selectionType == SINGLE && col.findOneAndUpdate(query, updatedPayload, options).then(result => {
             db.close();
             resolve(result);
         }).catch(err => {

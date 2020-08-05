@@ -16,7 +16,7 @@ const projectHandler = {};
 //router for all the project routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project = (route,requestObject) => new Promise((resolve,reject) => {
+projectHandler.project = (route,requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -28,21 +28,21 @@ projectHandler.project = (route,requestObject) => new Promise((resolve,reject) =
           case "GET" :
               break;
           case "POST" : 
-            projectHandler.project.post(route,requestObject).then(resolvedResult => {
+            projectHandler.project.post(route,requestObject,io).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
               });
               break;
           case "PUT" :
-            projectHandler.project.put(route,requestObject).then(resolvedResult => {
+            projectHandler.project.put(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 }); 
               break;
           case "DELETE" : 
-            projectHandler.project.delete(route,requestObject).then(resolvedResult => {
+            projectHandler.project.delete(route,requestObject,io).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -59,7 +59,7 @@ projectHandler.project = (route,requestObject) => new Promise((resolve,reject) =
 //project post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.post = (route,requestObject) => new Promise((resolve,reject) => {
+projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -91,8 +91,9 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
                     });
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedResult => {
                         response.STATUS = 200;
-                        response.PAYLOAD = resolveResult.ops[0];
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_PRJUP; 
+                        io.emit("updatingDetails",{event : "addingProject", data : projectObject});       
                         resolve(response);  
                     }).catch(rejectedResult => {
                         let payload = {
@@ -105,8 +106,9 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
                     });
                 }).catch(rejectedSet => {
                     response.STATUS = 201;
-                    response.PAYLOAD = resolveResult.ops[0];
-                    response.SMSG = "Project added, unabled to nortify the contributors";        
+                    response.PAYLOAD = {};
+                    response.SMSG = "Project added, unabled to nortify the contributors";
+                    io.emit("updatingDetails",{event : "addingProject", data : projectObject});        
                     resolve(response);  
                 });
             }).catch(rejectSet => {
@@ -128,7 +130,7 @@ projectHandler.project.post = (route,requestObject) => new Promise((resolve,reje
 //project put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.put = (route,requestObject) => new Promise((resolve,reject) => {
+projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -164,7 +166,8 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
         updateQuery["$push"] = {...push};
     }
     
-    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{},SINGLE).then(resolvedSet => {
+    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{returnOriginal: false},SINGLE).then(resolvedSet => {
+        let updatedProject = resolvedSet;
         let editedContributors = [...requestObject.reqBody.contributors];
         let newContributors = [];
         let oldContributors = [];
@@ -202,6 +205,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
                         response.STATUS = 200;
                         response.PAYLOAD = {};
                         response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});      
                         resolve(response); 
                     }).catch(rejectedResult => {
                         let payload = {
@@ -236,7 +240,8 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedResult => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;
+                        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});        
                         resolve(response); 
                     }).catch(rejectedResult => {
                         let payload = {
@@ -264,7 +269,8 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                    response.SMSG = SMSG.SVR_SHH_PRJUP;
+                    io.emit("updatingDetails",{event : "editingProject", data : updatedProject});        
                     resolve(response); 
                 }).catch(rejectedResult => {
                     let payload = {
@@ -280,6 +286,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
             response.STATUS = 201;
             response.PAYLOAD = {};
             response.SMSG = "board details updated successfully, unable to nortify contributors";
+            io.emit("updatingDetails",{event : "editingProject", data : updatedProject});
             resolve(response);
         });
     }).catch(rejectedSet => {
@@ -297,7 +304,7 @@ projectHandler.project.put = (route,requestObject) => new Promise((resolve,rejec
 //project delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.delete = (route,requestObject) => new Promise((resolve,reject) => {
+projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -306,7 +313,8 @@ projectHandler.project.delete = (route,requestObject) => new Promise((resolve,re
        };       
 
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.contributors != undefined){
-        mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{},SINGLE).then( resolvedResult => {
+        mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{returnOriginal: false, remove: true},SINGLE).then( resolvedResult => {
+            let deletedData = resolvedResult;
             mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedResult => {
                mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                 let recipientList = [];
@@ -320,7 +328,8 @@ projectHandler.project.delete = (route,requestObject) => new Promise((resolve,re
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT,templateBuilder).then(emailResolve => {
                     response.STATUS = 200;
                     response.PAYLOAD = resolvedResult;
-                    response.SMSG = "Project deleted successfully";    
+                    response.SMSG = "Project deleted successfully";  
+                    io.emit("updatingDetails",{event : "deletingProject", data : deletedData});          
                     resolve(response);  
                 }).catch(rejectedResult => {
                     let payload = {
@@ -335,6 +344,7 @@ projectHandler.project.delete = (route,requestObject) => new Promise((resolve,re
                     response.STATUS = 201;
                     response.PAYLOAD = {};
                     response.SMSG = "Project deleted successfully, unable to nortify the contributors";
+                    io.emit("updatingDetails",{event : "deletingProject", data : deletedData});        
                     reject(response); 
                });
             }).catch(rejectedSet => {

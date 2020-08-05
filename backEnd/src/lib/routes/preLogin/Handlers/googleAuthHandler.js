@@ -18,7 +18,7 @@ let googleAuthHandler = {};
 //oauth url creation handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) => {
+googleAuthHandler.googleAuth = (requestObject,io) => new Promise((resolve,reject) => {
 
     let state = randValueGenerator(15);
     let response = {
@@ -75,7 +75,7 @@ googleAuthHandler.googleAuth = (requestObject) => new Promise((resolve,reject) =
 //post auth handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => {
+googleAuthHandler.postAuth = (requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -227,7 +227,7 @@ googleAuthHandler.postAuth = (requestObject) => new Promise((resolve,reject) => 
 //post auth form handler
 //params --> requestObject -- object
 //return --> promise - object
-googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reject) => {
+googleAuthHandler.postAuthDetails = (requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -240,11 +240,19 @@ googleAuthHandler.postAuthDetails = (requestObject) => new Promise((resolve,reje
          mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, { projection: { _id: 1} }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
-                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {}, SINGLE).then(updateSet => {
+                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
+                    let updatedUser = {
+                        username : updateSet.username,
+                        firstname : updateSet.firstname,
+                        lastname : updateSet.lastname,
+                        phonenumber : updateSet.phonenumber,
+                        photo : updateSet.photo
+                    };
                     cookieHandler.createCookies(resultSet[0]._id,requestObject.reqBody.UserName).then(resolvedResult => {
                          response.PAYLOAD.cookieDetails =resolvedResult;
                          response.SMSG = SMSG.SVR_OATH_LGNSUC;
                          response.STATUS = 200;
+                         io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
                          resolve(response);
                     }).catch(rejectedResult => {
                         response.EMSG = rejectedResult;

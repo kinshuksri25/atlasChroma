@@ -9,14 +9,11 @@ import userListStateReducer from "./reducers/userListStateReducer";
 import socketStateReducer from "./reducers/socketStateReducer";
 import chatStateReducer from './reducers/chatStateReducer';
 
-export default function storeCreator (){
+const combinedReducer = combineReducers({userStateReducer,
+    urlStateReducer,
+    userListStateReducer,
+    msgStateReducer,
+    socketStateReducer,
+    chatStateReducer});
 
-    const combinedReducer = combineReducers({userStateReducer,
-                                            urlStateReducer,
-                                            userListStateReducer,
-                                            msgStateReducer,
-                                            socketStateReducer,
-                                            chatStateReducer});
-    const store = createStore(combinedReducer);
-    return store;
-} 
+export default store = createStore(combinedReducer);

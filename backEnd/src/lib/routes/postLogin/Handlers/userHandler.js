@@ -15,7 +15,7 @@ const userHandler = {};
 //router for all the user routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {     
+userHandler.user = (route,requestObject,io) => new Promise((resolve,reject) => {     
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -33,14 +33,14 @@ userHandler.user = (route,requestObject) => new Promise((resolve,reject) => {
           case "POST" : 
               break;
           case "PUT" : 
-                userHandler.user.put(route,requestObject).then(resolvedResult => {
+                userHandler.user.put(route,requestObject,io).then(resolvedResult => {
                         resolve(resolvedResult);
                 }).catch(rejectedResult => {
                         reject(rejectedResult);
                 });
               break;
           case "DELETE" : 
-                userHandler.user.delete(route,requestObject).then(resolvedResult => {
+                userHandler.user.delete(route,requestObject,io).then(resolvedResult => {
                         resolve(resolvedResult);
                 }).catch(rejectedResult => {
                         reject(rejectedResult);
@@ -125,7 +125,7 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
 //user put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.put = (route,requestObject) => new Promise((resolve,reject) => {
+userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -152,10 +152,20 @@ userHandler.user.put = (route,requestObject) => new Promise((resolve,reject) => 
             set["$set"].photo = requestObject.reqBody.photo;
         }
 
-        mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{},SINGLE).then(resultSet => {
+        mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{returnOriginal: false},SINGLE).then(resultSet => {
+            let updatedUser = {
+                username : resultSet.username,
+                firstname : resultSet.firstname,
+                lastname : resultSet.lastname,
+                email : resultSet.email,
+                phonenumber : resultSet.phonenumber,
+                photo : resultSet.photo,
+                status : true
+            };
             response.STATUS = 200;
             response.PAYLOAD = {};
-            response.SMSG = "User details updated";        
+            response.SMSG = "User details updated";  
+            io.emit("updatingDetails",{event : "updatingUser", data : updatedUser});      
             resolve(response); 
         }).catch(rejectedSet => {
             response.STATUS = 500;
@@ -172,7 +182,7 @@ userHandler.user.put = (route,requestObject) => new Promise((resolve,reject) => 
 //user delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.delete = (route,requestObject) => new Promise((resolve,reject) => {
+userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -189,7 +199,8 @@ userHandler.user.delete = (route,requestObject) => new Promise((resolve,reject) 
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedResult => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = "User deleted";        
+                    response.SMSG = "User deleted";  
+                    io.emit("updatingDetails",{event : "deleteingUser", data : {username : requestObject.queryObject.username}});       
                     resolve(response); 
                 }).catch(rejectedResult => {
                     let payload = {
@@ -200,6 +211,7 @@ userHandler.user.delete = (route,requestObject) => new Promise((resolve,reject) 
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
+                    io.emit("updatingDetails",{event : "deleteingUser", data : {username : requestObject.queryObject.username}});
                     response.SMSG = "User deleted, unable to nortify the user";        
                     resolve(response); 
                 });

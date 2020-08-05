@@ -19,7 +19,7 @@ const signupHandler = {};
 //signup route handler
 //params --> requestObject -- object
 //returns --> promise(object)
-signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
+signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -91,7 +91,7 @@ signupHandler.signup = (requestObject) => new Promise((resolve,reject) => {
 //checking user availability handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject) => {
+signupHandler.userAvaliability = (requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -132,7 +132,7 @@ signupHandler.userAvaliability = (requestObject) => new Promise((resolve,reject)
 //post signup form route handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject) => {
+signupHandler.postSignupDetails = (requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -144,17 +144,25 @@ signupHandler.postSignupDetails = (requestObject) => new Promise((resolve,reject
          //check id validity
          mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1 } }).then(resultSet => {
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
-                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {}, SINGLE).then(updateSet => {
+                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
+                    let updatedUser = {
+                        username : updateSet.username,
+                        firstname : updateSet.firstname,
+                        lastname : updateSet.lastname,
+                        phonenumber : updateSet.phonenumber,
+                        photo : updateSet.photo
+                    };
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
                         response.STATUS = 200;
                         response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
                         response.PAYLOAD.cookieObject = resolvedResult;
+                        io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
+                        resolve(response);
                     }).catch(rejectedResult => {
                         response.STATUS = 500;
                         response.EMSG = EMSG.SVR_LGNH_LGNUSUC;
                         reject(response);
                     });
-                    resolve(response);
                 }).catch(error => {
                     response.STATUS = 500;
                     response.EMSG = error;

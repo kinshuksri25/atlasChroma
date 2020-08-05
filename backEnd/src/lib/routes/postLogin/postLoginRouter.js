@@ -23,7 +23,7 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
     cookieHandler.getCookie(requestObject.cookieid).then(validCookie => {
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);
-            chosenHandler(route,requestObject).then(resolvedResult => {
+            chosenHandler(route,requestObject,io).then(resolvedResult => {
                 let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
                 resolve(response.getResponseObject());
             }).catch(rejectedResult => {

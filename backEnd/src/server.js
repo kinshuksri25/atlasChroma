@@ -30,6 +30,7 @@ server.certParams = {
 };
 
 server.https = https.createServer(server.certParams, app);
+const io = new soc(server.https);
 
 app.use((req, res, next) => {
     server.unifiedServer(req, res);
@@ -77,7 +78,7 @@ server.unifiedServer = (req, res) => {
                            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid,socketid",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
                            
-        router.centralRouter(route,requestObject).then(responseObject => {
+        router.centralRouter(route,requestObject,io).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();
             }).catch(errorObject => {
@@ -112,7 +113,6 @@ server.init = (runtimeEnvironment,port) => {
 
         //clear all cookies before server start
         //cookieHandler.clearCookies();
-        let io = new soc(server.https);
         socket.handleEvents(io);
 
         //setting up crons 
