@@ -1,7 +1,6 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
-import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
@@ -97,9 +96,6 @@ class AddProject extends Component{
                         globalThis.props.setMsgState(errorObject);
                     }
                 }else{
-                     let userStateObject = {...globalThis.props.user};
-                     userStateObject.projects.push({...responseObject.PAYLOAD});
-                     globalThis.props.setUserState(userStateObject);
                      globalThis.props.cancel();
                 }
             });
@@ -130,10 +126,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-    return{
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },       
+    return{      
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         } 

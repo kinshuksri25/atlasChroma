@@ -15,13 +15,12 @@ const os = require('os');
 const soc = require("socket.io");
 const stringDecoder = require('string_decoder').StringDecoder;
 const cookieHandler = require('./lib/utils/cookieHandler');
+const decoder = new stringDecoder('utf-8');
 
-var app = connect();
+const app = connect();
 
 //server object definition
 const server = {};
-
-const decoder = new stringDecoder('utf-8');
 
 //https certifications
 server.certParams = {
@@ -65,26 +64,23 @@ server.unifiedServer = (req, res) => {
         requestObject.reqBody = requestBodyString;
         requestObject.queryObject = queryStringObject;
 
+        //adding cookieID to check auth
         if(headers.hasOwnProperty("cookieid")){
             requestObject.cookieid = headers.cookieid;
         }
-
-        if(headers.hasOwnProperty("socketid")){
-            requestObject.socketid = headers.socketid;
-        }
-
+    
         res.writeHead(200,{"Access-Control-Allow-Origin":"https://localhost:3000",
                            "Access-Control-Allow-Credentials" : "true",
-                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid,socketid",
+                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
                            
         router.centralRouter(route,requestObject,io).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();
-            }).catch(errorObject => {
-                res.write(JSON.stringify(errorObject));
-                res.end();
-            });
+        }).catch(errorObject => {
+            res.write(JSON.stringify(errorObject));
+            res.end();
+        });
     }); 
 };
 
@@ -104,19 +100,18 @@ server.init = (runtimeEnvironment,port) => {
             console.log('Starting a new worker');
             cluster.fork();
         });
+        //clear all cookies before server start
+        cookieHandler.clearCookies();
+        //listening to client socket events
+        socket.handleEvents(io);
+        //setting up crons 
+        cron.startJobs();
     }
     else{
         //start the https server
         server.https.listen(port, function() {
             console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
         });
-
-        //clear all cookies before server start
-        //cookieHandler.clearCookies();
-        socket.handleEvents(io);
-
-        //setting up crons 
-        cron.startJobs();
     }
 };
 

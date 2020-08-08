@@ -23,18 +23,6 @@ socket.handleEvents = (io) =>{
             });
         })
 
-        socket.on("refreshUserStatus", () => {
-            cookieHandler.getAllCookies().then(userCookies => {
-                let valueArray = [];
-                for(let cookieKey in userCookies){
-                    valueArray.push(userCookies[cookieKey]);
-                }
-                socket.broadcast.emit("refreshedUserStatus",valueArray);
-            }).catch(rejectedResult => {
-                console.log(rejectedResult);
-            });
-        });
-
         socket.on("generateRoomName",(data) => {
             let privateRoomName = "";
             let recipientSocketID = socketObject[data.recipientUserName];

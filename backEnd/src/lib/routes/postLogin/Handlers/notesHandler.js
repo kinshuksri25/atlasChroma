@@ -72,14 +72,16 @@ notesHandler.notes.post = (route, requestObject) => new Promise((resolve,reject)
             "_id" : randValueGenerator(),
             "creationdate" : generateCurrentDate()
         };
-        mongo.update(DBCONST.userCollection , {email : requestObject.reqBody.emailID},{$push:{notes : {...notesObject}}},{},SINGLE).then(resolvedSet => {
+        mongo.update(DBCONST.userCollection , {email : requestObject.reqBody.emailID},{$push:{notes : {...notesObject}}},{},SINGLE).then(resolvedResult => {
             response.STATUS = 200;
             response.PAYLOAD = {"notesID" : notesObject._id,"creationdate" : notesObject.creationdate};
             response.SMSG = "notes added successfully";
             resolve(response);
             
-        }).catch(rejectedSet => {
-            throw rejectedSet; 
+        }).catch(rejectedResult => {
+            response.STATUS = 500;
+            response.EMSG = "";
+            reject(response); 
         });
     }else{
         response.STATUS = 400;
@@ -137,15 +139,15 @@ notesHandler.notes.delete = (route, requestObject) => new Promise((resolve,rejec
        };
 
     if(requestObject.queryObject.notesID != undefined && requestObject.queryObject.emailID != undefined){
-        mongo.update(DBCONST.userCollection,{email : requestObject.queryObject.emailID},{ $pull: {notes : {_id: requestObject.queryObject.notesID}}},{},SINGLE).then(resultSet => {
+        mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.queryObject.notesID},{ $pull: {notes : {_id: requestObject.queryObject.notesID}}},{},SINGLE).then(resolvedResult => {
             response.STATUS = 200;
             response.PAYLOAD = {};
             response.SMSG = "Event deleted successfully";    
             resolve(response);  
-        }).catch(rejectedSet => {
+        }).catch(rejectedResult => {
              //need to add a cron here 
              response.STATUS = 500;
-             response.EMSG = rejectedSet;
+             response.EMSG = rejectedResult;
              reject(response); 
         });
     }else{

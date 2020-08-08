@@ -176,28 +176,30 @@ class Events extends Component{
                 }
             }
             else{
-                let userObject = {...globalThis.props.user};
-                let count = 0;
-                userObject.events.map(event => {
-                    if(event._id == globalThis.state.selectedEvent._id){
-                        if(eventObject.hasOwnProperty("EventTitle")){
-                            event.EventTitle = eventObject.EventTitle;
-                        } if(eventObject.hasOwnProperty("Description")){
-                            event.Description = eventObject.Description;
-                        } if(eventObject.EventType == "Timed" || eventObject.EventType == "Meeting"){
-                            if(eventObject.hasOwnProperty("EndTime")){
-                                event.EndTime = eventObject.EndTime;
-                            } if(eventObject.hasOwnProperty("StartTime")){
-                                event.StartTime = eventObject.StartTime;
-                            } if(eventObject.hasOwnProperty("participants")){
-                                event.participants = eventObject.participants;
+                if(eventObject.EventType != "Meeting"){
+                    let userObject = {...globalThis.props.user};
+                    let count = 0;
+                    userObject.events.map(event => {
+                        if(event._id == globalThis.state.selectedEvent._id){
+                            if(eventObject.hasOwnProperty("EventTitle")){
+                                event.EventTitle = eventObject.EventTitle;
+                            } if(eventObject.hasOwnProperty("Description")){
+                                event.Description = eventObject.Description;
+                            } if(eventObject.EventType == "Timed"){
+                                if(eventObject.hasOwnProperty("EndTime")){
+                                    event.EndTime = eventObject.EndTime;
+                                } if(eventObject.hasOwnProperty("StartTime")){
+                                    event.StartTime = eventObject.StartTime;
+                                } if(eventObject.hasOwnProperty("participants")){
+                                    event.participants = eventObject.participants;
+                                }
                             }
+                        }else{
+                            count++;
                         }
-                    }else{
-                        count++;
-                    }
-                });
-                globalThis.props.setUserState(userObject);
+                    });
+                    globalThis.props.setUserState(userObject);
+                }
                 globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
@@ -221,16 +223,18 @@ class Events extends Component{
                 }
             }
             else{
-                let userObject = {...globalThis.props.user};
-                let count = 0;
-                userObject.events.map(event => {
-                    if(event._id == globalThis.state.selectedEvent._id){
-                        userObject.events.splice(count,1);
-                    }else{
-                        count++;
-                    }
-                });
-                globalThis.props.setUserState(userObject);
+                if(globalThis.state.selectedEvent.EventType != "Meeting"){
+                    let userObject = {...globalThis.props.user};
+                    let count = 0;
+                    userObject.events.map(event => {
+                        if(event._id == globalThis.state.selectedEvent._id){
+                            userObject.events.splice(count,1);
+                        }else{
+                            count++;
+                        }
+                    });
+                    globalThis.props.setUserState(userObject);
+                }
                 globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
@@ -288,15 +292,17 @@ class Events extends Component{
                             globalThis.props.setMsgState(errorObject);
                         }
                     }else{
-                        eventObject._id = responseObject.PAYLOAD.eventID;
+                        if(eventObject.EventType != "Meeting"){
+                            eventObject._id = responseObject.PAYLOAD.eventID;
 
-                        if(globalThis.state.eventType == "Meeting"){
-                           eventObject.password = responseObject.PAYLOAD.password;
-                        } 
-
-                        let userObject = {...globalThis.props.user};
-                        userObject.events.push(eventObject);
-                        globalThis.props.setUserState(userObject);
+                            if(globalThis.state.eventType == "Meeting"){
+                               eventObject.password = responseObject.PAYLOAD.password;
+                            } 
+    
+                            let userObject = {...globalThis.props.user};
+                            userObject.events.push(eventObject);
+                            globalThis.props.setUserState(userObject);
+                        }
                         globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants : [globalThis.props.user.username]});
                     }
                 });

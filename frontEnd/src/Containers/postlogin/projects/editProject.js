@@ -6,9 +6,9 @@ import Modal from 'react-modal';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import cookieManager from '../../../Components/cookieManager';
 import setMsgAction from '../../../store/actions/msgActions';
-import setUserAction from '../../../store/actions/userActions';
 import SearchFeild from '../../../Forms/searchFeildForm';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
+import { project } from '../../../../../backEnd/src/lib/routes/postLogin/Handlers/projectHandler';
 
 class EditProject extends Component{
     constructor(props){
@@ -34,8 +34,7 @@ class EditProject extends Component{
         let globalThis = this;
         let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-        let projectQuery = "projectID="+globalThis.props.projectDetails._id+"&contributors="+JSON.stringify(globalThis.props.projectDetails.contributors);
-
+        let projectQuery = "projectID="+globalThis.props.projectDetails._id;
         httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,{},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
@@ -47,16 +46,7 @@ class EditProject extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
-            }else{
-                let userDetails = globalThis.props.user;
-                let newProjectList = [];
-                globalThis.props.user.projects.map(project => {
-                    if(project._id != globalThis.props.projectDetails._id){
-                        newProjectList.push(project);
-                    }
-                });
-                userDetails.projects = [...newProjectList];
-                globalThis.props.setUserState(userDetails);   
+            }else{  
                 globalThis.props.disableProjectForm(); 
             }   
         });
@@ -68,12 +58,19 @@ class EditProject extends Component{
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let projectObject = {
             projectID : globalThis.props.projectDetails._id,
-            title : this.state.title,
-            description : this.state.description,
-            projectleader : this.state.projectleader,
-            contributors : this.state.contributors,
-            oldContributors : this.props.projectDetails.contributors
+            oldContributors : this.props.projectDetails.contributors,
+            oldTitle : this.props.projectDetails.title
         };
+
+        if(this.state,title != this.props.projectDetails.title){
+            projectObject.title = this.state.title;
+        }if(this.state.description != this.props.projectDetails.description){
+            projectObject.description = this.state.description;
+        }if(this.state.projectleader != this.props.projectDetails.projectlead){
+            projectObject.projectlead = this.props.projectDetails.projectlead;
+        }if(JSON.stringify(contributors) != JSON.stringify(this.props.projectDetails.contributors)){
+            projectObject.contributors = this.props.projectDetails.contributors;
+        }
         
         let duplicateTitle = false;
         this.props.user.projects.map(project => {
@@ -93,17 +90,7 @@ class EditProject extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                    let userDetails = globalThis.props.user;
-                    userDetails.projects.map(project => {
-                        if(project._id == globalThis.props.projectDetails._id){
-                            project.title = globalThis.state.title;
-                            project.description = globalThis.state.description;
-                            project.projectlead = globalThis.state.projectleader;
-                            project.contributors = globalThis.state.contributors;
-                        }
-                    });
-                    globalThis.props.setUserState(userDetails);   
+                }else{   
                     globalThis.props.disableProjectForm(); 
                 }   
             });
@@ -227,9 +214,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         } 

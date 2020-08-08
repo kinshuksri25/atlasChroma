@@ -72,7 +72,7 @@ class Notes extends Component{
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let errorObject = {};
         let globalThis = this;
-        let queryString = "notesID="+this.state.notesID+"&emailID="+this.props.user.email;
+        let queryString = "notesID="+this.state.notesID;
 
         httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,{},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){

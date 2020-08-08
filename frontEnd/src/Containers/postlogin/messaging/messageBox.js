@@ -110,9 +110,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },
         setMsgState: (msgObject,roomName) => {
             dispatch(addMsgAction(msgObject,roomName));
         },

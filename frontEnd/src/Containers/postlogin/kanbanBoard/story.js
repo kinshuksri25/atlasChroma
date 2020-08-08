@@ -8,7 +8,6 @@ import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
 import {urls} from '../../../../../lib/constants/contants';
-import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 
 class Story extends Component{
@@ -148,7 +147,6 @@ class Story extends Component{
         let storyObject = {};
         let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()}
-        let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         if(this.state.storyTitle != this.state.oldStoryDetails.storytitle){
             storyObject.StoryTitle = this.state.storyTitle;
         }if(this.state.storyDescription != this.state.oldStoryDetails.description){
@@ -163,7 +161,8 @@ class Story extends Component{
             storyObject.DueDate = this.state.oldStoryDetails.duedate;
         }
         storyObject._id = this.props.storyID;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject},contributorUsername : this.state.storyContributor},{},function(error,responseObject) {
+        storyObject.oldName = this.state.oldStoryDetails.storytitle;
+        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject}},{},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -175,22 +174,6 @@ class Story extends Component{
                     globalThis.props.setMsgState(errorObject);
                 }
             }else{
-                let updatedUser = {...globalThis.props.user};
-                updatedUser.projects.map(project => {
-                    if(project._id == projectID){
-                        project.storydetails.map(story => {
-                            if(story._id == globalThis.props.storyID){
-                                story.storytitle = globalThis.state.storyTitle;
-                                story.description = globalThis.state.storyDescription;
-                                story.comments = globalThis.state.storyComments;
-                                story.duedate = globalThis.state.duedate;
-                                story.contributor = globalThis.state.storyContributor;
-                                story.priority = globalThis.state.storyPriority;
-                            }
-                        });
-                    }
-                });
-                globalThis.props.setUserState(updatedUser);
                 globalThis.props.closeForm();
             }
         });  
@@ -217,7 +200,8 @@ class Story extends Component{
             let storyDetails = {};
             storyDetails._id = this.props.storyDetails._id;
             storyDetails.currentStatus = columns[newPosition]._id;
-            httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails},contributorUsername :this.props.storyDetails.contributor},{},function(error,responseObject){
+            storyObject.oldName = this.state.storytitle;
+            httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},{},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -228,19 +212,6 @@ class Story extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                    let updatedUser = {...globalThis.props.user};
-                    let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-                    updatedUser.projects.map(project => {
-                        if(project._id == projectID){
-                            project.storydetails.map(story => {
-                                if(story._id == globalThis.props.storyDetails._id){
-                                    story.currentstatus = columns[newPosition]._id;
-                                }
-                            });
-                        }
-                    });
-                    globalThis.props.setUserState(updatedUser);
                 }
             });
         }else{
@@ -256,7 +227,7 @@ class Story extends Component{
         let globalThis = this;
         let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-        let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id+"&contributor="+this.props.storyDetails.contributor;
+        let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id;
         httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams,{},function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
@@ -268,19 +239,6 @@ class Story extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
-            }else{
-                let updatedUser = {...globalThis.props.user};
-                updatedUser.projects.map(project => {
-                    if(project._id == projectID){
-                        for(let i=0;i<project.storydetails.length;i++){
-                            if(project.storydetails[i]._id == globalThis.props.storyDetails._id){
-                                project.storydetails.splice(i,1);
-                                break;
-                            }
-                        }
-                    }
-                });
-                globalThis.props.setUserState(updatedUser);
             }
         });
     }
@@ -358,10 +316,7 @@ class Story extends Component{
 }
 
 const mapDispatchToProps = dispatch => {
-    return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },       
+    return {       
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         } 

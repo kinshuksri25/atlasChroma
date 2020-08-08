@@ -9,7 +9,6 @@ import formConstants from '../../../Forms/formConstants';
 import TemplateBuilder from './templateBuilder';
 import setMsgAction from '../../../store/actions/msgActions';
 import {msgObject} from '../../../../../lib/constants/storeConstants';
-import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager';
 import templateBuilderConstants from './templateBuilderConstants';
 
@@ -108,15 +107,7 @@ class SetupProject extends Component {
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                    let userDetails = globalThis.props.user;
-                    userDetails.projects.map(project => {
-                        if(project._id == globalThis.state.currentProject._id){
-                            project.templatedetails = globalThis.state.currentProject.templatedetails;
-                        }
-                    });
-                    globalThis.props.setUserState(userDetails);    
-                }   
+                } 
             });
         }else{
             errorObject.msg = "One of the Phases/Subphases has 1 Child This is invalid!!";
@@ -168,9 +159,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         } 

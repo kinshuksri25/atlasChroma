@@ -68,7 +68,6 @@ class Profile extends Component{
 
             let userObject = {};
             userObject.username = this.state.userName;
-            userObject.email = this.state.email;
             if(this.state.password != ""){
                 userObject.password = this.state.password;
             }if(this.state.firstName != this.props.user.firstname){
@@ -92,18 +91,6 @@ class Profile extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                    let user = {...globalThis.props.user};
-                    if(userObject.hasOwnProperty("firstname")){
-                        user.firstName = this.state.firstName;
-                    }if(userObject.hasOwnProperty("lastname")){
-                        user.lastname = this.state.lastName;
-                    }if(userObject.hasOwnProperty("phonenumber")){
-                        user.phonenumber = this.state.lastName;
-                    }if(userObject.hasOwnProperty("photo")){
-                        user.photo = this.state.photo;
-                    }
-                    globalThis.props.setUserState({...user});
                 }
             });
 
@@ -118,15 +105,11 @@ class Profile extends Component{
         let projectNames = [];
         let projectIDs = [];
         let errorObject = {...msgObject};
-        this.props.user.projects.map(project => {
-            project.projectlead == this.props.user.username && projectNames.push(project.title);
-            project.contributors.indexOf(this.state.userName) >= 0 && projectIDs.push(project._id);
-        });
-        if(projectNames.length == 0){
+
+        if(this.props.user.projects.length == 0){
             let globalThis = this;
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            let userQuery = "username="+this.props.user.username;
-            httpsMiddleware.httpsRequest("/user", "DELETE", headers,userQuery,{"projectIDs" : [...projectIDs],email : this.state.email},function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/user", "DELETE", headers,{},{"projectIDs" : [...projectIDs],email : this.state.email},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -143,7 +126,7 @@ class Profile extends Component{
                 }
             });
         }else{
-            errorObject.msg = "You the project lead for some projects, please remove yourself from them befre deleting the account";
+            errorObject.msg = "You still contributing in some projects, please remove yourself from them befre deleting the account";
             errorObject.status = "ERROR";
             this.props.setMsgState(errorObject);
         }
@@ -196,9 +179,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         }

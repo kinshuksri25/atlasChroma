@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
-//import NewWindow from 'react-new-window'
 import Jitsi from 'react-jitsi'
 
 import setMsgAction from '../../store/actions/msgActions';

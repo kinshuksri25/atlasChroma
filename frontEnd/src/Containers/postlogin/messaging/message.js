@@ -3,7 +3,6 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 import {chatObject} from '../../../../../lib/constants/storeConstants';
-import setUserAction from '../../../store/actions/userActions';
 import {addMsgAction} from "../../../store/actions/chatActions";
 
 class Message extends Component{
@@ -92,9 +91,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },
         addMsgState: (msgObject,roomname) =>{
             dispatch(addMsgAction(msgObject,roomname));
         } 

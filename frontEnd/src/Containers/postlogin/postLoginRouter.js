@@ -17,7 +17,6 @@ import menuConstants from '../../Menu/menuConstants';
 import {msgObject} from '../../../../lib/constants/storeConstants';
 import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
-import setUserListStateAction from '../../store/actions/userListActions';
 import {urls} from "../../../../lib/constants/contants";
 import listener from '../generalContainers/asyncListener';
 import MessageBox from "../postlogin/messaging/messageBox";
@@ -30,46 +29,31 @@ class PostLoginRouter extends Component {
         super(props);
         this.getUserData = this.getUserData.bind(this);
         this.containerSelector = this.containerSelector.bind(this);
-        this.initialSocketConnection = this.initialSocketConnection.bind(this);
     }
 
     componentDidMount(){ 
+        //setting up io instance in redux store
+        let io = clientSocket('https://localhost:5000',{transports: ['websocket']});
+        this.props.setSocketState(io); 
+        listener.listenEvents(io);
+
+        //connect to server socket
+        this.props.io.on("connect",() => {console.log("socket connected to server");});
+        this.props.io.emit('login',userID);
+
         let userID = cookieManager.getUserSessionDetails();
         let queryString = "";
         if(userID){
             let cookieDetails = {"CookieID" : userID};
-            this.getUserData(cookieDetails,queryString,this.props.setUserListState,()=>{
-                queryString+="&userID="+userID;
-                this.getUserData(cookieDetails,queryString,this.props.setUserState);
-            });
+            this.getUserData(cookieDetails,queryString);
+            queryString+="&userID="+userID;
+            this.getUserData(cookieDetails,queryString);
         }else{
             window.history.pushState({}, "",urls.LANDING);
         }
     }
 
-    initialSocketConnection(userID){
-        let io = clientSocket('https://localhost:5000',{transports: ['websocket']});
-        this.props.setSocketState(io); 
-
-        //connect to server socket
-        io.on("connect",() => {console.log("socket connected to server");});
-        io.emit('login',userID);
-
-        io.emit("refreshUserStatus");
-        io.on("refreshedUserStatus",(userStatus) => {
-            let timer = this.props.userList.length == 0 ? 3000 : 0;
-            setTimeout(() => {
-                let userList = [...this.props.userList];
-                userList.map(user => {
-                    user.status = userStatus.includes(user.username) ? true : false;
-                }); 
-                this.props.setUserListState([...userList]);   
-                listener.listenEvents(io);
-            },timer);
-        });
-    }
-
-    getUserData(headers,queryString,action,callback){ 
+    getUserData(headers,queryString){ 
         let globalThis = this;
         httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString,{},function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
@@ -86,14 +70,7 @@ class PostLoginRouter extends Component {
                 cookieManager.clearUserSession(); 
                 window.history.pushState({}, "",urls.LANDING);
             }else{
-                //dispatch needs to have a callback or use setTimeout 
-                if(responseObject.PAYLOAD.userList == undefined){
-                    action({...responseObject.PAYLOAD.user});
-                    globalThis.initialSocketConnection(headers.CookieID);
-                }else{
-                    action([...responseObject.PAYLOAD.userList]);
-                    callback();
-                }
+                queryString != "" && globalThis.props.setUserState({...responseObject.PAYLOAD});
             }
         });
     }
@@ -171,13 +148,10 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => {
-    return {
+    return { 
         setUserState: (userObject) => {
             dispatch(setUserAction(userObject));
         },
-        setUserListState : (userList) => {
-            dispatch(setUserListStateAction(userList));   
-        }, 
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         },

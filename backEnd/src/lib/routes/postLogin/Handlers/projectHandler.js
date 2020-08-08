@@ -73,45 +73,45 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
             contributors : requestObject.reqBody.contributors});
 
         let projectObject = projectClass.getProjectDetails();
-        let templateBuilder = {
+        let template = {
             projectName : projectObject.title,
-            projectLink : "https://localhost:3000/projects",
+            projectLink : "",
             projectLead : projectObject.projectlead,
             contributors : projectObject.contributors
         };
 
         mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
-            mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(updateSet => {
+            mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(resolvedSet => {
+                io.emit("updatingDetails",{event : "addingProject", data : projectObject});
                 mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0,firstname : 1}}).then(resolvedSet => {
                     let recipientList = [];
                     resolvedSet.map(user => {
                         recipientList.push(user.email);
 
                     });
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedResult => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
                         response.SMSG = SMSG.SVR_SHH_PRJUP; 
-                        io.emit("updatingDetails",{event : "addingProject", data : projectObject});       
+                               
                         resolve(response);  
-                    }).catch(rejectedResult => {
+                    }).catch(rejectedEmail => {
                         let payload = {
                             "participants" : [...recipientList],
                             "template" : "ADDPROJECT",
-                            "templateData" : templateBuilder
+                            "templateData" : template
                         };
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                        throw rejectedResult;
+                        throw rejectedEmail;
                     });
                 }).catch(rejectedSet => {
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "Project added, unabled to nortify the contributors";
-                    io.emit("updatingDetails",{event : "addingProject", data : projectObject});        
+                    response.SMSG = "Project added, unabled to nortify the contributors";        
                     resolve(response);  
                 });
-            }).catch(rejectSet => {
+            }).catch(resolvedSet => {
                 throw rejectSet;
             });
                 
@@ -162,13 +162,10 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
     if(JSON.stringify(set)!=JSON.stringify({})){
         updateQuery["$set"] = {...set};
     } 
-    if(JSON.stringify(push)!=JSON.stringify({})){
-        updateQuery["$push"] = {...push};
-    }
     
-    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{returnOriginal: false},SINGLE).then(resolvedSet => {
-        let updatedProject = resolvedSet;
-        let editedContributors = [...requestObject.reqBody.contributors];
+    mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{returnOriginal: false},SINGLE).then(resolvedResult => {
+        let updatedProject = resolvedResult[0];
+        let editedContributors = [...updatedProject.contributors];
         let newContributors = [];
         let oldContributors = [];
         let removedContributors = [];
@@ -181,6 +178,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         editedContributors.map(contri => {
             oldContributors.indexOf(contri) == -1 && newContributors.push(contri);
         });
+        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});   
 
         mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
 
@@ -198,98 +196,94 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
             if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){
                 templateBuilder = {
                     projectName : requestObject.reqBody.oldTitle,
-                    projectLink : "https://localhost:3000/projects"  
+                    projectLink : ""  
                 };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER,templateBuilder).then(resolvedResult => {
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER,templateBuilder).then(resolvedEmail => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;        
-                        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});      
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;           
                         resolve(response); 
-                    }).catch(rejectedResult => {
+                    }).catch(rejectedEmail => {
                         let payload = {
                             "participants" : [...oldContributorsEmail],
                             "template" : "EDITPROJECT",
                             "templateBuilder" : templateBuilder
                         };
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                        throw rejectedResult;
+                        throw rejectedEmail;
                     });
-                }).catch(rejectedResult => {
+                }).catch(rejectedEmail => {
                     let payload = {
                         "participants" : [...removedContributorsEmail],
                         "template" : "REMOVEDUSER",
                         "templateBuilder" : templateBuilder
                     };
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedResult;
+                    throw rejectedEmail;
                 });
             }else if(removedContributorsEmail.length == 0 && newContributorsEmail.length != 0){
                 templateBuilder = {
                     projectName : requestObject.reqBody.oldTitle,
-                    projectLink : "https://localhost:3000/projects",
-                    projectLead : projectDetails.projectlead,
-                    contributors : projectDetails.contributors
+                    projectLink : "",
+                    projectLead : updatedProject.projectlead,
+                    contributors : updatedProject.contributors
                 };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                     templateBuilder = {
                         projectName : requestObject.reqBody.oldTitle,
-                        projectLink : "https://localhost:3000/projects"  
+                        projectLink : ""  
                     };
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedResult => {
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;
-                        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});        
+                        response.SMSG = SMSG.SVR_SHH_PRJUP;      
                         resolve(response); 
-                    }).catch(rejectedResult => {
+                    }).catch(rejectedEmail => {
                         let payload = {
                             "participants" : [...oldContributorsEmail],
                             "template" : "EDITPROJECT",
                             "templateBuilder" : templateBuilder
                         };
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                        throw rejectedResult;
+                        throw rejectedEmail;
                     });
-                }).catch(rejectedResult => {
+                }).catch(rejectedEmail => {
                     let payload = {
                         "participants" : [...newContributorsEmail],
                         "template" : "ADDPROJECT",
                         "templateBuilder" : templateBuilder
                     };
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedResult;
+                    throw rejectedEmail;
                 });
             }else{
                 templateBuilder = {
                     projectName : requestObject.reqBody.oldTitle,
-                    projectLink : "https://localhost:3000/projects"  
+                    projectLink : ""  
                 };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_SHH_PRJUP;
-                    io.emit("updatingDetails",{event : "editingProject", data : updatedProject});        
+                    response.SMSG = SMSG.SVR_SHH_PRJUP;        
                     resolve(response); 
-                }).catch(rejectedResult => {
+                }).catch(rejectedEmail => {
                     let payload = {
                         "participants" : [...oldContributorsEmail],
                         "template" : "EDITPROJECT",
                         "templateBuilder" : templateBuilder
                     };
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedResult;
+                    throw rejectedEmail;
                 });
             }
         }).catch(rejectedSet => {
             response.STATUS = 201;
             response.PAYLOAD = {};
             response.SMSG = "board details updated successfully, unable to nortify contributors";
-            io.emit("updatingDetails",{event : "editingProject", data : updatedProject});
             resolve(response);
         });
-    }).catch(rejectedSet => {
+    }).catch(rejectedResult => {
         response.STATUS = 500;
         response.EMSG = rejectedSet;
         reject(response); 
@@ -312,24 +306,24 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
         SMSG : ""
        };       
 
-    if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.contributors != undefined){
+    if(requestObject.queryObject.projectID != undefined){
         mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{returnOriginal: false, remove: true},SINGLE).then( resolvedResult => {
-            let deletedData = resolvedResult;
-            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedResult => {
-               mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(requestObject.queryObject.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
+            let deletedData = resolvedResult[0];
+            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedSet => {
+               mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                 let recipientList = [];
                 resolvedSet.map(user => {
                     recipientList.push(user.email);
                 });
-                let templateBuilder = {
-                    projectName : requestObject.queryObject.title,
-                    projectLink : "https://localhost:3000/projects"
+                let template = {
+                    projectName : deletedData.title,
+                    projectLink : ""
                 };
+                io.emit("updatingDetails",{event : "deletingProject", data : deletedData}); 
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT,templateBuilder).then(emailResolve => {
                     response.STATUS = 200;
-                    response.PAYLOAD = resolvedResult;
-                    response.SMSG = "Project deleted successfully";  
-                    io.emit("updatingDetails",{event : "deletingProject", data : deletedData});          
+                    response.PAYLOAD = {};
+                    response.SMSG = "Project deleted successfully";           
                     resolve(response);  
                 }).catch(rejectedResult => {
                     let payload = {
@@ -343,8 +337,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
                }).catch(rejectedSet => {
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "Project deleted successfully, unable to nortify the contributors";
-                    io.emit("updatingDetails",{event : "deletingProject", data : deletedData});        
+                    response.SMSG = "Project deleted successfully, unable to nortify the contributors";   
                     reject(response); 
                });
             }).catch(rejectedSet => {

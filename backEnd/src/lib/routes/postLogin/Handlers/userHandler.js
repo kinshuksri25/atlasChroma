@@ -24,7 +24,7 @@ userHandler.user = (route,requestObject,io) => new Promise((resolve,reject) => {
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
-              userHandler.user.get(route,requestObject).then(resolvedResult => {
+              userHandler.user.get(route,requestObject,io).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
@@ -58,12 +58,12 @@ userHandler.user = (route,requestObject,io) => new Promise((resolve,reject) => {
 //user get route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => {
+userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
         SMSG : ""
-       };
+    };
 
     if(requestObject.queryObject.userID != undefined){
         mongo.aggregate(DBCONST.userCollection,[{$match : {_id : requestObject.queryObject.userID}},
@@ -76,8 +76,7 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
                                                 {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {
                     
             if(resolvedResult.length != 0){
-                response.STATUS = 200;
-                response.PAYLOAD.user = {...resolvedResult[0]};
+                response.PAYLOAD = {...resolvedResult[0]};
                 response.SMSG = SMSG.SVR_UHH_RDUSR; 
                 resolve(response); 
             }else{
@@ -92,33 +91,33 @@ userHandler.user.get = (route,requestObject) => new Promise((resolve,reject) => 
             reject(response);
         });
     }else{
-        mongo.read(DBCONST.userCollection,{},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1}}).then(resultSet => {
-            if(resultSet.length != 0){   
-                //adding status
-                //This needs to be addessed by the next refactor
-                let userList = [...resultSet];
-                cookieHandler.getAllCookies().then(activeLoginDetails => {
-                    let valueArray = [];
-                    for(key in activeLoginDetails){
-                        valueArray.push(activeLoginDetails[key]);
-                    }
-                    userList.map(user => {
-                        user.status = valueArray.includes(user.username) ? true : false;
-                    });
-
-                    response.STATUS = 200;
-                    response.PAYLOAD.userList = [...userList];
-                    response.SMSG = SMSG.SVR_UHH_RDUSR; 
-                    resolve(response); 
-                }).catch(rejectedResult => {
-                    throw rejectedResult;   
-                });
+        cookieHandler.getAllCookies().then(activeLoginDetails => {
+            let valueArray = [];
+            for(key in activeLoginDetails){
+                valueArray.push(activeLoginDetails[key]);
             }
+            mongo.read(DBCONST.userCollection,{username : {$in : [...valueArray]}},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1}}).then(resolvedSet => {
+                if(resolvedSet.length != 0){   
+
+                    resolvedSet.map(user => {
+                        user.status = true;
+                    });
+                    
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_UHH_RDUSR; 
+                    io.emit("updatingDetails",{event : "getUserList", data : [...resolvedSet]});
+                    resolve(response); 
+                      
+                }
+            }).catch(rejectedSet => {
+                throw rejectedSet;
+            }); 
         }).catch(rejectedResult => {
             response.STATUS = 500;
             response.EMSG = rejectedResult;
             reject(response);
-        });    
+        });;   
     }
 });
 
@@ -132,6 +131,7 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
         PAYLOAD : {},
         SMSG : ""
        };
+
     if(requestObject.reqBody.hasOwnProperty("password") 
         || requestObject.reqBody.hasOwnProperty("firstname") 
         || requestObject.reqBody.hasOwnProperty('lastname') 
@@ -152,14 +152,14 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
             set["$set"].photo = requestObject.reqBody.photo;
         }
 
-        mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{returnOriginal: false},SINGLE).then(resultSet => {
+        mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{returnOriginal: false},SINGLE).then(resolvedSet => {
             let updatedUser = {
-                username : resultSet.username,
-                firstname : resultSet.firstname,
-                lastname : resultSet.lastname,
-                email : resultSet.email,
-                phonenumber : resultSet.phonenumber,
-                photo : resultSet.photo,
+                username : resolvedSet.username,
+                firstname : resolvedSet.firstname,
+                lastname : resolvedSet.lastname,
+                email : resolvedSet.email,
+                phonenumber : resolvedSet.phonenumber,
+                photo : resolvedSet.photo,
                 status : true
             };
             response.STATUS = 200;
@@ -193,35 +193,31 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
         supportEmail : OAuthCONST.appAuth.senderEmail
     };    
     
-    if(requestObject.reqBody.hasOwnProperty("projectIDs") && requestObject.queryObject.username != undefined && requestObject.reqBody.hasOwnProperty("email")){
-        mongo.update(DBCONST.projectCollection , {_id:{$in : [...requestObject.reqBody.projectIDs]}},{$pull:{contributors : requestObject.queryObject.username}},{},MULTIPLE).then(resolvedSet => {
-            mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{},SINGLE).then(resolvedSet => {
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedResult => {
-                    response.STATUS = 200;
-                    response.PAYLOAD = {};
-                    response.SMSG = "User deleted";  
-                    io.emit("updatingDetails",{event : "deleteingUser", data : {username : requestObject.queryObject.username}});       
-                    resolve(response); 
-                }).catch(rejectedResult => {
-                    let payload = {
-                        "participants" : [requestObject.reqBody.email],
-                        "template" : "DELETEUSER",
-                        "templateData" : template
-                    };
-                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    response.STATUS = 201;
-                    response.PAYLOAD = {};
-                    io.emit("updatingDetails",{event : "deleteingUser", data : {username : requestObject.queryObject.username}});
-                    response.SMSG = "User deleted, unable to nortify the user";        
-                    resolve(response); 
-                });
-            }).catch(rejectedSet => {
-                throw rejectedSet;    
+    if(requestObject.reqBody.hasOwnProperty("email")){
+        mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{returnOriginal: false, remove: true},SINGLE).then(resolvedResult => {
+            let deletedData = resolvedResult;
+            io.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
+            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
+                response.STATUS = 200;
+                response.PAYLOAD = {};
+                response.SMSG = "User deleted";       
+                resolve(response); 
+            }).catch(rejectedEmail => {
+                let payload = {
+                    "participants" : [requestObject.reqBody.email],
+                    "template" : "DELETEUSER",
+                    "templateData" : template
+                };
+                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                response.STATUS = 201;
+                response.PAYLOAD = {};
+                response.SMSG = "User deleted, unable to nortify the user";        
+                resolve(response); 
             });
-        }).catch(rejectedSet => {
+        }).catch(rejectedResult => {
             response.STATUS = 500;
-            response.EMSG = rejectedSet;
-            reject(response); 
+            response.EMSG = rejectedResult;
+            reject(response);   
         });
     }else{
         response.STATUS = 400;

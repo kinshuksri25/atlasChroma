@@ -3,9 +3,6 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import SimpleForm from '../../../Forms/simpleform';
-import {storyConstant} from '../../../Forms/formConstants';
-import setUserAction from '../../../store/actions/userActions';
 import cookieManager from '../../../Components/cookieManager'
 import setMsgAction from '../../../store/actions/msgActions';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
@@ -78,7 +75,8 @@ class StoryForm extends Component {
                 "EndDate" : this.state.duedate,
                 "currentStatus" : this.state.currentStatus,
                 "Comments" : this.state.storyComments,
-                "projectID" : this.props.projectDetails._id
+                "projectID" : this.props.projectDetails._id,
+                "projectName" : this.props.projectDetails.title
             };
 
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
@@ -94,13 +92,6 @@ class StoryForm extends Component {
                         globalThis.props.setMsgState(errorObject);
                     }
                 }else{
-                    let updatedUser = {...globalThis.props.user};
-                    for(let i = 0;i < updatedUser.projects.length;i++){
-                        if(updatedUser.projects[i]._id == globalThis.props.projectDetails._id){
-                            updatedUser.projects[i].storydetails.push({...responseObject.PAYLOAD});
-                        }
-                    }
-                    globalThis.props.setUserState(updatedUser);
                     globalThis.props.closeForm();
                 }
             });
@@ -176,10 +167,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = dispatch => {
-    return {
-        setUserState: (userObject) => {
-            dispatch(setUserAction(userObject));
-        },       
+    return {     
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
         } 

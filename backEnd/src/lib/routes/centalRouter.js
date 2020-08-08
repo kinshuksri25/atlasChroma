@@ -28,7 +28,7 @@ router.centralRouter = (route,requestObject,io) => new Promise((resolve,reject) 
         }).catch(rejectedResult => { 
                 reject(rejectedResult);
         });
-        }
+    }
 }); 
 
 //export the module

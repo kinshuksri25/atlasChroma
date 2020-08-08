@@ -90,13 +90,5 @@ const mapStateToProps = (state) => {
             user: state.userStateReducer
         }
 };
-    
-const mapDispatchToProps = dispatch => {
-        return {
-            setUserState: (userObject) => {
-                dispatch(setUserAction(userObject));
-            }
-        };
-};
-    
-export default connect(mapStateToProps,mapDispatchToProps)(Projects);
+ 
+export default connect(mapStateToProps)(Projects);
