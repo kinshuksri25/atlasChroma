@@ -163,7 +163,7 @@ class Events extends Component{
         eventObject._id = this.state.selectedEvent._id;
         eventObject.EventType = this.state.selectedEvent.eventType;
         eventObject.oldTitle = this.state.selectedEvent.EventTitle;
-        httpsMiddleware.httpsRequest("/event","PUT",headers,{...eventObject},{},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/event","PUT",headers,{...eventObject},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -210,7 +210,7 @@ class Events extends Component{
         let globalThis = this;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let eventIDQuery = "eventID="+this.state.selectedEvent._id;
-        httpsMiddleware.httpsRequest("/event","DELETE",headers,eventIDQuery,{},function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/event","DELETE",headers,eventIDQuery,function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -280,7 +280,7 @@ class Events extends Component{
                         }
                     }
                 }
-                httpsMiddleware.httpsRequest(formObject.route,formObject.method, headers, {eventObject : {...eventObject}},{},function(error,responseObject) {
+                httpsMiddleware.httpsRequest(formObject.route,formObject.method, headers, {eventObject : {...eventObject}},function(error,responseObject) {
                     if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                         if(error){
                             errorObject.msg = error;

@@ -242,17 +242,16 @@ googleAuthHandler.postAuthDetails = (requestObject,io) => new Promise((resolve,r
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
                 mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
                     let updatedUser = {
-                        username : updateSet.username,
-                        firstname : updateSet.firstname,
-                        lastname : updateSet.lastname,
-                        phonenumber : updateSet.phonenumber,
-                        photo : updateSet.photo
+                        username : updateSet[0].username,
+                        firstname : updateSet[0].firstname,
+                        lastname : updateSet[0].lastname,
+                        email : updateSet[0].email
                     };
+                    io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
                     cookieHandler.createCookies(resultSet[0]._id,requestObject.reqBody.UserName).then(resolvedResult => {
                          response.PAYLOAD.cookieDetails =resolvedResult;
                          response.SMSG = SMSG.SVR_OATH_LGNSUC;
                          response.STATUS = 200;
-                         io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
                          resolve(response);
                     }).catch(rejectedResult => {
                         response.EMSG = rejectedResult;

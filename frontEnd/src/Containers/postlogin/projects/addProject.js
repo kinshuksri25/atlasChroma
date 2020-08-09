@@ -84,7 +84,7 @@ class AddProject extends Component{
             formData.projectleader = this.state.projectLeader;
             delete formData.Description;
             delete formData.Title;
-            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,{},function(error,responseObject){
+            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){
                         errorObject.msg = error;

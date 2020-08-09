@@ -46,7 +46,7 @@ class SignUp extends Component {
         this.setState({
             "isCheckingEmail": true
         }, () => {
-            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, emailCheckQueryString,{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, emailCheckQueryString,function(error,responseObject) {
                 let errorObject = {...msgObject};
                 if(error){
                     errorObject.msg = error;
@@ -80,7 +80,7 @@ class SignUp extends Component {
         this.setState({
             "isCheckingUsername": true
         }, () => {
-            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,function(error,responseObject) {
                 let errorObject = {...msgObject};
                 if(error){
                     errorObject.msg = error;
@@ -115,7 +115,7 @@ class SignUp extends Component {
             var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
             if (this.state.validEmail && this.state.validUserName) {
                 if(errorMsgObject == ""){
-                    httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,{},function(error,responseObject) {
+                    httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
                         if(responseObject.STATUS != 200 || error){
                             if(error){
                                 errorObject.msg = error;

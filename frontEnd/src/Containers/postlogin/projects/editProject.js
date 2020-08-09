@@ -35,7 +35,7 @@ class EditProject extends Component{
         let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let projectQuery = "projectID="+globalThis.props.projectDetails._id;
-        httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,{},function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -79,7 +79,7 @@ class EditProject extends Component{
         });
 
         if(!duplicateTitle){
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;

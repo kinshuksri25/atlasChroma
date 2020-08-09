@@ -80,7 +80,7 @@ class StoryForm extends Component {
             };
 
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/stories","POST", headers, {...formData},{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/stories","POST", headers, {...formData},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;

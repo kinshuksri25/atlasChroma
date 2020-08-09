@@ -16,12 +16,7 @@ listener.listenEvents = (io) => {
         
         switch(details.event){
             case "addingUser" :
-                let userDetail = {
-                    firstname : details.data.firstname,
-                    lastname : details.data.lastname,
-                    email : details.data.email
-                }
-                userList.push({...userDetail});
+                userList.push({...details.data});
                 store.dispatch(setUserListStateAction([...userList]));
                 break;
             
@@ -42,6 +37,7 @@ listener.listenEvents = (io) => {
                         user.firstname = details.data.firstname;
                         user.lastname = details.data.lastname;
                         user.email = details.data.email;
+                        user.username = details.data.username;
                     }
                 });
                 store.dispatch(setUserListStateAction([...userList]));
@@ -149,6 +145,10 @@ listener.listenEvents = (io) => {
                 break;   
         }   
     });
+}
+
+listener.unsubscribe = () => {
+    unsubscribe();
 }
 
 module.exports = listener;

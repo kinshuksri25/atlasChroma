@@ -80,7 +80,7 @@ class Profile extends Component{
                 userObject.photo = this.state.photo;
             }
 
-            httpsMiddleware.httpsRequest("/user",'PUT',headers,{...userObject},{},function(error,responseObject){
+            httpsMiddleware.httpsRequest("/user",'PUT',headers,{...userObject},function(error,responseObject){
                 if(responseObject.STATUS != 200 || error){
                     if(error){
                         errorObject.msg = error;
@@ -109,7 +109,7 @@ class Profile extends Component{
         if(this.props.user.projects.length == 0){
             let globalThis = this;
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/user", "DELETE", headers,{},{"projectIDs" : [...projectIDs],email : this.state.email},function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/user", "DELETE", headers,{"projectIDs" : [...projectIDs],email : this.state.email},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;

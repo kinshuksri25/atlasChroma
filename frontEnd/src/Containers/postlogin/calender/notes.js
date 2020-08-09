@@ -46,7 +46,7 @@ class Notes extends Component{
         let notesObject = {};
         notesObject.title = formObject.formData.NotesTitle;
         notesObject.description = formObject.formData.Description;
-        httpsMiddleware.httpsRequest("/notes","POST",headers,{...notesObject,emailID : globalThis.props.user.email},{},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","POST",headers,{...notesObject,emailID : globalThis.props.user.email},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -74,7 +74,7 @@ class Notes extends Component{
         let globalThis = this;
         let queryString = "notesID="+this.state.notesID;
 
-        httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,{},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;
@@ -115,7 +115,7 @@ class Notes extends Component{
         notesObject._id = this.state.notesID;
         notesObject.emailID = this.props.user.email;
 
-        httpsMiddleware.httpsRequest("/notes","PUT",headers,{...notesObject},{},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/notes","PUT",headers,{...notesObject},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
                     errorObject.msg = error;

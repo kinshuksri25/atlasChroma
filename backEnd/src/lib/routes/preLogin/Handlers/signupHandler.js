@@ -146,17 +146,16 @@ signupHandler.postSignupDetails = (requestObject,io) => new Promise((resolve,rej
             if (JSON.stringify(resultSet) != JSON.stringify([])) {  
                 mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
                     let updatedUser = {
-                        username : updateSet.username,
-                        firstname : updateSet.firstname,
-                        lastname : updateSet.lastname,
-                        phonenumber : updateSet.phonenumber,
-                        photo : updateSet.photo
+                        username : updateSet[0].username,
+                        firstname : updateSet[0].firstname,
+                        lastname : updateSet[0].lastname,
+                        email : updateSet[0].email
                     };
+                    io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
                     response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
                         response.STATUS = 200;
                         response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
                         response.PAYLOAD.cookieObject = resolvedResult;
-                        io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
                         resolve(response);
                     }).catch(rejectedResult => {
                         response.STATUS = 500;

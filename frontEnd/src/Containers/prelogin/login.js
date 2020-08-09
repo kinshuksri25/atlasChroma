@@ -45,7 +45,7 @@ class Login extends Component {
         }
         if(gmailPatternError == "" && !this.state.disableButton){ 
           this.setState({disableButton : true});
-          httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,{},function(error,responseObject) {
+          httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;

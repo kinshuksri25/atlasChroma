@@ -52,7 +52,7 @@ class PostSignUpForm extends Component {
         if (formObject.formData.hasOwnProperty('FirstName') && formObject.formData.hasOwnProperty('LastName') && formObject.formData.hasOwnProperty('Phone')) {
             formObject.formData.id = this.state.ID;
             formObject.formData.ProfilePhoto = this.state.photo;
-            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
                 if(error || responseObject.Status == "ERROR"){
                     if(error){
                         errorObject.msg = error;

@@ -1,7 +1,8 @@
 //Dependencies
 const CronJob = require('cron').CronJob;
 const mongo =  require('./data');
-const {generateCurrentDate} = require('./helper');
+let cookieHandler = require('./cookieHandler');
+const {generateCurrentDate,generateCurrentTime} = require('./helper');
 const googleApis = require("../googleApis/googleAPI");
 const {EMSG,SMSG,SINGLE,MULTIPLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require('../../../../lib/constants/contants');
 
@@ -20,23 +21,30 @@ cron.chatBackup = () => {
         mongo.read(DBCONST.chatCollection,{"conversationhistory" : {$size : {$gt : 0}}},{projection : {conversationhistory : 1,participants : 1}}).then(resolvedResult => {
             let userList = [];
             let conversationDetails = [];
-            resolvedResult.map(conversation => {
+            let index = 0;
+            resolvedResult[0].map(conversation => {
                 userList.indexOf(conversation.participants[0]) >= 0 && userList.push(conversation.participants[0]);
                 userList.indexOf(conversation.participants[1]) >= 0 && userList.push(conversation.participants[1]);
-                conversationDetails.participants = [...conversation.participants];
+                conversationDetails[index].participants = [...conversation.participants];
                 conversation.conversationhistory.map(convo => {
-                    conversationDetails.message.push(convo.sender+" : "+convo.message);
+                    conversationDetails[index].message.push(convo.sender+" : "+convo.message);
                 });
+                index++;
             });
             mongo.read(DBCONST.userCollection,{$in : {"username" : [...userList]}},{projection : {username : 1, email : 1}}).then(resolvedResult => {
-                resolvedResult.map(result => {
+                resolvedResult[0].map(result => {
                     conversationDetails.map(convo => {
                         convo.participants.indexOf[result.username] >= 0 && convo.participants.splice(convo.participants.indexOf[result.username],1,resolvedResult.email);
                     });
                 });
 
                 conversationDetails.map(convo => {
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,convo.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
+                    let template = {
+                        participant1 : convo.participants[0],
+                        participant2 : convo.participants[1],
+                        history : convo.message
+                    }
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,convo.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.CONVOHISTORY,template).then(resolvedResult => {
                         console.log(resolvedResult);
                     }).catch(rejectedResult => {
                         throw rejectedResult;
@@ -59,7 +67,7 @@ cron.chatBackup = () => {
 cron.sendFailedEmail = () => {
     return new CronJob('0 */60 * * * *', function() {
         mongo.read(DBCONST.failedEmailCollection,{},{}).then(resolvedResult => {
-            resolvedResult.map(mailDetails => {
+            resolvedResult[0].map(mailDetails => {
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,mailDetails.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES[mailDetails.template],mailDetails.templateData).then(resolvedResult => {
                     console.log(resolvedResult);
                 }).catch(rejectedResult => {
@@ -80,22 +88,28 @@ cron.sendFailedEmail = () => {
 cron.allDayEventReminder = () => {
     return new CronJob('00 00 00 * * *',function() {
         let userDetails = [];
+        let currentEvents = [];
         let finishedEvents = [];
         mongo.read(DBCONST.userCollection,{},{projection : {username : 1,email : 1,projects : 1,events : 1}}).then(resolvedResult => {
-            userDetails = [...resolvedResult];
+            userDetails = [...resolvedResult[0]];
             userDetails.map(user => {
                 user.events(event => {
                     let dueDate = event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate;
-                    event.EventType == "AllDay" && dueDate == generateCurrentDate() && user.event.push(event);
+                    event.EventType == "AllDay" && dueDate == generateCurrentDate() && currentEvents.push(event);
                     event.EventType == "AllDay" && dueDate > generateCurrentDate() && finishedEvents.push(event);
                 });
-                mongo.read(DBCONST.projectCollection,{$and : [{_id : {$in : [...user.projects]}},{"storydetails.contributor" : user.username}]},{projection : {storydetails : 1}}).then(resolvedResult => {
-                    user.stories = resolvedResult[0];
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
-                        console.log(resolvedResult);
-                    }).catch(rejectedResult => {
-                        throw rejectedResult;
-                    });
+                mongo.read(DBCONST.projectCollection,{$and : [{_id : {$in : [...user.projects]}},{"storydetails.contributor" : user.username}]},{projection : {storydetails : 1, _id : 0}}).then(resolvedResult => {
+                    currentEvents = [...currentEvent,...resolvedResult[0]];
+                    let template = {
+                        username : user.username,
+                        events : [...currentEvents]
+                    };
+                    if(currentEvents.length > 0)
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ALLDAYREMINDER,template).then(resolvedResult => {
+                            console.log(resolvedResult);
+                        }).catch(rejectedResult => {
+                            throw rejectedResult;
+                        });
                 }).catch(rejectedResult => {
                     throw rejectedResult;
                 });
@@ -114,30 +128,41 @@ cron.allDayEventReminder = () => {
 cron.timedEventReminder = () => {
     return new CronJob('0 */60 * * * *', function() {
         let userDetails = [];
+        let currentEvent = {};
         let finishedEvents = [];
         mongo.read(DBCONST.userCollection,{},{projection : {username : 1,email : 1,projects : 1,events : 1}}).then(resolvedResult => {
             userDetails = [...resolvedResult];
             userDetails.map(user => {
-                user.events(event => {
-                    let dueDate = event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate;
-                    if(event.EventType == "Timed" || event.EventType == "Meeting"){
-                        if(dueDate == generateCurrentDate()){
-                            user.event.push(event);
-                        }else if(dueDate > generateCurrentDate()){
-                            finishedEvents.push(event);
-                        }
+                cookieHandler.getCookie(user.username).then(resolvedResult => {
+                    if(resolvedResult){
+                        user.events(event => {
+                            let dueDate = event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate;
+                            if(event.EventType == "Timed" || event.EventType == "Meeting" && dueDate == generateCurrentDate()){
+                                if(event.StartTime == generateCurrentTime()){
+                                    currentEvent = {...event};
+                                }else if(event.EndTime ==  generateCurrentTime()){
+                                    finishedEvents.push(event);
+                                }
+                            }
+                        });
+                        let template = {
+                            username : user.username,
+                            event : currentEvent
+                        };
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.TIMEDREMINDER,template).then(resolvedResult => {
+                            console.log(resolvedResult);
+                        }).catch(rejectedResult => {
+                            throw rejectedResult;
+                        });
                     }
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT).then(resolvedResult => {
-                        console.log(resolvedResult);
-                    }).catch(rejectedResult => {
-                        throw rejectedResult;
-                    });
-                    mongo.update(DBCONST.userCollection,{_id : user._id},{$pull : {events : {$in : [...finishedEvents]}}},{},SINGLE).then(resolvedResult => {
-                        console.log(resolvedResult);
-                    }).catch(rejectedResult => {
-                        throw rejectedResult;
-                    });
-            });
+                }).catch(rejectedResult => {
+                    console.log(rejectedResult)
+                });
+                mongo.update(DBCONST.userCollection,{_id : user._id},{$pull : {events : {$in : [...finishedEvents]}}},{},SINGLE).then(resolvedResult => {
+                    console.log(resolvedResult);
+                }).catch(rejectedResult => {
+                    throw rejectedResult;
+                });
         }).catch(rejectedResult => {
             console.log(rejectedResult);
         });

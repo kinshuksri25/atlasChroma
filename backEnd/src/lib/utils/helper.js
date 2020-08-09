@@ -29,6 +29,11 @@ helperFunctions.generateCurrentDate = (date = new Date()) => {
   return currentDate;
 }
 
+helperFunctions.generateCurrentTime = () => {
+  let time = new Date().getHours().toString().length == 1 ? "0"+new Date().getHours().toString()+":00" : new Date().getHours().toString()+":00";
+  return time;
+}
+
 helperFunctions.interpolate = (str,data) => {
 	str = typeof(str) == 'string' && str.length > 0 ? str : '';
 	data = typeof(data) == 'object' && data !==null ? data : {};

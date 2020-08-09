@@ -96,7 +96,7 @@ class SetupProject extends Component {
         let errorObject = {};
         if(this.templateValidator()){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{oldContributors : [...globalThis.state.currentProject.contributors],contributors : [...globalThis.state.currentProject.contributors],templatedetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id},{},function(error,responseObject) {
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{oldContributors : [...globalThis.state.currentProject.contributors],contributors : [...globalThis.state.currentProject.contributors],templatedetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;

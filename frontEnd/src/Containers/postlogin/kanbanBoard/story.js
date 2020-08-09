@@ -162,7 +162,7 @@ class Story extends Component{
         }
         storyObject._id = this.props.storyID;
         storyObject.oldName = this.state.oldStoryDetails.storytitle;
-        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject}},{},function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject}},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -201,7 +201,7 @@ class Story extends Component{
             storyDetails._id = this.props.storyDetails._id;
             storyDetails.currentStatus = columns[newPosition]._id;
             storyObject.oldName = this.state.storytitle;
-            httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},{},function(error,responseObject){
+            httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -228,7 +228,7 @@ class Story extends Component{
         let errorObject = {};
         let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
         let queryParams = "projectID="+projectID+"&storyID="+this.props.storyDetails._id;
-        httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams,{},function(error,responseObject){
+        httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams,function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;

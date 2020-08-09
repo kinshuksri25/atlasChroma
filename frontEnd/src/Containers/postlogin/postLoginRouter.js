@@ -55,7 +55,7 @@ class PostLoginRouter extends Component {
 
     getUserData(headers,queryString){ 
         let globalThis = this;
-        httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString,{},function(error,responseObject) {
+        httpsMiddleware.httpsRequest(urls.USER,"GET", headers, queryString,function(error,responseObject) {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 let errorObject = {...msgObject};
                 if(error){
@@ -99,6 +99,7 @@ class PostLoginRouter extends Component {
                         return <Profile/>;
                         break;                        
                     case "logout":
+                        listener.unsubscribe();
                         this.props.io.emit("terminate",{cookieID : cookieManager.getUserSessionDetails(), username : this.props.user.username});
                         cookieManager.clearUserSession();
                         window.history.replaceState({}, "",urls.LANDING);

@@ -125,15 +125,16 @@ socket.handleEvents = (io) =>{
             if(data.hasOwnProperty("cookieID")){
                 cookieHandler.deleteCookie(data.cookieID).then(loginObject => {
                     delete socketObject[data.username];
-                    let valueArray = [];
-                    for(let key in loginObject){
-                        valueArray.push(loginObject[key]);
-                    }
-                    socket.broadcast.emit("refreshedUserStatus",valueArray);
+                    let valueArray = Object.values(loginObject);
+                    mongo.read(DBCONST.userCollection,{username : {$in : [...valueArray]}},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1}}).then(resolvedResult => {
+                        io.emit("updatingDetails",{event : "getUserList", data : [...valueArray]});
+                        socket.disconnect();
+                    }).catch(rejectedResult => {
+                        console.log("Read Error");
+                    });
                 }).catch(rejectedResult => {
                     console.log(rejectedResult);
                 });
-                socket.disconnect();
             }else{
                 console.log("cookieID unavailable");
             }
