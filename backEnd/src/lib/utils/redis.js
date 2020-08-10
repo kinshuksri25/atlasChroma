@@ -2,6 +2,7 @@
 
 //Dependencies
 const redis = require("redis");
+const {EMSG} = require("../../../../lib/constants/contants");
 
 //declaring the module
 let redisClass = {};
@@ -17,7 +18,7 @@ redisClass.addData = (key,value,options) => new Promise((resolve,reject) => {
             if(err){
                 redisInstance.quit();
                 console.log(err);
-                reject(err);
+                reject(EMSG.SVR_UTL_RDSCRERR);
             }else{
                 redisInstance.quit();
                 resolve(true);
@@ -25,7 +26,7 @@ redisClass.addData = (key,value,options) => new Promise((resolve,reject) => {
         });
     }else{
         redisInstance.quit();
-        reject("incomplete data provided");
+        reject(EMSG.SVR_UTL_RDSINCERR);
     }
 });
 
@@ -39,7 +40,7 @@ redisClass.deleteData = (key) => new Promise((resolve,reject) => {
             if(err){
                 redisInstance.quit();
                 console.log(err);
-                reject(false);
+                reject(EMSG.SVR_UTL_RDSDELERR);
             }else{
                 redisInstance.quit();
                 resolve(true);
@@ -47,7 +48,7 @@ redisClass.deleteData = (key) => new Promise((resolve,reject) => {
         });
     }else{
         redisInstance.quit();
-        reject("key not provided");
+        reject(EMSG.SVR_UTL_RDSUNKEYERR);
     }
 });
 
@@ -61,7 +62,7 @@ redisClass.readData = (key) => new Promise((resolve,reject) => {
             if(err){
                 redisInstance.quit();
                 console.log(err);
-                reject(false);
+                reject(EMSG.SVR_UTL_RDSRDERR);
             }else{
                 console.log(response);
                 redisInstance.quit();
@@ -70,7 +71,7 @@ redisClass.readData = (key) => new Promise((resolve,reject) => {
         });  
     }else{
         redisInstance.quit();
-        reject("key not provided");
+        reject(EMSG.SVR_UTL_RDSINCERR);
     }
 });
 
@@ -82,11 +83,11 @@ redisClass.dropCache = () => new Promise((resolve,reject) => {
     redisInstance.flushdb( (err, response) => {
         if(!err){
             redisInstance.quit();
-            return (true);
+            resolve(true);
         }else{
             redisInstance.quit();
             console.log(err);
-            return (false);
+            reject(EMSG.SVR_UTL_RDSCLRCHERR);
         }
     });
 });
@@ -108,14 +109,14 @@ redisClass.getAllData = () => new Promise((resolve,reject) => {
                     redisObject[keyArray[i]] = response;
                     if(i == keyArray.length-1){
                         redisInstance.quit();
-                        resolve (redisObject);
+                        resolve(redisObject);
                     }
                 });
             }
         }else{
             redisInstance.quit();
             console.log(err);
-            reject(false);
+            reject(EMSG.SVR_UTL_RDSUSRERR);
         }
     });
 });

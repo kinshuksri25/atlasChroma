@@ -21,7 +21,7 @@ cookieHandler.createCookies = (requestObjectID,username)  => new Promise ((resol
     redisClass.addData(requestObjectID,username,{...options}).then(resolvedResult => {
         resolve(requestObjectID);
     }).catch(rejectedResult => {
-        reject(EMSG.SVR_UTL_RDSCHERR);
+        reject(rejectedResult);
     });
 });
 
@@ -34,7 +34,7 @@ cookieHandler.getCookie = (cookieID) => new Promise ((resolve,reject) => {
         resolve(cookieValidity);
     }).catch(rejectedResult => {
         console.log(rejectedResult);
-        reject(false);
+        reject(rejectedResult);
     });  
 });
 

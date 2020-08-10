@@ -97,11 +97,11 @@ class StoryForm extends Component {
             });
         }else{
             if(this.state.duedate < currentDate){
-                errorObject.msg = "End Date cannot be less than Current Date";
+                errorObject.msg = EMSG.CLI_STRY_DTEERR;
                 errorObject.status = "ERROR";
                 globalThis.props.setMsgState(errorObject);
             }else{
-                errorObject.msg = "story details empty";
+                errorObject.msg = EMSG.CLI_STRY_STRDTILSERR;
                 errorObject.status = "ERROR";
                 globalThis.props.setMsgState(errorObject);
             }

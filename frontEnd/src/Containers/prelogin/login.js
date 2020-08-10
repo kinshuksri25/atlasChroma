@@ -9,7 +9,7 @@ import formConstants from '../../Forms/formConstants';
 import setMsgAction from '../../store/actions/msgActions';
 import {msgObject} from '../../../../lib/constants/storeConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
-import {urls} from "../../../../lib/constants/contants";
+import {EMSG,urls} from "../../../../lib/constants/contants";
 
 class Login extends Component {
 
@@ -70,7 +70,7 @@ class Login extends Component {
                     }
                 }else{
                     if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
-                        errorObject.msg = "Unable to connect to google servers";
+                        errorObject.msg = EMSG.CLI_LGN_GLECONNERR;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);  
                     }else{
@@ -81,7 +81,7 @@ class Login extends Component {
         });
         }else{
             if(!this.state.disableButton){
-                errorObject.msg = "Invalid Email ID";
+                errorObject.msg = EMSG.CLI_SGN_INVEML;
                 errorObject.status = "ERROR";
                 globalThis.props.setMsgState(errorObject);
             }

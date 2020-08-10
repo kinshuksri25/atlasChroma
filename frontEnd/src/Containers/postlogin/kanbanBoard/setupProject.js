@@ -110,7 +110,7 @@ class SetupProject extends Component {
                 } 
             });
         }else{
-            errorObject.msg = "One of the Phases/Subphases has 1 Child This is invalid!!";
+            errorObject.msg = EMSG.CLI_PRJSTP_INVLDPHS;
             errorObject.status = "ERROR";
             globalThis.props.setMsgState(errorObject);
         }
@@ -122,7 +122,7 @@ class SetupProject extends Component {
                 let templateType = formObject.formData.TemplateType;
                 this.setState({nextPage : true, currentTemplate: templateType});   
             }else{
-                errorObject.msg = "template type cannot be left empty";
+                errorObject.msg = EMSG.CLI_PRJSTP_INVLDTMP;
                 errorObject.status = "ERROR";
                 this.props.setMsgState(errorObject);
             }

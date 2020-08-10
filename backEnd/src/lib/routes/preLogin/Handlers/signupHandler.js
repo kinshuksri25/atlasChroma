@@ -33,7 +33,7 @@ signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
                                   email : requestObject.reqBody.Email,
                                   password : encryptionAPI.hash(requestObject.reqBody.Password)});                                                           
         //save the user details
-        mongo.insert(DBCONST.userCollection, userObject.getUserObject(), {}).then(insertSet => {
+        mongo.insert(DBCONST.userCollection, userObject.getUserObject(), {}).then(resolvedResult => {
 
             //setup the login object
             let loginObject = {
@@ -53,13 +53,13 @@ signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
             //call the login function to log user in
             loginHandler.login(loginObject).then(result => {
                 //send welcome mail
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL,templateObject).then(resolveResult => {   
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.Email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.WELCOMEMAIL,templateObject).then(resolveEmail => {   
                     //send the response 
                     response.SMSG = SMSG.SVR_SNGH_SGNSUC;
                     response.STATUS = 200;
                     response.PAYLOAD.uniqueID = result.PAYLOAD.uniqueID;
                     resolve(response);       
-                }).catch(error => {
+                }).catch(rejectedEmail => {
                     let payload = {
                         "participants" : [requestObject.reqBody.Email],
                         "template" : "WELCOMEMAIL",
@@ -69,16 +69,16 @@ signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD.uniqueID = result.PAYLOAD.uniqueID;
-                    response.SMSG = "Signup successFull, unable to nortify the user";
+                    response.SMSG = SMSG.SVR_OATH_NLGNSUC;
                     reject(response);
                 });    
             }).catch(error =>{
                 reject(error);
             }); 
-        }).catch(error => {
+        }).catch(rejectedResult => {
             response.STATUS = 500;
             response.EMSG = error;
-            reject(response);
+            reject(rejectedResult);
         });           
     }else{
         response.EMSG = EMSG.SVR_HNDLS_INREQ;

@@ -7,7 +7,6 @@ const mongo = require("../../../utils/data");
 const {EMSG,SMSG,SINGLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
 const googleApis = require("../../../googleApis/googleAPI");
 const story = require("../../../classObjects/storyClass");
-const { delete } = require("../../../utils/data");
 
 //declaring the module
 const storyHandler = {};
@@ -95,7 +94,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY,template).then(resolvedEmail => {
                 response.STATUS = 200;
                 response.PAYLOAD = {};
-                response.SMSG = "board details updated successfully";
+                response.SMSG = SMSG.SVR_SHH_STRADDSUC;
                 resolve(response);
             }).catch(rejectedEmail => {
                 let payload = {
@@ -109,7 +108,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
         }).catch(rejectedResult => {
             response.STATUS = 201;
             response.PAYLOAD = {};
-            response.SMSG = "board details updated successfully, unable to nortify the contributor";
+            response.SMSG = SMSG.SVR_SHH_STRADDSUC;
             resolve(response);    
         });
         
@@ -170,7 +169,7 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedEmail => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = "story moved successfully";
+                    response.SMSG = SMSG.SVR_SHH_STRUPSUC;
                     io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                     resolve(response);
                 }).catch(rejectedEmail => {
@@ -182,13 +181,13 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "story moved successfully, unable to nortify the contributor";
+                    response.SMSG = SMSG.SVR_SHH_ISTRUPSUC;
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
                 response.STATUS = 201;
                 response.PAYLOAD = {};
-                response.SMSG = "story moved successfully, unable to nortify the contributor";
+                response.SMSG = SMSG.SVR_SHH_STRUPSUC;
                 resolve(response);    
             });
         }).catch(rejectedResult => {
@@ -231,7 +230,7 @@ storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,r
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY,template).then(resolvedEmail => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = "story deleted successfully";
+                    response.SMSG = SMSG.SVR_SHH_STRDELSUC;
                     resolve(response);
                 }).catch(rejectedEmail => {
                     let payload = {
@@ -242,13 +241,13 @@ storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,r
                     mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "story deleted successfully, unable to nortify the contributor"; 
+                    response.SMSG = SMSG.SVR_SHH_ISTRDELSUC; 
                     resolve(response);    
                 });
             }).catch(rejectedResult => {
                 response.STATUS = 201;
                 response.PAYLOAD = {};
-                response.SMSG = "story deleted successfully, unable to nortify the contributor"; 
+                response.SMSG = SMSG.SVR_SHH_ISTRDELSUC; 
                 resolve(response);    
             });
         }).catch(rejectedResult => {

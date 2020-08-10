@@ -75,7 +75,7 @@ notesHandler.notes.post = (route, requestObject) => new Promise((resolve,reject)
         mongo.update(DBCONST.userCollection , {email : requestObject.reqBody.emailID},{$push:{notes : {...notesObject}}},{},SINGLE).then(resolvedResult => {
             response.STATUS = 200;
             response.PAYLOAD = {"notesID" : notesObject._id,"creationdate" : notesObject.creationdate};
-            response.SMSG = "notes added successfully";
+            response.SMSG = SMSG.SVR_NHH_NTADDSUC;
             resolve(response);
             
         }).catch(rejectedResult => {
@@ -114,7 +114,7 @@ notesHandler.notes.put = (route, requestObject) => new Promise((resolve,reject) 
         mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.reqBody._id},{$set : {...set}},{},SINGLE).then(resolvedSet => {
             response.STATUS = 200;
             response.PAYLOAD = {};
-            response.SMSG = "notes edited successfully";
+            response.SMSG = SMSG.SVR_NHH_NTUPSUC;
             resolve(response);
         }).catch(rejectedSet => {
             response.STATUS = 500;
@@ -142,7 +142,7 @@ notesHandler.notes.delete = (route, requestObject) => new Promise((resolve,rejec
         mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.queryObject.notesID},{ $pull: {notes : {_id: requestObject.queryObject.notesID}}},{},SINGLE).then(resolvedResult => {
             response.STATUS = 200;
             response.PAYLOAD = {};
-            response.SMSG = "Event deleted successfully";    
+            response.SMSG = SMSG.SVR_NHH_NTDELSUC;    
             resolve(response);  
         }).catch(rejectedResult => {
              //need to add a cron here 

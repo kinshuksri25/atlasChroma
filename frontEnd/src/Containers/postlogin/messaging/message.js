@@ -3,6 +3,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 import {chatObject} from '../../../../../lib/constants/storeConstants';
+import {EMSG} from '../../../../../lib/constants/contants';
 import {addMsgAction} from "../../../store/actions/chatActions";
 
 class Message extends Component{
@@ -61,7 +62,7 @@ class Message extends Component{
             return(<li className = {chat.sender}>{chat.message}</li>);
         });
         return (<ul>
-                    <li hidden = {reciverOffline}>{this.props.recipientName} is offline, we will save this conversation for them to view later</li>
+                    <li hidden = {reciverOffline}>{this.props.recipientName} {EMSG.CLI_MSG_OFFLINE}</li>
                     {chatJSX}
                 </ul>);
     }

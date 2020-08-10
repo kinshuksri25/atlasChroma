@@ -4,7 +4,7 @@
 const cookieHandler = require('./cookieHandler');
 const mongo = require('./data');
 const {generateCurrentDate} = require("./helper");
-const {SINGLE,DBCONST} = require("../../../../lib/constants/contants");
+const {SINGLE,DBCONST,EMSG,SMSG} = require("../../../../lib/constants/contants");
 
 //declaring the module
 let socket = {};
@@ -19,7 +19,7 @@ socket.handleEvents = (io) =>{
                 socketObject[resolvedResult] = socket.id;
 
             }).catch(rejectedResult => {
-                console.log("Invalid cookie passed");
+                console.log(rejectedResult);
             });
         })
 
@@ -33,7 +33,7 @@ socket.handleEvents = (io) =>{
                     if(resolvedResult.length == 0){
                         privateRoomName = data.senderUserName+"-"+data.recipientUserName;
                         socket.join(privateRoomName,() =>{
-                            console.log("sender has joined the room "+privateRoomName);  
+                            console.log(EMSG.SVR_UTL_SNDSUC+privateRoomName);  
                         }); 
 
                         let messageObject = {
@@ -45,7 +45,7 @@ socket.handleEvents = (io) =>{
 
                         //add the roomName to the collection 
                         mongo.insert(DBCONST.chatCollection,{...messageObject},{}).then(resolvedResult => {
-                            console.log("entry created");
+                            console.log(SMSG.SVR_UTL_RMNSUC);
                         }).catch(rejectedResult => {
                             console.log(rejectedResult);
                         });
@@ -65,17 +65,17 @@ socket.handleEvents = (io) =>{
                     console.log(rejectedResult);
                 });
            }else{
-               console.log("incomplete data provided");
+               console.log(EMSG.SVR_UTL_SOCMSGERR);
            }
         });
 
         socket.on("joinRoom",(data) => {
             if(!socket.rooms.hasOwnProperty(data.roomName) && !socket.rooms.hasOwnProperty(data.senderUserName+"-"+data.recipientUserName)){
                 socket.join(data.roomName,() => {
-                    console.log("reciever joining room");
+                    console.log(EMSG.SVR_UTL_RVRSUC);
                 });
             }else{
-                console.log("reciever not joining room ID exists");
+                console.log(EMG.SVR_UTL_RVRPRESUC);
             }
         });
 
@@ -83,12 +83,12 @@ socket.handleEvents = (io) =>{
             if(data && data.hasOwnProperty("roomName") && data.hasOwnProperty("messageObject")){
                 io.to(data.roomName).emit('setMessage', data);
                 mongo.update(DBCONST.chatCollection,{roomname : data.roomName},{$push : {"conversationhistory" : {...data.messageObject}}},{},SINGLE).then(updatedSet => {
-                    console.log("conversation history updated");
+                    console.log(SMSG.SVR_UTL_MSGUPTSUC);
                 }).catch(rejectedResult => {
                     console.log(rejectedResult);
                 });
             }else{
-                console.log("invalid message body");
+                console.log(EMSG.SVR_UTL_MSGBDYERR);
             }
         });
 
@@ -96,12 +96,12 @@ socket.handleEvents = (io) =>{
             if(data && data.hasOwnProperty("senderUserName") && data.hasOwnProperty("recipientUserName")){   
                  mongo.update(DBCONST.chatCollection,{$and : [{participants:{$all : [data.senderUserName,data.recipientUserName]}},
                                 {conversationhistory: {$elemMatch: {recipient : data.senderUserName,msgDelivered : false}}}]},{$set : {"conversationhistory.$[].msgDelivered" : true}},{},SINGLE).then(resolvedResult => {
-                    console.log("all messages have been delivered");                
+                    console.log(SMSG.SVR_UTL_DLVRMSGSUC);                
                  }).catch(rejectedResult => {
                     console.log(rejectedResult);
                 });
             }else{
-                console.log("incomplete data provided");
+                console.log(EMSG.SVR_UTL_INCDTAERR);
             }
         });
 
@@ -117,7 +117,7 @@ socket.handleEvents = (io) =>{
                     console.log(rejectedSet);
                 });
            }else{
-               console.log("userName not provided");
+               console.log(EMSG.SVR_UTL_MISUSRERR);
            }
         });
 
@@ -130,13 +130,13 @@ socket.handleEvents = (io) =>{
                         io.emit("updatingDetails",{event : "getUserList", data : [...valueArray]});
                         socket.disconnect();
                     }).catch(rejectedResult => {
-                        console.log("Read Error");
+                        console.log(rejectedResult);
                     });
                 }).catch(rejectedResult => {
                     console.log(rejectedResult);
                 });
             }else{
-                console.log("cookieID unavailable");
+                console.log(EMSG.SVR_UTL_RDSUNKEYERR);
             }
         });
     });

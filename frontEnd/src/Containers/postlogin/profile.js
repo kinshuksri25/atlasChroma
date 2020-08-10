@@ -126,7 +126,7 @@ class Profile extends Component{
                 }
             });
         }else{
-            errorObject.msg = "You still contributing in some projects, please remove yourself from them befre deleting the account";
+            errorObject.msg = EMSG.CLI_PRF_DELUSRERR;
             errorObject.status = "ERROR";
             this.props.setMsgState(errorObject);
         }

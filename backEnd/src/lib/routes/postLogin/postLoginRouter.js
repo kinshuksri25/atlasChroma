@@ -9,7 +9,6 @@ const cookieHandler = require("../../utils/cookieHandler");
 const storyHandler = require("./Handlers/storiesHandler");
 const notesHandler = require("./Handlers/notesHandler");
 const eventHandler = require("./Handlers/eventHandler");
-const responseObject = require("../../classObjects/responseClass");
 const {EMSG,SMSG} = require("../../../../../lib/constants/contants");
 
 
@@ -24,19 +23,25 @@ postLoginRouter.router = (route,requestObject) => new Promise((resolve,reject) =
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);
             chosenHandler(route,requestObject,io).then(resolvedResult => {
-                let response = new responseObject(resolvedResult.STATUS,resolvedResult.SMSG,resolvedResult.PAYLOAD,EMSG.NOERROR);
-                resolve(response.getResponseObject());
+                resolvedResult.STATUS = 200;
+                resolve(resolvedResult);
             }).catch(rejectedResult => {
-                console.log(rejectedResult);
-                let response = new responseObject(rejectedResult.STATUS,SMSG.NOSUCCESS,{},rejectedResult.EMSG);
-                reject(response.getResponseObject());
+                reject(rejectedResult);
             });
         }else{
-            let response = new responseObject(400,SMSG.NOSUCCESS,{},EMSG.SVR_HNDLS_INDLCKIE);
+            let response = {
+                STATUS : 400,
+                EMSG : EMSG.SVR_HNDLS_INDLCKIE,
+                PAYLOAD : {},
+            };
             reject(response);
         }
     }).catch(rejectedResult => {
-        let response = new responseObject(500,SMSG.NOSUCCESS,{},rejectedResult);
+        let response = {
+            STATUS : 500,
+            EMSG : rejectedResult,
+            PAYLOAD : {},
+        };
         reject(response);
     });
 });

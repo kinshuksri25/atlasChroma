@@ -7,7 +7,7 @@ import url from 'url';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
-import {urls} from '../../../../../lib/constants/contants';
+import {urls,EMSG} from '../../../../../lib/constants/contants';
 import cookieManager from '../../../Components/cookieManager';
 
 class Story extends Component{
@@ -215,7 +215,7 @@ class Story extends Component{
                 }
             });
         }else{
-            errorObject.msg = "Cannot promote this story due to WIP limits";
+            errorObject.msg = EMSG.CLI_STRY_STRMVE;
             errorObject.status = "ERROR";
             globalThis.props.setMsgState(errorObject);
         }

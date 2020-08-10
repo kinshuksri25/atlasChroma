@@ -81,7 +81,7 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
                 resolve(response); 
             }else{
                 response.STATUS = 400;
-                response.EMSG = "Invalid userID";  
+                response.EMSG = EMSG.SVR_HNDLS_INVLDUSRID;  
                 reject(response); 
             }                                   
                                                     
@@ -164,7 +164,7 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
             };
             response.STATUS = 200;
             response.PAYLOAD = {};
-            response.SMSG = "User details updated";  
+            response.SMSG = SMSG.SVR_UHH_USRUPSUC;  
             io.emit("updatingDetails",{event : "updatingUser", data : updatedUser});      
             resolve(response); 
         }).catch(rejectedSet => {
@@ -200,7 +200,7 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
                 response.STATUS = 200;
                 response.PAYLOAD = {};
-                response.SMSG = "User deleted";       
+                response.SMSG = SMSG.SVR_UHH_USRDELSUC;       
                 resolve(response); 
             }).catch(rejectedEmail => {
                 let payload = {
@@ -211,7 +211,7 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
                 mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                 response.STATUS = 201;
                 response.PAYLOAD = {};
-                response.SMSG = "User deleted, unable to nortify the user";        
+                response.SMSG = SMSG.SVR_UHH_IUSRDELSUC;        
                 resolve(response); 
             });
         }).catch(rejectedResult => {

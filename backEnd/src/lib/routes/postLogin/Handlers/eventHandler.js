@@ -91,7 +91,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT,template).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = "board details updated successfully";
+                        response.SMSG = SMSG.SVR_EHH_EVTADDSUC;
                         resolve(response);
                     }).catch(rejectedEmail => {
                         let payload = {
@@ -102,7 +102,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                         response.STATUS = 201;
                         response.PAYLOAD = {};
-                        response.SMSG = "board details updated successfully, unable to nortify the contributor";
+                        response.SMSG = SMSG.SVR_EHH_IEVTADDSUC;
                         resolve(response);    
                     });
                 }).catch(rejectedResult => {
@@ -111,7 +111,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
             }else{
                 response.STATUS = 200;
                 response.PAYLOAD = {eventID : requestObject.reqBody.eventObject._id};
-                response.SMSG = "board details updated successfully";
+                response.SMSG = SMSG.SVR_EHH_EVTADDSUC;
                 resolve(response); 
             }
         }).catch(rejectedSet => {
@@ -162,7 +162,7 @@ eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,rejec
                    if(requestObject.reqBody.EventType != "Meeting"){
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = "event edited successfully";
+                        response.SMSG = SMSG.SVR_EHH_EVTUPSUC;
                         resolve(response);
                    }else{
                         let template = {
@@ -183,7 +183,7 @@ eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,rejec
                             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITEVENT,template).then(resolvedEmail => {
                                 response.STATUS = 200;
                                 response.PAYLOAD = {};
-                                response.SMSG = "event edited successfully";
+                                response.SMSG = SMSG.SVR_EHH_EVTUPSUC;
                                 resolve(response);
                             }).catch(rejectedEmail => {
                                 let payload = {
@@ -194,7 +194,7 @@ eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,rejec
                                 mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                                 response.STATUS = 201;
                                 response.PAYLOAD = {};
-                                response.SMSG = "event edited successfully, unable to nortify the contributor"; 
+                                response.SMSG = SMSG.SVR_EHH_IEVTUPSUC; 
                                 resolve(response);    
                             });
                         }).catch(rejectedSet => {
@@ -247,7 +247,7 @@ eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,re
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT,template).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = "Event deleted successfully";     
+                        response.SMSG = SMSG.SVR_EHH_EVTDELSUC;     
                         resolve(response);  
                     }).catch(rejectedEmail => {
                         let payload = {
@@ -258,13 +258,13 @@ eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,re
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                         response.STATUS = 201;
                         response.PAYLOAD = {};
-                        response.SMSG = "Event deleted successfully, unable to nortify the user";
+                        response.SMSG = SMSG.SVR_EHH_IEVTDELSUC;
                         reject(response); 
                     });
                 }else{
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = "Event deleted successfully";    
+                    response.SMSG = SMSG.SVR_EHH_EVTDELSUC;    
                     resolve(response);  
                 }
             }).catch(rejectedSet => {

@@ -8,6 +8,7 @@ import cookieManager from '../../../Components/cookieManager';
 import setMsgAction from '../../../store/actions/msgActions';
 import SearchFeild from '../../../Forms/searchFeildForm';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
+import {EMSG,SMSG} from '../../../../../lib/constants/contants';
 import { project } from '../../../../../backEnd/src/lib/routes/postLogin/Handlers/projectHandler';
 
 class EditProject extends Component{
@@ -95,7 +96,7 @@ class EditProject extends Component{
                 }   
             });
         }else{
-            errorObject.msg = "Duplicate title found";
+            errorObject.msg = EMSG.CLI_PRJ_UPDERR;
             errorObject.status = "ERROR";
             globalThis.props.setMsgState(errorObject);
         }
@@ -161,7 +162,7 @@ class EditProject extends Component{
                 if(!contributorExists){
                     contributor.push(selectedValue);
                 }else{
-                    let errorMsg = selectedValue == this.state.projectLeader ? "ProjectLeader is already a contributor" : "The contributor has already been added";
+                    let errorMsg = selectedValue == this.state.projectLeader ? EMSG.CLI_PRJ_UPPRJLDR : EMSG.CLI_PRJ_UPCNERR;
                     errorObject.msg = errorMsg;
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);

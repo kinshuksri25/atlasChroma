@@ -4,13 +4,13 @@
 
 //Dependencies
 let mongoDB = require('mongodb').MongoClient;
-let { DBCONST, EMSG, SINGLE, MULTIPLE } = require("../../../../lib/constants/contants");
+let { DBCONST, EMSG, SINGLE, MULTIPLE, dbConnUrl} = require("../../../../lib/constants/contants");
 
 //mongo object definition
 let mongo = {};
 
 //DBaaS url
-mongo.url = "mongodb+srv://admin:" + DBCONST.password + "@atlas-cloud-yrwic.mongodb.net/test?retryWrites=true&w=majority";
+mongo.url = dbConnUrl;
 
 //open the connection to the atlas
 mongo.openConnection = url => new Promise((resolve,reject) => {
@@ -38,7 +38,7 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             {
                 db.close();
                 console.log(err);
-                throw err;   
+                throw EMSG.ERR_RD_DB;   
             }else{
                 if(doc != null)
                 {
@@ -51,7 +51,7 @@ mongo.read = (collection, query, options) =>  new Promise((resolve,reject) => {
             }
         });
     }).catch(err => {
-        reject(EMSG.ERR_RD_DB);
+        reject(err);
     });
 });
 
@@ -70,7 +70,7 @@ mongo.aggregate = (collection,pipeline,options) => new Promise((resolve, reject)
             {
                 db.close();
                 console.log(err);
-                throw err;   
+                throw EMSG.ERR_RD_DB;   
             }else{
                 if(doc != null)
                 {
@@ -83,7 +83,7 @@ mongo.aggregate = (collection,pipeline,options) => new Promise((resolve, reject)
             }
         });
     }).catch(err => {
-        reject(EMSG.ERR_RD_DB);
+        reject(err);
     });
 });
 
@@ -102,7 +102,7 @@ mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) =
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_WRERR;
         });
 
         payload.length > 1 && col.insertMany(payload, options).then(result => {
@@ -111,10 +111,10 @@ mongo.insert = (collection, payload, options) =>  new Promise((resolve,reject) =
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_WRERR;
         });
     }).catch(err => {
-        reject(EMSG.SVR_DAO_WRERR);
+        reject(err);
     });
 });
 
@@ -134,7 +134,7 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_DLERR;
         });
 
         selectionType == MULTIPLE && col.deleteMany(query, options).then(result => {
@@ -143,10 +143,10 @@ mongo.delete = (collection, query, options, selectionType) =>  new Promise((reso
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_DLERR;
         });
     }).catch(err => {
-        reject(EMSG.SVR_DAO_DLERR);
+        reject(err);
     });
 });
 
@@ -166,7 +166,7 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_UPERR;
         });
 
         selectionType == MULTIPLE && col.updateMany(query, updatedPayload, options).then(result => {
@@ -175,10 +175,10 @@ mongo.update = (collection, query, updatedPayload, options, selectionType) =>  n
         }).catch(err => {
             db.close();
             console.log(err);
-            throw err;
+            throw EMSG.SVR_DAO_UPERR;
         });
     }).catch(err => {
-        reject(EMSG.SVR_DAO_UPERR);
+        reject(err);
     });
 });
 

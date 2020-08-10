@@ -23,8 +23,8 @@ cron.chatBackup = () => {
             let conversationDetails = [];
             let index = 0;
             resolvedResult[0].map(conversation => {
-                userList.indexOf(conversation.participants[0]) >= 0 && userList.push(conversation.participants[0]);
-                userList.indexOf(conversation.participants[1]) >= 0 && userList.push(conversation.participants[1]);
+                userList.indexOf(conversation.participants[0]) < 0 && userList.push(conversation.participants[0]);
+                userList.indexOf(conversation.participants[1]) < 0 && userList.push(conversation.participants[1]);
                 conversationDetails[index].participants = [...conversation.participants];
                 conversation.conversationhistory.map(convo => {
                     conversationDetails[index].message.push(convo.sender+" : "+convo.message);
@@ -146,6 +146,7 @@ cron.timedEventReminder = () => {
                             }
                         });
                         let template = {
+                            heading : currentEvent.EventType == "Meeting" ?  "You currently have the following meeting to attend" : "The following event is active in your scheduler for this current hour:",
                             username : user.username,
                             event : currentEvent
                         };

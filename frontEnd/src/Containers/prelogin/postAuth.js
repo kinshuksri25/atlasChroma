@@ -163,17 +163,17 @@ class PostAuth extends Component{
                         }
                     });
                 } else {
-                        errorObject.msg = "ERR_INPASS_CLI/ERR_PASSMIS_CLI";
+                        errorObject.msg = EMSG.CLI_SGN_PASSMIS;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                 } 
             } else {
                 if(globalThis.state.isCheckingUsername){
-                    errorObject.msg = "WAR_CHCKUSER_CLI";
+                    errorObject.msg = EMSG.CLI_SGN_CHKUSR;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = "ERR_INVUSR_CLI";
+                    errorObject.msg = EMSG.CLI_SGN_INUSR;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }

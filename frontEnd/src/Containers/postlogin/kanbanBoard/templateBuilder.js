@@ -211,13 +211,13 @@ class TemplateBuilder extends Component {
                         newTemplate.EXTENDS == element.NAME && element.CHILDREN.push(newTemplate.NAME);
                         if(element.WIP > 0 && newTemplate.EXTENDS == element.NAME){
                             element.WIP = 0;
-                            errorObject.msg = "Phases with children cannot have WIP, setting it to zero";
+                            errorObject.msg = EMSG.CLI_TMPBLD_PHSWIP;
                             errorObject.status = "ERROR";
                             this.props.setMsgState(errorObject);                                    
                         }
                     });
                 }else{
-                    errorObject.msg = "This name already exists";
+                    errorObject.msg = EMSG.CLI_TMPBLD_PHSEXT;
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);    
                 }

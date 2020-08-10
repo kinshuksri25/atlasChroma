@@ -51,7 +51,7 @@ class AllDayEvent extends Component{
     }
 
     allDayJSX(){
-        let sortedStories = this.sortStories(this.props.allDayStories); //this has to come from props
+        let sortedStories = this.sortStories(this.props.allDayStories); 
         let allDayJSX = [];
         sortedStories.map(story => {
             allDayJSX.push(<div className = {story.priority} id = {story._id} onClick={this.onStoryClick}>  
@@ -60,7 +60,7 @@ class AllDayEvent extends Component{
                                 <h4>Priority : {story.priority}</h4>
                             </div>);
         });
-        this.props.allDayEvents.map(event => {      //this has to come from props
+        this.props.allDayEvents.map(event => {  
             allDayJSX.push(<div className = "eventTab" id = {event._id} onClick={this.props.onClick}>  
                 <h3>{event.EventTitle}</h3>
                 <h4>{event.Description}</h4>

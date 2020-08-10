@@ -93,7 +93,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP; 
+                        response.SMSG = SMSG.SVR_PHH_PRJADDSUC; 
                                
                         resolve(response);  
                     }).catch(rejectedEmail => {
@@ -108,7 +108,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
                 }).catch(rejectedSet => {
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "Project added, unabled to nortify the contributors";        
+                    response.SMSG = SMSG.SVR_PHH_IPRJADDSUC;
                     resolve(response);  
                 });
             }).catch(resolvedSet => {
@@ -202,7 +202,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;           
+                        response.SMSG = SMSG.SVR_PHH_PRJUP;           
                         resolve(response); 
                     }).catch(rejectedEmail => {
                         let payload = {
@@ -237,7 +237,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_SHH_PRJUP;      
+                        response.SMSG = SMSG.SVR_PHH_PRJUPSUC;      
                         resolve(response); 
                     }).catch(rejectedEmail => {
                         let payload = {
@@ -265,7 +265,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_SHH_PRJUP;        
+                    response.SMSG = SMSG.SVR_PHH_PRJUPSUC;        
                     resolve(response); 
                 }).catch(rejectedEmail => {
                     let payload = {
@@ -280,7 +280,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         }).catch(rejectedSet => {
             response.STATUS = 201;
             response.PAYLOAD = {};
-            response.SMSG = "board details updated successfully, unable to nortify contributors";
+            response.SMSG = SMSG.SVR_PHH_IPRJUPSUC;
             resolve(response);
         });
     }).catch(rejectedResult => {
@@ -323,7 +323,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT,templateBuilder).then(emailResolve => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
-                    response.SMSG = "Project deleted successfully";           
+                    response.SMSG = SMSG.SVR_PHH_PRJDELSUC;           
                     resolve(response);  
                 }).catch(rejectedResult => {
                     let payload = {
@@ -337,7 +337,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
                }).catch(rejectedSet => {
                     response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = "Project deleted successfully, unable to nortify the contributors";   
+                    response.SMSG = SMSG.SVR_PHH_IPRJDELSUC;   
                     reject(response); 
                });
             }).catch(rejectedSet => {

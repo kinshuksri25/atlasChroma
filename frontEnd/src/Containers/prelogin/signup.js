@@ -112,9 +112,9 @@ class SignUp extends Component {
         let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
-            var errorMsgObject = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+            var errorMsg = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
             if (this.state.validEmail && this.state.validUserName) {
-                if(errorMsgObject == ""){
+                if(errorMsg == ""){
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
                         if(responseObject.STATUS != 200 || error){
                             if(error){
@@ -134,17 +134,17 @@ class SignUp extends Component {
                         }
                     });
                 } else {
-                        errorObject.msg = "Invalid Password/Password Mismatch";
+                        errorObject.msg = errorMsg;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                 } 
             } else {
                 if(globalThis.state.isCheckingEmail && globalThis.state.isCheckingUsername){
-                    errorObject.msg = "Please wait while we check if the email is correct";
+                    errorObject.msg = SMSG.CLI_SGN_CHKDATA;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = "Invalid email";
+                    errorObject.msg = globalThis.state.validEmail ? EMSG.CLI_SGN_INUSR : EMSG.CLI_SGN_INVEML;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
