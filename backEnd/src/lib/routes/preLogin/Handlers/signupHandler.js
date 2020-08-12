@@ -20,7 +20,7 @@ const signupHandler = {};
 //signup route handler
 //params --> requestObject -- object
 //returns --> promise(object)
-signupHandler.signup = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
+signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -92,7 +92,7 @@ signupHandler.signup = (requestObject,eventEmitter) => new Promise((resolve,reje
 //checking user availability handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.userAvaliability = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
+signupHandler.userAvaliability = (requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -133,7 +133,7 @@ signupHandler.userAvaliability = (requestObject,eventEmitter) => new Promise((re
 //post signup form route handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.postSignupDetails = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
+signupHandler.postSignupDetails = (requestObject,io) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -152,7 +152,7 @@ signupHandler.postSignupDetails = (requestObject,eventEmitter) => new Promise((r
                     lastname : updateSet.lastname,
                     email : updateSet.email
                 };
-                eventEmitter.emit("updatingDetails",{event : "addingUser", data : updatedUser});
+                io.emit("updatingDetails",{event : "addingUser", data : updatedUser});
                 response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.reqBody.id,updatedUser.username).then(resolvedResult => {
                     response.STATUS = 200;
                     response.SMSG = SMSG.SVR_LGNH_LGNSUC;

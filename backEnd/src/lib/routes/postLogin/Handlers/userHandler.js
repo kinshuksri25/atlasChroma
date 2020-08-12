@@ -15,7 +15,7 @@ const userHandler = {};
 //router for all the user routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {     
+userHandler.user = (route,requestObject,io) => new Promise((resolve,reject) => {     
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -24,7 +24,7 @@ userHandler.user = (route,requestObject,eventEmitter) => new Promise((resolve,re
     if(requestObject.hasOwnProperty("method")){
         switch(requestObject.method){
           case "GET" :
-              userHandler.user.get(route,requestObject,eventEmitter).then(resolvedResult => {
+              userHandler.user.get(route,requestObject,io).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
@@ -33,14 +33,14 @@ userHandler.user = (route,requestObject,eventEmitter) => new Promise((resolve,re
           case "POST" : 
               break;
           case "PUT" : 
-                userHandler.user.put(route,requestObject,eventEmitter).then(resolvedResult => {
+                userHandler.user.put(route,requestObject,io).then(resolvedResult => {
                         resolve(resolvedResult);
                 }).catch(rejectedResult => {
                         reject(rejectedResult);
                 });
               break;
           case "DELETE" : 
-                userHandler.user.delete(route,requestObject,eventEmitter).then(resolvedResult => {
+                userHandler.user.delete(route,requestObject,io).then(resolvedResult => {
                         resolve(resolvedResult);
                 }).catch(rejectedResult => {
                         reject(rejectedResult);
@@ -58,7 +58,7 @@ userHandler.user = (route,requestObject,eventEmitter) => new Promise((resolve,re
 //user get route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.get = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
+userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -106,7 +106,7 @@ userHandler.user.get = (route,requestObject,eventEmitter) => new Promise((resolv
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = SMSG.SVR_UHH_RDUSR; 
-                    eventEmitter.emit("updatingDetails",{event : "getUserList", data : [...resolvedSet]});
+                    io.emit("updatingDetails",{event : "getUserList", data : [...resolvedSet]});
                     resolve(response); 
                       
                 }
@@ -124,7 +124,7 @@ userHandler.user.get = (route,requestObject,eventEmitter) => new Promise((resolv
 //user put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.put = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
+userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -166,7 +166,7 @@ userHandler.user.put = (route,requestObject,eventEmitter) => new Promise((resolv
             response.STATUS = 200;
             response.PAYLOAD = {};
             response.SMSG = SMSG.SVR_UHH_USRUPSUC;  
-            eventEmitter.emit("updatingDetails",{event : "updatingUser", data : updatedUser});      
+            io.emit("updatingDetails",{event : "updatingUser", data : updatedUser});      
             resolve(response); 
         }).catch(rejectedSet => {
             response.STATUS = 500;
@@ -183,7 +183,7 @@ userHandler.user.put = (route,requestObject,eventEmitter) => new Promise((resolv
 //user delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-userHandler.user.delete = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
+userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -197,7 +197,7 @@ userHandler.user.delete = (route,requestObject,eventEmitter) => new Promise((res
     if(requestObject.reqBody.hasOwnProperty("email")){
         mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{returnOriginal: false, remove: true},SINGLE).then(resolvedResult => {
             let deletedData = resolvedResult.value;
-            eventEmitter.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
+            io.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
                 response.STATUS = 200;
                 response.PAYLOAD = {};

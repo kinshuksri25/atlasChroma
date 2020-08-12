@@ -18,11 +18,11 @@ const postLoginRouter = {};
 //postlogin router
 //params --> route -- string, requestObject -- object
 //returns --> promise(object)
-postLoginRouter.router = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
+postLoginRouter.router = (route,requestObject,io) => new Promise((resolve,reject) => {
     cookieHandler.getCookie(requestObject.cookieid).then(validCookie => {
         if(validCookie){
             let chosenHandler = postLoginRouter.routeChecker(route);
-            chosenHandler(route,requestObject,eventEmitter).then(resolvedResult => {
+            chosenHandler(route,requestObject,io).then(resolvedResult => {
                 resolvedResult.STATUS = 200;
                 resolve(resolvedResult);
             }).catch(rejectedResult => {
@@ -37,7 +37,6 @@ postLoginRouter.router = (route,requestObject,eventEmitter) => new Promise((reso
             reject(response);
         }
     }).catch(rejectedResult => {
-        console.log("caught");
         console.log(rejectedResult);
         let response = {
             STATUS : 500,

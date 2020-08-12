@@ -9,7 +9,7 @@ const {SINGLE,DBCONST,EMSG,SMSG} = require("../../../../lib/constants/contants")
 //declaring the module
 let socket = {};
 
-socket.handleEvents = (io,eventEmitter) =>{
+socket.handleEvents = (io) =>{
     let socketObject = {};
     io.on("connection", (socket) => {
         socket.on("login", (userID) => {
@@ -138,10 +138,6 @@ socket.handleEvents = (io,eventEmitter) =>{
                 console.log(EMSG.SVR_UTL_RDSUNKEYERR);
             }
         });
-    });
-
-    eventEmitter.on("updatingDetails" , (details) => {
-        io.emit("updatingDetails",{...details});
     });
 }
 

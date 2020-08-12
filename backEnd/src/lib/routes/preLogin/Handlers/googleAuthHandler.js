@@ -247,7 +247,7 @@ googleAuthHandler.postAuthDetails = (requestObject,io) => new Promise((resolve,r
                     lastname : updateSet.lastname,
                     email : updateSet.email
                 };
-                eventEmitter.emit("updatingDetails",{event : "addingUser", data : updatedUser});
+                io.emit("updatingDetails",{event : "addingUser", data : updatedUser});
                 cookieHandler.createCookies(updateSet._id,updateSet.username).then(resolvedResult => {
                     response.PAYLOAD =resolvedResult;
                     response.SMSG = SMSG.SVR_OATH_LGNSUC;

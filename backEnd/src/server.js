@@ -7,7 +7,6 @@ const https = require('https');
 const url = require('url');
 const fs = require('fs');
 const connect = require('connect');
-const EventEmitter = require("events");
 const cron = require('./lib/utils/cron');
 const socket = require('./lib/utils/socket');
 const router = require("./lib/routes/centalRouter");
@@ -19,7 +18,6 @@ const cookieHandler = require('./lib/utils/cookieHandler');
 const decoder = new stringDecoder('utf-8');
 
 const app = connect();
-const eventEmitter = new EventEmitter();
 //server object definition
 const server = {};
 
@@ -30,6 +28,8 @@ server.certParams = {
 };
 
 server.https = https.createServer(server.certParams, app);
+//creating socket instance
+let io = new soc(server.https);
 
 app.use((req, res, next) => {
     server.unifiedServer(req, res);
@@ -68,17 +68,13 @@ server.unifiedServer = (req, res) => {
         if(headers.hasOwnProperty("cookieid")){
             requestObject.cookieid = headers.cookieid;
         }
-
-         if(headers.hasOwnProperty("socketid")){
-            requestObject.socketid = headers.socketid;
-        }
     
         res.writeHead(200,{"Access-Control-Allow-Origin":"https://localhost:3000",
                            "Access-Control-Allow-Credentials" : "true",
-                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid,socketid",
+                           "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept,cookieid",
                            "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE"});
                            
-        router.centralRouter(route,requestObject,eventEmitter).then(responseObject => {
+        router.centralRouter(route,requestObject,io).then(responseObject => {
                 res.write(JSON.stringify(responseObject));
                 res.end();
         }).catch(errorObject => {
@@ -114,11 +110,8 @@ server.init = (runtimeEnvironment,port) => {
         server.https.listen(port, function() {
             console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
         });
-
-        //creating socket instance
-        let io = new soc(server.https);
         //listening to client socket events
-        socket.handleEvents(io,eventEmitter);
+        socket.handleEvents(io);
     }
 };
 
