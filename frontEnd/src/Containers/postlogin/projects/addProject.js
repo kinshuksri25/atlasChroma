@@ -51,8 +51,8 @@ class AddProject extends Component{
                 if(!contributorExists){
                     contributor.push(selectedValue);
                 }else{
-                    let errorMsg = selectedValue == this.state.projectLeader ? "ProjectLeader is already a contributor" : "The contributor has already been added";
-                    errorObject.msg = errorMsg;
+                    let EMSG = selectedValue == this.state.projectLeader ? "ProjectLeader is already a contributor" : "The contributor has already been added";
+                    errorObject.msg = EMSG;
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);
                 }
@@ -91,7 +91,7 @@ class AddProject extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }

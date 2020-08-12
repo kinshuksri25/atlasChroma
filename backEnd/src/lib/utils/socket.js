@@ -9,15 +9,13 @@ const {SINGLE,DBCONST,EMSG,SMSG} = require("../../../../lib/constants/contants")
 //declaring the module
 let socket = {};
 
-socket.handleEvents = (io) =>{
+socket.handleEvents = (io,eventEmitter) =>{
     let socketObject = {};
-
     io.on("connection", (socket) => {
         socket.on("login", (userID) => {
             cookieHandler.getCookie(userID).then(resolvedResult => {
                 console.log("User "+resolvedResult+" connected with socketID: "+socket.id);
                 socketObject[resolvedResult] = socket.id;
-
             }).catch(rejectedResult => {
                 console.log(rejectedResult);
             });
@@ -123,6 +121,7 @@ socket.handleEvents = (io) =>{
 
         socket.on("terminate", (data) => {
             if(data.hasOwnProperty("cookieID")){
+                console.log(data);
                 cookieHandler.deleteCookie(data.cookieID).then(loginObject => {
                     delete socketObject[data.username];
                     let valueArray = Object.values(loginObject);
@@ -139,6 +138,10 @@ socket.handleEvents = (io) =>{
                 console.log(EMSG.SVR_UTL_RDSUNKEYERR);
             }
         });
+    });
+
+    eventEmitter.on("updatingDetails" , (details) => {
+        io.emit("updatingDetails",{...details});
     });
 }
 

@@ -7,6 +7,7 @@ import Modal from 'react-modal';
 import formConstants from '../../../Forms/formConstants';
 import cookieManager from '../../../Components/cookieManager';
 import SearchFeild from '../../../Forms/searchFeildForm';
+import url from 'url';
 import AllDayEvent from './allDayEvents';
 import TimedEvent from './timedEvents';
 import MeetingEvent from './meetingEvents';

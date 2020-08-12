@@ -53,8 +53,8 @@ class SignUp extends Component {
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    if (responseObject.ERRORMSG != "") {
-                        errorObject.msg = responseObject.ERRORMSG;
+                    if (responseObject.EMSG != "") {
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
@@ -87,8 +87,8 @@ class SignUp extends Component {
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    if (responseObject.ERRORMSG != "") {
-                        errorObject.msg = responseObject.ERRORMSG;
+                    if (responseObject.EMSG != "") {
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
@@ -112,9 +112,9 @@ class SignUp extends Component {
         let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
-            var errorMsg = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+            var EMSG = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
             if (this.state.validEmail && this.state.validUserName) {
-                if(errorMsg == ""){
+                if(EMSG == ""){
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
                         if(responseObject.STATUS != 200 || error){
                             if(error){
@@ -122,7 +122,7 @@ class SignUp extends Component {
                                 errorObject.status = "ERROR";
                                 globalThis.props.setMsgState(errorObject);
                             }else{
-                                errorObject.msg = responseObject.ERRORMSG;
+                                errorObject.msg = responseObject.EMSG;
                                 errorObject.status = "ERROR";
                                 globalThis.props.setMsgState(errorObject);
                             }
@@ -134,7 +134,7 @@ class SignUp extends Component {
                         }
                     });
                 } else {
-                        errorObject.msg = errorMsg;
+                        errorObject.msg = EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                 } 

@@ -9,7 +9,6 @@ import setMsgAction from '../../../store/actions/msgActions';
 import SearchFeild from '../../../Forms/searchFeildForm';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
 import {EMSG,SMSG} from '../../../../../lib/constants/contants';
-import { project } from '../../../../../backEnd/src/lib/routes/postLogin/Handlers/projectHandler';
 
 class EditProject extends Component{
     constructor(props){
@@ -43,7 +42,7 @@ class EditProject extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.ERRORMSG;
+                    errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
@@ -87,7 +86,7 @@ class EditProject extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
@@ -162,8 +161,8 @@ class EditProject extends Component{
                 if(!contributorExists){
                     contributor.push(selectedValue);
                 }else{
-                    let errorMsg = selectedValue == this.state.projectLeader ? EMSG.CLI_PRJ_UPPRJLDR : EMSG.CLI_PRJ_UPCNERR;
-                    errorObject.msg = errorMsg;
+                    let EMSG = selectedValue == this.state.projectLeader ? EMSG.CLI_PRJ_UPPRJLDR : EMSG.CLI_PRJ_UPCNERR;
+                    errorObject.msg = EMSG;
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);
                 }

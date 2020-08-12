@@ -151,4 +151,4 @@ listener.unsubscribe = () => {
     unsubscribe();
 }
 
-module.exports = listener;
+export default listener;

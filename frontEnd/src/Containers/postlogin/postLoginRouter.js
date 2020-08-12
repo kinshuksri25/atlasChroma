@@ -38,10 +38,10 @@ class PostLoginRouter extends Component {
         listener.listenEvents(io);
 
         //connect to server socket
-        this.props.io.on("connect",() => {console.log("socket connected to server");});
-        this.props.io.emit('login',userID);
+       io.on("connect",() => {console.log("socket connected to server");});
+       let userID = cookieManager.getUserSessionDetails();
+       io.emit('login',userID);
 
-        let userID = cookieManager.getUserSessionDetails();
         let queryString = "";
         if(userID){
             let cookieDetails = {"CookieID" : userID};

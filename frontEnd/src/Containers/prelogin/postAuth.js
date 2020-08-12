@@ -61,7 +61,7 @@ class PostAuth extends Component{
                     globalThis.props.setMsgState(errorObject);
                 }else{
                     if (responseObject.Status == "ERROR") {
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                         globalThis.setState({
@@ -111,7 +111,7 @@ class PostAuth extends Component{
         let headers = {};
         let errorObject = {...msgObject};
         let globalThis = this;
-        httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,{},function(error,responseObject) {
+        httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,function(error,responseObject) {
             if(error || responseObject.STATUS != 200){
                 errorObject.msg = error;
                 errorObject.status = "ERROR";
@@ -137,9 +137,9 @@ class PostAuth extends Component{
         let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Phone') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
-            var errorMsgObject = globalThis.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
+            var EMSGObject = globalThis.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
             if (globalThis.state.validUserName) {
-                if(errorMsgObject == ""){
+                if(EMSGObject == ""){
                     delete formObject.formData.confirmPassword;
                     formObject.formData.state = globalThis.state.state;
                     formObject.formData.ProfilePhoto = this.state.photo;
@@ -150,14 +150,14 @@ class PostAuth extends Component{
                                 errorObject.status = "ERROR";
                                 globalThis.props.setMsgState(errorObject);
                             }else{
-                                errorObject.msg = responseObject.ERRORMSG;
+                                errorObject.msg = responseObject.EMSG;
                                 errorObject.status = "ERROR";
                                 globalThis.props.setMsgState(errorObject);
                             }
                         }else{
                             globalThis.setState({displayForm:false});
                             //set the session
-                            cookieManager.setUserSessionDetails(responseObject.PAYLOAD.cookieDetails);
+                            cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                             //TODO --> change the pushState 'state' and 'title'
                             window.history.pushState({},"",urls.DASHBOARD);
                         }

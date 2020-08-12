@@ -20,7 +20,7 @@ var methods = {
 var decoder = new stringdecoder('utf-8');
 
 //backend http request
-var httpsRequest = function(path, method, headers, data,,callback) {
+var httpsRequest = function(path, method, headers, data,callback) {
 
     console.log("Https request initiated to the backend");
     var builtUrl = connectionConstants.secureProtocol + "//" + connectionConstants.hostname + ":" + connectionConstants.backEndPort + path;

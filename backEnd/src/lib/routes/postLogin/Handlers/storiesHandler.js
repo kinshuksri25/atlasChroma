@@ -14,7 +14,7 @@ const storyHandler = {};
 //router for all the story routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories = (route,requestObject,io) => new Promise((resolve,reject) => {
+storyHandler.stories = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -25,21 +25,21 @@ storyHandler.stories = (route,requestObject,io) => new Promise((resolve,reject) 
             case "GET" :
                 break;
             case "POST" : 
-                storyHandler.stories.post(route,requestObject,io).then(resolvedResult => {
+                storyHandler.stories.post(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 });
                 break;
             case "PUT" :
-                storyHandler.stories.put(route,requestObject,io).then(resolvedResult => {
+                storyHandler.stories.put(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 });
                 break;
             case "DELETE" : 
-                storyHandler.stories.delete(route,requestObject,io).then(resolvedResult => {
+                storyHandler.stories.delete(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -56,7 +56,7 @@ storyHandler.stories = (route,requestObject,io) => new Promise((resolve,reject) 
 //story post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,reject) => {
+storyHandler.stories.post = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -88,7 +88,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
         };
 
     mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{returnOriginal: false},SINGLE).then(resolvedResult =>{
-        io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails()}});
+        eventEmitter.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails()}});
         mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.Contributor},{}).then(resolvedResult => {
             let contributorEmailID = resolvedResult[0].email;
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY,template).then(resolvedEmail => {
@@ -129,7 +129,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
 //story put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reject) => {
+storyHandler.stories.put = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -161,8 +161,8 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
         };
 
         mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{returnOriginal: false},SINGLE).then(resolvedResult => {
-            io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
-            let updatedData = resolvedResult[0];
+            let updatedData = resolvedResult.value;
+            eventEmitter.emit("updatingDetails",{event : "updatingStory", data : updatedData});
             template.projectName = updatedData.title;
             mongo.read(DBCONST.userCollection,{username : updatedData.contributorUsername},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
@@ -170,7 +170,7 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = SMSG.SVR_SHH_STRUPSUC;
-                    io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
+                    eventEmitter.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                     resolve(response);
                 }).catch(rejectedEmail => {
                     let payload = {
@@ -205,7 +205,7 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
 //story delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
+storyHandler.stories.delete = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -214,12 +214,12 @@ storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,r
        };
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.storyID != undefined ){
         mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{returnOriginal: true},SINGLE).then(resolvedResult => { 
-            let originalProject = resolvedResult[0];  
+            let originalProject = resolvedResult.value;  
             let deletedStory = originalProject.storydetails.map(story => {
                 if(story._id == requestObject.queryObject.storyID)
                     return story;
             });
-            io.emit("updatingDetails",{event : "deletingStory", data : {projectID : originalProject._id, storyID : deletedStory._id}});
+            eventEmitter.emit("updatingDetails",{event : "deletingStory", data : {projectID : originalProject._id, storyID : deletedStory._id}});
             mongo.read(DBCONST.userCollection,{username: deletedStory.contributor },{}).then(resolvedResult => {;
                 let contributorEmailID = resolvedResult[0].email;
                 let template = {

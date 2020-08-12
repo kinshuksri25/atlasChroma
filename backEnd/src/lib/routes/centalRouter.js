@@ -12,18 +12,18 @@ const router = {};
 //central router for entire backend
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
-router.centralRouter = (route,requestObject,io) => new Promise((resolve,reject) => {
+router.centralRouter = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
      //check cookie availability
      if(!requestObject.hasOwnProperty("cookieid")){
         //prelogin
-        preLoginRouter.router(route,requestObject,io).then(resolvedResult => {
+        preLoginRouter.router(route,requestObject,eventEmitter).then(resolvedResult => {
             resolve(resolvedResult);
         }).catch(rejectedResult => { 
             reject(rejectedResult);
         });
     }else{
          //postlogin
-         postLoginRouter.router(route,requestObject,io).then(resolvedResult => {
+         postLoginRouter.router(route,requestObject,eventEmitter).then(resolvedResult => {
             resolve(resolvedResult);
         }).catch(rejectedResult => { 
                 reject(rejectedResult);

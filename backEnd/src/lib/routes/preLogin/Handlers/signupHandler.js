@@ -11,6 +11,7 @@ const googleApis = require("../../../googleApis/googleAPI");
 const {DBCONST,EMSG,SMSG,OAuthCONST,EMAILTEMPLATES,SINGLE} = require("../../../../../../lib/constants/contants");
 const loginHandler = require("./loginhandlers");
 const {randValueGenerator} = require("../../../utils/helper");
+const { update } = require("../../../utils/data");
 
 
 //declaring the module
@@ -19,7 +20,7 @@ const signupHandler = {};
 //signup route handler
 //params --> requestObject -- object
 //returns --> promise(object)
-signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
+signupHandler.signup = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -91,7 +92,7 @@ signupHandler.signup = (requestObject,io) => new Promise((resolve,reject) => {
 //checking user availability handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.userAvaliability = (requestObject,io) => new Promise((resolve,reject) => {
+signupHandler.userAvaliability = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -132,7 +133,7 @@ signupHandler.userAvaliability = (requestObject,io) => new Promise((resolve,reje
 //post signup form route handler
 //params -->  requestObject -- object
 //return --> promise(object)
-signupHandler.postSignupDetails = (requestObject,io) => new Promise((resolve,reject) => {
+signupHandler.postSignupDetails = (requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -142,39 +143,37 @@ signupHandler.postSignupDetails = (requestObject,io) => new Promise((resolve,rej
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('id') && requestObject.reqBody.hasOwnProperty('FirstName') && requestObject.reqBody.hasOwnProperty('LastName') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.reqBody.hasOwnProperty('ProfilePhoto') && requestObject.method == "POST"){
          //check id validity
-         mongo.read(DBCONST.userCollection,{ _id: requestObject.reqBody.id }, { projection: { email: 1 } }).then(resultSet => {
-            if (JSON.stringify(resultSet) != JSON.stringify([])) {  
-                mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
-                    let updatedUser = {
-                        username : updateSet[0].username,
-                        firstname : updateSet[0].firstname,
-                        lastname : updateSet[0].lastname,
-                        email : updateSet[0].email
-                    };
-                    io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
-                    response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.req.id,resultSet[0].username).then(resolvedResult => {
-                        response.STATUS = 200;
-                        response.SMSG = SMGSG.SVR_LGNH_LGNSUC;
-                        response.PAYLOAD.cookieObject = resolvedResult;
-                        resolve(response);
-                    }).catch(rejectedResult => {
-                        response.STATUS = 500;
-                        response.EMSG = EMSG.SVR_LGNH_LGNUSUC;
-                        reject(response);
-                    });
-                }).catch(error => {
+         mongo.update(DBCONST.userCollection, { _id: requestObject.reqBody.id }, { $set: { firstname: requestObject.reqBody.FirstName, lastname: requestObject.reqBody.LastName, phonenumber: requestObject.reqBody.Phone, photo: requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
+            if(JSON.stringify(updateSet.value) != JSON.stringify({})){
+                updateSet = {...updateSet.value};
+                let updatedUser = {
+                    username : updateSet.username,
+                    firstname : updateSet.firstname,
+                    lastname : updateSet.lastname,
+                    email : updateSet.email
+                };
+                eventEmitter.emit("updatingDetails",{event : "addingUser", data : updatedUser});
+                response.PAYLOAD.cookie = cookieHandler.createCookies(requestObject.reqBody.id,updatedUser.username).then(resolvedResult => {
+                    response.STATUS = 200;
+                    response.SMSG = SMSG.SVR_LGNH_LGNSUC;
+                    response.PAYLOAD = resolvedResult;
+                    resolve(response);
+                }).catch(rejectedResult => {
+                    console.log(rejectedResult);
                     response.STATUS = 500;
-                    response.EMSG = error;
+                    response.EMSG = EMSG.SVR_LGNH_LGNUSUC;
                     reject(response);
                 });
             }else{
                 response.STATUS = 400;
-                response.EMSG = EMSG.SVR_SGNH_INUSR;
+                response.EMSG = EMSG.SVR_OATH_INST;
+                response.PAYLOAD = {};
                 reject(response);
-            } 
+            }
         }).catch(error => {
             response.STATUS = 500;
             response.EMSG = error;
+            response.PAYLOAD = {};
             reject(response);
         });
     }else{

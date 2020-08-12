@@ -15,7 +15,7 @@ const notesHandler = {};
 //router for all the notes routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-notesHandler.notes = (route,requestObject,io) => new Promise((resolve,reject) => {
+notesHandler.notes = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",

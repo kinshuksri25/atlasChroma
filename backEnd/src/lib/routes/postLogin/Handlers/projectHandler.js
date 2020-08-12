@@ -16,7 +16,7 @@ const projectHandler = {};
 //router for all the project routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project = (route,requestObject,io) => new Promise((resolve,reject) => {
+projectHandler.project = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -28,21 +28,21 @@ projectHandler.project = (route,requestObject,io) => new Promise((resolve,reject
           case "GET" :
               break;
           case "POST" : 
-            projectHandler.project.post(route,requestObject,io).then(resolvedResult => {
+            projectHandler.project.post(route,requestObject,eventEmitter).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
               });
               break;
           case "PUT" :
-            projectHandler.project.put(route,requestObject,io).then(resolvedResult => {
+            projectHandler.project.put(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 }); 
               break;
           case "DELETE" : 
-            projectHandler.project.delete(route,requestObject,io).then(resolvedResult => {
+            projectHandler.project.delete(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -59,7 +59,7 @@ projectHandler.project = (route,requestObject,io) => new Promise((resolve,reject
 //project post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,reject) => {
+projectHandler.project.post = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     
     let response = {
         EMSG : "",
@@ -83,7 +83,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
         mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
             mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(resolvedSet => {
-                io.emit("updatingDetails",{event : "addingProject", data : projectObject});
+                eventEmitter.emit("updatingDetails",{event : "addingProject", data : projectObject});
                 mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0,firstname : 1}}).then(resolvedSet => {
                     let recipientList = [];
                     resolvedSet.map(user => {
@@ -130,7 +130,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
 //project put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,reject) => {
+projectHandler.project.put = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -164,7 +164,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
     } 
     
     mongo.update(DBCONST.projectCollection , {_id : requestObject.reqBody.projectID},{...updateQuery},{returnOriginal: false},SINGLE).then(resolvedResult => {
-        let updatedProject = resolvedResult[0];
+        let updatedProject = resolvedResult.value;
         let editedContributors = [...updatedProject.contributors];
         let newContributors = [];
         let oldContributors = [];
@@ -178,7 +178,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         editedContributors.map(contri => {
             oldContributors.indexOf(contri) == -1 && newContributors.push(contri);
         });
-        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});   
+        eventEmitter.emit("updatingDetails",{event : "editingProject", data : updatedProject});   
 
         mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
 
@@ -298,7 +298,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
 //project delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve,reject) => {
+projectHandler.project.delete = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -308,7 +308,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
 
     if(requestObject.queryObject.projectID != undefined){
         mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{returnOriginal: false, remove: true},SINGLE).then( resolvedResult => {
-            let deletedData = resolvedResult[0];
+            let deletedData = resolvedResult.value;
             mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedSet => {
                mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                 let recipientList = [];
@@ -319,7 +319,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
                     projectName : deletedData.title,
                     projectLink : ""
                 };
-                io.emit("updatingDetails",{event : "deletingProject", data : deletedData}); 
+                eventEmitter.emit("updatingDetails",{event : "deletingProject", data : deletedData}); 
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEDPROJECT,templateBuilder).then(emailResolve => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};

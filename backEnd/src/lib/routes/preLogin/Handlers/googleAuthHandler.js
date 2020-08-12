@@ -237,39 +237,40 @@ googleAuthHandler.postAuthDetails = (requestObject,io) => new Promise((resolve,r
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.reqBody.hasOwnProperty('ProfilePhoto') && requestObject.method == "POST"){
          //check state validity
-         mongo.read(DBCONST.userCollection,{ state: requestObject.reqBody.state }, { projection: { _id: 1} }).then(resultSet => {
-            if (JSON.stringify(resultSet) != JSON.stringify([])) {  
+         mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
+            if(JSON.stringify(updateSet.value) != JSON.stringify({})){
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);
-                mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
-                    let updatedUser = {
-                        username : updateSet[0].username,
-                        firstname : updateSet[0].firstname,
-                        lastname : updateSet[0].lastname,
-                        email : updateSet[0].email
-                    };
-                    io.emit("updatingDetails",{event : "addingUser", data : updatedUser}); 
-                    cookieHandler.createCookies(resultSet[0]._id,requestObject.reqBody.UserName).then(resolvedResult => {
-                         response.PAYLOAD.cookieDetails =resolvedResult;
-                         response.SMSG = SMSG.SVR_OATH_LGNSUC;
-                         response.STATUS = 200;
-                         resolve(response);
-                    }).catch(rejectedResult => {
-                        response.EMSG = rejectedResult;
-                        response.STATUS = 400;
-                    });
-                }).catch(error => {
-                    throw error;
+                updateSet = {...updateSet.value};
+                let updatedUser = {
+                    username : updateSet.username,
+                    firstname : updateSet.firstname,
+                    lastname : updateSet.lastname,
+                    email : updateSet.email
+                };
+                eventEmitter.emit("updatingDetails",{event : "addingUser", data : updatedUser});
+                cookieHandler.createCookies(updateSet._id,updateSet.username).then(resolvedResult => {
+                    response.PAYLOAD =resolvedResult;
+                    response.SMSG = SMSG.SVR_OATH_LGNSUC;
+                    response.STATUS = 200;
+                    resolve(response);
+                }).catch(rejectedResult => {
+                    response.EMSG = rejectedResult;
+                    response.STATUS = 400;
+                    response.PAYLOAD = {};
+                    reject(response);
                 });
             }else{
+                response.STATUS = 400;
                 response.EMSG = EMSG.SVR_OATH_INST;
-                response.STATUS = 400; 
-                reject(response);   
-            } 
-        }).catch(error => {
+                response.PAYLOAD = {};
+                reject(response);
+            }
+         }).catch(error => {
             response.STATUS = 500;
             response.EMSG = error;
+            response.PAYLOAD = {};
             reject(response);
-        });
+         });
 
     }else{
         response.EMSG = EMSG.SVR_HNDLS_INREQ;

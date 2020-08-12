@@ -169,7 +169,7 @@ class Story extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.ERRORMSG;
+                    errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
@@ -200,7 +200,7 @@ class Story extends Component{
             let storyDetails = {};
             storyDetails._id = this.props.storyDetails._id;
             storyDetails.currentStatus = columns[newPosition]._id;
-            storyObject.oldName = this.state.storytitle;
+            storyDetails.oldName = this.state.storytitle;
             httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -208,7 +208,7 @@ class Story extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
@@ -235,7 +235,7 @@ class Story extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }else{
-                    errorObject.msg = responseObject.ERRORMSG;
+                    errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }

@@ -59,13 +59,14 @@ class PostSignUpForm extends Component {
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
                 }else{
+                    console.log(responseObject);
                     //set the session
-                    cookieManager.setUserSessionDetails(responseObject.PAYLOAD.cookieObject);
+                    cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({},"",urls.DASHBOARD);
                 }

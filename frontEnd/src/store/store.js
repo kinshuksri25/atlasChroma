@@ -16,4 +16,6 @@ const combinedReducer = combineReducers({userStateReducer,
     socketStateReducer,
     chatStateReducer});
 
-export default store = createStore(combinedReducer);
+const store = createStore(combinedReducer);
+
+export default store;

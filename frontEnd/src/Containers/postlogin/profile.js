@@ -87,7 +87,7 @@ class Profile extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
@@ -116,7 +116,7 @@ class Profile extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }else{
-                        errorObject.msg = responseObject.ERRORMSG;
+                        errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }

@@ -15,9 +15,9 @@ const preLoginRouter = {};
 //prelogin router
 //params --> route -- string, requestObject -- object
 //returns --> promise - object
-preLoginRouter.router = (route,requestObject,io) => new Promise((resolve,reject) => {
+preLoginRouter.router = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
     let chosenHandler = preLoginRouter.routes.hasOwnProperty(route) ? preLoginRouter.routes[route] : preLoginRouter.notFound;
-    chosenHandler(requestObject,io).then(resolvedResult => {
+    chosenHandler(requestObject,eventEmitter).then(resolvedResult => {
         resolvedResult.STATUS = 200;
         resolve(resolvedResult);
     }).catch(rejectedResult => {

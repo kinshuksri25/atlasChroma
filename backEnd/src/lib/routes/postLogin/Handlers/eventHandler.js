@@ -16,7 +16,7 @@ const eventHandler = {};
 //router for all the event routes
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event = (route,requestObject,io) => new Promise((resolve,reject) => {
+eventHandler.event = (route,requestObject,eventEmitter) => new Promise((resolve,reject) => {
 
     let response = {
         EMSG : "",
@@ -28,21 +28,21 @@ eventHandler.event = (route,requestObject,io) => new Promise((resolve,reject) =>
           case "GET" :
               break;
           case "POST" : 
-            eventHandler.event.post(route,requestObject,io).then(resolvedResult => {
+            eventHandler.event.post(route,requestObject,eventEmitter).then(resolvedResult => {
                    resolve(resolvedResult);
               }).catch(rejectedResult => {
                    reject(rejectedResult);
               });
               break;
           case "PUT" :
-            eventHandler.event.put(route,requestObject,io).then(resolvedResult => {
+            eventHandler.event.put(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
                 }); 
               break;
           case "DELETE" : 
-            eventHandler.event.delete(route,requestObject,io).then(resolvedResult => {
+            eventHandler.event.delete(route,requestObject,eventEmitter).then(resolvedResult => {
                     resolve(resolvedResult);
                 }).catch(rejectedResult => {
                     reject(rejectedResult);
@@ -59,7 +59,7 @@ eventHandler.event = (route,requestObject,io) => new Promise((resolve,reject) =>
 //event post route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reject) => {
+eventHandler.event.post = (route, requestObject,eventEmitter) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -72,7 +72,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
         requestObject.reqBody.eventObject.password = helperFunctions.randValueGenerator(6);
         mongo.update(DBCONST.userCollection , query,{$push:{events : {...requestObject.reqBody.eventObject}}},{},MULTIPLE).then(resolvedSet => {
             if(isMeeting){
-                io.emit("updatingDetails",{event : "addingMeeting", data : {...equestObject.reqBody.eventObject}});  
+                eventEmitter.emit("updatingDetails",{event : "addingMeeting", data : {...equestObject.reqBody.eventObject}});  
                 mongo.read(DBCONST.userCollection,{username : {$in : [...requestObject.reqBody.eventObject.participants]}},{projection : {email : 1 ,_id : 0}}).then(resolvedResult => {
                     let recipientList = [];
                     resolvedResult.map(user => {
@@ -129,7 +129,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
 //event put route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,reject) => {
+eventHandler.event.put = (route, requestObject,eventEmitter) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -179,7 +179,7 @@ eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,rejec
                                 if(event._id == requestObject.reqBody._id)
                                     selectedEvent = event;
                             });
-                            io.emit("updatingDetails",{event : "editingMeeting", data : {...selectedEvent}});  
+                            eventEmitter.emit("updatingDetails",{event : "editingMeeting", data : {...selectedEvent}});  
                             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITEVENT,template).then(resolvedEmail => {
                                 response.STATUS = 200;
                                 response.PAYLOAD = {};
@@ -217,7 +217,7 @@ eventHandler.event.put = (route, requestObject,io) => new Promise((resolve,rejec
 //event delete route
 //params --> route - string, requestObject - object
 //returns --> promise - object
-eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,reject) => {
+eventHandler.event.delete = (route, requestObject,eventEmitter) => new Promise((resolve,reject) => {
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -240,7 +240,7 @@ eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,re
 
             mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resolvedSet => {
                 if(selectedEvent.EventType == "Meeting"){  
-                    io.emit("updatingDetails",{event : "deletingMeeting", data : {meetingID : requestObject.queryObject.eventID}});    
+                    eventEmitter.emit("updatingDetails",{event : "deletingMeeting", data : {meetingID : requestObject.queryObject.eventID}});    
                     let template = {
                         eventName : selectedEvent.eventName
                     };
