@@ -102,14 +102,14 @@ class Profile extends Component{
     }
 
     onDeleteHandler (){
-        let projectNames = [];
         let projectIDs = [];
         let errorObject = {...msgObject};
 
         if(this.props.user.projects.length == 0){
             let globalThis = this;
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/user", "DELETE", headers,{"projectIDs" : [...projectIDs],email : this.state.email},function(error,responseObject) {
+            let queryObject = "username="+this.state.userName;
+            httpsMiddleware.httpsRequest("/user", "DELETE", headers,queryObject,function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -149,10 +149,11 @@ class Profile extends Component{
     
     render(){
         let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
-        let disabledUpdate = this.state.firstName != this.props.user.firstname || this.state.lastName != this.props.user.lastname || 
-                                this.state.photo != this.props.user.photo || this.state.phonenumber != this.props.user.phonenumber || 
-                                this.state.password != "" && (this.state.confirmPassword != "" && this.state.firstName != "" && this.state.lastName != "" && 
-                                        this.state.phonenumber != 0 && this.state.phonenumber != "") ? false : true;
+        let disabledUpdate = this.state.firstName != this.props.user.firstname && this.state.firstName != ""|| 
+                                this.state.lastName != this.props.user.lastname && this.state.lastName != ""|| 
+                                    this.state.photo != this.props.user.photo ||
+                                        (this.state.phonenumber != this.props.user.phonenumber && this.state.phonenumber != 0 && this.state.phonenumber != "") || 
+                                            (this.state.password != "" && this.state.confirmPassword) ? false : true;
         return (<div>
                     <button onClick ={this.showPhotoSelector}>{buttonInner}</button>
                     {this.state.displayPhotoSel && <ProfilePicture selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
@@ -162,8 +163,8 @@ class Profile extends Component{
                         <input type = "text" value = {this.state.userName} className = "userName" disabled/>
                         <input type = "text" value = {this.state.email} className = "email" disabled/>
                         <input type = "number" onChange={this.onChangeHandler} value = {this.state.phonenumber} className = "phonenumber"/>
-                        <input type = "text" onChange={this.onChangeHandler} value = {this.state.password} className = "password"/>
-                        <input type = "text" onChange={this.onChangeHandler} value = {this.state.confirmPassword} className = "confirmPassword"/>
+                        <input type = "password" onChange={this.onChangeHandler} value = {this.state.password} className = "password"/>
+                        <input type = "password" onChange={this.onChangeHandler} value = {this.state.confirmPassword} className = "confirmPassword"/>
                         <button className = "updateButton" disabled = {disabledUpdate} >Update</button>
                     </form>
                     <button className = "deleteButton" onClick={this.onDeleteHandler}>Delete Account</button>

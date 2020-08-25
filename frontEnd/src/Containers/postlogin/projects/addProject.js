@@ -84,6 +84,7 @@ class AddProject extends Component{
             formData.projectleader = this.state.projectLeader;
             delete formData.Description;
             delete formData.Title;
+            globalThis.props.cancel();
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){
@@ -95,8 +96,6 @@ class AddProject extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                     globalThis.props.cancel();
                 }
             });
         }else{
@@ -108,7 +107,7 @@ class AddProject extends Component{
 
     render(){
         return(<div>
-                <button onClick={this.props.cancel}>X</button>
+                <button className = "closeAddModal" onClick={this.props.cancel}>X</button>
                 <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
                 <SimpleForm formAttributes = { formConstants.addProject }
                     changeHandler = { this.titleChecker }

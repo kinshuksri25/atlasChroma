@@ -37,7 +37,6 @@ postLoginRouter.router = (route,requestObject,io) => new Promise((resolve,reject
             reject(response);
         }
     }).catch(rejectedResult => {
-        console.log(rejectedResult);
         let response = {
             STATUS : 500,
             EMSG : rejectedResult,

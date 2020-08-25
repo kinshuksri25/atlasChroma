@@ -101,7 +101,7 @@ server.init = (runtimeEnvironment,port) => {
             cluster.fork();
         });
         //clear all cookies before server start
-        cookieHandler.clearCookies();
+        //cookieHandler.clearCookies();
         //setting up crons 
         cron.startJobs();
     }

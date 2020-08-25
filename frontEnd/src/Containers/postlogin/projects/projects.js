@@ -21,6 +21,7 @@ class Projects extends Component {
                 };
                 this.searchProject = this.searchProject.bind(this);
                 this.openModal = this.openModal.bind(this);
+                this.closeModal = this.closeModal.bind(this);
                 this.changeOrderBy = this.changeOrderBy.bind(this);
         }
 
@@ -30,27 +31,25 @@ class Projects extends Component {
         }
 
         openModal(event){
-            event.stopPropagation();
             switch(event.target.className){
                 case "openAddModal" :
                     this.setState({action : "ADD"}); 
                     break;
-                case "closeAddModal" :
-                    this.setState({action : ""}); 
-                    break;
                 case "openEditModal" : 
+                    event.stopPropagation();
                     let editProject = {};
                     this.props.user.projects.map(project => {
-                        if(project._id == event.target.className){
+                        if(project._id == event.target.id){
                             editProject = {...project};
                         }
                     });
                     this.setState({action : "EDIT",editProject}); 
-                    break;
-                case "closeEditModal" :
-                    this.setState({editProject : {}, action : ""}); 
-                    break;                                            
+                    break;                                         
             }
+        }
+
+        closeModal(){
+            this.setState({action : "",editProject : {}}); 
         }
 
         searchProject(projectName){
@@ -68,17 +67,17 @@ class Projects extends Component {
                             searchFunction={this.searchProject}
                             changeOrderBy={this.changeOrderBy}
                             options = {filterFormConstants.projectFilter}/> 
-                            <button onClick={this.openModal} hidden = {this.state.action == ""}>Add Project</button>
-                            <ProjectContainer showEditProject = {this.showEditProject} orderBy = {this.state.orderBy}/> 
+                            <button className = "openAddModal" onClick={this.openModal} hidden = {this.state.action != ""}>Add Project</button>
+                            <ProjectContainer showEditProject = {this.openModal} orderBy = {this.state.orderBy}/> 
                             <Modal
                             isOpen={this.state.action == "ADD"}
                             contentLabel="">
-                                <AddProject cancel = {this.openModal}/>
+                                <AddProject cancel = {this.closeModal}/>
                             </Modal> 
                             <Modal
                             isOpen={this.state.action == "EDIT"}
                             contentLabel="">
-                                <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.openModal}/>
+                                <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.closeModal}/>
                             </Modal>                            
                         </div>);    
         }

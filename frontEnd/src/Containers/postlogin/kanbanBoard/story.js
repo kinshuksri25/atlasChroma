@@ -9,6 +9,7 @@ import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
 import {urls,EMSG} from '../../../../../lib/constants/contants';
 import cookieManager from '../../../Components/cookieManager';
+import DateHelper from '../../generalContainers/date';
 
 class Story extends Component{
     constructor(props){
@@ -31,6 +32,7 @@ class Story extends Component{
                           
         this.moveStory = this.moveStory.bind(this);
         this.editStory = this.editStory.bind(this);
+        this.closeStoryModel = this.closeStoryModel.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
         this.updateFormhandler = this.updateFormhandler.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);   
@@ -109,7 +111,20 @@ class Story extends Component{
                         storyComments : this.props.storyDetails.comments,
                         duedate : this.props.storyDetails.duedate, 
                         storyContributor : this.props.storyDetails.contributor,
-                        storyPriority : this.props.storyDetails.priority});
+                        storyPriority : this.props.storyDetails.priority
+                    });
+    }
+
+    closeStoryModel(event){
+        window.history.pushState({}, "",this.currentProject()._id);
+        this.setState({isOpen : false,
+            storyTitle : "",
+            storyDescription : "",
+            storyComments : "",
+            duedate : "", 
+            storyContributor : "",
+            storyPriority : ""
+        });
     }
 
     generateColumnArray(){
@@ -160,8 +175,9 @@ class Story extends Component{
         }if(this.state.duedate != this.state.oldStoryDetails.duedate){
             storyObject.DueDate = this.state.oldStoryDetails.duedate;
         }
-        storyObject._id = this.props.storyID;
+        storyObject._id = this.props.storyDetails._id;
         storyObject.oldName = this.state.oldStoryDetails.storytitle;
+        globalThis.closeStoryModel();
         httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject}},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
@@ -173,8 +189,6 @@ class Story extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
-            }else{
-                globalThis.props.closeForm();
             }
         });  
     }
@@ -252,17 +266,18 @@ class Story extends Component{
     }
 
     render(){
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+(new Date().getMonth()+1) : (new Date().getMonth()+1);
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
-        let disableUpdate = this.state.currentMode == "ADD" ? true : (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
-                                                                        this.state.storyDescription != this.state.oldStoryDetails.description || 
-                                                                            this.state.storyComments != this.state.oldStoryDetails.comments || 
-                                                                                this.state.storyContributor != this.state.oldStoryDetails.contributor ||
-                                                                                    this.state.duedate != this.state.oldStoryDetails.duedate ||
-                                                                                        this.state.storyPriority != this.state.oldStoryDetails.priority) && (this.state.storyTitle != "" && 
-                                                                                            this.state.storyDescription != "" && this.state.storyComments != "" && 
-                                                                                                this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
-                                                                                                    this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;                                                                                 
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        let disableUpdate = (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
+                                this.state.storyDescription != this.state.oldStoryDetails.description || 
+                                    this.state.storyComments != this.state.oldStoryDetails.comments || 
+                                        this.state.storyContributor != this.state.oldStoryDetails.contributor ||
+                                            this.state.duedate != this.state.oldStoryDetails.duedate ||
+                                                this.state.storyPriority != this.state.oldStoryDetails.priority) && (this.state.storyTitle != "" && 
+                                                    this.state.storyDescription != "" && this.state.storyComments != "" && 
+                                                        this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
+                                                            this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;   
+                                                                                                                                        
         let demoteShow = this.state.columnPosition != 0 && this.state.hover ? false : true;
         let promoteShow = this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
         let storyJSX = this.props.storyDetails.storyTitle != "" && 
@@ -283,7 +298,7 @@ class Story extends Component{
                 {storyJSX}
                 <Modal
 				isOpen={this.state.isOpen}
-				onRequestClose={this.editStory}
+				onRequestClose={this.closeStoryModel}
 				contentLabel="">
                     <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
                     <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>

@@ -77,15 +77,24 @@ class PostLoginRouter extends Component {
 
     //Router
     containerSelector() {
-      if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
-        let boardRegex = new RegExp(/projects\/[a-z0-9]+$/g);
-        let schedulerRegex = new RegExp(/scheduler\/[0-9]+$/g);
-        let path = window.location.pathname.substring(1).toLowerCase();
-        if(!/[a-z]+\/[a-z|0-9]+/g.test(path)){
-            if (/[a-z]+\//g.test(path)) {
-                window.history.replaceState({}, "", "/" + path.substring(0, path.length - 1));
-            } else {
-                switch (path) {
+        if(JSON.stringify(this.props.user) != JSON.stringify(userObject) || JSON.stringify(this.props.userList) != JSON.stringify(userList) ){
+            let absolutePath = window.location.pathname.substring(1).toLowerCase();
+            /\/$/.test(absolutePath) && window.history.replaceState({}, "", "/" + absolutePath.substring(0, absolutePath.length - 1));
+            if(/\w\/[\w|\d]+$/.test(absolutePath)){
+                let boardRegex = new RegExp(/projects\/[\w|\d]+$/);
+                let schedulerRegex = new RegExp(/scheduler\/\d+$/);
+                if(boardRegex.test(absolutePath)){
+                    let projectID = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
+                    return <KanbanBoard projectID = {projectID}/>;
+                }else if(schedulerRegex.test(absolutePath)){
+                    return <Scheduler/>;
+                }else{
+                    window.history.replaceState({}, "",urls.DASHBOARD);
+                    return <DashBoard/>;
+                }
+
+            }else{
+                switch (absolutePath) {
                     case "dashboard":
                         return <DashBoard/>;
                         break;
@@ -109,23 +118,10 @@ class PostLoginRouter extends Component {
                         return <DashBoard/>;
                         break;
                 }
-            }
-        } else{
-            let nestedPath = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
-            if(boardRegex.test(path)){
-                path != ("projects/"+nestedPath.toLowerCase()) && window.history.replaceState({}, "",urls.DASHBOARD);
-                return <KanbanBoard projectID = {nestedPath}/>;
-            }else if(schedulerRegex.test(path)){
-                path != "scheduler/"+nestedPath.toLowerCase() && window.history.replaceState({}, "",urls.DASHBOARD);
-                return <Scheduler/>;
-            }else{
-                window.history.replaceState({}, "",urls.DASHBOARD);
-                return <DashBoard/>;
-            }
-        }  
-      }else{
-          return <LoadingComponent/>;
-      }    
+            }  
+        }else{
+            return <LoadingComponent/>;
+        }    
     }
    
 

@@ -131,13 +131,12 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
         PAYLOAD : {},
         SMSG : ""
        };
-
     if(requestObject.reqBody.hasOwnProperty("password") 
         || requestObject.reqBody.hasOwnProperty("firstname") 
         || requestObject.reqBody.hasOwnProperty('lastname') 
         || requestObject.reqBody.hasOwnProperty("phonenumber")
         || requestObject.reqBody.hasOwnProperty("photo")){
-
+            
         let set = {}; 
         if(requestObject.reqBody.hasOwnProperty("password")){
             let encryptedPassword = encryptionAPI.hash(requestObject.reqBody.password);
@@ -151,9 +150,9 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
         }if(requestObject.reqBody.hasOwnProperty("photo")){
             set["$set"].photo = requestObject.reqBody.photo;
         }
-
         mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{returnOriginal: false},SINGLE).then(resolvedSet => {
-            resolvedSet = resolvedSet.value;
+            console.log(resolvedSet);
+            resolvedSet = resolvedSet.value; 
             let updatedUser = {
                 username : resolvedSet.username,
                 firstname : resolvedSet.firstname,
@@ -163,10 +162,10 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
                 photo : resolvedSet.photo,
                 status : true
             };
+            io.emit("updatingDetails",{event : "updatingUser", data : updatedUser}); 
             response.STATUS = 200;
             response.PAYLOAD = {};
-            response.SMSG = SMSG.SVR_UHH_USRUPSUC;  
-            io.emit("updatingDetails",{event : "updatingUser", data : updatedUser});      
+            response.SMSG = SMSG.SVR_UHH_USRUPSUC;      
             resolve(response); 
         }).catch(rejectedSet => {
             response.STATUS = 500;
@@ -174,9 +173,10 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
             reject(response); 
         });
     }else{
-    response.STATUS = 400;
-    response.EMSG = EMSG.SVR_HNDLS_INREQ;
-    reject(response);
+        console.log("called");
+        response.STATUS = 400;
+        response.EMSG = EMSG.SVR_HNDLS_INREQ;
+        reject(response);
     }
 });
 
@@ -193,19 +193,19 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
     let template = {
         supportEmail : OAuthCONST.appAuth.senderEmail
     };    
-    
-    if(requestObject.reqBody.hasOwnProperty("email")){
-        mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{returnOriginal: false, remove: true},SINGLE).then(resolvedResult => {
+    if(requestObject.queryObject.hasOwnProperty("username")){
+        console.log(requestObject);
+        mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{$pull : {username : requestObject.queryObject.username}},{returnOriginal: false,remove: true},SINGLE).then(resolvedResult => {
             let deletedData = resolvedResult.value;
             io.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,requestObject.reqBody.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
+            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,deletedData.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
                 response.STATUS = 200;
                 response.PAYLOAD = {};
                 response.SMSG = SMSG.SVR_UHH_USRDELSUC;       
                 resolve(response); 
             }).catch(rejectedEmail => {
                 let payload = {
-                    "participants" : [requestObject.reqBody.email],
+                    "participants" : deletedData.email,
                     "template" : "DELETEUSER",
                     "templateData" : template
                 };

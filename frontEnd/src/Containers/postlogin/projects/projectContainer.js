@@ -30,7 +30,7 @@ class ProjectContainer extends Component{
                     <h3 className = {project._id}>{project.title}</h3>
                     <h4 className = {project._id}>Project Lead:</h4>
                     <h5 className = {project._id}>{project.description}</h5>
-                    <button hidden = {buttonHidden} onClick = {this.props.showEditProject} className = {project._id}>/\</button>
+                    <button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</button>
                 </button>   
             );
         });

@@ -71,7 +71,7 @@ class MeetingEvent extends Component{
             }else{
                 status = startTime > currentTime ? "Yet to Start" : startTime <= currentTime ? "Finished" : "Current Active";
             }
-            meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.onClick}>  
+            meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
                             <h3>RoomName: {event.EventTitle}{status}</h3>
                             <h4><span>MeetingCreator: {event.creator}</span> <span>MeetingCode: {event.password}</span></h4>
                             <h4>{event.Description}</h4>  <button className = {event._id} onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>

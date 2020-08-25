@@ -1,0 +1,23 @@
+.SuccessMsg,.ErrorMsg{
+    font-family: 'Baloo Tamma 2', cursive;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    border-radius: 5px;
+    padding : 8px;
+}
+
+.SuccessMsg{
+    background-color: lightgreen;
+    border: 1px solid green;
+    color: darkgreen;
+}
+
+.ErrorMsg{
+    background-color: pink;
+    border: 1px solid lightcoral;
+    color: darkred;
+}

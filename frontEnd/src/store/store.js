@@ -8,13 +8,15 @@ import msgStateReducer from "./reducers/msgStateReducer";
 import userListStateReducer from "./reducers/userListStateReducer";
 import socketStateReducer from "./reducers/socketStateReducer";
 import chatStateReducer from './reducers/chatStateReducer';
+import loadingStateReducer from './reducers/loadingStateReducer';
 
 const combinedReducer = combineReducers({userStateReducer,
     urlStateReducer,
     userListStateReducer,
     msgStateReducer,
     socketStateReducer,
-    chatStateReducer});
+    chatStateReducer,
+    loadingStateReducer});
 
 const store = createStore(combinedReducer);
 

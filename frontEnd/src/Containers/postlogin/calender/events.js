@@ -89,17 +89,22 @@ class Events extends Component{
 
     componentDidMount(){
         let eventID = url.parse(window.location.href,true).query.eventID;
-        if(eventID != ""){
+        let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
+        if(eventID != undefined){
             let selectedEvent = {};
             let combinedArray = [...this.state.allDayStories,...this.state.allDayEvents,...this.state.timedEvents];
             combinedArray.map(event => {
 
                 selectedEvent = eventID == event._id ? event : selectedEvent;
             });
-            JSON.stringify(selectedEvent) == JSON.stringify({}) && window.history.pushState({},"","scheduler/"+this.props.currentYear+this.state.currentMonth+this.state.currentDate);
+            JSON.stringify(selectedEvent) == JSON.stringify({}) && window.history.pushState({},"",date);
             JSON.stringify(selectedEvent) != JSON.stringify({}) && this.setState({
-                currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
-                endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]
+                currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.EventType != "All Day" ? selectedEvent.StartTime : "",
+                endTime: selectedEvent.EventType != "All Day" ? selectedEvent.EndTime : "",
+                EventTitle:selectedEvent.EventTitle,
+                Description:selectedEvent.Description,
+                selectedEvent : selectedEvent, 
+                participants : selectedEvent.EventType == "Meeting" ? selectedEvent.participants : ""
             });
         }
     }
@@ -119,10 +124,12 @@ class Events extends Component{
     }
     
     triggerModal(event){
+        console.log(event.target.id);
+        let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         if(event.target.className == "ADD"){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
         }else if(event.target.className == "CLOSE"){
-            this.state.currentMode == "ADD" && window.history.pushState({}, "","/scheduler"+this.props.currentYear+this.props.currentMonth+this.props.currentDate);
+            this.state.currentMode != "ADD" && window.history.pushState({}, "",date);
             this.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
         }else{
             let combinedArray = [...this.state.allDayEvents,...this.state.timedEvents,...this.state.meetings];
@@ -136,12 +143,13 @@ class Events extends Component{
             let participants = selectedEvent.hasOwnProperty("participants") ? selectedEvent.participants : this.state.participants;
             this.setState({currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
                                         endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]},() => {
-                                            window.history.pushState({}, "","/scheduler"+this.props.currentYear+this.props.currentMonth+this.props.currentDate+"?eventID="+event.target.id);
+                                            window.history.pushState({}, "",date+"?eventID="+selectedEvent._id);
                                         });
         }
     }
     
     updateEvent(){
+        let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         let eventObject = {};
         let errorObject = {};
         let globalThis = this;
@@ -162,7 +170,7 @@ class Events extends Component{
             }
         }
         eventObject._id = this.state.selectedEvent._id;
-        eventObject.EventType = this.state.selectedEvent.eventType;
+        eventObject.EventType = this.state.selectedEvent.EventType;
         eventObject.oldTitle = this.state.selectedEvent.EventTitle;
         httpsMiddleware.httpsRequest("/event","PUT",headers,{...eventObject},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
@@ -185,6 +193,7 @@ class Events extends Component{
                             if(eventObject.hasOwnProperty("EventTitle")){
                                 event.EventTitle = eventObject.EventTitle;
                             } if(eventObject.hasOwnProperty("Description")){
+                                console.log(eventObject.Description);
                                 event.Description = eventObject.Description;
                             } if(eventObject.EventType == "Timed"){
                                 if(eventObject.hasOwnProperty("EndTime")){
@@ -201,12 +210,14 @@ class Events extends Component{
                     });
                     globalThis.props.setUserState(userObject);
                 }
-                globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
+        globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
+        window.history.pushState({}, "",date);
     }
     
     deleteEvent(){
+        let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         let errorObject = {};
         let globalThis = this;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
@@ -236,9 +247,10 @@ class Events extends Component{
                     });
                     globalThis.props.setUserState(userObject);
                 }
-                globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
             }
         });
+        globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
+        window.history.pushState({}, "",date);
     }
     
     addEvent(formObject){
@@ -304,9 +316,9 @@ class Events extends Component{
                             userObject.events.push(eventObject);
                             globalThis.props.setUserState(userObject);
                         }
-                        globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants : [globalThis.props.user.username]});
                     }
                 });
+                globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants : [globalThis.props.user.username]});
             }else{
                 errorObject.msg = "Start/End Time is invalid";
                 errorObject.status = "ERROR";
@@ -348,20 +360,18 @@ class Events extends Component{
                                   
             if(this.state.eventType == "Timed" || this.state.eventType == "Meeting"){
                 let invalidTime = false;
-                if(this.state.timedEvents.length == 1 && (this.state.startTime == this.state.selectedEvent.StartTime
-                                                            && this.state.endTime == this.state.selectedEvent.EndTime)){
+                if((this.state.startTime == this.state.selectedEvent.StartTime
+                        && this.state.endTime == this.state.selectedEvent.EndTime)
+                            ||this.state.endTime == "" || this.state.startTime == "" ||
+                                this.state.endTime <= this.state.startTime){
                     invalidTime = true;                                            
-                }else{
+                }
+                if(this.state.timedEvents.length != 1 || this.state.meetings.length != 1 ){
                     [...this.state.timedEvents,...this.state.meetings].map(event => {
                         if(event._id != this.state.selectedEvent._id){
-                            if(this.state.endTime == "" ||
-                                this.state.startTime == "" ||
-                                    this.state.endTime <= this.state.startTime ||
-                                        (this.state.startTime == this.state.selectedEvent.StartTime
-                                            && this.state.endTime == this.state.selectedEvent.EndTime)||
-                                        (this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
-                                            (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
-                                                invalidTime = true;
+                            if((this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
+                                    (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
+                                        invalidTime = true;
                                 }
                        }
                     });

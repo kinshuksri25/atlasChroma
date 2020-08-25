@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
+import {Form,Button} from 'react-bootstrap';
 
 class SimpleForm extends Component {
 
@@ -84,7 +85,7 @@ class SimpleForm extends Component {
             }
         });
         params = this.arrayRemove(params, formParam);
-        return ( <form method = { formParam.method }
+        return ( <Form method = { formParam.method }
                  encType = { formParam.enctype }
                  id = { formParam.id }
                  onSubmit = { this.onSubmitHandler }> 
@@ -92,29 +93,31 @@ class SimpleForm extends Component {
                     params.map(param => 
                         {
                             if (param.type == "button") {
-                                return <button id = { param.id } 
+                                return <Button id = { param.id } 
                                 className = { param.className } 
-                                key = { param.id } > { param.name } </button>	
+                                key = { param.id } variant={param.variantType} type="submit"> { param.name } </Button>	
                             } else {
                                 if (this.props.changeFieldNames.length != 0 && this.props.changeFieldNames.includes(param.name)) {
-                                    return <input type = { param.type } 
-                                            name = { param.name } 
-                                            placeholder = { param.placeholder }
-                                            value = { this.state.formData[param.name] }
-                                            id = { param.id }
-                                            key = { param.id }
-                                            className = { param.className }
-                                            onChange = { this.onChangeHandler }
-                                            hidden = { param.isHidden }
-                                            required = { param.isRequired }
-                                            onKeyDown = { this.onKeyDownHandler }
-                                            tabIndex = "0" />
-
+                                    return <Form.Group>
+                                                <Form.Control type = { param.type } 
+                                                name = { param.name } 
+                                                placeholder = { param.placeholder }
+                                                value = { this.state.formData[param.name] }
+                                                id = { param.id }
+                                                key = { param.id }
+                                                className = { param.className }
+                                                onChange = { this.onChangeHandler }
+                                                hidden = { param.isHidden }
+                                                required = { param.isRequired }
+                                                onKeyDown = { this.onKeyDownHandler }
+                                                tabIndex = "0" />
+                                            </Form.Group>
+                                         
                             } else {
                                 switch (param.type) {
                                 case "DropDown":{ 
                                                 optionNumber++;
-                                                return ( <select id = { param.name }
+                                                return ( <Form.Control as="select" id = { param.name }
                                                           name = { param.name } key = { param.id }
                                                           onChange = { this.onChangeHandler } required = { param.isRequired }> 
                                                           {
@@ -122,35 +125,39 @@ class SimpleForm extends Component {
                                                             return ( <option value = { option } > { option } </option>)
                                                             })
                                                           } 
-                                                          </select>);
+                                                          </Form.Control>);
                                                   break;
                                                 }             
                                 case "textarea":{
-                                                return(<input type = {param.type}
-                                                        name = { param.name }
-                                                        rows = {param.rows}
-                                                        cols = {param.cols}
-                                                        placeholder = { param.placeholder }
-                                                        value = { this.state.formData[param.name] }
-                                                        id = { param.id }
-                                                        key = { param.id }
-                                                        className = { param.className }
-                                                        onChange = { this.onChangeHandler }
-                                                        hidden = { param.isHidden }
-                                                        required = { param.isRequired }/> );
+                                        return(<Form.Group>
+                                                    <Form.Control type = {param.type}
+                                                    name = { param.name }
+                                                    rows = {param.rows}
+                                                    cols = {param.cols}
+                                                    placeholder = { param.placeholder }
+                                                    value = { this.state.formData[param.name] }
+                                                    id = { param.id }
+                                                    key = { param.id }
+                                                    className = { param.className }
+                                                    onChange = { this.onChangeHandler }
+                                                    hidden = { param.isHidden }
+                                                    required = { param.isRequired }/> 
+                                                </Form.Group>);                                                       
                                                 break;                                                                
 
                                 } 
-                                default:{ return <input type = { param.type }
-                                                  name = { param.name }
-                                                  placeholder = { param.placeholder }
-                                                  value = { this.state.formData[param.name] }
-                                                  id = { param.id }
-                                                  key = { param.id }
-                                                  className = { param.className }
-                                                  onChange = { this.onChangeHandler }
-                                                  hidden = { param.isHidden }
-                                                  required = { param.isRequired }/>           
+                                default:{ return <Form.Group>
+                                                    <Form.Control type = { param.type }
+                                                    name = { param.name }
+                                                    placeholder = { param.placeholder }
+                                                    value = { this.state.formData[param.name] }
+                                                    id = { param.id }
+                                                    key = { param.id }
+                                                    className = { param.className }
+                                                    onChange = { this.onChangeHandler }
+                                                    hidden = { param.isHidden }
+                                                    required = { param.isRequired }/>   
+                                                </Form.Group>        
                                           break;
                                         }
                                 }
@@ -161,7 +168,7 @@ class SimpleForm extends Component {
                     }
                 )
             } 
-        </form>)
+        </Form>)
     }
 
     arrayRemove(arr, value) {

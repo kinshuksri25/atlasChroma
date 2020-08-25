@@ -12,18 +12,18 @@ listener.listenEvents = (io) => {
         let state = store.getState();
         let userList = [...state.userListStateReducer];
         let user = {...state.userStateReducer};
-        let index = -1;
+        let index = 0;
         
         switch(details.event){
-            case "addingUser" :
-                userList.push({...details.data});
-                store.dispatch(setUserListStateAction([...userList]));
-                break;
-            
             case "getUserList" :
                 store.dispatch(setUserListStateAction([...details.data]));
                 break; 
 
+            case "addingUser" :
+                userList.push({...details.data});
+                store.dispatch(setUserListStateAction([...userList]));
+                break;
+        
             case "updatingUser" :
                 if(details.data.username == user.username){
                     user.firstname = details.data.firstname;
@@ -52,11 +52,15 @@ listener.listenEvents = (io) => {
                         index++;
                     }
                 });
-                index = -1;
+                index = 0;
                 break;
             case "addingStory" :
                 user.projects.map(project => {
-                    project._id == details.data.projectID && project.storydetails.push({...details.data});
+                    if(project._id == details.data.projectID)
+                    {
+                        delete details.data.projectID;
+                        project.storydetails.push({...details.data});
+                    }
                 });
                 store.dispatch(setUserAction({...user}));
                 break;   
@@ -65,7 +69,14 @@ listener.listenEvents = (io) => {
                     if(project._id == details.data.projectID){
                         project.storydetails.map(story => {
                             if(story._id == details.data._id){
-                                story = {...details.data};
+                                delete details.data.projectID;
+                                story.storytitle = details.data.storytitle;
+                                story.comments = details.data.comments;
+                                story.contributor = details.data.contributor;
+                                story.currentstatus = details.data.currentstatus;
+                                story.duedate = details.data.duedate;
+                                story.priority = details.data.priority;
+                                story.description = details.data.description;
                             }
                         });
                     }
@@ -85,7 +96,7 @@ listener.listenEvents = (io) => {
                         });
                     }
                 });
-                index = -1;
+                index = 0;
                 break;                        
             case "addingProject" : 
                 if(details.data.contributors.indexOf(user.username) >= 0){
@@ -97,7 +108,11 @@ listener.listenEvents = (io) => {
                 if(details.data.contributors.indexOf(user.username) >= 0){
                     user.projects.map(project => {
                         if(project._id == details.data._id){
-                            project = {...details.data};
+                            project.templatedetails = details.data.templatedetails;
+                            project.title = details.data.title;
+                            project.projectlead = details.data.projectlead;
+                            project.description = details.data.description;
+                            project.contributors = [...details.data.contributors];
                         }
                     });
                     store.dispatch(setUserAction({...user}));     
@@ -106,7 +121,7 @@ listener.listenEvents = (io) => {
             case "deletingProject" :
                 if(details.data.contributors.indexOf(user.username) >= 0){
                     user.projects.map(project => {
-                        if(project._id == details.data.projectID ){
+                        if(project._id == details.data._id ){
                             user.projects.splice(index,1);
                             store.dispatch(setUserAction({...user}));
                         }else{
@@ -114,7 +129,7 @@ listener.listenEvents = (io) => {
                         }
                     });
                 }
-                index = -1;
+                index = 0;
                 break;
             case "addingMeeting" :
                 if(details.data.participants.indexOf(user.username) >= 0){
@@ -125,7 +140,13 @@ listener.listenEvents = (io) => {
             case "editingMeeting" :
                 if(details.data.participants.indexOf(user.username) >= 0){
                     user.events.map(event => {
-                        event = event._id == details.data._id ? {...details.data} : event;
+                        if(event._id == details.data._id){
+                            event.Description = details.data.Description;
+                            event.EndTime = details.data.EndTime;
+                            event.EventTitle = details.data.EventTitle;
+                            event.StartTime = details.data.StartTime;
+                            event.participants = [...details.data.participants];
+                        }
                     });
                     store.dispatch(setUserAction({...user}));
                 }
@@ -141,7 +162,7 @@ listener.listenEvents = (io) => {
                         }
                     });
                 }
-                index = -1;    
+                index = 0;    
                 break;   
         }   
     });

@@ -1,7 +1,9 @@
 //Dependencies
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {Alert} from 'react-bootstrap';
 
+import  '../../StyleSheets/msgContainer.css';
 import setMsgAction from '../../store/actions/msgActions';
 
 class MsgContainer extends Component {
@@ -18,16 +20,13 @@ class MsgContainer extends Component {
   }
   
   render(){
-    let ErrorMsg = {
-      backgroundColor:"red"
-    }
-    let SuccessMsg = {
-      backgroundColor:"green"
-    }
     this.props.msgObject.status != '' && this.resetMsgState();
     let msgClassName = this.props.msgObject.status == '' ? "noMsg" : this.props.msgObject.status == "ERROR" ? "ErrorMsg" : "SuccessMsg";
-    let style = this.props.msgObject.status == '' ? {} : this.props.msgObject.status == "ERROR" ? ErrorMsg : SuccessMsg;
-    return(<div style = {style} className = {msgClassName}>{this.props.msgObject.msg}</div>);
+    return(
+      <div className = {msgClassName}>
+        {this.props.msgObject.msg}
+      </div>
+      );
   }
 }
 

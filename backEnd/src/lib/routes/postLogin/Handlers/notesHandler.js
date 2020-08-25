@@ -137,8 +137,8 @@ notesHandler.notes.delete = (route, requestObject) => new Promise((resolve,rejec
         PAYLOAD : {},
         SMSG : ""
        };
-
-    if(requestObject.queryObject.notesID != undefined && requestObject.queryObject.emailID != undefined){
+       console.log(requestObject.queryObject);
+    if(requestObject.queryObject.notesID != undefined){
         mongo.update(DBCONST.userCollection,{"notes._id" : requestObject.queryObject.notesID},{ $pull: {notes : {_id: requestObject.queryObject.notesID}}},{},SINGLE).then(resolvedResult => {
             response.STATUS = 200;
             response.PAYLOAD = {};

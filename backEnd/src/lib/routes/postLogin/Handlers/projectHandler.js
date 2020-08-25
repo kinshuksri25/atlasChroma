@@ -307,10 +307,10 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
        };       
 
     if(requestObject.queryObject.projectID != undefined){
-        mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{returnOriginal: false, remove: true},SINGLE).then( resolvedResult => {
+        mongo.delete(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {_id : requestObject.queryObject.projectID}},{remove: true},SINGLE).then( resolvedResult => {
             let deletedData = resolvedResult.value;
-            mongo.update(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedSet => {
-               mongo.read(DBCONST.userCollection,{username: { $in: JSON.parse(deletedData.contributors) }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
+            mongo.update(DBCONST.userCollection,{username: { $in: deletedData.contributors }},{ $pull: {projects : requestObject.queryObject.projectID}}, {}, MULTIPLE).then(resolvedSet => {
+               mongo.read(DBCONST.userCollection,{username: { $in: deletedData.contributors }},{projection : {email : 1, _id : 0}}).then(resolvedSet => {
                 let recipientList = [];
                 resolvedSet.map(user => {
                     recipientList.push(user.email);

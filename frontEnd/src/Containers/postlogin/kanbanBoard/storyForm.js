@@ -80,6 +80,7 @@ class StoryForm extends Component {
             };
 
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
+            globalThis.props.closeForm();
             httpsMiddleware.httpsRequest("/stories","POST", headers, {...formData},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -91,8 +92,6 @@ class StoryForm extends Component {
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{
-                    globalThis.props.closeForm();
                 }
             });
         }else{

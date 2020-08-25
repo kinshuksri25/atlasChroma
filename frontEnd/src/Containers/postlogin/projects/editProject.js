@@ -35,7 +35,9 @@ class EditProject extends Component{
         let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let projectQuery = "projectID="+globalThis.props.projectDetails._id;
+        globalThis.props.disableProjectForm(); 
         httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,function(error,responseObject) {
+            console.log(responseObject);
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
                     errorObject.msg = error;
@@ -46,9 +48,7 @@ class EditProject extends Component{
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
-            }else{  
-                globalThis.props.disableProjectForm(); 
-            }   
+            } 
         });
     }
 
@@ -62,14 +62,14 @@ class EditProject extends Component{
             oldTitle : this.props.projectDetails.title
         };
 
-        if(this.state,title != this.props.projectDetails.title){
+        if(this.state.title != this.props.projectDetails.title){
             projectObject.title = this.state.title;
         }if(this.state.description != this.props.projectDetails.description){
             projectObject.description = this.state.description;
         }if(this.state.projectleader != this.props.projectDetails.projectlead){
-            projectObject.projectlead = this.props.projectDetails.projectlead;
-        }if(JSON.stringify(contributors) != JSON.stringify(this.props.projectDetails.contributors)){
-            projectObject.contributors = this.props.projectDetails.contributors;
+            projectObject.projectlead = this.state.projectleader;
+        }if(JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors)){
+            projectObject.contributors = this.state.contributors;
         }
         
         let duplicateTitle = false;
@@ -77,7 +77,7 @@ class EditProject extends Component{
             if(project.title == this.state.title && project._id != this.props.projectDetails._id)
                 duplicateTitle = true;
         });
-
+        globalThis.props.disableProjectForm(); 
         if(!duplicateTitle){
             httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
@@ -90,9 +90,7 @@ class EditProject extends Component{
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
-                }else{   
-                    globalThis.props.disableProjectForm(); 
-                }   
+                } 
             });
         }else{
             errorObject.msg = EMSG.CLI_PRJ_UPDERR;
@@ -191,7 +189,7 @@ class EditProject extends Component{
                             }
                         </ul>
                         <button disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
-                        <button onClick = {this.props.disableProjectForm}>Back</button>
+                        <button className = "closeEditModal" onClick = {this.props.disableProjectForm}>Back</button>
                         <button className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
                     </div> 
                     <Modal

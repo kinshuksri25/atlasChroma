@@ -5,10 +5,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 
-import "./StyleSheets/common.css";
 import setUrlAction from "./store/actions/urlActions"; 
 import MsgContainer from './Containers/generalContainers/msgContainer';
 import cookieManager from './Components/cookieManager';
+import LoadingComponent from './Containers/generalContainers/loadingComponent';
 import PreLoginRouter from './Components/prelogin/preLoginRouter';
 import PostLoginRouter from './Containers/postlogin/postLoginRouter';
 
@@ -30,6 +30,7 @@ class Router extends Component {
         let router = cookieManager.getUserSessionDetails() ? <PostLoginRouter/> : < PreLoginRouter/>;
         return (<div className="routerContainer"> 
                     <MsgContainer/>
+                    <LoadingComponent/>
                     {router} 
                 </div>);
     }

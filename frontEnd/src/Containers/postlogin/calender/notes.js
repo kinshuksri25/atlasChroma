@@ -179,7 +179,7 @@ class Notes extends Component{
     let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
                             (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
     return(<div> 
-                <button className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
+                <button disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
                 <Modal
                 isOpen={this.state.modalStatus == "ADD"}
                 contentLabel="">

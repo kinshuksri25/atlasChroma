@@ -47,6 +47,7 @@ formConstants.postAuthForm = [
     {
         name: "Continue",
         type: "button",
+        variantType : "success",
         route: '/googleAuth/postAuthDetails',
         id: "postAuthButton",
         className: "postAuthAttributes"
@@ -92,6 +93,7 @@ formConstants.postSignup = [
     {
         name: "Continue",
         type: "button",
+        variantType : "success",
         route: '/signup/postSignupDetails',
         id: "postSignupButton",
         className: "postSignupAttributes"
@@ -146,6 +148,7 @@ formConstants.signup = [
     {
         name: "SignUp",
         type: "button",
+        variantType : "success",
         route: '/signup',
         id: "signUpButton",
         className: "signUpButton"
@@ -182,6 +185,7 @@ formConstants.login = [
     {
         name: "Login",
         type: "button",
+        variantType : "success",
         route: '/login',
         id: "loginButton",
         className: "loginAttributes"
@@ -205,6 +209,7 @@ formConstants.googleLogin = [{
     {
         name: "Login",
         type: "button",
+        variantType : "success",
         route: '/googleAuth',
         id: "googleLoginButton",
         className: "loginAttributes"
@@ -242,6 +247,7 @@ formConstants.addProject = [
     {
         name: "Add Project",
         type: "button",
+        variantType : "success",
         route: '/project',
         id: "addProjectButton",
         className: "addProjectAttributes"
@@ -267,6 +273,7 @@ formConstants.boardTemplateSelector = [
     {
         name: "Next",
         type: "button",
+        variantType : "success",
         route: '',
         id: "templateNextButton",
         className: "templateAttributes"
@@ -341,6 +348,7 @@ formConstants.storyForm = [
     {
         name: "ADD",
         type: "button",
+        variantType : "success",
         route: '/stories',
         id: "templateNextButton",
         className: "templateAttributes"
@@ -378,6 +386,7 @@ formConstants.addEvent = [
     {
         name: "ADD",
         type: "button",
+        variantType : "success",
         route: '/event',
         id: "templateNextButton",
         className: "addEventAttributes"
@@ -414,6 +423,7 @@ formConstants.addNotes = [
     {
         name: "ADD",
         type: "button",
+        variantType : "success",
         route: '/notes',
         id: "addNotesButton",
         className: "addNotesAttributes"
@@ -439,6 +449,7 @@ formConstants.chat = [
     {
         name: "Send",
         type: "button",
+        variantType : "success",
         route: '',
         id: "sendMessage",
         className: "chatAttributes"

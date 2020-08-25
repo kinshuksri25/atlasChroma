@@ -22,13 +22,14 @@ class Scheduler extends Component {
         }
 
         static getDerivedStateFromProps(props,state){
+             if(state.currentMonth == "" && state.currentYear == ""){
                 let fullDate = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1);
                 if(fullDate.length == "8"){
                         let date=fullDate.substring(6);
-                        let month=fullDate.substring(4,6) - 1;
+                        let month=fullDate.substring(4,6);
                         let year = fullDate.substring(0,4);
-
                         if( 1940 <= year && year <= 2200 && 0 <= month && month <= 11 && 1 <= date && date <= state.dateHelper.getMonthDays(month,year)){
+                                console.log("called3");
                                 return{ currentDate : date,
                                         currentMonth : month,
                                         currentYear : year };  
@@ -43,17 +44,18 @@ class Scheduler extends Component {
                 }else{
                         window.history.pushState({}, "",urls.SCHEDULER); 
                 }
+             }
         }
 
         changeMonth(event){
                 let currentMonth = this.state.currentMonth;
-                if(currentMonth < "09"){
+                if(currentMonth < "09"){        
                         currentMonth = event.target.className == "next" ? "0"+(parseInt(currentMonth)+1) : "0"+(parseInt(currentMonth)-1);
                 }else{
                         currentMonth = event.target.className == "next" ? parseInt(currentMonth)+1 : currentMonth <= 10 ? "0"+(parseInt(currentMonth)-1) : parseInt(currentMonth)-1;
                 }
                 switch(event.target.className){
-                        case "next" :   
+                        case "next" :  
                                 if(this.state.currentMonth == "11"){
                                         this.setState({
                                                 currentMonth : "00",
@@ -116,19 +118,19 @@ class Scheduler extends Component {
         }
 
         onClickHandler(event){
-           switch(event.target.className){
-                case "calenderButton" : 
-                        let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
-                        this.setState({currentDate : currentDay},() => {
-                                window.history.replaceState({}, "",window.location.pathname+"/"+this.state.currentYear+this.state.currentMonth+this.state.currentDate);
-                        });
-                        break;
-                default : 
-                        this.setState({currentDate : ""},() => {
+                switch(event.target.className){
+                        case "calenderButton" : 
+                                let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
+                                this.setState({currentDate : currentDay},()=>{
+                                        let date = this.state.currentYear+this.state.currentMonth+this.state.currentDate;
+                                        window.history.replaceState({}, "","scheduler/"+date);
+                                });
+                                break;
+                        default : 
+                                this.setState({currentDate : ""});
                                 window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/")));
-                        });
-                        break;                        
-           }     
+                                break;                        
+                }     
         }
 
         render(){

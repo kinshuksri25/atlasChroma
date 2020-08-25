@@ -88,7 +88,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
         };
 
     mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{returnOriginal: false},SINGLE).then(resolvedResult =>{
-        io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails()}});
+        io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails(),projectID : requestObject.reqBody.projectID}});
         mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.Contributor},{}).then(resolvedResult => {
             let contributorEmailID = resolvedResult[0].email;
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDSTORY,template).then(resolvedEmail => {
@@ -161,16 +161,20 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
         };
 
         mongo.update(DBCONST.projectCollection,{"storydetails._id" : requestObject.reqBody.storyDetails._id},{$set : {...set}},{returnOriginal: false},SINGLE).then(resolvedResult => {
-            let updatedData = resolvedResult.value;
-            io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
-            template.projectName = updatedData.title;
-            mongo.read(DBCONST.userCollection,{username : updatedData.contributorUsername},{}).then(resolvedResult => {
+            let updatedProject = resolvedResult.value;
+            let updatedStories;
+            updatedProject.storydetails.map(story => {
+                if(story._id == requestObject.reqBody.storyDetails._id)
+                    updatedStories =  story;
+            });
+            io.emit("updatingDetails",{event : "updatingStory", data : {...updatedStories, projectID : updatedProject._id}});
+            template.projectName = updatedProject.title;
+            mongo.read(DBCONST.userCollection,{username : updatedStories.contributor},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedEmail => {
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = SMSG.SVR_SHH_STRUPSUC;
-                    io.emit("updatingDetails",{event : "updatingStory", data : updatedData});
                     resolve(response);
                 }).catch(rejectedEmail => {
                     let payload = {
@@ -215,9 +219,10 @@ storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,r
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.storyID != undefined ){
         mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{returnOriginal: true},SINGLE).then(resolvedResult => { 
             let originalProject = resolvedResult.value;  
-            let deletedStory = originalProject.storydetails.map(story => {
+            let deletedStory;
+            originalProject.storydetails.map(story => {
                 if(story._id == requestObject.queryObject.storyID)
-                    return story;
+                    deletedStory = story;
             });
             io.emit("updatingDetails",{event : "deletingStory", data : {projectID : originalProject._id, storyID : deletedStory._id}});
             mongo.read(DBCONST.userCollection,{username: deletedStory.contributor },{}).then(resolvedResult => {;

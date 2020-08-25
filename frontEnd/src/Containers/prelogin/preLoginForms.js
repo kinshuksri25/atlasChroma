@@ -1,16 +1,21 @@
 //Dependencies
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {Accordion,Card,OverlayTrigger,Tooltip} from 'react-bootstrap';
 
-import '../../StyleSheets/signUp.css';
+import signUpLogo from '../../Images/icons/signUpIcon.png';
+import loginLogo from '../../Images/icons/loginIcon.png';
+import googleLogo from '../../Images/icons/googleIcon.png';
 import SimpleForm from '../../Forms/simpleform';
+import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
 import setMsgAction from '../../store/actions/msgActions';
 import {msgObject} from '../../../../lib/constants/storeConstants';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {EMSG,urls} from "../../../../lib/constants/contants";
+import setLoadingAction from '../../store/actions/loadingActions';
 
-class SignUp extends Component {
+class PreLoginForms extends Component {
 
     constructor(props) {
         super(props);
@@ -20,10 +25,12 @@ class SignUp extends Component {
             "isCheckingUsername": false,
             "validUserName": false,
             "email": "",
-            "username": ""
+            "username": "",
+            "disableButton" : false 
         };
+        this.onLoginSubmitHandler = this.onLoginSubmitHandler.bind(this);
         this.checkPasswordValidity = this.checkPasswordValidity.bind(this);
-        this.onSubmitHandler = this.onSubmitHandler.bind(this);
+        this.onSignupSubmitHandler = this.onSignupSubmitHandler.bind(this);
         this.emailValidator = this.emailValidator.bind(this);
         this.userNameValidator = this.userNameValidator.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
@@ -107,7 +114,7 @@ class SignUp extends Component {
         });
     }  
 
-    onSubmitHandler(formObject) {
+    onSignupSubmitHandler(formObject) {
         let headers = {};
         let errorObject = {...msgObject};
         let globalThis = this;
@@ -167,15 +174,114 @@ class SignUp extends Component {
         return "";
     };
 
+    onLoginSubmitHandler(formObject) {
+        let headers = {};
+        let errorObject = {...msgObject};
+        let gmailPatternError = "";
+        let globalThis = this;
+        if(formObject.route != "/login"){
+            let gmailRegex = new RegExp(/([a-zA-Z0-9]+)([\.{1}])?([a-zA-Z0-9]+)\@gmail([\.])com/g);
+            gmailPatternError = gmailRegex.test(formObject.formData.Email) ? "" : "invalid email";
+            if(gmailPatternError == "")
+                    formObject.formData = "Email="+formObject.formData.Email;
+        }
+        if(gmailPatternError == "" && !this.state.disableButton){ 
+            this.props.changeLoadingState(true);
+            this.setState({disableButton : true});
+            httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
+                globalThis.props.changeLoadingState(false);
+                if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
+                    if(error){
+                        errorObject.msg = error;
+                        errorObject.status = "ERROR";
+                        globalThis.props.setMsgState(errorObject);
+                    }else{
+                        errorObject.msg = responseObject.EMSG;
+                        errorObject.status = "ERROR";
+                        globalThis.props.setMsgState(errorObject);
+                    }
+                }else{
+                    if(formObject.route == "/login"){
+                        if(responseObject.PAYLOAD.hasOwnProperty("uniqueID")){
+                            localStorage.uniqueID = responseObject.PAYLOAD.uniqueID;
+                            //TODO --> change the pushState 'state' and 'title'
+                            window.history.pushState({},"",urls.POSTSIGNUPFORM);   
+                        }else{
+                            //set the session
+                            cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
+                            //TODO --> change the pushState 'state' and 'title'
+                            window.history.pushState({},"",urls.DASHBOARD);
+                        }
+                    }else{
+                        if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){
+                            errorObject.msg = EMSG.CLI_LGN_GLECONNERR;
+                            errorObject.status = "ERROR";
+                            globalThis.props.setMsgState(errorObject);  
+                        }else{
+                            window.location = responseObject.PAYLOAD.authURL;
+                        }
+                    }
+                }   
+            });
+        }else{
+            if(!this.state.disableButton){
+                errorObject.msg = EMSG.CLI_SGN_INVEML;
+                errorObject.status = "ERROR";
+                globalThis.props.setMsgState(errorObject);
+            }
+        }
+        this.setState({disableButton : false});
+    }
+
     render() {
-        return ( <div className="signUpContainer">
-                    <button onClick={this.props.closeModal}>X</button>
-                    <h1 className="signUpTitle">All right! Lets get started.</h1>
-                    <SimpleForm formAttributes = { formConstants.signup }
-                    submitHandler = { this.onSubmitHandler }
-                    changeHandler = { this.changeHandler }
-                    changeFieldNames = {["Email", "UserName"]}/> 
-                </div>);
+        return (<Accordion  className="signUpContainer">
+                    <Card className = "loginOptionContainer">
+                        <OverlayTrigger placement="left" overlay={<Tooltip> <strong>SignUp</strong>.</Tooltip>}>
+                        <Accordion.Toggle className="buttonText" id = "signup" as={Card.Header} eventKey="0">
+                            <img src={signUpLogo} alt="signUpLogo" width="50" height="50"/>
+                        </Accordion.Toggle>      
+                        </OverlayTrigger>
+                        <Accordion.Collapse className = "preloginAccordianBody" eventKey="0">
+                            <Card.Body className ="preloginCardBody">
+                                <h3 className="signUpTitle">All right! Lets get started.</h3>
+                                <SimpleForm formAttributes = { formConstants.signup }
+                                submitHandler = { this.onSignupSubmitHandler }
+                                changeHandler = { this.changeHandler }
+                                changeFieldNames = {["Email", "UserName"]}/> 
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                    <Card className = "loginOptionContainer">
+                        <OverlayTrigger placement="left" overlay={<Tooltip> <strong>Login</strong>.</Tooltip>}>
+                            <Accordion.Toggle className="buttonText" as={Card.Header} eventKey="1">
+                                <img src={loginLogo} alt="loginLogo" width="50" height="50"/>
+                            </Accordion.Toggle>          
+                        </OverlayTrigger>
+                        <Accordion.Collapse className = "preloginAccordianBody" eventKey="1">
+                            <Card.Body className ="preloginCardBody">
+                                <h4 className="loginTitle">Login using your AtlasChroma Credentials</h4>
+                                <SimpleForm formAttributes = { formConstants.login }
+                                submitHandler = { this.onLoginSubmitHandler }
+                                changeFieldNames = {[]}/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                    <Card className = "loginOptionContainer">
+                        <OverlayTrigger placement="left" overlay={<Tooltip> <strong>Google SignUp/Login</strong>.</Tooltip>}>
+                            <Accordion.Toggle className="buttonText" as={Card.Header} eventKey="2">
+                                <img src={googleLogo} alt="googleLogo" width="50" height="50"/>
+                            </Accordion.Toggle>
+                        </OverlayTrigger>
+                        <Accordion.Collapse className = "preloginAccordianBody" eventKey="2">
+                            <Card.Body className ="preloginCardBody"> 
+                                <h4 className="loginTitle">Use One Click Google SignUp/Login</h4>
+                                <SimpleForm formAttributes = { formConstants.googleLogin }
+                                submitHandler = { this.onLoginSubmitHandler }
+                                changeFieldNames = {[]}/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                </Accordion>);
     }
 }
 
@@ -183,8 +289,11 @@ const mapDispatchToProps = dispatch => {
     return {
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
+        },
+        changeLoadingState: (isLoading) =>{
+            dispatch(setLoadingAction(isLoading));
         } 
     };
 };
 
-export default connect(null,mapDispatchToProps)(SignUp);
+export default connect(null,mapDispatchToProps)(PreLoginForms);

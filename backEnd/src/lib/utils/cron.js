@@ -66,8 +66,8 @@ cron.chatBackup = () => {
 
 cron.sendFailedEmail = () => {
     return new CronJob('0 */60 * * * *', function() {
-        mongo.read(DBCONST.failedEmailCollection,{},{}).then(resolvedResult => {
-            resolvedResult[0].map(mailDetails => {
+        mongo.read(DBCONST.failedEmailCollection,{},{}).then(resolvedResult => { 
+            resolvedResult.map(mailDetails => {
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,mailDetails.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES[mailDetails.template],mailDetails.templateData).then(resolvedResult => {
                     console.log(resolvedResult);
                 }).catch(rejectedResult => {

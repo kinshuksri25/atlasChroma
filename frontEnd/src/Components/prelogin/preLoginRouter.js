@@ -4,7 +4,7 @@
 import React from 'react';
 
 import PostAuth from '../../Containers/prelogin/postAuth';
-import LandingPage from "../../Containers/prelogin/landingpage";
+import LandingPage from "./landingpage";
 import PostSignUpForm from '../../Containers/prelogin/postSignUpForm';
 import {urls} from "../../../../lib/constants/contants";
 
