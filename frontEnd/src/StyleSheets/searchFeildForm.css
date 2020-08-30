@@ -1,0 +1,47 @@
+.suggestionBox{
+    position: absolute;
+    z-index: 10;
+    border-radius: 5px;
+    border: none;
+    background-color: white;
+    width: 90%;
+}
+
+
+.searchBox{
+    margin-bottom: 1rem;
+}
+
+.addProjectAttributes,.searchBox{
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+    resize: none;
+}
+
+.profilePhoto{
+    border: none;
+    border-radius: 50%;
+    margin-left: 0.3rem;
+}
+
+.profileContainer{
+    font-family: 'Baloo Tamma 2', cursive;
+    font-weight: 500;
+    font-size: 0.8rem;
+    margin: 1rem;
+}
+
+.moreContri{
+    font-size:1.2rem; 
+    margin-left: 1rem;
+}
+
+.contributorList{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#addProjectButton{
+    margin-left: 0.7rem;
+}

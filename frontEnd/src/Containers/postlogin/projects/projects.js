@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import Modal from 'react-modal';
 import url from 'url';
 
+import "../../../StyleSheets/projects.css";
+import {Button} from "react-bootstrap";
 import FilterForm from '../../../Forms/filterForm';
 import AddProject from './addProject';
 import filterFormConstants from '../../../Forms/filterFormConstants';
@@ -31,7 +33,8 @@ class Projects extends Component {
         }
 
         openModal(event){
-            switch(event.target.className){
+            let clssName = event.target.className.substring(0,event.target.className.indexOf(" "));
+            switch(clssName){
                 case "openAddModal" :
                     this.setState({action : "ADD"}); 
                     break;
@@ -61,25 +64,36 @@ class Projects extends Component {
         }
 
         render(){
-                return (<div>
+            const customStyles = {
+                content : {
+                  top                   : '50%',
+                  left                  : '50%',
+                  right                 : 'auto',
+                  bottom                : 'auto',
+                  width                 : '25%',
+                  marginRight           : '-50%',
+                  paddingTop            : '0.8rem',
+                  transform             : 'translate(-50%, -50%)'
+                }
+            };
+            return (<div className = "projectsPageContainer">
+                        <div className = "upperBlock">
                             <FilterForm 
                             orderBy={this.state.orderBy} 
                             searchFunction={this.searchProject}
                             changeOrderBy={this.changeOrderBy}
                             options = {filterFormConstants.projectFilter}/> 
-                            <button className = "openAddModal" onClick={this.openModal} hidden = {this.state.action != ""}>Add Project</button>
-                            <ProjectContainer showEditProject = {this.openModal} orderBy = {this.state.orderBy}/> 
-                            <Modal
-                            isOpen={this.state.action == "ADD"}
-                            contentLabel="">
-                                <AddProject cancel = {this.closeModal}/>
-                            </Modal> 
-                            <Modal
-                            isOpen={this.state.action == "EDIT"}
-                            contentLabel="">
-                                <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.closeModal}/>
-                            </Modal>                            
-                        </div>);    
+                            <Button className = "openAddModal" onClick={this.openModal} hidden = {this.state.action != ""}>Add Project</Button>
+                        </div>
+                        <ProjectContainer showEditProject = {this.openModal} orderBy = {this.state.orderBy}/> 
+                        <Modal
+                        isOpen={this.state.action != ""}
+                        contentLabel=""
+                        style={customStyles}>
+                            {this.state.action == "ADD" && <AddProject cancel = {this.closeModal}/>}
+                            {this.state.action == "EDIT" && <EditProject projectDetails = {this.state.editProject} disableProjectForm = {this.closeModal}/>}
+                        </Modal>                          
+                    </div>);    
         }
         
 }

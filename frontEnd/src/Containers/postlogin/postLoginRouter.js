@@ -2,7 +2,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import '../../StyleSheets/postLoginRouter.css';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
+import setLoadingAction from '../../store/actions/loadingActions';
 import cookieManager from '../../Components/cookieManager';
 import DashBoard from './dashboard';
 import KanbanBoard from './kanbanBoard/kanbanBoard';
@@ -29,6 +31,7 @@ class PostLoginRouter extends Component {
         super(props);
         this.getUserData = this.getUserData.bind(this);
         this.containerSelector = this.containerSelector.bind(this);
+        this.props.changeLoadingState(true);
     }
 
     componentDidMount(){ 
@@ -71,6 +74,7 @@ class PostLoginRouter extends Component {
                 window.history.pushState({}, "",urls.LANDING);
             }else{
                 queryString != "" && globalThis.props.setUserState({...responseObject.PAYLOAD});
+                queryString == "" && globalThis.props.changeLoadingState(false); 
             }
         });
     }
@@ -124,14 +128,15 @@ class PostLoginRouter extends Component {
         }    
     }
    
-
-    render(){                                  
-        return ( <div>
-                    <Menu menuArray = {menuConstants}/> 
-                    {JSON.stringify(this.props.user) == JSON.stringify(userObject) || this.containerSelector() }
-                    <Highlight/> 
-                    {this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject) && <MessageBox/>}
-                </div>);
+// <MessageBox/>
+    render(){  
+        let shouldRender = this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject);  
+        let renderedComponent = shouldRender ? <div className = "lowerPostLoginContainer">
+                                                    <Menu menuArray = {menuConstants}/> 
+                                                    <div className = "container">{this.containerSelector()}</div>
+                                                    <Highlight/>  
+                                                </div> : "";
+        return (<div className="upperPostLoginContainer">{renderedComponent}</div>);
     }
 }
 
@@ -154,7 +159,10 @@ const mapDispatchToProps = dispatch => {
         },
         setSocketState: (io) => {
             dispatch(setSocketObject(io));
-        } 
+        },
+        changeLoadingState: (isLoading) =>{
+            dispatch(setLoadingAction(isLoading));
+        }  
     };
 };
 

@@ -1,7 +1,9 @@
 //Dependencies
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {Card,Button} from "react-bootstrap";
 
+import "../../../StyleSheets/projectContainer.css";
 import {urls} from '../../../../../lib/constants/contants';
 
 class ProjectContainer extends Component{
@@ -26,35 +28,38 @@ class ProjectContainer extends Component{
             return(
                     //TODO add the project lead's photo (link)  
                     //TODO add a list of contributors (profilePhotos)(link)
-                <button className = {project._id} onClick = {this.onClick} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
-                    <h3 className = {project._id}>{project.title}</h3>
-                    <h4 className = {project._id}>Project Lead:</h4>
-                    <h5 className = {project._id}>{project.description}</h5>
-                    <button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</button>
-                </button>   
+                    <Card className = "projectCard" id = {project._id} onClick = {this.onClick} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                        <Card.Body>
+                            <Card.Title>{project.title}</Card.Title>
+                            <Card.Text>
+                                {project.description}
+                            </Card.Text>
+                            <Button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</Button>
+                        </Card.Body>
+                    </Card> 
             );
         });
-      return (<div>{projectContainer}</div>);
+      return (<div className = "innerContainer">{projectContainer}</div>);
       }else{
             //TODO add in dataConstants
-          return (<h1>You are not collaborating on any projects...</h1>);
+          return (<div className = "innerContainer"><h3 className = "noProjectTitle">You are not collaborating on any projects...</h3></div>);
       }
     }
 
     hideEdit(event){
         let projects = this.state.projects;
-        projects[event.target.className] = true;
+        projects[event.target.id] = true;
         this.setState({projects : {...projects}}); 
     }
 
     showEdit(event){
         let projects = this.state.projects;
-        projects[event.target.className] = false;
+        projects[event.target.id] = false;
         this.setState({projects : {...projects}});
     }
 
     onClick(event){
-        let projectID = event.target.className;
+        let projectID = event.target.id;
         window.history.pushState({},"",urls.PROJECT+"/"+projectID);
     }
 
@@ -98,7 +103,7 @@ class ProjectContainer extends Component{
 
     render(){
         let container = this.renderProjectTabs();
-        return(<div>
+        return(<div className = "projectContainer">
                 {container}
               </div>);
     }

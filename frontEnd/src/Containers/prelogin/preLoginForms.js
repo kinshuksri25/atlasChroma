@@ -119,10 +119,12 @@ class PreLoginForms extends Component {
         let errorObject = {...msgObject};
         let globalThis = this;
         if (formObject.formData.hasOwnProperty('UserName') && formObject.formData.hasOwnProperty('Email') && formObject.formData.hasOwnProperty('Password') && formObject.formData.hasOwnProperty('ConfirmPassword')) {
+            this.props.changeLoadingState(true);
             var EMSG = this.checkPasswordValidity(formObject.formData.Password, formObject.formData.ConfirmPassword);
             if (this.state.validEmail && this.state.validUserName) {
                 if(EMSG == ""){
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
+                        globalThis.props.changeLoadingState(false);
                         if(responseObject.STATUS != 200 || error){
                             if(error){
                                 errorObject.msg = error;

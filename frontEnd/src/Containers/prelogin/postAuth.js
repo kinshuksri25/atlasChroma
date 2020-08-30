@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import url from 'url';
 
+import '../../StyleSheets/postAuth.css';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
-import Modal from 'react-modal';
+import setLoadingAction from '../../store/actions/loadingActions';
 import {EMSG,urls} from "../../../../lib/constants/contants";
 import setMsgAction from '../../store/actions/msgActions';
 import ProfilePicture from "../generalContainers/profilePictureGen";
@@ -20,7 +21,6 @@ class PostAuth extends Component{
     constructor(props){
             super(props);
             this.state ={
-                    displayForm:false,
                     "isCheckingUsername": false,
                     "validUserName": false,
                     "username": "",
@@ -28,6 +28,7 @@ class PostAuth extends Component{
                     "photo": "",
                     "displayPhotoSel" : false  
             };
+            this.props.changeLoadingState(true);
             this.postAuthReq = this.postAuthReq.bind(this);
             this.onSubmitHandler = this.onSubmitHandler.bind(this);
             this.changeProfilePic = this.changeProfilePic.bind(this);
@@ -43,8 +44,10 @@ class PostAuth extends Component{
                 this.setState({state:authObject.query.state},() =>{
                     this.postAuthReq(authObject.query);
                 });
-            else
+            else{
+                this.props.changeLoadingState(false);
                 window.history.pushState({},"",urls.LANDING);
+            }
     };
 
     userNameValidator(userName, globalThis) {
@@ -112,6 +115,7 @@ class PostAuth extends Component{
         let errorObject = {...msgObject};
         let globalThis = this;
         httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,function(error,responseObject) {
+            globalThis.props.changeLoadingState(false);
             if(error || responseObject.STATUS != 200){
                 errorObject.msg = error;
                 errorObject.status = "ERROR";
@@ -120,8 +124,7 @@ class PostAuth extends Component{
             }else{
                 if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
                     //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({},"",urls.POSTAUTH);
-                    globalThis.setState({displayForm:true});            
+                    window.history.pushState({},"",urls.POSTAUTH);         
                 }else{
                     //set the session 
                     cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
@@ -133,6 +136,7 @@ class PostAuth extends Component{
     }
 
     onSubmitHandler(formObject){
+        this.props.changeLoadingState(true);
         let headers = {};
         let errorObject = {...msgObject};
         let globalThis = this;
@@ -144,6 +148,7 @@ class PostAuth extends Component{
                     formObject.formData.state = globalThis.state.state;
                     formObject.formData.ProfilePhoto = this.state.photo;
                     httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
+                        globalThis.props.changeLoadingState(false);
                         if(error || responseObject.Status == "ERROR"){
                             if(error){
                                 errorObject.msg = error;
@@ -155,7 +160,6 @@ class PostAuth extends Component{
                                 globalThis.props.setMsgState(errorObject);
                             }
                         }else{
-                            globalThis.setState({displayForm:false});
                             //set the session
                             cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                             //TODO --> change the pushState 'state' and 'title'
@@ -186,20 +190,16 @@ class PostAuth extends Component{
     }
 
     render(){
-            let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
-            return (<div>   
-                        <Modal
-                        isOpen={this.state.displayForm}
-                        contentLabel="">
-                            <button onClick = {() => { this.setState({displayForm : false})}}>X</button>
-                            <button onClick ={this.showPhotoSelector}>{buttonInner}</button>
-                            {this.state.displayPhotoSel && <ProfilePicture selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
+            let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "300" height = "300"/>;
+            return (<div className = "postAuthContainer">
+                        <div className = "postAuthForm">  
+                            <button className = 'postAuthProfilePicture' onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                            {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
                             <SimpleForm formAttributes = { formConstants.postAuthForm }
                             submitHandler = { this.onSubmitHandler }
                             changeHandler = { this.onChangeHandler }
                             changeFieldNames = {["UserName","Phone"]}/> 
-                        </Modal>
-                        <div>loading wheel goes here</div>
+                        </div>
                     </div>);
     }             
 }
@@ -209,7 +209,10 @@ const mapDispatchToProps = dispatch => {
     return {
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
-        }
+        }, 
+        changeLoadingState: (isLoading) =>{
+            dispatch(setLoadingAction(isLoading));
+        } 
     };
 };
 

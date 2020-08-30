@@ -237,6 +237,7 @@ googleAuthHandler.postAuthDetails = (requestObject,io) => new Promise((resolve,r
     //check the requestObject
     if(requestObject.reqBody.hasOwnProperty('state') && requestObject.reqBody.hasOwnProperty('UserName') && requestObject.reqBody.hasOwnProperty('Password') && requestObject.reqBody.hasOwnProperty('Phone') && requestObject.reqBody.hasOwnProperty('ProfilePhoto') && requestObject.method == "POST"){
          //check state validity
+         let encryptedPassword = encryptionAPI.hash(requestObject.reqBody.Password);
          mongo.update(DBCONST.userCollection, { state: requestObject.reqBody.state }, { $set: { username: requestObject.reqBody.UserName, password: requestObject.reqBody.Password, phonenumber: requestObject.reqBody.Phone, photo : requestObject.reqBody.ProfilePhoto}}, {returnOriginal: false}, SINGLE).then(updateSet => {
             if(JSON.stringify(updateSet.value) != JSON.stringify({})){
                 requestObject.reqBody.Password = encryptionAPI.hash(requestObject.reqBody.Password);

@@ -1,6 +1,7 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
+import "../../../StyleSheets/addProject.css"
 import cookieManager from '../../../Components/cookieManager';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
@@ -21,6 +22,7 @@ class AddProject extends Component{
             projectExists:true
         };
         this.titleChecker = this.titleChecker.bind(this);
+        this.onRemoveClick = this.onRemoveClick.bind(this);
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
         this.suggestionAllocator = this.suggestionAllocator.bind(this);
         this.createUnfilteredList = this.createUnfilteredList.bind(this);
@@ -33,6 +35,17 @@ class AddProject extends Component{
             user.title = user.firstname + " " + user.lastname;
         });
         return userList;
+    }
+
+    onRemoveClick(username){
+        let index = 0;
+        let valueArray = [...this.state.contributors];
+        valueArray.map(value =>{
+            if(username == value){
+                valueArray.splice(index,1);
+            }else{index++;}
+        });
+        this.setState({contributors : [...valueArray]});
     }
 
     suggestionAllocator(selectedValue,searchBoxID){
@@ -106,9 +119,13 @@ class AddProject extends Component{
     }
 
     render(){
-        return(<div>
+        return(<div className = "addprojectContainer">
                 <button className = "closeAddModal" onClick={this.props.cancel}>X</button>
-                <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
+                <SearchFeild 
+                onRemoveClick = {this.onRemoveClick}
+                unfilteredList = {this.createUnfilteredList()} 
+                constants = {searchFeildConstants.addProject} 
+                onSuggestionClick = {this.suggestionAllocator}/>
                 <SimpleForm formAttributes = { formConstants.addProject }
                     changeHandler = { this.titleChecker }
                     submitHandler = { this.onSubmitHandler }

@@ -2,19 +2,21 @@ const searchFeildConstants = {};
 
 searchFeildConstants.addProject = [
    {
-   name: "Project Lead",
-   placeholder: "Project Lead",
-   id: "projectLead",
-   className: "searchBox",
-   suggestionStateName: "projectLeadSuggestionList",
-   searchCriteria: ["email","username"] 
+      name: "Project Lead",
+      placeholder: "Project Lead",
+      id: "projectLead",
+      className: "searchBox",
+      type : 0,
+      stateValueName: "projectLeadName",
+      searchCriteria: ["email","username"] 
    },
    {
       name: "Contributors",
       placeholder: "Contributors",
       id: "contributors",
       className: "searchBox",
-      suggestionStateName: "contributorSuggestionList",
+      type : 1,
+      stateValueName: "contributorList",
       searchCriteria: ["email","username"] 
    }
 ];
@@ -24,7 +26,8 @@ searchFeildConstants.addParticipants = [{
    placeholder: "Add Participants",
    id: "participants",
    className: "searchBox",
-   suggestionStateName: "participantsSuggestionList",
+   type : 1,
+   stateValueName: "participantsList",
    searchCriteria: ["email","username"] 
 }];
                                    

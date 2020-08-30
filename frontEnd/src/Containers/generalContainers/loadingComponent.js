@@ -29,7 +29,6 @@ class LoadingComponent extends Component {
                 this.setState({variant:colorsArray[count],counter : count});
             }else if(!this.props.isLoading && this.state.variant != "primary"){
                 this.setState({variant : "primary",counter : 0});
-                counter = 0;
             }
         },800);
     }

@@ -130,10 +130,9 @@ class SimpleForm extends Component {
                                                 }             
                                 case "textarea":{
                                         return(<Form.Group>
-                                                    <Form.Control type = {param.type}
+                                                    <Form.Control as = {param.type}
                                                     name = { param.name }
                                                     rows = {param.rows}
-                                                    cols = {param.cols}
                                                     placeholder = { param.placeholder }
                                                     value = { this.state.formData[param.name] }
                                                     id = { param.id }

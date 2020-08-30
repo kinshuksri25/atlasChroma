@@ -201,7 +201,7 @@ formConstants.googleLogin = [{
         name: "Email",
         type: "email",
         placeholder: "Email",
-        id: "loginEmail",
+        id: "googleLoginEmail",
         className: "loginAttributes",
         isHidden: false,
         isRequired: true
@@ -236,8 +236,7 @@ formConstants.addProject = [
     {
         name: "Description",
         type: "textarea",
-        rows: "4",
-        cols: "50",
+        rows: "3",
         placeholder: "Description",
         id: "addProjectDescription",
         className: "addProjectAttributes",
@@ -299,8 +298,7 @@ formConstants.storyForm = [
     {
         name: "Description",
         type: "textarea",
-        rows: "4",
-        cols: "50",
+        rows: "3",
         placeholder: "Description",
         id: "addStoryDescription",
         className: "addStoryAttributes",
@@ -337,8 +335,7 @@ formConstants.storyForm = [
     {
         name: "Comments",
         type: "textarea",
-        rows: "4",
-        cols: "50",
+        rows: "3",
         placeholder: "Comments",
         id: "addStoryComments",
         className: "addStoryAttributes",
@@ -375,8 +372,7 @@ formConstants.addEvent = [
     {
         name: "Description",
         type: "textarea",
-        rows: "4",
-        cols: "50",
+        rows: "3",
         placeholder: "Description",
         id: "addEventDescription",
         className: "addEventAttributes",
@@ -412,8 +408,7 @@ formConstants.addNotes = [
     {
         name: "Description",
         type: "textarea",
-        rows: "4",
-        cols: "50",
+        rows: "3",
         placeholder: "Description",
         id: "addNotesDescription",
         className: "addNotesAttributes",

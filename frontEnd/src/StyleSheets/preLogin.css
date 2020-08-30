@@ -39,7 +39,7 @@
     
 }
 
-.buttonText:hover{
+.buttonText:hover,.buttonText:active{
     background: linear-gradient(to bottom ,#206a5d, #288574);
 }
 

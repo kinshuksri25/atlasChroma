@@ -1,0 +1,39 @@
+.projectsPageContainer{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: lightblue;
+}
+
+.upperBlock{
+    display: flex;
+    margin-top: 1.5rem;
+    margin-left: 0.8rem;
+    justify-content: start;
+}
+
+.filterContainer{
+    width: 45%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.openAddModal{
+    width: 20%;
+}
+
+.orderBy,.projectSearch{
+    width: 48% !important;
+}
+
+.orderBy:active,.projectSearch:active{
+    outline: none !important;
+    border:1px solid #bfdcae !important;
+    box-shadow: 0 0 10px #bfdcae !important;
+}
+
+.openAddModal{
+    margin-left: 0.5rem;
+    height: 2.3rem;
+}
+

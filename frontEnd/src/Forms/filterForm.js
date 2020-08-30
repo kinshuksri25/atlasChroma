@@ -1,4 +1,5 @@
 import React,{ Component } from "react";
+import {Form} from "react-bootstrap";
 
 export default class FilterForm extends Component{
 
@@ -25,16 +26,14 @@ export default class FilterForm extends Component{
     render(){
         return(
             <div className = "filterContainer">
-                <label >Order By
-                    <select id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}> 
-                        {
-                            this.props.options.map(option => {
-                                return (<option value = {option}>{option}</option>);
-                            })
-                        }
-                    </select>
-                </label>
-                <input type = "text" value={this.state.search} id = "inputSearch" onChange={this.onChange} onKeyDown = { this.onKeyDownHandler }/>
+                <Form.Control className = "orderBy" as="select" id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}>
+                    {
+                        this.props.options.map(option => {
+                            return (<option value = {option}>{option}</option>);
+                        })
+                    }
+                </Form.Control>
+                <Form.Control className = "projectSearch" type = "text" value={this.state.search} placeHolder = "Project Search" id = "inputSearch" onChange={this.onChange} onKeyDown = { this.onKeyDownHandler }/>
             </div>
           );
     }

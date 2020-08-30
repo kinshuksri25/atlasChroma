@@ -74,7 +74,8 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
                                                     as: "projects"
                                                  }},
                                                 {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {
-                    
+
+            console.log(resolvedResult);                                        
             if(resolvedResult.length != 0){
                 response.PAYLOAD = {...resolvedResult[0]};
                 response.SMSG = SMSG.SVR_UHH_RDUSR; 
@@ -96,7 +97,7 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
             for(key in activeLoginDetails){
                 valueArray.push(activeLoginDetails[key]);
             }
-            mongo.read(DBCONST.userCollection,{},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1}}).then(resolvedSet => {
+            mongo.read(DBCONST.userCollection,{},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1}}).then(resolvedSet => {
                 if(resolvedSet.length != 0){   
 
                     resolvedSet.map(user => {

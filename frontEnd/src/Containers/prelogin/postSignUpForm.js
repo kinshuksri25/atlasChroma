@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import '../../StyleSheets/postSignup.css';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import {EMSG,urls} from "../../../../lib/constants/contants";
 import SimpleForm from '../../Forms/simpleform';
@@ -80,13 +81,15 @@ class PostSignUpForm extends Component {
 
     render() {
         let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
-        return (<div>
-                    <button onClick ={this.showPhotoSelector}>{buttonInner}</button>
-                    {this.state.displayPhotoSel && <ProfilePicture selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                    <SimpleForm formAttributes = { formConstants.postSignup }
-                    submitHandler = { this.onSubmitHandler }
-                    changeHandler = { this.onChangeHandler }
-                    changeFieldNames = {["Phone"]}/>  
+        return (<div className = "postSignUpFormPage">
+                    <div className = "formContainer">
+                        <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                        {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
+                        <SimpleForm formAttributes = { formConstants.postSignup }
+                        submitHandler = { this.onSubmitHandler }
+                        changeHandler = { this.onChangeHandler }
+                        changeFieldNames = {["Phone"]}/>  
+                    </div>
                 </div>);
     }
 }

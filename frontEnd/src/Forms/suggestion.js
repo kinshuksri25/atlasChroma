@@ -5,9 +5,17 @@ export default class SuggestionComponent extends Component{
 
     constructor(props){
         super(props);
+        this.state = {
+            showSuggestion : true
+        }
         this.onClick = this.onClick.bind(this);
+        this.addEventListeners = this.addEventListeners.bind(this);
         this.generateSuggestionList = this.generateSuggestionList.bind(this);
         this.buildJSX = this.buildJSX.bind(this);
+    }
+
+    componentDidMount(){
+        this.addEventListeners();
     }
 
     buildJSX(){
@@ -15,12 +23,29 @@ export default class SuggestionComponent extends Component{
         if(suggestionlist.length == 0){
             return "";
         }else{
-            return (<ul className = "suggestionBox">
+            return (<ul>
                         {suggestionlist.map(suggestion => {
                             return(<li id = {suggestion.id} onClick = {this.onClick}>{suggestion.title}</li>);
                         })}
                     </ul>);
         }
+    }
+
+    addEventListeners(){
+        let globalThis = this;
+        let searchBox = document.getElementsByClassName("searchBox");
+        for (let i = 0; i < searchBox.length; i++) { 
+            searchBox[i].addEventListener("blur", function () {
+                setTimeout(() => { 
+                    globalThis.props.id == searchBox[i].id && globalThis.setState({showSuggestion : false});
+                },1000);
+            }); 
+            searchBox[i].addEventListener("focus", function () {
+                setTimeout(() => { 
+                    globalThis.props.id == searchBox[i].id && globalThis.setState({showSuggestion : true});
+                },1000);
+            });     
+        } 
     }
 
     generateSuggestionList(){
@@ -48,11 +73,11 @@ export default class SuggestionComponent extends Component{
 
     onClick(event){
         this.setState({suggestionlist:[]});
-        this.props.onSuggestionClick(event.target.id,this.props.id);
+        this.props.onSuggestionClick(event.target.id,this.props.id,this.props.searchBoxValue);
     }
     
 
     render(){
-        return(<div>{this.buildJSX()}</div>);
+        return(<div className = "suggestionBox">{this.state.showSuggestion && this.buildJSX()}</div>);
     }
 }

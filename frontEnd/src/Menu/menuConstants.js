@@ -4,27 +4,27 @@ menuConstants=[
     {
         title:'DashBoard',
         route:'dashboard',
-        icon:'fas fa-chart-pie'
+        image:"https://img.icons8.com/dusk/64/000000/doughnut-chart.png"
     },
     {
         title:'Projects',
         route:'projects',
-        icon:'fas fa-edit'
+        image:"https://img.icons8.com/dusk/64/000000/workflow.png"
     },
     {
         title:'Scheduler',
         route:'scheduler',
-        icon:'fas fa-calendar-check'
+        image:"https://img.icons8.com/dusk/64/000000/planner.png"
     },
     {
         title:'Profile',
         route:'profile',
-        icon: ''
+        image: ''
     },
     {
         title:'Logout',
         route:'logout',
-        icon:'fa fa-sign-out'
+        image:"https://img.icons8.com/dusk/64/000000/logout-rounded-left.png"
     }
 ];
 
