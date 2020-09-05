@@ -58,27 +58,31 @@ class MeetingEvent extends Component{
     }
 
     meetingJSX(){
-        let sortedEvent = this.sortStories(this.props.meetings);
-        let meetings = [];
-        let currentDateObject = this.state.dateHelper.currentDateGenerator();
-        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
-        sortedEvent.map(event => {
-            let status = "";
-            let startTime = event.StartTime.indexOf(":") == 2 ? event.StartTime.substring(0,2) : event.StartTime.substring(0,1);
-            let currentTime = this.state.currentTime.indexOf(":") == 2 ? this.state.currentTime.substring(0,2) : this.state.currentTime.substring(0,1);
-            if(this.state.currentTime == ""){
-                status = currentDate < this.state.eventDate ? "Yet to Start" : "Finished"
-            }else{
-                status = startTime > currentTime ? "Yet to Start" : startTime <= currentTime ? "Finished" : "Current Active";
-            }
-            meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
-                            <h3>RoomName: {event.EventTitle}{status}</h3>
-                            <h4><span>MeetingCreator: {event.creator}</span> <span>MeetingCode: {event.password}</span></h4>
-                            <h4>{event.Description}</h4>  <button className = {event._id} onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
-                            <h5>Starts At: {event.StartTime}   Ends At: {event.EndTime}</h5>
-                        </div>);
-        });
-        return (<div>{meetings}</div>);
+        if(this.props.meetings.length == 0){
+            return <div className = "emptyHeadingContainer"><h2 className = "emptyHeading">Nothing planned for today..</h2></div>;
+        }else{
+            let sortedEvent = this.sortStories(this.props.meetings);
+            let meetings = [];
+            let currentDateObject = this.state.dateHelper.currentDateGenerator();
+            let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+            sortedEvent.map(event => {
+                let status = "";
+                let startTime = event.StartTime.indexOf(":") == 2 ? event.StartTime.substring(0,2) : event.StartTime.substring(0,1);
+                let currentTime = this.state.currentTime.indexOf(":") == 2 ? this.state.currentTime.substring(0,2) : this.state.currentTime.substring(0,1);
+                if(this.state.currentTime == ""){
+                    status = currentDate < this.state.eventDate ? "Yet to Start" : "Finished"
+                }else{
+                    status = startTime > currentTime ? "Yet to Start" : startTime <= currentTime ? "Finished" : "Current Active";
+                }
+                meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
+                                <h3>RoomName: {event.EventTitle}{status}</h3>
+                                <h4><span>MeetingCreator: {event.creator}</span> <span>MeetingCode: {event.password}</span></h4>
+                                <h4>{event.Description}</h4>  <button className = {event._id} onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
+                                <h5>Starts At: {event.StartTime}   Ends At: {event.EndTime}</h5>
+                            </div>);
+            });
+            return (<div>{meetings}</div>);
+        }
     }
 
     startMeeting (event){
@@ -101,7 +105,7 @@ class MeetingEvent extends Component{
     }
 
     render(){
-        return(<div>
+        return(<div className = "innerEventContainer">
                     {this.meetingJSX()}
                     <Modal
                     isOpen={this.state.isOpen}

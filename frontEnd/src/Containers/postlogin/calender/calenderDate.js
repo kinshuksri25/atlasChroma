@@ -2,7 +2,9 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import {Button} from 'react-bootstrap';
 
+import "../../../StyleSheets/calenderDate.css";
 import Events from './events';
 import Notes from './notes';
 import DateHelper from '../../generalContainers/date';
@@ -30,11 +32,17 @@ class CalenderDate extends Component{
         let heading = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         let currentDateObject = new DateHelper().currentDateGenerator();
         let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
-        return(<div>
-                    <button onClick={this.props.onClickHandler}>X</button>
-                    <button id="Events" onClick={this.changeActiveTab}>Events</button>
-                    <button id="Notes" onClick={this.changeActiveTab}>Notes</button>
-                    <div className = "calenderHeading">{heading}</div>
+        return(<div className = "centralEventsNotesContainer">
+                    <div className = "calenderDateUpperContainer">
+                        <div className = "topUpperBlock">
+                            <button className = "backButton" onClick={this.props.onClickHandler}>Back</button>
+                            <div className = "calenderHeading">{heading}</div>
+                        </div>
+                        <div className = "bottomTopBlock">
+                            <button id="Events" className = "tab" onClick={this.changeActiveTab}>Events</button>
+                            <button id="Notes" className = "tab" onClick={this.changeActiveTab}>Notes</button>
+                        </div>
+                    </div>
                     {this.state.activeTab == "Events" && <Events currentMonth = {this.props.currentMonth} 
                                                                 currentYear = {this.props.currentYear} 
                                                                 currentDate = {this.props.currentDate}/> }

@@ -25,7 +25,7 @@ export default class SuggestionComponent extends Component{
         }else{
             return (<ul>
                         {suggestionlist.map(suggestion => {
-                            return(<li id = {suggestion.id} onClick = {this.onClick}>{suggestion.title}</li>);
+                            return(<li className="suggestion" id = {suggestion.id} onClick = {this.onClick}>{suggestion.title}</li>);
                         })}
                     </ul>);
         }
@@ -78,6 +78,6 @@ export default class SuggestionComponent extends Component{
     
 
     render(){
-        return(<div className = "suggestionBox">{this.state.showSuggestion && this.buildJSX()}</div>);
+        return(<div>{this.state.showSuggestion && <div className = "suggestionBox">{this.buildJSX()}</div>}</div>);
     }
 }

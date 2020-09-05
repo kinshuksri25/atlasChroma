@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import "../../../StyleSheets/scheduler.css";
 import DateHelper from '../../generalContainers/date';
 import CalenderDate from './calenderDate';
 import {urls} from "../../../../../lib/constants/contants";
@@ -93,25 +94,28 @@ class Scheduler extends Component {
                         noOfWeeks = days[i] == firstDay ? i : noOfWeeks;
                 }
                 noOfWeeks = noOfWeeks <= 4 ? 5 : 6;
-                let currentWeek = 1;
+                let currentWeek = 0;
                 let calenderJSX = [];
                 while(currentWeek <= noOfWeeks){
                         let weekJSX = days.map(day => {
+                              if(currentWeek == 0){
+                                return(<span className="calenderHeader">{day}</span>);
+                              }else{
                                 if(dayCounter == 1 ){
                                         if(firstDay == day){
                                                 dayCounter++;
                                                 return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
                                         }else{
-                                                return(<button className="calenderButton" disabled={true}>0</button>);
+                                                return(<button className="calenderButtonHidden" disabled={true}>0</button>);
                                         }
                                 }else if(dayCounter <= noOfDays){
                                         dayCounter++;
                                         return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
-                                }else{
-                                        return (<button className="calenderButton" disabled={true}>0</button>);
-                                }       
+                                } 
+                              }     
                         });
-                        calenderJSX.push(<div>{weekJSX}</div>);  
+                        currentWeek == 0 && calenderJSX.push(<div className = "daysContainer">{weekJSX}</div>);  
+                        currentWeek != 0 && calenderJSX.push(<div className = "weekContainer">{weekJSX}</div>);  
                         currentWeek++;  
                 }
                 return calenderJSX;
@@ -148,12 +152,14 @@ class Scheduler extends Component {
                         "10" : "November",
                         "11"  : "December"                           
                      } 
-                return(<div>
-                                {this.state.currentDate == "" &&   <div> 
-                                                                        <button onClick = {this.changeMonth} className = "previous">"Previous"</button>
-                                                                        <div className = "monthYear">{month[this.state.currentMonth]},{this.state.currentYear}</div>
-                                                                        <button onClick = {this.changeMonth} className = "next">"Next"</button>
-                                                                        {this.buildCalender()}
+                return(<div className = "parentSchedulerContainer">
+                                {this.state.currentDate == "" &&   <div className = "calenderContainer"> 
+                                                                        <div className = "calenderUpperBlock">
+                                                                                <button onClick = {this.changeMonth} className = "previous">Previous</button>
+                                                                                <div className = "calenderDateHeading">{month[this.state.currentMonth]},{this.state.currentYear}</div>
+                                                                                <button onClick = {this.changeMonth} className = "next">Next</button>
+                                                                        </div>
+                                                                        <div className = "calenderLowerBlock">{this.buildCalender()}</div>
                                                                    </div>}
 
                                 {this.state.currentDate == "" || <CalenderDate currentMonth = {this.state.currentMonth} 

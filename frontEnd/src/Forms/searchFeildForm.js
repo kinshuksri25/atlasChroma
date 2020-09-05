@@ -76,7 +76,7 @@ class SearchFeild extends Component{
     buildJSX(){
         let searchJSX = this.props.constants.map(constant => {
             let selectedJSX = this.search(constant);
-            return(<div>
+            return(<div className = "searchForm">
                         <Form.Control type="text" 
                         name = {constant.name}
                         id = {constant.id}

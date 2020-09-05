@@ -124,7 +124,6 @@ class Events extends Component{
     }
     
     triggerModal(event){
-        console.log(event.target.id);
         let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         if(event.target.className == "ADD"){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
@@ -410,7 +409,7 @@ class Events extends Component{
         let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;                                                                                                                                            
-        return(<div>
+        return(<div className = "calenderDateLowerEventContainer">
                     <button disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
                     <Modal
                     isOpen={this.state.currentMode != ""}
@@ -471,15 +470,18 @@ class Events extends Component{
                                                                     changeFieldNames = {[]} />
                                                                 </div>}                                                                    
                     </Modal>
-                    <h3>All Day Events</h3>
-                    <hr/>
-                    <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
-                    <h3>Timed Events</h3>
-                    <hr/>
-                    <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
-                    <h3>Meetings</h3>
-                    <hr/>
-                    <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
+                    <div className = "allDayContainer">
+                        <h3 className = "eventHeading">All Day Events</h3>
+                        <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
+                    </div>               
+                    <div className = "timedContainer">
+                        <h3 className = "eventHeading">Scheduled Events</h3>
+                        <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
+                    </div>                
+                    <div className = "meetingContainer"> 
+                        <h3 className = "eventHeading">Meetings</h3>
+                        <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
+                    </div>              
                 </div>);
     }
 }

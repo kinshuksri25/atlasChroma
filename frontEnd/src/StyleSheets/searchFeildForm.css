@@ -1,10 +1,31 @@
 .suggestionBox{
+    font-family: 'Baloo Tamma 2', cursive;
+    font-weight: 500;
     position: absolute;
     z-index: 10;
     border-radius: 5px;
-    border: none;
+    margin: 0px;
+    padding:0px;
     background-color: white;
-    width: 90%;
+    left: 2.6%;
+    top: 100%;
+    width: 95%;
+}
+
+.suggestion{
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.searchForm{
+    position: relative;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 0.7rem;
 }
 
 

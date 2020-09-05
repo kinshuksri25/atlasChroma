@@ -2,6 +2,9 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import {Card, CardGroup} from 'react-bootstrap';
+
+import "../../../StyleSheets/allDayEvents.css";
 
 class AllDayEvent extends Component{
     constructor(props){
@@ -51,26 +54,30 @@ class AllDayEvent extends Component{
     }
 
     allDayJSX(){
-        let sortedStories = this.sortStories(this.props.allDayStories); 
-        let allDayJSX = [];
-        sortedStories.map(story => {
-            allDayJSX.push(<div className = {story.priority} id = {story._id} onClick={this.onStoryClick}>  
-                                <h3>{story.storytitle}</h3>
-                                <h4>{story.description}</h4>
-                                <h4>Priority : {story.priority}</h4>
-                            </div>);
-        });
-        this.props.allDayEvents.map(event => {  
-            allDayJSX.push(<div className = "eventTab" id = {event._id} onClick={this.props.onClick}>  
-                <h3>{event.EventTitle}</h3>
-                <h4>{event.Description}</h4>
-            </div>);
-        });
-        return (<div>{allDayJSX}</div>);
+        if(this.props.allDayEvents.length == 0 ){
+            return <div className = "emptyHeadingContainer"><h2 className = "emptyHeading">Nothing planned for today..</h2></div>;
+        }else{
+            let sortedStories = this.sortStories(this.props.allDayStories); 
+            let allDayJSX = [];
+            sortedStories.map(story => {
+                allDayJSX.push(<div className = {story.priority} id = {story._id} onClick={this.onStoryClick}>  
+                                    <h3>{story.storytitle}</h3>
+                                    <h4>{story.description}</h4>
+                                    <h4>Priority : {story.priority}</h4>
+                                </div>);
+            });
+            this.props.allDayEvents.map(event => {  
+                allDayJSX.push(<span className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    
+                                    <span className = "cardTitle">{event.EventTitle}</span>
+                                    <p className = "cardDescription">{event.Description}</p>
+                                </span>);
+            });
+            return (<div className = "CardGroup">{allDayJSX}</div>);
+        }
     }
 
     render(){
-        return(<div>{this.allDayJSX()}</div>);
+        return(<div className = "innerEventContainer">{this.allDayJSX()}</div>);
     }
 }
 
