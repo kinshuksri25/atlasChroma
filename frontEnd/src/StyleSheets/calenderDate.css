@@ -1,0 +1,50 @@
+.centralEventsNotesContainer{
+    width: 100%;
+    height: 100%;
+    display:flex;
+    flex-direction: column;
+    box-sizing: content-box;
+}
+
+.calenderDateUpperContainer{
+    flex-basis: 15%;
+    display: grid;
+    grid-template-rows: 65% 35%;
+    box-sizing: content-box;
+    padding: 1%;
+}
+
+.topUpperBlock{
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.calenderHeading{
+    text-align: center;
+    font-weight: 500;
+    margin: 0px;
+}
+
+.backButton{
+    position: absolute;
+    top:  10%;
+    left: 0.5%;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.topLowerBlock{
+    display: flex;
+    justify-content: space-evenly;
+    box-sizing: content-box;
+}
+
+.tab{
+    width: 20%;
+    min-width: 200px !important;
+    height: 40px !important;
+}

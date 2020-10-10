@@ -1,21 +1,27 @@
 html{
     height: 100vh;
     margin : 0;
+    min-width: 1024px;
+    min-height: 1024px;
 }
 
 body{
-    height: 100vh;
-    min-width: 1024px;
+    height: 100%;
+    margin : 0;
+}
+
+#root{
+    height: 100%;
     margin : 0;
     position: relative;
 }
 
 .routerContainer{
-    height: 100vh;
+    height: 100%;
     margin : 0;
 }
 
 .preRouterContainer{
     margin : 0;
-    height: 100vh;
+    height: 100%;
 }

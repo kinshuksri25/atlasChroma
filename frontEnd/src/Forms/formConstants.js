@@ -47,10 +47,10 @@ formConstants.postAuthForm = [
     {
         name: "Continue",
         type: "button",
-        variantType : "success",
+        variantType : "primary",
         route: '/googleAuth/postAuthDetails',
         id: "postAuthButton",
-        className: "postAuthAttributes"
+        className: "postAuthButton"
     }
 
 ];
@@ -93,10 +93,10 @@ formConstants.postSignup = [
     {
         name: "Continue",
         type: "button",
-        variantType : "success",
+        variantType : "primary",
         route: '/signup/postSignupDetails',
         id: "postSignupButton",
-        className: "postSignupAttributes"
+        className: "postSignupButton"
     }
 
 ];
@@ -148,7 +148,7 @@ formConstants.signup = [
     {
         name: "SignUp",
         type: "button",
-        variantType : "success",
+        variantType : "primary",
         route: '/signup',
         id: "signUpButton",
         className: "signUpButton"
@@ -185,10 +185,10 @@ formConstants.login = [
     {
         name: "Login",
         type: "button",
-        variantType : "success",
+        variantType : "primary",
         route: '/login',
         id: "loginButton",
-        className: "loginAttributes"
+        className: "loginButton"
     }
 
 ];
@@ -209,10 +209,10 @@ formConstants.googleLogin = [{
     {
         name: "Login",
         type: "button",
-        variantType : "success",
+        variantType : "primary",
         route: '/googleAuth',
         id: "googleLoginButton",
-        className: "loginAttributes"
+        className: "googleLoginButton"
     }
 
 ];
@@ -270,12 +270,12 @@ formConstants.boardTemplateSelector = [
         isRequired: "required"
     },
     {
-        name: "Next",
+        name: "-->",
         type: "button",
         variantType : "success",
         route: '',
         id: "templateNextButton",
-        className: "templateAttributes"
+        className: "templateButton"
     }
 ];
 

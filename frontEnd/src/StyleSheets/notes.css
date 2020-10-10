@@ -1,0 +1,119 @@
+.calenderDateLowerNotesContainer{
+    flex-basis: 85%;
+    flex-shrink: 0;
+    width: 100%;
+    position: relative;
+    background-color: lightgoldenrodyellow;
+    box-sizing: border-box;
+    padding: 7px;
+}
+
+.displayFormButton{
+    position: absolute;
+    top:  1%;
+    right: 0.5%;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.notesJSXContainer{
+    margin: 0px;
+    padding:0px;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 200px;
+    grid-gap: 7px;
+    overflow-y: scroll;
+    box-sizing: border-box;
+}
+
+.emptyNotesContainer{
+    border-radius: 5px;
+    background-color: purple;
+    border: none;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    font-weight: 500;
+}
+
+.notesContainer{
+    width: 100%;
+    background-color: lightskyblue;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5%;
+}
+
+.notesTitle{
+    margin: 0px;
+    flex-basis: 20%;
+}
+
+.notesDescription{
+    padding-top: 1%;
+    margin: 0px;
+    flex-basis: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    line-height: 1.7rem;
+}
+
+@media screen and (min-width:1600px){
+    .emptyNotesContainer{
+        font-size: xx-large;
+    }
+}
+
+@media screen and (min-width:1400px) and (max-width:1600px){
+    .emptyNotesContainer{
+        font-size: x-large;
+    }
+}
+
+@media screen and (min-width:1366px) and (max-width:1400px){
+    .emptyNotesContainer{
+        font-size: x-large;
+    }
+    .notesDescription{
+        line-height: 1.75rem;
+    }
+}
+
+@media screen and (min-width:1280px) and (max-width:1366px){
+    .emptyNotesContainer{
+        font-size: large;
+    }
+    .notesDescription{
+        line-height: 1.76rem;
+    }
+}
+
+@media screen and (min-width:1024px) and (max-width:1280px){
+    .emptyNotesContainer{
+        font-size: large;
+    }
+    .notesDescription{
+        line-height: 1.77rem;
+    }
+}
+
+@media screen and (max-width:1024px){
+    .emptyNotesContainer{
+        font-size: large;
+    }
+    .notesDescription{
+        line-height: 1.78rem;
+    }
+}

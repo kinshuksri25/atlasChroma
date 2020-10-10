@@ -67,7 +67,6 @@ cookieHandler.clearCookies = () => new Promise ((resolve,reject) => {
 //params --> cookieID - string
 //returns --> promise
 cookieHandler.deleteCookie = (cookieID) => new Promise((resolve,reject) => {
-    
     redisClass.deleteData(cookieID).then(resolvedResult => {
         cookieHandler.getAllCookies().then(resolvedResult => {
             resolve(resolvedResult);

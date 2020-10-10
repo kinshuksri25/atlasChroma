@@ -80,15 +80,18 @@ class PostSignUpForm extends Component {
     }
 
     render() {
-        let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
+        let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div>: <img className ="profilePhoto" src={this.state.photo}/>;
         return (<div className = "postSignUpFormPage">
-                    <div className = "formContainer">
+                   <div className="heading">Just a couple of more details, and you will be off to the races!</div>
+                   <div className = "postSignupFormContainer">
                         <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
                         {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                        <SimpleForm formAttributes = { formConstants.postSignup }
-                        submitHandler = { this.onSubmitHandler }
-                        changeHandler = { this.onChangeHandler }
-                        changeFieldNames = {["Phone"]}/>  
+                        <div className="postSignUpForm">
+                            <SimpleForm formAttributes = { formConstants.postSignup }
+                            submitHandler = { this.onSubmitHandler }
+                            changeHandler = { this.onChangeHandler }
+                            changeFieldNames = {["Phone"]}/>  
+                        </div>   
                     </div>
                 </div>);
     }

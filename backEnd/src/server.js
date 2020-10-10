@@ -28,6 +28,7 @@ server.certParams = {
 };
 
 server.https = https.createServer(server.certParams, app);
+
 //creating socket instance
 let io = new soc(server.https);
 
@@ -86,33 +87,37 @@ server.unifiedServer = (req, res) => {
 
 //function for starting the server
 server.init = (runtimeEnvironment,port) => {
-    if(cluster.isMaster) {
-        const cpuCount = os.cpus().length;
-        for(var i=0;i < cpuCount;i++){
-            cluster.fork();
-        }
-        cluster.on('online', function(worker) {
-            console.log('Worker ' + worker.process.pid + ' is online');
-        });
+    // if(cluster.isMaster) {
+    //     const cpuCount = os.cpus().length;
+    //     for(var i=0;i < cpuCount;i++){
+    //         cluster.fork();
+    //     }
+    //     cluster.on('online', function(worker) {
+    //         console.log('Worker ' + worker.process.pid + ' is online');
+    //     });
     
-        cluster.on('exit', function(worker, code, signal) {
-            console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
-            console.log('Starting a new worker');
-            cluster.fork();
-        });
-        //clear all cookies before server start
-        //cookieHandler.clearCookies();
-        //setting up crons 
-        cron.startJobs();
-    }
-    else{
-        //start the https server
-        server.https.listen(port, function() {
-            console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
-        });
-        //listening to client socket events
-        socket.handleEvents(io);
-    }
+    //     cluster.on('exit', function(worker, code, signal) {
+    //         console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
+    //         console.log('Starting a new worker');
+    //         cluster.fork();
+    //     });
+    //     //clear all cookies before server start
+    //     //cookieHandler.clearCookies();
+    //     //setting up crons 
+    //     //cron.startJobs();
+    // }
+    // else{
+    // }
+    
+    //start the https server
+    server.https.listen(port, function() {
+        console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
+    });
+    //listening to client socket events
+    socket.handleEvents(io);
+
+    //setting up crons 
+    cron.startJobs();
 };
 
 //export the module

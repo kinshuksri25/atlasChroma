@@ -73,9 +73,7 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
                                                     foreignField: "_id",
                                                     as: "projects"
                                                  }},
-                                                {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {
-
-            console.log(resolvedResult);                                        
+                                                {$project: { _id: 0, password:0,refreshToken:0,state:0}}]).then(resolvedResult => {                                       
             if(resolvedResult.length != 0){
                 response.PAYLOAD = {...resolvedResult[0]};
                 response.SMSG = SMSG.SVR_UHH_RDUSR; 
@@ -190,13 +188,11 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
         PAYLOAD : {},
         SMSG : ""
         };   
-        
     let template = {
         supportEmail : OAuthCONST.appAuth.senderEmail
     };    
-    if(requestObject.queryObject.hasOwnProperty("username")){
-        console.log(requestObject);
-        mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{$pull : {username : requestObject.queryObject.username}},{returnOriginal: false,remove: true},SINGLE).then(resolvedResult => {
+    if(requestObject.queryObject.username != undefined){
+        mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{$pull : {username : requestObject.queryObject.username}},{remove: true},SINGLE).then(resolvedResult => {
             let deletedData = resolvedResult.value;
             io.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,deletedData.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {

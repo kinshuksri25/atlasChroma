@@ -48,6 +48,7 @@ class PreLoginForms extends Component {
     }
 
     emailValidator(email, globalThis) {
+        var globalThis = this;
         var emailCheckQueryString = 'Email=' + email;
         var headers = { "Origin": "https://localhost:3000" };
         this.setState({
@@ -81,6 +82,7 @@ class PreLoginForms extends Component {
     };
 
     userNameValidator(userName, globalThis) {
+        var globalThis = this;
         var userNameCheckQueryString = 'UserName=' + userName;
         var headers = { "Origin": "https://localhost:3000" };
 

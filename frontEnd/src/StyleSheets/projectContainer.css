@@ -1,32 +1,91 @@
-.innerContainer{
+.innerContainer,.innerEmptyContainer{
+    width: 100%;
+    height: 100%;
+    font-family: 'Comfortaa', cursive;
+}
+
+.innerEmptyContainer{
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    background-color: white;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+}
+
+.innerContainer{
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    box-sizing: border-box;
+    overflow-y: scroll;
+    grid-auto-rows: minmax(233.55px, 33%);
+    grid-gap: 10px;
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1450px){
+    .innerContainer{
+        grid-template-columns: repeat(3,1fr);
+    }
+}
+
+
+@media screen and (max-width: 1200px){
+    .innerContainer{
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+#projectCard{
+    width: 100%;
     height: 100%;
+    padding: 1%;
     border: none;
-    border-radius: 10px;
-    overflow-y: hidden;
-    font-family: 'Baloo Tamma 2', cursive;
+    background-color: lightgreen;
+    border-radius: 5px;
+    position: relative;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 0.75fr 2fr repeat(2,1fr);
+    text-align: start;
 }
 
-
-.noProjectTitle{
-    font-weight: 500;
-    font-size: 2rem;
-    margin-left: 23%;
-    align-self: center;
-    color: grey;
+#projectTitle{
+    margin: 0px;
 }
 
-
-.projectContainer{
-    padding-top: 1.5rem;
-    padding-right: 1rem;
-    padding-left: 1rem;
+#projectDescription{
+    font-size: small;
+    line-height: 1.25rem;
     height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    margin: 0px;
 }
 
-.projectCard{
-    height : 20%;
+#projectLead,#contributors{
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    margin:0px;
+    padding-top: 4%;
+}
+
+.projectleadPicture,.contributorsPicture{
+    width: 30px;
+    height: 30px;
+    margin: 0px 5px;
+    border-radius: 50%;
+}
+
+
+
+.openEditModal{
+    position: absolute;
+    top:  1%;
+    left: 0.5%;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
 }

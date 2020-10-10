@@ -29,24 +29,26 @@ class CalenderDate extends Component{
     }
 
     render(){
-        let heading = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
+        let date = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         let currentDateObject = new DateHelper().currentDateGenerator();
         let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        let heading = this.props.currentDate+" "+this.props.currentMonthName+" "+this.props.currentYear;
+
         return(<div className = "centralEventsNotesContainer">
                     <div className = "calenderDateUpperContainer">
                         <div className = "topUpperBlock">
-                            <button className = "backButton" onClick={this.props.onClickHandler}>Back</button>
-                            <div className = "calenderHeading">{heading}</div>
+                            <Button className = "backButton" onClick={this.props.onClickHandler}>&#8672;</Button>
+                            <h3 className = "calenderHeading">{heading}</h3>
                         </div>
-                        <div className = "bottomTopBlock">
-                            <button id="Events" className = "tab" onClick={this.changeActiveTab}>Events</button>
-                            <button id="Notes" className = "tab" onClick={this.changeActiveTab}>Notes</button>
+                        <div className = "topLowerBlock">
+                            <Button id="Events" disabled={this.state.activeTab == "Events"} variant="danger" className = "tab" onClick={this.changeActiveTab}>Events</Button>
+                            <Button id="Notes"  disabled={this.state.activeTab == "Notes"} variant="info" className = "tab" onClick={this.changeActiveTab}>Notes</Button>
                         </div>
                     </div>
                     {this.state.activeTab == "Events" && <Events currentMonth = {this.props.currentMonth} 
                                                                 currentYear = {this.props.currentYear} 
                                                                 currentDate = {this.props.currentDate}/> }
-                    {this.state.activeTab == "Events" || <Notes calenderDate = {heading} disableAdd = {heading != currentDate}/>}                                                            
+                    {this.state.activeTab == "Events" || <Notes calenderDate = {date} disableAdd = {date != currentDate}/>}                                                            
                </div>);
     }
 }

@@ -1,5 +1,6 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
+import "../../../StyleSheets/templateBuilder.css";
 
 import setMsgAction from '../../../store/actions/msgActions';
 

@@ -41,19 +41,20 @@ class PostLoginRouter extends Component {
         listener.listenEvents(io);
 
         //connect to server socket
-       io.on("connect",() => {console.log("socket connected to server");});
-       let userID = cookieManager.getUserSessionDetails();
-       io.emit('login',userID);
-
-        let queryString = "";
-        if(userID){
-            let cookieDetails = {"CookieID" : userID};
-            this.getUserData(cookieDetails,queryString);
-            queryString+="&userID="+userID;
-            this.getUserData(cookieDetails,queryString);
-        }else{
-            window.history.pushState({}, "",urls.LANDING);
-        }
+       io.on("connect",() => {
+           console.log("socket connected to server");
+           let userID = cookieManager.getUserSessionDetails();
+           io.emit('login',userID);
+            let queryString = "";
+            if(userID){
+                let cookieDetails = {"CookieID" : userID};
+                this.getUserData(cookieDetails,queryString);
+                queryString+="&userID="+userID;
+                this.getUserData(cookieDetails,queryString);
+            }else{
+                window.history.pushState({}, "",urls.LANDING);
+            }
+        });
     }
 
     getUserData(headers,queryString){ 
@@ -130,12 +131,22 @@ class PostLoginRouter extends Component {
    
 // <MessageBox/>
     render(){  
-        let shouldRender = this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject);  
-        let renderedComponent = shouldRender ? <div className = "lowerPostLoginContainer">
+        let absolutePath =  /\/$/.test(window.location.pathname.substring(1).toLowerCase()) ? 
+                                window.location.pathname.substring(1).toLowerCase().substring(0,window.location.pathname.substring(1).toLowerCase().length-1) : 
+                                    window.location.pathname.substring(1).toLowerCase();
+        let highlightHide = /projects\/[\w|\d]+$/.test(absolutePath) ? false : true;
+        let shouldRender = this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject);
+        let finalRootComponent = !highlightHide ? <div className = "lowerPostLoginContainer" style={{gridTemplateColumns: '1fr'}}>
                                                     <Menu menuArray = {menuConstants}/> 
-                                                    <div className = "container">{this.containerSelector()}</div>
-                                                    <Highlight/>  
-                                                </div> : "";
+                                                    <div className = "mainContainer">{this.containerSelector()}</div>
+                                                </div> :
+                                                <div className = "lowerPostLoginContainer">
+                                                    <Menu menuArray = {menuConstants}/> 
+                                                    <div className = "mainContainer">{this.containerSelector()}</div>
+                                                    {highlightHide && <Highlight/>}  
+                                                    {this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject) && <MessageBox/>}
+                                                </div>
+        let renderedComponent = shouldRender ?  finalRootComponent : "";
         return (<div className="upperPostLoginContainer">{renderedComponent}</div>);
     }
 }

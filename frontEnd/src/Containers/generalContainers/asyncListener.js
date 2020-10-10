@@ -100,7 +100,7 @@ listener.listenEvents = (io) => {
                 break;                        
             case "addingProject" : 
                 if(details.data.contributors.indexOf(user.username) >= 0){
-                    user.projects.push(details.data);
+                    user.projects.push(details.data.body);
                     store.dispatch(setUserAction({...user}));
                 }
                 break;
@@ -163,8 +163,9 @@ listener.listenEvents = (io) => {
                     });
                 }
                 index = 0;    
-                break;   
+                break; 
         }   
+        
     });
 }
 

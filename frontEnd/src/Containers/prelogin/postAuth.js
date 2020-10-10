@@ -28,6 +28,7 @@ class PostAuth extends Component{
                     "photo": "",
                     "displayPhotoSel" : false  
             };
+            this.addEventListeners = this.addEventListeners.bind(this);
             this.props.changeLoadingState(true);
             this.postAuthReq = this.postAuthReq.bind(this);
             this.onSubmitHandler = this.onSubmitHandler.bind(this);
@@ -39,6 +40,7 @@ class PostAuth extends Component{
     }
 
     componentDidMount(){
+            this.addEventListeners();
             let authObject = url.parse(window.location.href,true);
             if(authObject.query.hasOwnProperty("state"))
                 this.setState({state:authObject.query.state},() =>{
@@ -50,9 +52,15 @@ class PostAuth extends Component{
             }
     };
 
+    addEventListeners(){
+        let usernameInput = document.getElementById("postAuthUsername");
+        usernameInput.addEventListener("blur", this.userNameValidator(usernameInput.value, globalThis)); 
+    }
+
     userNameValidator(userName, globalThis) {
         var userNameCheckQueryString = 'UserName=' + userName;
         let errorObject = {...msgObject};
+        var globalThis = this;
         var headers = {};
         this.setState({
             "isCheckingUsername": true
@@ -115,7 +123,6 @@ class PostAuth extends Component{
         let errorObject = {...msgObject};
         let globalThis = this;
         httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,function(error,responseObject) {
-            globalThis.props.changeLoadingState(false);
             if(error || responseObject.STATUS != 200){
                 errorObject.msg = error;
                 errorObject.status = "ERROR";
@@ -123,6 +130,7 @@ class PostAuth extends Component{
                 window.history.pushState({},"",urls.LOGIN);
             }else{
                 if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
+                    globalThis.props.changeLoadingState(false);
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({},"",urls.POSTAUTH);         
                 }else{
@@ -190,15 +198,19 @@ class PostAuth extends Component{
     }
 
     render(){
-            let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "300" height = "300"/>;
-            return (<div className = "postAuthContainer">
+            let photo = this.state.photo;
+            let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div> : <img className ="profilePhoto" src={this.state.photo}/>;
+            return ( <div className = "postAuthContainer">
+                        <div className="heading">A username here, a password there and we will be done!</div>
                         <div className = "postAuthForm">  
                             <button className = 'postAuthProfilePicture' onClick ={this.showPhotoSelector}>{buttonInner}</button>
                             {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                            <SimpleForm formAttributes = { formConstants.postAuthForm }
-                            submitHandler = { this.onSubmitHandler }
-                            changeHandler = { this.onChangeHandler }
-                            changeFieldNames = {["UserName","Phone"]}/> 
+                            <div className="postAuthInnerForm">
+                                <SimpleForm formAttributes = { formConstants.postAuthForm }
+                                submitHandler = { this.onSubmitHandler }
+                                changeHandler = { this.onChangeHandler }
+                                changeFieldNames = {["UserName","Phone"]}/> 
+                            </div>
                         </div>
                     </div>);
     }             
@@ -216,4 +228,11 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(null,mapDispatchToProps)(PostAuth);
+
+const mapStateToProps = state => {
+    return {
+      isLoading : state.loadingStateReducer.isLoading
+    }
+  };
+
+export default connect(mapStateToProps,mapDispatchToProps)(PostAuth);

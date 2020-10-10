@@ -1,48 +1,139 @@
 .postSignUpFormPage{
     width: 100%;
     height: 100%;
+    background: linear-gradient(to right, #0575e6, #021b79);
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 5fr;
+    font-family: 'Comfortaa', cursive;
+}
+
+.heading{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    max-width: 70% !important;
+    align-self: end;
     display: flex;
     justify-content: center;
-    background-color: lightblue;
+    color: white;
+    font-weight: 400;
+    font-size: 2rem;
 }
 
-.formContainer{
+.postSignupFormContainer{
     margin: auto;
+    margin-top: 5%;
+    width: 25%;
+    min-width: 280px;
+    max-width: 295px;
     background-color: white;
-    border: 1px solid white;
-    border-radius: 10px;
-    width: 20%;
-    height: 50%;
-    padding : 2%;
+    border: none;
     padding-top: 0px;
     text-align: center;
-}
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+} 
 
 .profilePictureButton{
-    padding:0;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    font-family: 'Baloo Tamma 2', cursive;
-    font-weight: 500;
-    font-size: 2rem;
-    outline: none !important;
-    height: 45%;
-    width: 65%;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    text-align: center;
+    background: #E6EE9C;
+    padding: 0px;
+    width: 50%;
+    border:none;
     border-radius: 50%;
-    border: none;
-    background-color: lightpink;
-    transition: background-color 1s;
+    margin: 0 auto;
+    margin-top: 3%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    transition: background 1s;
 }
 
-.profilePictureButton:hover,.profilePictureButton:active{
-    background-color: lightsalmon;
-    transition: background-color 1s;
+.profilePictureButton:hover{
+    transition: background 1s;
+    background: #DCE775;
 }
 
-input:focus{
-    outline: none !important;
-    border:1px solid #bfdcae !important;
-    box-shadow: 0 0 10px #bfdcae !important;
+.profilePhoto{
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
 }
+
+.postSignUpForm{
+    padding-top: 10%;
+    padding-right: 3%;
+    padding-left: 3%;
+    padding-bottom: 5%;
+}
+
+@media screen and (min-width: 1600px){
+    .postSignupFormContainer{
+        height: 400px;
+    }
+
+    .postSignupAttributes{
+        height: 2.3rem;
+    }
+}
+
+@media screen and (min-width: 1366px) and (max-width: 1600px){
+    .postSignupFormContainer{
+        height: 395px;
+    }
+
+    .postSignupAttributes{
+        height: 2.25rem;
+    }
+}
+
+
+@media screen and (min-width: 1280px) and (max-width: 1366px){
+    .postSignupFormContainer{
+        max-width: 290px;
+        height: 385px;
+    }
+
+    .postSignupAttributes{
+        height: 2.2rem;
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px){
+    .postSignupFormContainer{
+        max-width: 285px;
+        height: 380px;
+    }
+
+    .postSignupAttributes{
+        height: 2.15rem;
+    }
+}
+
+@media screen and (max-width: 1024px){
+    .postSignupFormContainer{
+        max-width: 280px;
+        height: 375px;
+    }
+
+    .postSignupAttributes{
+        height: 2.1rem;
+    }
+}
+
+#postSignupButton{
+    width: 70%;
+    height: 2rem;
+    padding-top: 4px !important;
+}
+

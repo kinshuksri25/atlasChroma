@@ -113,6 +113,7 @@ redisClass.getAllData = () => new Promise((resolve,reject) => {
                     }
                 });
             }
+            resolve(redisObject);
         }else{
             redisInstance.quit();
             console.log(err);

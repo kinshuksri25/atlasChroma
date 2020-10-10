@@ -1,29 +1,29 @@
-.cancel{
-    outline: none !important;
-    padding-top: 0.5rem;
-    font-family: 'Baloo Tamma 2', cursive;
-    font-weight: 500;
-    font-size: 1.5rem;
-    width: 100%; 
-    height: 50px;  
-    border : none;
-    margin-top: 0px;
-    border-radius: 4px;
-    background-color: white;
+.gridContainer{
+    display: flex;
+    flex-direction: column;
 }
 
-.cancel:hover,.cancel:active{
-    background: linear-gradient(to bottom ,white, rgba(	235, 82, 82,0.7));
+.cancel{
+    flex-basis: 10%;
+    width: 100%;
+    border: none;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px; 
+    margin-bottom: 0.75rem;
 }
 
 .pictureContainer{
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    flex-basis: 90%;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(3,1fr);
 }
 
 .photo{
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem;
+    width: 200px;
+    height: 200px;
 }
+

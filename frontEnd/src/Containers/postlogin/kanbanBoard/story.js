@@ -173,7 +173,7 @@ class Story extends Component{
         }if(this.state.storyPriority != this.state.oldStoryDetails.priority){
             storyObject.Priority = this.state.storyPriority;
         }if(this.state.duedate != this.state.oldStoryDetails.duedate){
-            storyObject.DueDate = this.state.oldStoryDetails.duedate;
+            storyObject.DueDate = this.state.duedate;
         }
         storyObject._id = this.props.storyDetails._id;
         storyObject.oldName = this.state.oldStoryDetails.storytitle;

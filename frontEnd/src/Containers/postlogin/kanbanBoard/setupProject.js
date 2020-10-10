@@ -43,9 +43,9 @@ class SetupProject extends Component {
     formBuilder(){
         if(!this.state.nextPage){
            return(<SimpleForm formAttributes = { formConstants.boardTemplateSelector }
-                    submitHandler = { this.changePage }
-                    options = {[["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
-                    changeFieldNames = {[]} />);     
+                        submitHandler = { this.changePage }
+                        options = {[["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
+                        changeFieldNames = {[]} />);
         }else{
             let constants = [];
             switch(this.state.currentTemplate){
@@ -144,9 +144,9 @@ class SetupProject extends Component {
 
     render(){
         let setupContainer = this.formBuilder();
-        return(<div>
-                {setupContainer}
-                <button onClick={this.onTemplateSubmit} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>Go</button>
+        return(<div className="projectSetup">
+                    {setupContainer}
+                    <button onClick={this.onTemplateSubmit} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>Go</button>
                </div>);
     }
 }

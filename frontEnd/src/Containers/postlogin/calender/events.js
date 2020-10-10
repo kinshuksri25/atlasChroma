@@ -4,6 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
 
+import "../../../StyleSheets/events.css";
 import formConstants from '../../../Forms/formConstants';
 import cookieManager from '../../../Components/cookieManager';
 import SearchFeild from '../../../Forms/searchFeildForm';
@@ -124,6 +125,7 @@ class Events extends Component{
     }
     
     triggerModal(event){
+        console.log(event.target.className);
         let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         if(event.target.className == "ADD"){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
@@ -257,17 +259,19 @@ class Events extends Component{
         let globalThis = this;
         let invalidTime = false;
         if(this.state.eventType != ""){
-
             if(this.state.eventType == "Timed" || this.state.eventType == "Meeting"){
-                [...this.state.timedEvents,...this.state.meetings].map(event => {
-                    if(this.state.endTime == "" ||
+                if  (this.state.endTime == "" || 
                         this.state.startTime == "" ||
-                            this.state.endTime <= this.state.startTime ||
-                                (this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
-                                    (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
-                                        invalidTime = true;
-                    }
-                }); 
+                            this.state.endTime <= this.state.startTime){
+                                invalidTime = true;
+                }else{
+                    [...this.state.timedEvents,...this.state.meetings].map(event => {
+                        if((this.state.startTime < event.EndTime && this.state.endTime > event.StartTime) ||
+                                (this.state.endTime > event.StartTime && this.state.startTime < event.EndTime)){
+                                    invalidTime = true;
+                            }        
+                    });
+                } 
             }
 
             if(!invalidTime){
@@ -410,7 +414,7 @@ class Events extends Component{
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;                                                                                                                                            
         return(<div className = "calenderDateLowerEventContainer">
-                    <button disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
+                    <button variant="success" disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
                     <Modal
                     isOpen={this.state.currentMode != ""}
                     contentLabel="">
@@ -449,14 +453,11 @@ class Events extends Component{
                                 }
                             </select>
                             <div className = "participantsContainer" hidden = {this.state.eventType != "Meeting"}>
-                                <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addParticipants} onSuggestionClick = {this.suggestionAllocator}/>
-                                <ul className = "participantsList">
-                                    {
-                                    this.state.eventType == "Meeting" && this.state.currentMode == "EDIT" &&this.state.participants.map(participant => {
-                                        return (<li onClick ={this.removeParticipant} id = {participant}>{participant}</li>)
-                                    })  
-                                    }
-                                </ul>
+                                <SearchFeild 
+                                onRemoveClick = {this.removeParticipant}
+                                unfilteredList = {this.createUnfilteredList()} 
+                                constants = {searchFeildConstants.addParticipants} 
+                                onSuggestionClick = {this.suggestionAllocator}/>
                             </div>
                             {this.state.currentMode == "EDIT" && <div>
                                                                     <input type = "text" value = {this.state.EventTitle} className = "title" onChange={this.onChangeHandler}/>
@@ -471,15 +472,15 @@ class Events extends Component{
                                                                 </div>}                                                                    
                     </Modal>
                     <div className = "allDayContainer">
-                        <h3 className = "eventHeading">All Day Events</h3>
+                        <h4 className = "eventHeading">All Day Events</h4>
                         <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
                     </div>               
                     <div className = "timedContainer">
-                        <h3 className = "eventHeading">Scheduled Events</h3>
+                        <h4 className = "eventHeading">Scheduled Events</h4>
                         <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
                     </div>                
                     <div className = "meetingContainer"> 
-                        <h3 className = "eventHeading">Meetings</h3>
+                        <h4 className = "eventHeading">Meetings</h4>
                         <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
                     </div>              
                 </div>);

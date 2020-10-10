@@ -59,7 +59,7 @@ class MeetingEvent extends Component{
 
     meetingJSX(){
         if(this.props.meetings.length == 0){
-            return <div className = "emptyHeadingContainer"><h2 className = "emptyHeading">Nothing planned for today..</h2></div>;
+            return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedEvent = this.sortStories(this.props.meetings);
             let meetings = [];
@@ -67,21 +67,24 @@ class MeetingEvent extends Component{
             let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
             sortedEvent.map(event => {
                 let status = "";
-                let startTime = event.StartTime.indexOf(":") == 2 ? event.StartTime.substring(0,2) : event.StartTime.substring(0,1);
-                let currentTime = this.state.currentTime.indexOf(":") == 2 ? this.state.currentTime.substring(0,2) : this.state.currentTime.substring(0,1);
+                let startTime = parseInt(event.StartTime.substring(0,2));
+                let endTime = parseInt(event.EndTime.substring(0,2));
+                let currentTime = parseInt(this.state.currentTime.substring(0,2));
                 if(this.state.currentTime == ""){
-                    status = currentDate < this.state.eventDate ? "Yet to Start" : "Finished"
+                    status = currentDate < this.state.eventDate ? "YettoStart" : "Finished"
                 }else{
-                    status = startTime > currentTime ? "Yet to Start" : startTime <= currentTime ? "Finished" : "Current Active";
+                    status = startTime > currentTime ? "YettoStart" : startTime <= currentTime && endTime <= currentTime ? "Finished" : "CurrentlyActive";
                 }
                 meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
-                                <h3>RoomName: {event.EventTitle}{status}</h3>
-                                <h4><span>MeetingCreator: {event.creator}</span> <span>MeetingCode: {event.password}</span></h4>
-                                <h4>{event.Description}</h4>  <button className = {event._id} onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
-                                <h5>Starts At: {event.StartTime}   Ends At: {event.EndTime}</h5>
+                                <div className="scheduledCardTitle" onClick={event.creator == this.props.user.username && this.props.onClick}>RoomName: {event.EventTitle}</div>
+                                <h5 className="creator" onClick={event.creator == this.props.user.username && this.props.onClick}>MeetingCreator: {event.creator}</h5>
+                                <h5 className="code">MeetingCode: {event.password}</h5>
+                                <button className = "startMeeting" onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
+                                {status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
+                                {status != "YettoStart" && <span className = "status">{status}</span>}
                             </div>);
             });
-            return (<div>{meetings}</div>);
+            return (<div className = "CardGroup">{meetings}</div>);
         }
     }
 

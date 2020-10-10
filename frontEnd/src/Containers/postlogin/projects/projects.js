@@ -77,15 +77,17 @@ class Projects extends Component {
                 }
             };
             return (<div className = "projectsPageContainer">
-                        <div className = "upperBlock">
+                        <div className = "projectDashboardUpperBlock">
                             <FilterForm 
                             orderBy={this.state.orderBy} 
                             searchFunction={this.searchProject}
                             changeOrderBy={this.changeOrderBy}
                             options = {filterFormConstants.projectFilter}/> 
-                            <Button className = "openAddModal" onClick={this.openModal} hidden = {this.state.action != ""}>Add Project</Button>
                         </div>
-                        <ProjectContainer showEditProject = {this.openModal} orderBy = {this.state.orderBy}/> 
+                        <ProjectContainer 
+                        action={this.state.action}
+                        showEditProject = {this.openModal} 
+                        orderBy = {this.state.orderBy}/> 
                         <Modal
                         isOpen={this.state.action != ""}
                         contentLabel=""

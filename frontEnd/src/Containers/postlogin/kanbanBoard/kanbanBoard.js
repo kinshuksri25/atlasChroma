@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
+import "../../../StyleSheets/kanbanBoard.css";
 
 import SetupProject from './setupProject';
 import StoryForm from './storyForm';
@@ -81,18 +82,15 @@ class KanbanBoard extends Component {
     }
 
     render(){
-        let boardStyle = {
-            width : this.state.componentWidth
-        };
         let currentProject = this.selectProject();
         let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
-        return (<div>
+        return (<div className="outerBoardContainer" id="outerBoardContainer">
                     <Modal
                     isOpen={this.state.showStoryForm}
                     contentLabel="">
                         <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
                     </Modal>
-                    <div className ="boardContainer" id="boardContainer" style = {boardStyle}>
+                    <div className ="innerBoardContainer" id="innerBoardContainer">
                         {boardJSX}
                     </div>
                     {JSON.stringify(currentProject) != JSON.stringify({}) && 

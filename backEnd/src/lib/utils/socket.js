@@ -16,6 +16,10 @@ socket.handleEvents = (io) =>{
             cookieHandler.getCookie(userID).then(resolvedResult => {
                 console.log("User "+resolvedResult+" connected with socketID: "+socket.id);
                 socketObject[resolvedResult] = socket.id;
+                io.clients((error, clients) => {
+                    if (error) throw error;
+                    console.log(clients); 
+                  });
             }).catch(rejectedResult => {
                 console.log(rejectedResult);
             });

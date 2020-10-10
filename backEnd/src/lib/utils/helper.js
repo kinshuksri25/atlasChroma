@@ -19,13 +19,14 @@ helperFunctions.randValueGenerator = (valueLength = 10) => {
   return randomValue;
 }
 
-helperFunctions.generateCurrentDate = (date = new Date()) => {
-  let currentDate = date;
-  let currentYear = currentDate.getFullYear();
-  let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-  let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
+helperFunctions.generateCurrentDate = () => {
+  let currentDateObject = {};
+  currentDateObject.month = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
+  currentDateObject.year =  new Date().getFullYear();
+  currentDateObject.date = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();  
+  currentDateObject.time = new Date().getHours().toString()+":00";
 
-  currentDate = currentYear+"-"+currentMonth+"-"+currentDay;
+  let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
   return currentDate;
 }
 

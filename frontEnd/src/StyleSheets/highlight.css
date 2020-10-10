@@ -1,4 +1,5 @@
 .highLightContainer{
-    flex: 1;
-    background-color: greenyellow;
+    margin: 0px;
+    padding: 0px;
+    background-color: green;
 }

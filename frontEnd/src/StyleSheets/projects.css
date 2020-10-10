@@ -1,39 +1,36 @@
 .projectsPageContainer{
+    width: 100%;
+    height: 100%;
+    box-sizing: content-box;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    background-color: lightblue;
+    padding: 0px;
+    margin: 0px;   
 }
 
-.upperBlock{
+.projectDashboardUpperBlock{
+    flex-basis: 15%;
+    min-height: 100px;
     display: flex;
-    margin-top: 1.5rem;
-    margin-left: 0.8rem;
-    justify-content: start;
+    width: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
 }
 
-.filterContainer{
-    width: 45%;
-    display: flex;
-    justify-content: space-around;
+.projectDashboardLowerBlock{
+    flex-basis: 85%;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: lightcoral;
 }
 
 .openAddModal{
-    width: 20%;
+    position: absolute;
+    top:  1%;
+    right: 0.5%;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
 }
-
-.orderBy,.projectSearch{
-    width: 48% !important;
-}
-
-.orderBy:active,.projectSearch:active{
-    outline: none !important;
-    border:1px solid #bfdcae !important;
-    box-shadow: 0 0 10px #bfdcae !important;
-}
-
-.openAddModal{
-    margin-left: 0.5rem;
-    height: 2.3rem;
-}
-

@@ -1,5 +1,6 @@
 import React,{ Component } from "react";
-import {Form} from "react-bootstrap";
+
+import "../StyleSheets/FilterForm.css";
 
 export default class FilterForm extends Component{
 
@@ -26,14 +27,16 @@ export default class FilterForm extends Component{
     render(){
         return(
             <div className = "filterContainer">
-                <Form.Control className = "orderBy" as="select" id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}>
-                    {
-                        this.props.options.map(option => {
-                            return (<option value = {option}>{option}</option>);
-                        })
-                    }
-                </Form.Control>
-                <Form.Control className = "projectSearch" type = "text" value={this.state.search} placeHolder = "Project Search" id = "inputSearch" onChange={this.onChange} onKeyDown = { this.onKeyDownHandler }/>
+                <div className = "filterInnerContainer">
+                    <select className = "orderBy" id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}>
+                        {
+                            this.props.options.map(option => {
+                                return (<option value = {option}>{option}</option>);
+                            })
+                        }
+                    </select>
+                    <input className = "projectSearch" type = "text" value={this.state.search} placeHolder = "Project Search" id = "inputSearch" onChange={this.onChange} onKeyDown = { this.onKeyDownHandler }/>
+                </div>
             </div>
           );
     }

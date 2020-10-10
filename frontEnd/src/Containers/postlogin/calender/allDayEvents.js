@@ -55,7 +55,7 @@ class AllDayEvent extends Component{
 
     allDayJSX(){
         if(this.props.allDayEvents.length == 0 ){
-            return <div className = "emptyHeadingContainer"><h2 className = "emptyHeading">Nothing planned for today..</h2></div>;
+            return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedStories = this.sortStories(this.props.allDayStories); 
             let allDayJSX = [];
@@ -67,10 +67,10 @@ class AllDayEvent extends Component{
                                 </div>);
             });
             this.props.allDayEvents.map(event => {  
-                allDayJSX.push(<span className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    
+                allDayJSX.push(<div className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    
                                     <span className = "cardTitle">{event.EventTitle}</span>
                                     <p className = "cardDescription">{event.Description}</p>
-                                </span>);
+                                </div>);
             });
             return (<div className = "CardGroup">{allDayJSX}</div>);
         }

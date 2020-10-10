@@ -47,7 +47,7 @@ class ProfilePicture extends Component {
         let count = 0;
         //let count = Math.floor(Math.random() * 30);
         while(count < 9){
-            pictures.push(<img src={this.state.profilePics[count].download_url} onClick={this.props.selectProfilePic} className = "photo" width = "200" height = "200"/>);                        
+            pictures.push(<img src={this.state.profilePics[count].download_url} onClick={this.props.selectProfilePic} className = "photo"/>);                        
             count++;
         }
         return (<div className = "pictureContainer">{pictures}</div>);
@@ -75,8 +75,10 @@ class ProfilePicture extends Component {
         return( <Modal
                 isOpen={this.props.openModal && this.state.profilePics.length != 0}
                 style={customStyles}>
-                    <button className = "cancel" onClick={this.props.cancelHandler}>X</button>
-                    {profilePicture}
+                    <div className = "gridContainer">
+                        <button className = "cancel" onClick={this.props.cancelHandler}>X</button>
+                        {profilePicture}
+                     </div>   
                 </Modal>);
     }
 }

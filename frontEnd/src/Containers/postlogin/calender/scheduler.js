@@ -155,14 +155,17 @@ class Scheduler extends Component {
                 return(<div className = "parentSchedulerContainer">
                                 {this.state.currentDate == "" &&   <div className = "calenderContainer"> 
                                                                         <div className = "calenderUpperBlock">
-                                                                                <button onClick = {this.changeMonth} className = "previous">Previous</button>
-                                                                                <div className = "calenderDateHeading">{month[this.state.currentMonth]},{this.state.currentYear}</div>
-                                                                                <button onClick = {this.changeMonth} className = "next">Next</button>
+                                                                                <div className="calenderUpperInnerBlock">
+                                                                                        <button onClick = {this.changeMonth} className = "previous">&lt;</button>
+                                                                                        <div className = "calenderDateHeading">{month[this.state.currentMonth]},{this.state.currentYear}</div>
+                                                                                        <button onClick = {this.changeMonth} className = "next">&gt;</button>
+                                                                                </div>
                                                                         </div>
                                                                         <div className = "calenderLowerBlock">{this.buildCalender()}</div>
                                                                    </div>}
 
                                 {this.state.currentDate == "" || <CalenderDate currentMonth = {this.state.currentMonth} 
+                                                                  currentMonthName = {month[this.state.currentMonth]}
                                                                   currentYear = {this.state.currentYear} 
                                                                   currentDate = {this.state.currentDate} 
                                                                   onClickHandler={this.onClickHandler}/>}                                                                

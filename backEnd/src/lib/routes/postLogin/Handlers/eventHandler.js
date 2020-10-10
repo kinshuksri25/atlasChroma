@@ -240,7 +240,6 @@ eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,re
             });
             mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resolvedSet => {
                 if(selectedEvent.EventType == "Meeting"){  
-                    console.log(selectedEvent);
                     io.emit("updatingDetails",{event : "deletingMeeting", data : {...selectedEvent}});    
                     let template = {
                         eventName : selectedEvent.eventName

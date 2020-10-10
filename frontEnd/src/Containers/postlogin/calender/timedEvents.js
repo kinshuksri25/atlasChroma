@@ -53,7 +53,7 @@ class TimedEvent extends Component{
 
     timedJSX(){
         if(this.props.timedEvents.length == 0){
-            return <div className = "emptyHeadingContainer"><h2 className = "emptyHeading">Nothing planned for today..</h2></div>;
+            return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedEvent = this.sortStories(this.props.timedEvents); 
             let timedJSX = [];
@@ -61,9 +61,9 @@ class TimedEvent extends Component{
             let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
             sortedEvent.map(event => {
                 let status = "";
-                let startTime = event.StartTime.indexOf(":") == 2 ? event.StartTime.substring(0,2) : event.StartTime.substring(0,1);
-                let endTime = event.EndTime.indexOf(":") == 2 ? event.EndTime.substring(0,2) : event.EndTime.substring(0,1);
-                let currentTime = this.state.currentTime.indexOf(":") == 2 ? this.state.currentTime.substring(0,2) : this.state.currentTime.substring(0,1);
+                let startTime = parseInt(event.StartTime.substring(0,2));
+                let endTime = parseInt(event.EndTime.substring(0,2));
+                let currentTime = parseInt(this.state.currentTime.substring(0,2));
                 if(this.state.currentTime == ""){
                     status = currentDate < this.state.eventDate ? "YettoStart" : "Finished"
                 }else{

@@ -67,7 +67,7 @@ class EditProject extends Component{
         }if(this.state.description != this.props.projectDetails.description){
             projectObject.description = this.state.description;
         }if(this.state.projectleader != this.props.projectDetails.projectlead){
-            projectObject.projectlead = this.state.projectleader;
+            projectObject.projectleader = this.state.projectleader;
         }if(JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors)){
             projectObject.contributors = this.state.contributors;
         }
@@ -79,6 +79,7 @@ class EditProject extends Component{
         });
         globalThis.props.disableProjectForm(); 
         if(!duplicateTitle){
+            console.log(projectObject);
             httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -112,15 +113,18 @@ class EditProject extends Component{
             errorObject.status = "ERROR";
             this.props.setMsgState(errorObject);
         }else{
+           if(event.target.className != this.state.projectleader){
             let contributors = [...this.state.contributors];
             let newContributors = [];
             contributors.map(contributor => {
                 contributor != event.target.className && newContributors.push(contributor);
             });
-            if(event.target.className == this.state.projectleader){
-                this.setState({projectLeader : ""});
-            }
             this.setState({contributors : [...newContributors]});
+           }else{
+            errorObject.msg = "Connot delete projectleader directly from the contributor list.";
+            errorObject.status = "ERROR";
+            this.props.setMsgState(errorObject); 
+           }
         }
     }
 
@@ -147,9 +151,9 @@ class EditProject extends Component{
     suggestionAllocator(selectedValue,searchBoxID){
         switch(searchBoxID){
             case "projectLead":
-                let leadExists = this.state.projectLeader == selectedValue ? true : false;
+                let leadExists = this.state.projectleader == selectedValue ? true : false;
                 if(!leadExists){
-                    this.setState({projectLeader : selectedValue});
+                    this.setState({projectleader : selectedValue});
                     this.suggestionAllocator(selectedValue,"contributors");
                 }
                 break;
@@ -159,7 +163,7 @@ class EditProject extends Component{
                 if(!contributorExists){
                     contributor.push(selectedValue);
                 }else{
-                    let EMSG = selectedValue == this.state.projectLeader ? EMSG.CLI_PRJ_UPPRJLDR : EMSG.CLI_PRJ_UPCNERR;
+                    let EMSG = selectedValue == this.state.projectleader ? EMSG.CLI_PRJ_UPPRJLDR : EMSG.CLI_PRJ_UPCNERR;
                     errorObject.msg = EMSG;
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);

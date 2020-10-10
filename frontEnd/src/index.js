@@ -8,7 +8,6 @@ import Router from "./router.js";
 import store from "./store/store";
 
 //const store = storeCreator();
-
 ReactDOM.render(<Provider store = { store }> 
                     <Router/> 
                 </Provider>, document.getElementById("root"));

@@ -66,11 +66,12 @@ class SearchFeild extends Component{
                         this.setState({...changedList});
                     }else{index++;}
                 });
+
+                this.props.onRemoveClick(event.target.id);
             }  
             index = 0; 
         }); 
         this.setState({openModal : false});
-        this.props.onRemoveClick(event.target.id);
     }
 
     buildJSX(){
@@ -114,7 +115,7 @@ class SearchFeild extends Component{
         };
         if(this.state[constant.stateValueName].length == undefined && JSON.stringify(this.state[constant.stateValueName]) != JSON.stringify({})){
             let listJSX = <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{this.state[constant.stateValueName].tooltip}</strong>.</Tooltip>}>
-                            <img className = "profilePhoto" id = {this.state[constant.stateValueName].id} src={this.state[constant.stateValueName].photo} width = "30" height = "30"/>    
+                            <img className = "profilePicture" id = {this.state[constant.stateValueName].id} src={this.state[constant.stateValueName].photo} width = "30" height = "30"/>    
                         </OverlayTrigger>
             selectedJSX =   <div className = "profileContainer">
                                 <h6>Current {constant.name}:</h6>
@@ -123,7 +124,7 @@ class SearchFeild extends Component{
         }else if(this.state[constant.stateValueName].length > 0){
             let listJSX = this.state[constant.stateValueName].map(user => {
                     return( <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{user.tooltip}</strong>.</Tooltip>}>
-                                <img className = "profilePhoto" id = {user.id} src={user.photo} width = "30" height = "30" onClick={this.removeUser}/>    
+                                <img className = "profilePicture" id = {user.id} src={user.photo} width = "30" height = "30" onClick={this.removeUser}/>    
                             </OverlayTrigger>);
             });
             selectedJSX =   <div className = "profileContainer">

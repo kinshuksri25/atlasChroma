@@ -3,25 +3,3 @@
     align-self: center;
     z-index: 10;
 }
-
-.menuButton{
-    background-color: lightseagreen;
-    overflow: hidden;
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
-    margin-top: 0.2rem;
-    margin-bottom: 0.2rem;
-    margin-left: 0.4rem;
-    border: none;
-    border-radius: 50%;
-    transition: margin-left 0.3s;
-    outline: none !important;
-}
-
-.menuButton:hover{
-    width: 3rem;
-    height: 3rem;
-    margin-left: 0.7rem;
-    transition: margin-left 0.3s;
-}

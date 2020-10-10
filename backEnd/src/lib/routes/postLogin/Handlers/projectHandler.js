@@ -66,6 +66,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
         PAYLOAD : {},
         SMSG : ""
        };
+    let templateBuilder = {};       
     if(requestObject.reqBody.hasOwnProperty('description') && requestObject.reqBody.hasOwnProperty('title') && requestObject.reqBody.hasOwnProperty('contributors') && requestObject.reqBody.hasOwnProperty('projectleader')){
         let projectClass = new project({title : requestObject.reqBody.title,
             description : requestObject.reqBody.description,
@@ -82,14 +83,19 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
 
         mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
+            projectObject._id = insertedID;
             mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(resolvedSet => {
-                io.emit("updatingDetails",{event : "addingProject", data : projectObject});
+                io.emit("updatingDetails",{event : "addingProject", data : {contributors : [...projectObject.contributors],body : {...projectObject}}});
                 mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0,firstname : 1}}).then(resolvedSet => {
                     let recipientList = [];
                     resolvedSet.map(user => {
                         recipientList.push(user.email);
-
                     });
+                    templateBuilder = {
+                        projectName : requestObject.reqBody.title,
+                        projectLink : "",
+                        contributors : requestObject.reqBody.contributors  
+                    };
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
@@ -154,7 +160,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
     }if(requestObject.reqBody.hasOwnProperty("contributors")){
         set.contributors = requestObject.reqBody.contributors;
     }if(requestObject.reqBody.hasOwnProperty("projectleader")){
-        set.projectlead = requestObject.reqBody.projectlead;
+        set.projectlead = requestObject.reqBody.projectleader;
     }if(requestObject.reqBody.hasOwnProperty("templatedetails")){
         set.templatedetails = requestObject.reqBody.templatedetails;
     }
@@ -169,7 +175,6 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         let newContributors = [];
         let oldContributors = [];
         let removedContributors = [];
-        
         requestObject.reqBody.oldContributors.map(oldContri => {
             editedContributors.indexOf(oldContri) == -1 && removedContributors.push(oldContri);
             editedContributors.indexOf(oldContri) != -1 && oldContributors.push(oldContri);
@@ -178,110 +183,122 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         editedContributors.map(contri => {
             oldContributors.indexOf(contri) == -1 && newContributors.push(contri);
         });
-        io.emit("updatingDetails",{event : "editingProject", data : updatedProject});   
 
-        mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
+        mongo.update(DBCONST.userCollection,{username : {$in:[...removedContributors]}},{$pull:{projects:requestObject.reqBody.projectID}},{}, SINGLE).then(resolvedResult => {
+            mongo.update(DBCONST.userCollection,{username : {$in:[...newContributors]}},{$push:{projects:requestObject.reqBody.projectID}},{}, SINGLE).then(resolvedResult => {
 
-            let newContributorsEmail = [];
-            let oldContributorsEmail = [];
-            let removedContributorsEmail = [];
-            let templateBuilder = {};
-            resolvedSet.map(user => {
-                newContributors.indexOf(user.username) != -1 && newContributorsEmail.push(user.email);
-                oldContributors.indexOf(user.username) != -1 && oldContributorsEmail.push(user.email);
-                removedContributors.indexOf(user.username) != -1 && removedContributorsEmail.push(user.email);
-            });
+                io.emit("updatingDetails",{event : "editingProject", data : updatedProject}); 
+                newContributors.length > 0 && io.emit("updatingDetails",{event : "addingProject", data : {contributors : [...newContributors],body : {...updatedProject}}});
+                removedContributors.length > 0 && io.emit("updatingDetails",{event : "deletingProject", data : {contributors : [...removedContributors],_id:requestObject.reqBody.projectID}});
 
-            //send emails to respective groups
-            if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){
-                templateBuilder = {
-                    projectName : requestObject.reqBody.oldTitle,
-                    projectLink : ""  
-                };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER,templateBuilder).then(resolvedEmail => {
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
-                        response.STATUS = 200;
-                        response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_PHH_PRJUP;           
-                        resolve(response); 
-                    }).catch(rejectedEmail => {
-                        let payload = {
-                            "participants" : [...oldContributorsEmail],
-                            "template" : "EDITPROJECT",
-                            "templateBuilder" : templateBuilder
-                        };
-                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                        throw rejectedEmail;
+                mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
+        
+                    let newContributorsEmail = [];
+                    let oldContributorsEmail = [];
+                    let removedContributorsEmail = [];
+                    let templateBuilder = {};
+                    resolvedSet.map(user => {
+                        newContributors.indexOf(user.username) != -1 && newContributorsEmail.push(user.email);
+                        oldContributors.indexOf(user.username) != -1 && oldContributorsEmail.push(user.email);
+                        removedContributors.indexOf(user.username) != -1 && removedContributorsEmail.push(user.email);
                     });
-                }).catch(rejectedEmail => {
-                    let payload = {
-                        "participants" : [...removedContributorsEmail],
-                        "template" : "REMOVEDUSER",
-                        "templateBuilder" : templateBuilder
-                    };
-                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedEmail;
-                });
-            }else if(removedContributorsEmail.length == 0 && newContributorsEmail.length != 0){
-                templateBuilder = {
-                    projectName : requestObject.reqBody.oldTitle,
-                    projectLink : "",
-                    projectLead : updatedProject.projectlead,
-                    contributors : updatedProject.contributors
-                };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
-                    templateBuilder = {
-                        projectName : requestObject.reqBody.oldTitle,
-                        projectLink : ""  
-                    };
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
-                        response.STATUS = 200;
-                        response.PAYLOAD = {};
-                        response.SMSG = SMSG.SVR_PHH_PRJUPSUC;      
-                        resolve(response); 
-                    }).catch(rejectedEmail => {
-                        let payload = {
-                            "participants" : [...oldContributorsEmail],
-                            "template" : "EDITPROJECT",
-                            "templateBuilder" : templateBuilder
+        
+                    //send emails to respective groups
+                    if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){
+                        templateBuilder = {
+                            projectName : requestObject.reqBody.oldTitle,
+                            projectLink : ""  
                         };
-                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                        throw rejectedEmail;
-                    });
-                }).catch(rejectedEmail => {
-                    let payload = {
-                        "participants" : [...newContributorsEmail],
-                        "template" : "ADDPROJECT",
-                        "templateBuilder" : templateBuilder
-                    };
-                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedEmail;
-                });
-            }else{
-                templateBuilder = {
-                    projectName : requestObject.reqBody.oldTitle,
-                    projectLink : ""  
-                };
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
-                    response.STATUS = 200;
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER,templateBuilder).then(resolvedEmail => {
+                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
+                                response.STATUS = 200;
+                                response.PAYLOAD = {};
+                                response.SMSG = SMSG.SVR_PHH_PRJUP;           
+                                resolve(response); 
+                            }).catch(rejectedEmail => {
+                                let payload = {
+                                    "participants" : [...oldContributorsEmail],
+                                    "template" : "EDITPROJECT",
+                                    "templateBuilder" : templateBuilder
+                                };
+                                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                                throw rejectedEmail;
+                            });
+                        }).catch(rejectedEmail => {
+                            let payload = {
+                                "participants" : [...removedContributorsEmail],
+                                "template" : "REMOVEDUSER",
+                                "templateBuilder" : templateBuilder
+                            };
+                            mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                            throw rejectedEmail;
+                        });
+                    }else if(removedContributorsEmail.length == 0 && newContributorsEmail.length != 0){
+                        templateBuilder = {
+                            projectName : requestObject.reqBody.oldTitle,
+                            projectLink : "",
+                            projectLead : updatedProject.projectlead,
+                            contributors : updatedProject.contributors
+                        };
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
+                            templateBuilder = {
+                                projectName : requestObject.reqBody.oldTitle,
+                                projectLink : ""  
+                            };
+                            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
+                                response.STATUS = 200;
+                                response.PAYLOAD = {};
+                                response.SMSG = SMSG.SVR_PHH_PRJUPSUC;      
+                                resolve(response); 
+                            }).catch(rejectedEmail => {
+                                let payload = {
+                                    "participants" : [...oldContributorsEmail],
+                                    "template" : "EDITPROJECT",
+                                    "templateBuilder" : templateBuilder
+                                };
+                                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                                throw rejectedEmail;
+                            });
+                        }).catch(rejectedEmail => {
+                            let payload = {
+                                "participants" : [...newContributorsEmail],
+                                "template" : "ADDPROJECT",
+                                "templateBuilder" : templateBuilder
+                            };
+                            mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                            throw rejectedEmail;
+                        });
+                    }else{
+                        templateBuilder = {
+                            projectName : requestObject.reqBody.oldTitle,
+                            projectLink : ""  
+                        };
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
+                            response.STATUS = 200;
+                            response.PAYLOAD = {};
+                            response.SMSG = SMSG.SVR_PHH_PRJUPSUC;        
+                            resolve(response); 
+                        }).catch(rejectedEmail => {
+                            let payload = {
+                                "participants" : [...oldContributorsEmail],
+                                "template" : "EDITPROJECT",
+                                "templateBuilder" : templateBuilder
+                            };
+                            mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                            throw rejectedEmail;
+                        });
+                    }
+                }).catch(rejectedSet => {
+                    response.STATUS = 201;
                     response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_PHH_PRJUPSUC;        
-                    resolve(response); 
-                }).catch(rejectedEmail => {
-                    let payload = {
-                        "participants" : [...oldContributorsEmail],
-                        "template" : "EDITPROJECT",
-                        "templateBuilder" : templateBuilder
-                    };
-                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    throw rejectedEmail;
+                    response.SMSG = SMSG.SVR_PHH_IPRJUPSUC;
+                    resolve(response);
                 });
-            }
-        }).catch(rejectedSet => {
-            response.STATUS = 201;
-            response.PAYLOAD = {};
-            response.SMSG = SMSG.SVR_PHH_IPRJUPSUC;
-            resolve(response);
+            }).catch(rejectedResult => {
+                throw rejectedSet;
+            });
+        }).catch(rejectedResult => {
+            throw rejectedSet;
         });
     }).catch(rejectedResult => {
         response.STATUS = 500;
@@ -315,7 +332,7 @@ projectHandler.project.delete = (route,requestObject,io) => new Promise((resolve
                 resolvedSet.map(user => {
                     recipientList.push(user.email);
                 });
-                let template = {
+                let templateBuilder = {
                     projectName : deletedData.title,
                     projectLink : ""
                 };

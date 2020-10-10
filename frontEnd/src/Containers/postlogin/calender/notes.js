@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import "../../../StyleSheets/notes.css";
 import Modal from 'react-modal';
 import SimpleForm from '../../../Forms/simpleform';
 import cookieManager from '../../../Components/cookieManager';
@@ -149,14 +150,14 @@ class Notes extends Component{
         notesJSX = notes.map(note => {
                 if(this.props.calenderDate == note.creationdate){
                     return(
-                        <div id={note._id} onClick={this.displayNotesForm}>
-                            <h2>{note.title}</h2>
-                            <p>{note.description}</p>
+                        <div id={note._id} className="notesContainer" onClick={this.displayNotesForm}>
+                            <h2 className="notesTitle">{note.title}</h2>
+                            <p className="notesDescription">{note.description}</p>
                         </div>
                     );   
                 }
         });
-        return notesJSX;
+        return notesJSX != "" ? <div className="notesJSXContainer">{notesJSX}</div> : <div className="emptyNotesContainer">Looks a little quite around here, add some notes organise yourself....</div>;
     }
 
     displayNotesForm(event){
@@ -178,8 +179,8 @@ class Notes extends Component{
     let bodyJSX = this.buildJSX();
     let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
                             (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
-    return(<div> 
-                <button disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
+    return(<div className = "calenderDateLowerNotesContainer"> 
+                <button variant="success" disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
                 <Modal
                 isOpen={this.state.modalStatus == "ADD"}
                 contentLabel="">

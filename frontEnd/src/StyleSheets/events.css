@@ -1,0 +1,144 @@
+.calenderDateLowerEventContainer{
+    flex-basis: 85%;
+    flex-shrink: 0;
+    width: 100%;
+    display: grid;
+    grid-template-rows: repeat(3,1fr);
+    position: relative;
+    box-sizing: content-box;
+}
+
+.ADD{
+    position: absolute;
+    top:  1%;
+    right: 0.5%;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.allDayContainer{
+    background-color:lightcoral;
+    display: grid;
+    grid-template-rows: 13% 87%;
+}
+
+.timedContainer{
+    background-color:lightgreen;
+    display: grid;
+    grid-template-rows: 13% 87%;
+}
+
+.meetingContainer{
+    background-color:lightyellow;
+    display: grid;
+    grid-template-rows: 13% 87%;
+}
+
+.eventHeading{
+    margin: 0px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.innerEventContainer{
+    overflow: hidden;
+    text-align: center;
+    background-color: lightgray;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 100%;
+}
+.emptyHeadingContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.emptyHeading{
+    margin:0px;
+}
+
+.CardGroup{
+    overflow-x:scroll;
+    width: 100%;
+    display: flex;
+    box-sizing: content-box;
+}
+
+.CardGroup::-webkit-scrollbar {
+    background: transparent;
+    margin-top: 5px;
+}
+
+.CardGroup::-webkit-scrollbar-thumb {
+    background: lightseagreen;
+    border-radius: 10px;
+}
+
+.allDayCard,.YettoStart,.Finished,.CurrentlyActive{
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    min-width: 218px !important;
+    max-height: 218px !important;
+    margin-left: 5px;
+    margin-right: 5px;  
+    display: flex;
+    flex-direction: column;  
+    justify-content: space-between;
+}
+
+.YettoStart{
+    background-color: lightyellow;
+}
+
+.Finished{
+    background-color: lightsalmon;
+}
+
+.CurrentlyActive{
+    background-color: lightblue;
+}
+
+.cardTitle{
+    flex-basis: 20%;
+}
+
+.cardDescription{
+    line-height: 1.6rem;
+    flex-basis: 80%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical; 
+    margin: 0px;
+}
+
+.scheduledCardTitle{
+    flex-basis: 15%;
+}
+
+.cardBody{
+    flex-basis: 85%;
+    display: flex;
+    flex-direction: column;
+}
+
+.scheduledCardDescription{
+    flex-basis: 80%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical; 
+    margin: 0px;
+}
+
+.timing,.status{
+    flex-basis: 20%;
+}
