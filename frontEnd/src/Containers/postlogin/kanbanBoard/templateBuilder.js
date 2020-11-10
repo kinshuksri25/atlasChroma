@@ -1,7 +1,9 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
-import "../../../StyleSheets/templateBuilder.css";
 
+import Modal from 'react-modal';
+import "../../../StyleSheets/templateBuilder.css";
+import {EMSG} from "../../../../../lib/constants/contants"; 
 import setMsgAction from '../../../store/actions/msgActions';
 
 class TemplateBuilder extends Component {
@@ -20,6 +22,7 @@ class TemplateBuilder extends Component {
             isSubPhase : true,
             disableWIP : false,
         };
+        this.getStyle = this.getStyle.bind(this);
         this.addPhase = this.addPhase.bind(this);
         this.clearForm = this.clearForm.bind(this);
         this.submitPhase = this.submitPhase.bind(this);
@@ -41,29 +44,42 @@ class TemplateBuilder extends Component {
         });
     }
 
+    getStyle(el,styleProp)
+{
+	var x = document.getElementById(el);
+	if (x.currentStyle)
+		var y = x.currentStyle[styleProp];
+	else if (window.getComputedStyle)
+		var y = document.defaultView.getComputedStyle(x,null).getPropertyValue(styleProp);
+	return y;
+}
+
     formBuilder(){
         let groupedTemplate = this.groupTemplates();
         let template = "";
         template = groupedTemplate.map(group => {
             let groupTemp = group.map(element => {
                                 if(element.EXTENDS != "" && JSON.stringify(element.CHILDREN) == JSON.stringify([])){
-                                    return (<div id = {element.NAME} className={element.EXTENDS} hidden={true} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>
-                                                {element.NAME}
+                                    let childMargin = parseInt(this.getStyle(element.EXTENDS,"margin-left").substring(0,this.getStyle(element.EXTENDS,"margin-left").length-2)) + 14;
+                                    childMargin += "px";
+                                    return (<div className="columnName">
+                                                <span style={{marginLeft:childMargin}} id = {element.NAME} className={element.EXTENDS} hidden={true} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>{element.NAME}</span>
                                             </div>);
                                 }else if(JSON.stringify(element.CHILDREN) != JSON.stringify([]) && element.EXTENDS != ""){
-                                    return (<div id = {element.NAME} className={element.EXTENDS} onClick={this.toggleChildren} hidden={true} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>
-                                                {element.NAME}
+                                    let childMargin = parseInt(this.getStyle(element.EXTENDS,"margin-left").substring(0,this.getStyle(element.EXTENDS,"margin-left").length-2)) + 14;
+                                    childMargin += "px";
+                                    return (<div className="columnName">
+                                                <span style={{marginLeft:childMargin}} id = {element.NAME} className={element.EXTENDS} onClick={this.toggleChildren} hidden={true} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>{element.NAME}</span>
                                             </div>);
                                 }else{
-                                    return (<div id = {element.NAME} onClick={this.toggleChildren} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>
-                                                {element.NAME}
+                                    return (<div className="columnName">
+                                                <span id = {element.NAME} onClick={this.toggleChildren} onMouseLeave={this.mouseLeaveButton} onMouseEnter={this.mouseOverButton}>{element.NAME}</span>
                                             </div>);
                                 }
                             });
             return groupTemp;
-        });
-        let addButton = <button onClick={this.addPhase}>+</button>    
-        return (<div>{template}{addButton}</div>);
+        });     
+        return (<div>{template}</div>);
     }
 
     hideChildren(){
@@ -321,15 +337,15 @@ class TemplateBuilder extends Component {
             let mouseoverArray = [
                     {
                         NAME : "EDIT",
-                        IMAGEURL : "EDIT"
+                        IMAGEURL : ""
                     },
                     {
                         NAME : "INFO",
-                        IMAGEURL : "INFO"
+                        IMAGEURL : ""
                     },
                     {
                         NAME : "REMOVE",
-                        IMAGEURL : "REMOVE"
+                        IMAGEURL : ""
                     }
                 ];
             mouseoverArray.map(mouseovr => {
@@ -347,13 +363,17 @@ class TemplateBuilder extends Component {
         let formContainer = this.formBuilder();
         let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;      
 
-        return(<div>
+        return(<div className = "templateBuilderContainer">
                     {formContainer}
-                    <select id="phaseSelector" value = {this.state.formData.PHASE} hidden = {showPhaseSelector} onChange={this.onPhaseOptionChange}>
-                        <option selected="selected" value="Phase">Phase</option>
-                        <option value="SubPhase">SubPhase</option>   
-                    </select>
-                    <select id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
+                    <button className="templateAddButton" onClick={this.addPhase}>+</button>
+                    <Modal
+                    isOpen={this.state.currentAction != ""}
+                    contentLabel="">
+                        <select id="phaseSelector" value = {this.state.formData.PHASE} hidden = {showPhaseSelector} onChange={this.onPhaseOptionChange}>
+                            <option selected="selected" value="Phase">Phase</option>
+                            <option value="SubPhase">SubPhase</option>   
+                        </select>
+                        <select id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
                         <option>Parent Phase</option>  
                         {
                             !showPhaseSelector && this.groupTemplates().map(template => {
@@ -361,13 +381,14 @@ class TemplateBuilder extends Component {
                                                         return(<option value = {opt.NAME}>{opt.NAME}</option>)}));
                                                     })
                         }
-                    </select>
-                    <div hidden = {this.state.editForm}>
+                        </select>
+                        <div hidden = {this.state.editForm}>
                         <input type="text" id = "NAME" value={this.state.formData.NAME} onChange = {this.changeHandler} placeholder="Name" disabled = {this.state.isFeildDisabled}/>
                         <input type="number" id = "WIP" value={this.state.formData.WIP} onChange = {this.changeHandler} placeholder="WIP" disabled = {this.state.isFeildDisabled || this.state.disableWIP}/>
-                        <button onClick={this.clearForm}>Back</button>
-                        <button onClick={this.submitPhase} hidden = {this.state.isFeildDisabled}>Submit</button>
-                    </div> 
+                        <button onClick={this.clearForm}>X</button>
+                        <button onClick={this.submitPhase} hidden = {this.state.isFeildDisabled}>&gt;</button>
+                        </div>    
+                    </Modal>
                </div>);
     }
 }

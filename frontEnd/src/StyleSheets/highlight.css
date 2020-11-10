@@ -1,5 +1,44 @@
 .highLightContainer{
     margin: 0px;
-    padding: 0px;
-    background-color: green;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    display:grid;
+    grid-gap:0.25rem;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3,1fr);
+}
+
+.hightlightedStories,.hightlightedEvents,.MissedConversation{
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.MissedConversation{
+    border: 1px solid #4169e1;
+}
+
+.hightlightedEvents{
+    border: 1px solid #4169e1;
+}
+
+.hightlightedStories{
+    border: 1px solid #4169e1;
+}
+
+.hightlightedStories h5{
+    text-align: center;
+    background: #4169e1;
+    color: white;
+}
+
+.hightlightedEvents h5{
+    text-align: center;
+    background: #4169e1;
+    color: white;
+}
+
+.MissedConversation h5{
+    text-align: center;
+    background: #4169e1;
+    color: white; 
 }

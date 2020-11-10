@@ -214,7 +214,7 @@ class PreLoginForms extends Component {
                             //set the session
                             cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                             //TODO --> change the pushState 'state' and 'title'
-                            window.history.pushState({},"",urls.DASHBOARD);
+                            window.history.pushState({},"",urls.PROJECT);
                         }
                     }else{
                         if(JSON.stringify(responseObject.Payload) == JSON.stringify({})){

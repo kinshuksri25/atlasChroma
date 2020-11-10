@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import "../../../StyleSheets/setupProject.css";
 import SimpleForm from '../../../Forms/simpleform';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
 import TemplateBuilder from './templateBuilder';
 import setMsgAction from '../../../store/actions/msgActions';
-import {msgObject} from '../../../../../lib/constants/storeConstants';
 import cookieManager from '../../../Components/cookieManager';
 import templateBuilderConstants from './templateBuilderConstants';
 
@@ -42,10 +42,12 @@ class SetupProject extends Component {
 
     formBuilder(){
         if(!this.state.nextPage){
-           return(<SimpleForm formAttributes = { formConstants.boardTemplateSelector }
+           return(<div className = "template">
+                    <SimpleForm formAttributes = { formConstants.boardTemplateSelector }
                         submitHandler = { this.changePage }
                         options = {[["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
-                        changeFieldNames = {[]} />);
+                        changeFieldNames = {[]} />
+                  </div>);
         }else{
             let constants = [];
             switch(this.state.currentTemplate){
@@ -67,9 +69,12 @@ class SetupProject extends Component {
                 constant._id = this.randValueGenerator();
                    
             });
-            return(<div>
+            return(<div className="template">
                       <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
-                      <button onClick={this.changePage}>Back</button>
+                      <div className="buttonContainer">
+                        <button className="templateBackButton" onClick={this.changePage}>&lt;</button>
+                        <button className="submitTemplate" onClick={this.onTemplateSubmit} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</button>
+                      </div>
                     </div>);
         }
     }
@@ -146,7 +151,6 @@ class SetupProject extends Component {
         let setupContainer = this.formBuilder();
         return(<div className="projectSetup">
                     {setupContainer}
-                    <button onClick={this.onTemplateSubmit} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>Go</button>
                </div>);
     }
 }

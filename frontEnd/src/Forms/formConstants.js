@@ -270,7 +270,7 @@ formConstants.boardTemplateSelector = [
         isRequired: "required"
     },
     {
-        name: "-->",
+        name: ">",
         type: "button",
         variantType : "success",
         route: '',

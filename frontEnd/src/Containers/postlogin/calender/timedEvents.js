@@ -4,31 +4,12 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
 import "../../../StyleSheets/timedEvents.css";
-import DateHelper from '../../generalContainers/date';
 
 class TimedEvent extends Component{
     constructor(props){
         super(props);
-        this.state = {  dateHelper : new DateHelper(),
-                        currentTime : "",
-                        eventDate : props.currentYear+"-"+props.currentMonth+"-"+props.currentDate}
-        this.setCurrentTime = this.setCurrentTime.bind(this);
         this.sortStories = this.sortStories.bind(this);
         this.timedJSX = this.timedJSX.bind(this);
-    }
-    
-    componentDidMount(){
-        this.setCurrentTime();
-        setInterval(() => {
-            this.setCurrentTime();
-        },1800000);
-    }
-
-    setCurrentTime(){
-        let currentDateObject = this.state.dateHelper.currentDateGenerator();
-        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
-        if(currentDate == this.state.eventDate)
-            this.setState({currentTime : currentDateObject.time});
     }
 
     sortStories(stories){
@@ -57,24 +38,13 @@ class TimedEvent extends Component{
         }else{
             let sortedEvent = this.sortStories(this.props.timedEvents); 
             let timedJSX = [];
-            let currentDateObject = this.state.dateHelper.currentDateGenerator();
-            let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
             sortedEvent.map(event => {
-                let status = "";
-                let startTime = parseInt(event.StartTime.substring(0,2));
-                let endTime = parseInt(event.EndTime.substring(0,2));
-                let currentTime = parseInt(this.state.currentTime.substring(0,2));
-                if(this.state.currentTime == ""){
-                    status = currentDate < this.state.eventDate ? "YettoStart" : "Finished"
-                }else{
-                    status = startTime > currentTime ? "YettoStart" : startTime <= currentTime && endTime <= currentTime ? "Finished" : "CurrentlyActive";
-                }
-                timedJSX.push(<div className = {status} id = {event._id} onClick={this.props.onClick}>  
+                timedJSX.push(<div className = {event.status} id = {event._id} onClick={this.props.onClick}>  
                                 <div className = "scheduledCardTitle">{event.EventTitle}</div>
                                 <div className = "cardBody">
                                     <p className = "scheduledCardDescription">{event.Description}</p>
-                                    {status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
-                                    {status != "YettoStart" && <span className = "status">{status}</span>}
+                                    {event.status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
+                                    {event.status != "YettoStart" && <span className = "status">{event.status}</span>}
                                 </div>
                             </div>);
             });

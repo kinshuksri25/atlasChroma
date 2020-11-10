@@ -1,144 +1,208 @@
 .calenderDateLowerEventContainer{
-    flex-basis: 85%;
-    flex-shrink: 0;
-    width: 100%;
-    display: grid;
-    grid-template-rows: repeat(3,1fr);
+    height: 100%;
     position: relative;
-    box-sizing: content-box;
+    box-sizing: border-box;
+    overflow:hidden;
 }
 
-.ADD{
-    position: absolute;
-    top:  1%;
-    right: 0.5%;
-    border: none;
+.calenderDateLowerEventContainer > button{
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    border: 1px solid #28a745;
+    position: absolute;
+    top: 4.5rem;
+    right: 1.2rem;
+    color: #28a745;
+    background: transparent;
+    font-size: 1rem;
 }
 
-.allDayContainer{
-    background-color:lightcoral;
-    display: grid;
-    grid-template-rows: 13% 87%;
+#meetingsButton{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
-.timedContainer{
-    background-color:lightgreen;
-    display: grid;
-    grid-template-rows: 13% 87%;
+#allDayButton{
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
 }
 
-.meetingContainer{
-    background-color:lightyellow;
-    display: grid;
-    grid-template-rows: 13% 87%;
+.calenderDateLowerEventContainer > button:hover, .calenderDateLowerEventContainer > button:focus, .calenderDateLowerEventContainer > button:active{
+    color: white;
+    background: #28a745;
+    outline:none;
+    box-shadow: 0px 0px 20px #28a745;
 }
 
-.eventHeading{
-    margin: 0px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.innerEventContainer{
-    overflow: hidden;
-    text-align: center;
-    background-color: lightgray;
+.eventSelectorContainer{
     width: 100%;
+    height: 4rem;
     display: grid;
-    grid-template-rows: 100%;
-}
-.emptyHeadingContainer{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    grid-template-rows: 1;
+    grid-template-columns: repeat(3,1fr);
+}   
+
+.eventSelectorContainer > button{
+    border: none;
+    background: #336daa;
+    color: white;
+    font-size: 1rem;
 }
 
-.emptyHeading{
-    margin:0px;
+.eventSelectorContainer > button:hover,.eventSelectorContainer > button:focus {
+    background: #336daa;
+    font-size: 1.25rem;
+    outline:none;
+}
+
+.eventSelectorContainer > .active >span{
+    padding-bottom: 0.3rem;
+    font-size: 1.25rem;
+    border-bottom: 2px solid white;
+}
+
+.emptyHeadingContainer{
+    height: 100%;
+    display: grid;
+    place-items: center;
+}
+
+.allDayContainer,.timedContainer,.meetingContainer,.innerEventContainer{
+    overflow-y: hidden;
+    box-sizing: border-box;
+    height: 100%;
 }
 
 .CardGroup{
-    overflow-x:scroll;
-    width: 100%;
-    display: flex;
-    box-sizing: content-box;
+    box-sizing: border-box;
+    overflow-y:auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(12rem,1fr));
+    grid-gap:0.5rem;
+    padding: 0.25rem;
 }
 
-.CardGroup::-webkit-scrollbar {
-    background: transparent;
-    margin-top: 5px;
-}
-
-.CardGroup::-webkit-scrollbar-thumb {
-    background: lightseagreen;
-    border-radius: 10px;
-}
-
-.allDayCard,.YettoStart,.Finished,.CurrentlyActive{
-    background-color: white;
-    border: none;
+.allDayCard{
+    padding-left: 0.1rem;
+    border: 1px solid #336daa;
     border-radius: 5px;
-    min-width: 200px !important;
-    max-width: 200px !important;
-    min-width: 218px !important;
-    max-height: 218px !important;
-    margin-left: 5px;
-    margin-right: 5px;  
-    display: flex;
-    flex-direction: column;  
-    justify-content: space-between;
+    color: #336daa;
+    min-height: 14.43rem;
 }
 
-.YettoStart{
-    background-color: lightyellow;
+.allDayCard:hover,.allDayCard:active{
+    background: #336daa;
+    color: white;
+}
+
+.Finished,.YettoStart,.CurrentlyActive{
+    min-height: 14.375rem;
 }
 
 .Finished{
-    background-color: lightsalmon;
+    padding-left: 0.1rem;
+    border-radius: 5px;
+    border: 1px solid #28a745;
+    color: #28a745;
+}
+
+.Finished:active,.Finished:hover{
+    border: 1px solid #28a745;
+    background:#28a745;
+    color: white;
+}
+
+.YettoStart{
+    padding-left: 0.1rem;
+    border-radius: 5px;
+    border: 1px solid #d67e36;
+    color: #d67e36;
+}
+
+.YettoStart:active,.YettoStart:hover{
+    border: 1px solid #d67e36;
+    background:#d67e36;
+    color: white;
 }
 
 .CurrentlyActive{
-    background-color: lightblue;
+    position: relative;
+    padding-left: 0.1rem;
+    border-radius: 5px;
+    border: 1px solid #336daa;
+    color: #336daa; 
 }
 
-.cardTitle{
-    flex-basis: 20%;
+.CurrentlyActive:active,.CurrentlyActive:hover{
+    border: 1px solid #336daa;
+    background:#336daa;
+    color: white;
 }
 
-.cardDescription{
-    line-height: 1.6rem;
-    flex-basis: 80%;
+.cardTitle,.scheduledCardTitle{
+    font-size: 1.25rem;
     overflow: hidden;
+    text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 7;
-    -webkit-box-orient: vertical; 
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
     margin: 0px;
+    margin-bottom: 0.2rem;
 }
 
-.scheduledCardTitle{
-    flex-basis: 15%;
+.creator{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    margin: 0px;
+    margin-bottom: 0.3rem;  
 }
 
-.cardBody{
-    flex-basis: 85%;
-    display: flex;
-    flex-direction: column;
+.cardDescription,.scheduledCardDescription,.meetingDescription{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    margin: 0px;
+    margin-bottom: 0.2rem;
+    min-height: 9rem;
+}
+
+.meetingDescription{
+    -webkit-line-clamp: 5;
+    min-height: 8rem;
+    line-height: 1.58rem;
 }
 
 .scheduledCardDescription{
-    flex-basis: 80%;
-    overflow: hidden;
-    display: -webkit-box;
     -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical; 
-    margin: 0px;
+    margin-bottom: 0.4rem;
 }
 
+.startMeetingContainer{
+    display: flex;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    padding-right: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+.startMeeting{
+    height: 2rem;
+    width: 2rem;
+    border: 1px solid #28a745;
+    border-radius: 50%;
+    background:white;
+    color:#28a745;
+}
+
+
 .timing,.status{
-    flex-basis: 20%;
+    display: inline-block;
+    margin-top: 0.80rem;
+    margin-bottom: 0.45rem;
 }

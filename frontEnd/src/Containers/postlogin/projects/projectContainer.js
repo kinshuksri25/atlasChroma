@@ -51,7 +51,7 @@ class ProjectContainer extends Component{
                         let photo = contributorList[i].photo;
                         contributorJSX.push(
                             <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{name}</strong>.</Tooltip>}>
-                                <img className = "projectleadPicture" src={photo}/>                                     
+                                <img className = "profilePicture" src={photo}/>                                     
                             </OverlayTrigger>
                         );
                     }
@@ -59,25 +59,25 @@ class ProjectContainer extends Component{
 
                 let buttonHidden = this.state.projects[project._id] == undefined ? true : this.state.projects[project._id];
                 return(
-                        <button id = "projectCard" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit} onClick = {this.onClick}>
+                        <div id = "projectCard" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit} onClick = {this.onClick}>
                             <h3 id="projectTitle" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>{project.title}</h3>
                             <p id="projectDescription" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
                                 {project.description}
                             </p>
+                            <h6 id="contributors" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                                Contributors:
+                                    {contributorJSX}
+                                    {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
+                            </h6>
                             <h6 id="projectLead" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
                                 Project Lead:
                                     {
                                         this.getProfilePictures(project.projectlead).map(user => {
                                             return (<OverlayTrigger placement="right" overlay={<Tooltip> <strong>{user.firstname+" "+user.lastname}</strong>.</Tooltip>}>
-                                                        <img className = "projectleadPicture" src={user.photo}/>
+                                                        <img className = "profilePicture" src={user.photo}/>
                                                     </OverlayTrigger>);
                                         })
                                     }
-                            </h6>
-                            <h6 id="contributors" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
-                                Contributors:
-                                    {contributorJSX}
-                                    {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
                             </h6>
                             <Button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</Button>
                             <Modal
@@ -88,13 +88,13 @@ class ProjectContainer extends Component{
                                     contributorList.map(contributor => {
                                         return(
                                             <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{contributor.firstname+" "+contributor.lastname}</strong>.</Tooltip>}>
-                                                <img className = "projectleadPicture" src={contributor.photo}/>                                     
+                                                <img className = "profilePicture" src={contributor.photo}/>                                     
                                             </OverlayTrigger>
                                         )
                                     })
                                 }
                             </Modal>
-                        </button> 
+                        </div> 
                     );
                 });
             return (<div className = "innerContainer">{projectContainer}</div>);
@@ -165,9 +165,9 @@ class ProjectContainer extends Component{
 
     render(){
         let container = this.renderProjectTabs();
-        return(<div className = "projectDashboardLowerBlock">
+        return(<div className = "projectDashboardLower">
                 {container}
-                <Button className = "openAddModal" onClick={this.props.showEditProject} hidden = {this.props.action != ""}>+</Button>
+                <button className = "openAddModal" onClick={this.props.showEditProject} hidden = {this.props.action != ""}>+</button>
               </div>);
     }
 }

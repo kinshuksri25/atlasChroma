@@ -85,6 +85,7 @@ class Scheduler extends Component {
 
         buildCalender(){
                 let globalThis = this;
+                let currentDayObject = this.state.dateHelper.currentDateGenerator();
                 let noOfDays = this.state.dateHelper.getMonthDays(this.state.currentMonth,this.state.currentYear);
                 let dayCounter = 1;
                 let firstDay = new Date(this.state.currentYear,this.state.currentMonth,1).toDateString().substring(0,3);
@@ -104,13 +105,20 @@ class Scheduler extends Component {
                                 if(dayCounter == 1 ){
                                         if(firstDay == day){
                                                 dayCounter++;
-                                                return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
+                                                if(currentDayObject.month == this.state.currentMonth && currentDayObject.date == "01")
+                                                        return (<button className="calenderButton currentDay" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
+                                                else
+                                                        return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
                                         }else{
                                                 return(<button className="calenderButtonHidden" disabled={true}>0</button>);
                                         }
                                 }else if(dayCounter <= noOfDays){
+                                        let day = dayCounter.toString().length == 1 ? "0"+dayCounter.toString() : dayCounter;
                                         dayCounter++;
-                                        return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
+                                        if(currentDayObject.month == this.state.currentMonth && currentDayObject.date == day)
+                                                return (<button className="calenderButton currentDay" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
+                                        else
+                                                return (<button className="calenderButton" id = {dayCounter-1} onClick = {globalThis.onClickHandler}>{dayCounter-1}</button>);
                                 } 
                               }     
                         });
@@ -122,19 +130,16 @@ class Scheduler extends Component {
         }
 
         onClickHandler(event){
-                switch(event.target.className){
-                        case "calenderButton" : 
-                                let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
-                                this.setState({currentDate : currentDay},()=>{
-                                        let date = this.state.currentYear+this.state.currentMonth+this.state.currentDate;
-                                        window.history.replaceState({}, "","scheduler/"+date);
-                                });
-                                break;
-                        default : 
-                                this.setState({currentDate : ""});
-                                window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/")));
-                                break;                        
-                }     
+                if(event.target.className == "calenderButton" || event.target.className == "calenderButton currentDay"){
+                        let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
+                        this.setState({currentDate : currentDay},()=>{
+                                let date = this.state.currentYear+this.state.currentMonth+this.state.currentDate;
+                                window.history.replaceState({}, "","scheduler/"+date);
+                        });
+                }else{
+                        this.setState({currentDate : ""});
+                        window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/"))); 
+                }    
         }
 
         render(){

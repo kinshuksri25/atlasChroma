@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import '../../StyleSheets/postLoginRouter.css';
+import clock from '../generalContainers/clock';
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import setLoadingAction from '../../store/actions/loadingActions';
 import cookieManager from '../../Components/cookieManager';
-import DashBoard from './dashboard';
 import KanbanBoard from './kanbanBoard/kanbanBoard';
 import Projects from './projects/projects';
 import Highlight from './highlight';
@@ -21,6 +21,7 @@ import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
 import {urls} from "../../../../lib/constants/contants";
 import listener from '../generalContainers/asyncListener';
+import updateTime from '../../store/actions/clockActions';
 import MessageBox from "../postlogin/messaging/messageBox";
 import {userList,userObject} from "../../../../lib/constants/storeConstants";
 import setSocketObject from "../../store/actions/socketActions";
@@ -75,6 +76,7 @@ class PostLoginRouter extends Component {
                 window.history.pushState({}, "",urls.LANDING);
             }else{
                 queryString != "" && globalThis.props.setUserState({...responseObject.PAYLOAD});
+                queryString != "" && clock.startClock();
                 queryString == "" && globalThis.props.changeLoadingState(false); 
             }
         });
@@ -94,15 +96,12 @@ class PostLoginRouter extends Component {
                 }else if(schedulerRegex.test(absolutePath)){
                     return <Scheduler/>;
                 }else{
-                    window.history.replaceState({}, "",urls.DASHBOARD);
+                    window.history.replaceState({}, "",urls.PROJECT);
                     return <DashBoard/>;
                 }
 
             }else{
                 switch (absolutePath) {
-                    case "dashboard":
-                        return <DashBoard/>;
-                        break;
                     case "projects":
                         return <Projects/>;
                         break;
@@ -113,14 +112,16 @@ class PostLoginRouter extends Component {
                         return <Profile/>;
                         break;                        
                     case "logout":
-                        listener.unsubscribe();
+                        // clock.unsubscribe();
+                        // listener.unsubscribe();
+                        // this.props.updateTime("");
                         this.props.io.emit("terminate",{cookieID : cookieManager.getUserSessionDetails(), username : this.props.user.username});
                         cookieManager.clearUserSession();
                         window.history.replaceState({}, "",urls.LANDING);
                         break;        
                     default:
-                        window.history.replaceState({}, "",urls.DASHBOARD);
-                        return <DashBoard/>;
+                        window.history.replaceState({}, "",urls.PROJECT);
+                        return <Projects/>;
                         break;
                 }
             }  
@@ -129,25 +130,24 @@ class PostLoginRouter extends Component {
         }    
     }
    
-// <MessageBox/>
     render(){  
         let absolutePath =  /\/$/.test(window.location.pathname.substring(1).toLowerCase()) ? 
                                 window.location.pathname.substring(1).toLowerCase().substring(0,window.location.pathname.substring(1).toLowerCase().length-1) : 
                                     window.location.pathname.substring(1).toLowerCase();
-        let highlightHide = /projects\/[\w|\d]+$/.test(absolutePath) ? false : true;
+        let highlightHide = /projects\/[\w|\d]+$/.test(absolutePath) || /profile/.test(absolutePath) ? false : true;
         let shouldRender = this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject);
-        let finalRootComponent = !highlightHide ? <div className = "lowerPostLoginContainer" style={{gridTemplateColumns: '1fr'}}>
+        let finalRootComponent = !highlightHide ? <div style={{gridTemplateColumns: '1fr'}}>
                                                     <Menu menuArray = {menuConstants}/> 
                                                     <div className = "mainContainer">{this.containerSelector()}</div>
                                                 </div> :
-                                                <div className = "lowerPostLoginContainer">
+                                                <div>
                                                     <Menu menuArray = {menuConstants}/> 
                                                     <div className = "mainContainer">{this.containerSelector()}</div>
-                                                    {highlightHide && <Highlight/>}  
+                                                    <Highlight/>
                                                     {this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject) && <MessageBox/>}
                                                 </div>
         let renderedComponent = shouldRender ?  finalRootComponent : "";
-        return (<div className="upperPostLoginContainer">{renderedComponent}</div>);
+        return (<div className="postLoginContainer">{renderedComponent}</div>);
     }
 }
 
@@ -156,7 +156,8 @@ const mapStateToProps = state => {
         currentUrl : state.urlStateReducer.currentUrl,
         user : state.userStateReducer,
         userList : state.userListStateReducer,
-        io : state.socketStateReducer.io
+        io : state.socketStateReducer.io,
+        previousTime: state.clockStateReducer.previousTime
     }
 }
 
@@ -173,7 +174,10 @@ const mapDispatchToProps = dispatch => {
         },
         changeLoadingState: (isLoading) =>{
             dispatch(setLoadingAction(isLoading));
-        }  
+        },
+        updateTime : (time) =>{
+            dispatch(updateTime(time));
+        }   
     };
 };
 

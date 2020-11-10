@@ -15,6 +15,7 @@ import MeetingEvent from './meetingEvents';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import SimpleForm from '../../../Forms/simpleform';
+import updateTime from '../../../store/actions/clockActions';
 import setMsgAction from '../../../store/actions/msgActions';
 import setUserAction from '../../../store/actions/userActions';
 
@@ -35,8 +36,10 @@ class Events extends Component{
             Description : "",
             currentTime : "",
             participants : [this.props.user.username],
-            currentMode : ""
+            currentMode : "",
+            selectedButton:"allDayButton"
         };
+        this.eventSelector = this.eventSelector.bind(this);
         this.addEvent = this.addEvent.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.suggestionAllocator = this.suggestionAllocator.bind(this);
@@ -110,6 +113,32 @@ class Events extends Component{
         }
     }
 
+    eventSelector(event){
+        let allDay = document.getElementById("allDayButton");
+        let meetingsDay = document.getElementById("meetingsButton");
+        let timedDay = document.getElementById("scheduledButton");
+        switch(event.target.id){
+            case "allDayButton":
+                allDay.className="active";
+                meetingsDay.className="";
+                timedDay.className="";
+                break;
+            case "meetingsButton":
+                allDay.className="";
+                meetingsDay.className="active";
+                timedDay.className="";
+                break;
+            case "scheduledButton":               
+                allDay.className="";
+                meetingsDay.className="";
+                timedDay.className="active";
+                break;
+        }
+
+        this.setState({selectedButton:event.target.id});
+
+    }
+
     
     removeParticipant(event){
         let participants = [...this.state.participants];
@@ -125,7 +154,6 @@ class Events extends Component{
     }
     
     triggerModal(event){
-        console.log(event.target.className);
         let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         if(event.target.className == "ADD"){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
@@ -210,6 +238,7 @@ class Events extends Component{
                         }
                     });
                     globalThis.props.setUserState(userObject);
+                    globalThis.props.updateTime("");
                 }
             }
         });
@@ -318,6 +347,7 @@ class Events extends Component{
                             let userObject = {...globalThis.props.user};
                             userObject.events.push(eventObject);
                             globalThis.props.setUserState(userObject);
+                            globalThis.props.updateTime("");
                         }
                     }
                 });
@@ -414,7 +444,7 @@ class Events extends Component{
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;                                                                                                                                            
         return(<div className = "calenderDateLowerEventContainer">
-                    <button variant="success" disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
+                    <button disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
                     <Modal
                     isOpen={this.state.currentMode != ""}
                     contentLabel="">
@@ -471,17 +501,19 @@ class Events extends Component{
                                                                     changeFieldNames = {[]} />
                                                                 </div>}                                                                    
                     </Modal>
-                    <div className = "allDayContainer">
-                        <h4 className = "eventHeading">All Day Events</h4>
+                    <div class="eventSelectorContainer">
+                        <button className="active" id="allDayButton" onClick={this.eventSelector}><span>All Day Events</span></button>
+                        <button id="scheduledButton" onClick={this.eventSelector}><span>Scheduled Events</span></button>
+                        <button id="meetingsButton" onClick={this.eventSelector}><span>Meetings</span></button>
+                    </div>
+                    <div hidden={this.state.selectedButton != "allDayButton"} className = "allDayContainer">
                         <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
                     </div>               
-                    <div className = "timedContainer">
-                        <h4 className = "eventHeading">Scheduled Events</h4>
-                        <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
+                    <div hidden={this.state.selectedButton != "scheduledButton"} className = "timedContainer">
+                        <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal}/>
                     </div>                
-                    <div className = "meetingContainer"> 
-                        <h4 className = "eventHeading">Meetings</h4>
-                        <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal} currentYear = {this.props.currentYear} currentMonth = {this.props.currentMonth} currentDate = {this.props.currentDate}/>
+                    <div hidden={this.state.selectedButton != "meetingsButton"} className = "meetingContainer"> 
+                        <MeetingEvent meetings={this.state.meetings} onClick = {this.triggerModal}/>
                     </div>              
                 </div>);
     }
@@ -501,6 +533,9 @@ const mapDispatchToProps = dispatch => {
         },
         setMsgState: (msgObject) => {
             dispatch(setMsgAction(msgObject));
+        },
+        updateTime : (time) =>{
+            dispatch(updateTime(time));
         } 
     };
 };

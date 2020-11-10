@@ -146,18 +146,17 @@ class Notes extends Component{
 
     buildJSX(){
         let notes = [...this.props.user.notes];
-        let notesJSX = "";
-        notesJSX = notes.map(note => {
+        let notesJSX = [];
+        notes.map(note => {
                 if(this.props.calenderDate == note.creationdate){
-                    return(
-                        <div id={note._id} className="notesContainer" onClick={this.displayNotesForm}>
-                            <h2 className="notesTitle">{note.title}</h2>
-                            <p className="notesDescription">{note.description}</p>
-                        </div>
-                    );   
+                    notesJSX.push( <div id={note._id} className="notesContainer" onClick={this.displayNotesForm}>
+                                        <h2 className="notesTitle">{note.title}</h2>
+                                        <p className="notesDescription">{note.description}</p>
+                                    </div>)  
                 }
         });
-        return notesJSX != "" ? <div className="notesJSXContainer">{notesJSX}</div> : <div className="emptyNotesContainer">Looks a little quite around here, add some notes organise yourself....</div>;
+        console.log(notesJSX);
+        return notesJSX.length != 0 ? <div className="notesJSXContainer">{notesJSX}</div> : <div className="emptyNotesContainer">Looks a little quite around here, add some notes organise yourself....</div>;
     }
 
     displayNotesForm(event){
@@ -180,7 +179,7 @@ class Notes extends Component{
     let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
                             (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
     return(<div className = "calenderDateLowerNotesContainer"> 
-                <button variant="success" disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
+                <button disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
                 <Modal
                 isOpen={this.state.modalStatus == "ADD"}
                 contentLabel="">

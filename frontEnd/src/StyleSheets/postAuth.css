@@ -1,139 +1,65 @@
 .postAuthContainer{
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, #1488cc, #2b32b2);
+    background: linear-gradient(to right, #0575e6, #021b79);
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 5fr;
+    text-align: center;
     font-family: 'Comfortaa', cursive;
 }
 
-.heading{
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    max-width: 70% !important;
-    align-self: end;
+.heading {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content:flex-end;
     color: white;
     font-weight: 400;
-    font-size: 2rem;
+    font-size: 1.7rem;
 }
 
 .postAuthForm{
-    margin: auto;
-    margin-top: 5%;
-    width: 30%;
-    min-width: 280px;
-    max-width: 310px;
-    background-color: white;
-    border: none;
-    padding-top: 0px;
-    text-align: center;
-    border-radius: 10px;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1.1fr 1.9fr;
+    box-sizing: border-box;
+    padding: 5rem;
 }
 
-.postAuthProfilePicture{
-    text-align: center;
-    background: #E6EE9C;
-    padding: 0px;
-    width: 50%;
+.postAuthForm > div{
+    display: inline-block;
+    box-sizing: border-box;
     border:none;
-    border-radius: 50%;
-    margin: 0 auto;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-top: 3%;
-    overflow: hidden;
-    transition: background 1s;
+    border-radius: 7px;
+    background-color: white;   
+    padding: 1rem;
 }
 
-.postAuthProfilePicture:hover{
-    transition: background 1s;
-    background:#DCE775;
+.profilePictureButton{
+    position: relative;
+    border:none;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    overflow: hidden;
 }
 
 .profilePhoto{
-    width: 100% !important;
-    height: 100% !important;
     position: absolute;
     top: 0;
-    bottom: 0;
     left: 0;
-    right: 0;
-    margin: auto;
 }
 
-.postAuthInnerForm{
-    padding-top: 8%;
-    padding-right: 3%;
-    padding-left: 3%;
-    padding-bottom: 3%;
+.postAuthAttributes{
+    width: 20rem;
 }
 
-@media screen and (min-width: 1600px){
-    .postAuthForm{
-        height: 450px;
-    }
-
-    .postAuthAttributes{
-        height: 2.3rem;
-    }
+.postAuthButton{
+    border: 1px solid #007bff;
+    background-color: rgba(0,0,0,0);
+    color: #007bff;
 }
 
-@media screen and (min-width: 1366px) and (max-width: 1600px){
-    .postAuthForm{
-        height: 445px;
-    }
-
-
-    .postAuthAttributes{
-        height: 2.25rem;
-    }
-}
-
-
-@media screen and (min-width: 1280px) and (max-width: 1366px){
-    .postAuthForm{
-        max-width: 300px;
-        height: 435px;
-    }
-
-    .postAuthAttributes{
-        height: 2.2rem;
-    }
-}
-
-@media screen and (min-width: 1024px) and (max-width: 1280px){
-    .postAuthForm{
-        max-width: 290px;
-        height: 430px;
-    }
-
-    .postAuthAttributes{
-        height: 2.15rem;
-    }
-}
-
-@media screen and (max-width: 1024px){
-    .postAuthForm{
-        max-width: 290px;
-        height: 425px;
-    }
-
-    .postAuthAttributes{
-        height: 2.1rem;
-    }
-}
-
-#postAuthButton{
-    width: 70%;
-    height: 2rem;
-    padding-top: 4px !important;
+.postAuthButton:hover,.postAuthButton:active{
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
 }

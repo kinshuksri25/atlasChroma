@@ -9,6 +9,7 @@ import userListStateReducer from "./reducers/userListStateReducer";
 import socketStateReducer from "./reducers/socketStateReducer";
 import chatStateReducer from './reducers/chatStateReducer';
 import loadingStateReducer from './reducers/loadingStateReducer';
+import clockStateReducer from './reducers/clockStateReducer';
 
 const combinedReducer = combineReducers({userStateReducer,
     urlStateReducer,
@@ -16,7 +17,9 @@ const combinedReducer = combineReducers({userStateReducer,
     msgStateReducer,
     socketStateReducer,
     chatStateReducer,
-    loadingStateReducer});
+    loadingStateReducer,
+    clockStateReducer
+    });
 
 const store = createStore(combinedReducer);
 

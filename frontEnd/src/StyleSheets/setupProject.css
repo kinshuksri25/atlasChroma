@@ -1,0 +1,77 @@
+.projectSetup{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.template{
+    background-color: white;
+    border-radius: 7px;
+    margin:auto;
+}
+
+.buttonContainer{
+    margin: auto;
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#templateType{
+    width: 25rem;
+    box-sizing: border-box;
+    margin: 1rem;
+}
+
+.templateBuilderContainer{
+    position: relative;
+    min-width: 25rem;
+    box-sizing: border-box;
+    margin: 1rem;
+}
+
+.columnName{
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.columnName > span{
+    cursor: pointer;
+    box-sizing: border-box;
+    margin : 0px;
+}
+
+#EDIT,#INFO,#REMOVE{
+    vertical-align: middle;
+    margin: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #28a745;
+    border-radius: 50%;
+    color: #28a745;
+}
+
+.templateButton,.templateBackButton,.templateAddButton,.submitTemplate{
+    display: block;
+    margin: 1rem auto;
+    height: 3rem;
+    width: 3rem;
+    border-radius: 50%;
+    border: none;
+    background-color:#28a745;
+    color: white;
+}
+
+.templateAddButton{
+    display: inline;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+    padding:0px;
+}
+

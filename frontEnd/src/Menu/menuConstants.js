@@ -2,14 +2,9 @@ let menuConstants=[];
 
 menuConstants=[
     {
-        title:'DashBoard',
-        route:'dashboard',
-        image:"https://img.icons8.com/dusk/64/000000/doughnut-chart.png"
-    },
-    {
         title:'Projects',
         route:'projects',
-        image:"https://img.icons8.com/dusk/64/000000/workflow.png"
+        image:"https://img.icons8.com/dusk/64/000000/doughnut-chart.png"
     },
     {
         title:'Scheduler',

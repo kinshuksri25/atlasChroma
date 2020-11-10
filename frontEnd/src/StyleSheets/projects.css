@@ -1,36 +1,47 @@
-.projectsPageContainer{
-    width: 100%;
-    height: 100%;
-    box-sizing: content-box;
-    display: flex;
-    flex-direction: column;
-    padding: 0px;
-    margin: 0px;   
-}
-
-.projectDashboardUpperBlock{
-    flex-basis: 15%;
-    min-height: 100px;
-    display: flex;
-    width: 100%;
-    padding-right: 10px;
-    padding-left: 10px;
-}
-
-.projectDashboardLowerBlock{
-    flex-basis: 85%;
-    position: relative;
-    padding: 10px;
+.projectDashboard{
     box-sizing: border-box;
-    background-color: lightcoral;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 0.75fr 4.25fr;
+    grid-template-columns: 1fr;
+    overflow: hidden;
 }
 
-.openAddModal{
-    position: absolute;
-    top:  1%;
-    right: 0.5%;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
+.projectDashboardUpper .filterInnerContainer,.projectDashboardUpper .filterContainer{
+    box-sizing: inherit;
+    display:flex;
+    justify-content: center;
+}
+
+.projectDashboardUpper .filterContainer{
+    padding: 0.75rem;
+    height: 100%;
+    flex-direction: column;
+}
+
+.projectDashboardUpper .filterInnerContainer input,.projectDashboardUpper .filterInnerContainer select{
+    box-sizing: content-box;
+    height: 2rem;
+    padding: 1px;
+    border: 2px solid black;
+    margin: 0px;
+}
+
+.projectDashboardUpper .filterInnerContainer input{
+    margin-left: 2rem;
+    max-width: 900px;
+}
+
+@media screen and (max-width: 1400px){
+    .projectDashboard{
+        grid-template-rows: 0.5fr 4.5fr;
+    }
+
+    .projectDashboardUpper .filterInnerContainer input,.projectDashboardUpper .filterInnerContainer select{
+        height: 1.5rem;
+    }
+
+    .projectDashboardUpper {
+        padding: 0.75rem 1.2rem;
+    }
 }

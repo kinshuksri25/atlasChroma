@@ -118,7 +118,7 @@ class SimpleForm extends Component {
                                 case "DropDown":{ 
                                                 optionNumber++;
                                                 return ( <Form.Control as="select" id = { param.name }
-                                                          name = { param.name } key = { param.id }
+                                                          name = { param.name } key = { param.id } id = { param.id } className = { param.className }
                                                           onChange = { this.onChangeHandler } required = { param.isRequired }> 
                                                           {
                                                             this.props.options[optionNumber].map(option => {

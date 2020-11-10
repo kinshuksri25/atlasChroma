@@ -2,10 +2,11 @@
 import store from '../../store/store';
 import setUserListStateAction from '../../store/actions/userListActions';
 import setUserAction from '../../store/actions/userActions';
+import updatetime from '../../store/actions/clockActions';
 
 const listener = {};
 
-const unsubscribe = store.subscribe( () => {});
+listener.unsubscribe = store.subscribe( () => {});
 
 listener.listenEvents = (io) => {
     io.on("updatingDetails", (details) => {
@@ -135,6 +136,7 @@ listener.listenEvents = (io) => {
                 if(details.data.participants.indexOf(user.username) >= 0){
                     user.events.push({...details.data});
                     store.dispatch(setUserAction({...user}));
+                    store.dispatch(updatetime(""));
                 }
                 break;
             case "editingMeeting" :
@@ -149,6 +151,7 @@ listener.listenEvents = (io) => {
                         }
                     });
                     store.dispatch(setUserAction({...user}));
+                    store.dispatch(updatetime(""));
                 }
                 break;
             case "deletingMeeting" :
@@ -167,10 +170,6 @@ listener.listenEvents = (io) => {
         }   
         
     });
-}
-
-listener.unsubscribe = () => {
-    unsubscribe();
 }
 
 export default listener;

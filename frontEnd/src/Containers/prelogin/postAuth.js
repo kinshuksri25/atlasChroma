@@ -137,7 +137,7 @@ class PostAuth extends Component{
                     //set the session 
                     cookieManager.setUserSessionDetails(responseObject.PAYLOAD.uniqueID);
                     //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({},"",urls.DASHBOARD);
+                    window.history.pushState({},"",urls.PROJECT);
                 }
             }
         });  
@@ -171,7 +171,7 @@ class PostAuth extends Component{
                             //set the session
                             cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                             //TODO --> change the pushState 'state' and 'title'
-                            window.history.pushState({},"",urls.DASHBOARD);
+                            window.history.pushState({},"",urls.PROJECT);
                         }
                     });
                 } else {
@@ -198,18 +198,17 @@ class PostAuth extends Component{
     }
 
     render(){
-            let photo = this.state.photo;
-            let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div> : <img className ="profilePhoto" src={this.state.photo}/>;
+            let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div>: <img className ="profilePhoto" src={this.state.photo}/>;
             return ( <div className = "postAuthContainer">
-                        <div className="heading">A username here, a password there and we will be done!</div>
+                        <div className="heading"><span>A username here, a password there and we will be done!</span></div>
                         <div className = "postAuthForm">  
-                            <button className = 'postAuthProfilePicture' onClick ={this.showPhotoSelector}>{buttonInner}</button>
-                            {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                            <div className="postAuthInnerForm">
-                                <SimpleForm formAttributes = { formConstants.postAuthForm }
-                                submitHandler = { this.onSubmitHandler }
-                                changeHandler = { this.onChangeHandler }
-                                changeFieldNames = {["UserName","Phone"]}/> 
+                            <div>
+                                <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                                {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
+                                    <SimpleForm formAttributes = { formConstants.postAuthForm }
+                                    submitHandler = { this.onSubmitHandler }
+                                    changeHandler = { this.onChangeHandler }
+                                    changeFieldNames = {["UserName","Phone"]}/> 
                             </div>
                         </div>
                     </div>);

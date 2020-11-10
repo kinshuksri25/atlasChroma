@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import "../../StyleSheets/profile.css";
 import httpsMiddleware from '../../middleware/httpsMiddleware';
 import cookieManager from '../../Components/cookieManager';
 import ProfilePicture from "../generalContainers/profilePictureGen";
@@ -47,6 +48,7 @@ class Profile extends Component{
                 break;
             case "confirmPassword" : 
                 this.setState({confirmPassword : event.target.value});
+                break;
             case "phonenumber":                
                 this.setState({phonenumber : event.target.value});
                 break;    
@@ -57,8 +59,7 @@ class Profile extends Component{
         this.setState({displayPhotoSel : !this.state.displayPhotoSel});
     }
 
-    onSubmitHandler (event){
-        event.preventDefault();
+    onSubmitHandler (){
         let globalThis = this;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let errorObject = {...msgObject};
@@ -148,26 +149,26 @@ class Profile extends Component{
     }
     
     render(){
-        let buttonInner = this.state.photo == "" ? <div>+</div> : <img src={this.state.photo} width = "200" height = "200"/>;
+        let buttonInner = this.state.photo == "" ? <div>+</div> : <img className="profilePic" src={this.state.photo}/>;
         let disabledUpdate = this.state.firstName != this.props.user.firstname && this.state.firstName != ""|| 
                                 this.state.lastName != this.props.user.lastname && this.state.lastName != ""|| 
                                     this.state.photo != this.props.user.photo ||
                                         (this.state.phonenumber != this.props.user.phonenumber && this.state.phonenumber != 0 && this.state.phonenumber != "") || 
                                             (this.state.password != "" && this.state.confirmPassword) ? false : true;
-        return (<div>
-                    <button onClick ={this.showPhotoSelector}>{buttonInner}</button>
-                    {this.state.displayPhotoSel && <ProfilePicture selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                    <form onSubmit={this.onSubmitHandler}>
+        return (<div className="profileContainer">
+                    <div>
+                        <button className="profilePictureContainer" onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                        {this.state.displayPhotoSel && <ProfilePicture openModal={this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
                         <input type = "text" onChange={this.onChangeHandler} value = {this.state.firstName} className = "firstName"/>
                         <input type = "text" onChange={this.onChangeHandler} value = {this.state.lastName} className = "lastName"/>
                         <input type = "text" value = {this.state.userName} className = "userName" disabled/>
                         <input type = "text" value = {this.state.email} className = "email" disabled/>
                         <input type = "number" onChange={this.onChangeHandler} value = {this.state.phonenumber} className = "phonenumber"/>
-                        <input type = "password" onChange={this.onChangeHandler} value = {this.state.password} className = "password"/>
-                        <input type = "password" onChange={this.onChangeHandler} value = {this.state.confirmPassword} className = "confirmPassword"/>
-                        <button className = "updateButton" disabled = {disabledUpdate} >Update</button>
-                    </form>
-                    <button className = "deleteButton" onClick={this.onDeleteHandler}>Delete Account</button>
+                        <input type = "password" placeholder="Password" onChange={this.onChangeHandler} value = {this.state.password} className = "password"/>
+                        <input type = "password" placeholder="ConfimPassword" onChange={this.onChangeHandler} value = {this.state.confirmPassword} className = "confirmPassword"/>
+                        <button className = "updateButton" onClick={this.onSubmitHandler} disabled = {disabledUpdate} >Update</button>
+                        <button className = "deleteButton" onClick={this.onDeleteHandler}>Delete Account</button>
+                    </div>
                 </div>);
     }
 }

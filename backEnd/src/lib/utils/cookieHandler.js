@@ -13,7 +13,6 @@ const cookieHandler = {};
 //params --> requestObjectID - string, UserName - string
 //returns --> promise
 cookieHandler.createCookies = (requestObjectID,username)  => new Promise ((resolve,reject) =>{
-    
     let options = {
         type : 'EX',
         expiryTime : 60*30
@@ -35,7 +34,7 @@ cookieHandler.getCookie = (cookieID) => new Promise ((resolve,reject) => {
     }).catch(rejectedResult => {
         console.log(rejectedResult);
         reject(rejectedResult);
-    });  
+    });
 });
 
 //function for getting all cookies

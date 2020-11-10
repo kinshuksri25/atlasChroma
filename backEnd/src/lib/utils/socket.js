@@ -13,16 +13,17 @@ socket.handleEvents = (io) =>{
     let socketObject = {};
     io.on("connection", (socket) => {
         socket.on("login", (userID) => {
-            cookieHandler.getCookie(userID).then(resolvedResult => {
-                console.log("User "+resolvedResult+" connected with socketID: "+socket.id);
-                socketObject[resolvedResult] = socket.id;
-                io.clients((error, clients) => {
-                    if (error) throw error;
-                    console.log(clients); 
-                  });
-            }).catch(rejectedResult => {
-                console.log(rejectedResult);
-            });
+            if(userID){
+                cookieHandler.getCookie(userID).then(resolvedResult => {
+                    console.log("User "+resolvedResult+" connected with socketID: "+socket.id);
+                    socketObject[resolvedResult] = socket.id;
+                    io.clients((error, clients) => {
+                        if (error) throw error;
+                      });
+                }).catch(rejectedResult => {
+                    console.log(rejectedResult);
+                });
+            }
         })
 
         socket.on("generateRoomName",(data) => {
@@ -77,7 +78,7 @@ socket.handleEvents = (io) =>{
                     console.log(EMSG.SVR_UTL_RVRSUC);
                 });
             }else{
-                console.log(EMG.SVR_UTL_RVRPRESUC);
+                console.log(EMSG.SVR_UTL_RVRPRESUC);
             }
         });
 
@@ -125,12 +126,14 @@ socket.handleEvents = (io) =>{
 
         socket.on("terminate", (data) => {
             if(data.hasOwnProperty("cookieID")){
-                console.log(data);
                 cookieHandler.deleteCookie(data.cookieID).then(loginObject => {
                     delete socketObject[data.username];
                     let valueArray = Object.values(loginObject);
-                    mongo.read(DBCONST.userCollection,{username : {$in : [...valueArray]}},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1}}).then(resolvedResult => {
-                        io.emit("updatingDetails",{event : "getUserList", data : [...valueArray]});
+                    mongo.read(DBCONST.userCollection,{},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1}}).then(resolvedResult => {
+                        resolvedResult.map(user => {
+                            user.status = valueArray.indexOf(user.username) >= 0 ? true : false;
+                        });
+                        io.emit("updatingDetails",{event : "getUserList", data : [...resolvedResult]});
                         socket.disconnect();
                     }).catch(rejectedResult => {
                         console.log(rejectedResult);

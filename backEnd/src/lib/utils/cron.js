@@ -24,41 +24,45 @@ cron.chatBackup = () => {
             let conversationDetails = [];
             let index = 0;
             resolvedResult.map(conversation => {
-                conversationDetails.push({participants:[],message:[]});
-                userList.indexOf(conversation.participants[0]) < 0 && userList.push(conversation.participants[0]);
-                userList.indexOf(conversation.participants[1]) < 0 && userList.push(conversation.participants[1]);
-                conversationDetails[index].participants.push(...conversation.participants);
-                conversation.conversationhistory.map(convo => {
-                    conversationDetails[index].message.push(convo.sender+" : "+convo.message);
-                });
-                index++;
-            });
-            mongo.read(DBCONST.userCollection,{"username" : {$in : [...userList]}},{projection : {username : 1, email : 1}}).then(resolvedResult => {
-                resolvedResult.map(result => {
-                    conversationDetails.map(convo => {
-                        convo.participants.indexOf(result.username) >= 0 && convo.participants.splice(convo.participants.indexOf(result.username),1,result.email);
+                if(conversation.conversationhistory.length != 0){
+                    conversationDetails.push({participants:[],message:[]});
+                    userList.indexOf(conversation.participants[0]) < 0 && userList.push(conversation.participants[0]);
+                    userList.indexOf(conversation.participants[1]) < 0 && userList.push(conversation.participants[1]);
+                    conversationDetails[index].participants.push(...conversation.participants);
+                    conversation.conversationhistory.map(convo => {
+                        conversationDetails[index].message.push(convo.sender+" : "+convo.message);
                     });
-                });
-                conversationDetails.map(convo => {
-                    let template = {
-                        participant1 : convo.participants[0],
-                        participant2 : convo.participants[1],
-                        history : convo.message
-                    }
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,convo.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.CONVOHISTORY,template).then(resolvedResult => {
+                    index++;
+                }
+            });
+            if(conversationDetails.length != 0){
+                mongo.read(DBCONST.userCollection,{"username" : {$in : [...userList]}},{projection : {username : 1, email : 1}}).then(resolvedResult => {
+                    resolvedResult.map(result => {
+                        conversationDetails.map(convo => {
+                            convo.participants.indexOf(result.username) >= 0 && convo.participants.splice(convo.participants.indexOf(result.username),1,result.email);
+                        });
+                    });
+                    conversationDetails.map(convo => {
+                        let template = {
+                            participant1 : convo.participants[0],
+                            participant2 : convo.participants[1],
+                            history : convo.message
+                        }
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,convo.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.CONVOHISTORY,template).then(resolvedResult => {
+                            console.log(resolvedResult);
+                        }).catch(rejectedResult => {
+                            throw rejectedResult;
+                        });
+                    });
+                    mongo.update(DBCONST.chatCollection,{},{$set: {conversationhistory : []}},{},MULTIPLE).then(resolvedResult => {
                         console.log(resolvedResult);
                     }).catch(rejectedResult => {
                         throw rejectedResult;
                     });
-                });
-                mongo.update(DBCONST.chatCollection,{},{$set: {conversationhistory : []}},{},MULTIPLE).then(resolvedResult => {
-                    console.log(resolvedResult);
                 }).catch(rejectedResult => {
                     throw rejectedResult;
                 });
-            }).catch(rejectedResult => {
-                throw rejectedResult;
-            });
+            }
         }).catch(rejectedResult => {
             console.log(rejectedResult);
         }); 
@@ -105,16 +109,17 @@ cron.allDayEventReminder = () => {
                             user.username == result.contributor && generateCurrentDate() == result.storydetails.duedate && results.push(result);
                         });
                         let combinedEvents = [...currentEvents,...results];
-                        let template = {
-                            username : user.username,
-                            events : [...combinedEvents]
-                        };
-                        if(combinedEvents.length > 0)
+                        if(combinedEvents.length > 0){
+                            let template = {
+                                username : user.username,
+                                events : [...combinedEvents]
+                            };
                             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ALLDAYREMINDER,template).then(resolvedResult => {
                                 console.log("All Day Email Reminder Sent!!");
                             }).catch(rejectedResult => {
                                 throw rejectedResult;
                             });
+                        }
                     }).catch(rejectedResult => {
                         throw rejectedResult;
                     });
@@ -145,17 +150,19 @@ cron.timedEventReminder = () => {
                             }
                         }
                     });
-                    let template = {
-                        heading : currentEvent.EventType == "Meeting" ?  "You currently have the following meeting to attend" : "The following event is active in your scheduler for this current hour:",
-                        username : user.username,
-                        event : currentEvent
-                    };
-                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.TIMEDREMINDER,template).then(resolvedResult => {
-                        console.log("Timed Email Reminder Sent!!");
-                    }).catch(rejectedResult => {
-                        throw rejectedResult;
-                    });
-                    currentEvents = [];
+                    if(currentEvent.length > 0){
+                        let template = {
+                            heading : currentEvent.EventType == "Meeting" ?  "You currently have the following meeting to attend" : "The following event is active in your scheduler for this current hour:",
+                            username : user.username,
+                            event : currentEvent
+                        };
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.TIMEDREMINDER,template).then(resolvedResult => {
+                            console.log("Timed Email Reminder Sent!!");
+                        }).catch(rejectedResult => {
+                            throw rejectedResult;
+                        });
+                        currentEvents = [];
+                    }
                 });
             }).catch(rejectedResult => {
                 console.log(rejectedResult);

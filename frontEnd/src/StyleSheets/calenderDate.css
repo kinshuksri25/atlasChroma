@@ -1,50 +1,85 @@
 .centralEventsNotesContainer{
-    width: 100%;
     height: 100%;
-    display:flex;
-    flex-direction: column;
-    box-sizing: content-box;
+    padding: 0px;
+    margin: 0px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
 }
 
 .calenderDateUpperContainer{
-    flex-basis: 15%;
-    display: grid;
-    grid-template-rows: 65% 35%;
-    box-sizing: content-box;
-    padding: 1%;
-}
-
-.topUpperBlock{
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.calenderHeading{
-    text-align: center;
-    font-weight: 500;
-    margin: 0px;
-}
-
-.backButton{
-    position: absolute;
-    top:  10%;
-    left: 0.5%;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    display:grid;
+    grid-template-rows: auto 1.9rem;
 }
 
 .topLowerBlock{
-    display: flex;
-    justify-content: space-evenly;
-    box-sizing: content-box;
+    position: relative;
 }
 
-.tab{
-    width: 20%;
-    min-width: 200px !important;
-    height: 40px !important;
+.backButton{
+    box-sizing: border-box;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    color:#007bff;
+    border: 1px solid #007bff;
+    background: transparent;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.backButton:active, .backButton:hover, .backButton:focus{
+    color:white;
+    background:#007bff;
+    outline: none;
+    box-shadow: 0px 0px 20px #007bff;
+}
+
+.topLowerBlock button{
+    position: absolute;
+    height: 100%;
+    bottom: 0px;
+    width: 100px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border: 1px solid #007bff;
+    border-bottom: none;
+    font-size: 1rem;
+}
+
+.topLowerBlock button:hover,.topLowerBlock button:focus{
+    outline: none;
+}
+
+.topUpperBlock div{
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+#Events{
+    left: 1rem;
+}
+
+#Notes{
+    left: 8rem;
+}
+
+.topLowerBlock .background{
+    background: transparent;
+    color: #007bff;
+}
+
+.topLowerBlock .foreground{
+    background: #336daa;
+    color: white;
+}
+
+@media screen and (max-width: 1400px){
+    .topUpperBlock div{
+        font-size: 1.25rem;
+    }
+
+    .topLowerBlock button{
+        font-size: 0.85rem;
+    }
 }

@@ -71,7 +71,7 @@ redisClass.readData = (key) => new Promise((resolve,reject) => {
         });  
     }else{
         redisInstance.quit();
-        reject(EMSG.SVR_UTL_RDSINCERR);
+        reject(EMSG.SVR_UTL_RDSRDERR);
     }
 });
 
@@ -105,7 +105,6 @@ redisClass.getAllData = () => new Promise((resolve,reject) => {
             keyArray = [...response];
             for(let i = 0; i< keyArray.length; i++){
                 redisInstance.get(keyArray[i], (err,response) => {
-                    
                     redisObject[keyArray[i]] = response;
                     if(i == keyArray.length-1){
                         redisInstance.quit();
@@ -113,7 +112,6 @@ redisClass.getAllData = () => new Promise((resolve,reject) => {
                     }
                 });
             }
-            resolve(redisObject);
         }else{
             redisInstance.quit();
             console.log(err);

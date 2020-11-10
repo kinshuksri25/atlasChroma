@@ -84,13 +84,13 @@ class KanbanBoard extends Component {
     render(){
         let currentProject = this.selectProject();
         let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
-        return (<div className="outerBoardContainer" id="outerBoardContainer">
+        return (<div className="boardContainer">
                     <Modal
                     isOpen={this.state.showStoryForm}
                     contentLabel="">
                         <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
                     </Modal>
-                    <div className ="innerBoardContainer" id="innerBoardContainer">
+                    <div>
                         {boardJSX}
                     </div>
                     {JSON.stringify(currentProject) != JSON.stringify({}) && 

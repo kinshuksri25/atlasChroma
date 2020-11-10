@@ -1,144 +1,112 @@
 .parentSchedulerContainer{
-    width: 100%;
+    box-sizing: border-box;
     height: 100%;
-    font-family: 'Comfortaa', cursive;
+    margin: 0px;
+    padding: 0.75rem;
 }
 
 .calenderContainer{
-    width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 0.5fr 4.5fr;
+    grid-template-columns: 1fr;
+    overflow: hidden;
 }
 
 .calenderUpperBlock{
-    width: 100%;
-    flex-basis: 5%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 10px 0;
 }
 
 .calenderUpperInnerBlock{
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
-}
-
-.previous,.next{
-    border: 1px solid #DE6EA1;
-    color: #DE6EA1;
-    border-radius: 50%;
-    width: 35px !important;
-    height: 35px !important;
-    transition: background-color 0.5s,color 0.5s;
-}
-
-.previous:hover,.next:hover{
-    border: none;
-    color: white;
-    background-color: #DE6EA1;
-    transition: background-color 0.5s,color 0.5s;
+    padding: 1rem;
 }
 
 .calenderDateHeading{
-    width: 15%;
-    font-weight: 500;
-    height: 35px;
-    min-width: 142px;
-    text-align: center;
-    padding: 6px 0;
-    color: #512989;
-    font-size: large;
+    font-size: 1.5rem;
+    box-sizing: border-box;
+    padding: 0.5rem 1.5rem;
+    margin: 0px;
+}
+
+.calenderUpperInnerBlock button{
+    height: 3rem;
+    width: 3rem;
+    border-radius: 50%;
+    border: 1px solid #28a745;
+    background-color:white;
+    color: #28a745;
+    outline:none;
+}
+
+.calenderUpperInnerBlock button:hover,.calenderUpperInnerBlock button:active{
+    border: 1px solid #28a745;
+    background-color:#28a745;
+    color: white;
+    box-shadow:  0 0 10px #28a745;
 }
 
 .calenderLowerBlock{
-    width: 100%;
-    flex-basis: 95%;
-    display: flex;
-    flex-direction: column;
-    font-weight: 600;
+    display: grid;
+    grid-template-rows: 1rem repeat(6,1fr);
+    grid-gap: 0.5rem;
 }
 
-.daysContainer{
-    display: flex;
-    margin-left: 1%;
-    margin-bottom: 0.14%;
-}
-
-.calenderHeader{
-    border: 1px solid #502989;
-    border-radius: 5px;
-    color: #502989;
-    width: 14%;
-    text-align: center;
-    margin-left: 0.14%;
-}
-
-.weekContainer{
-    display: flex;
-    min-height: 105px;
-    height: 16%;
-    margin-left: 1%;
-    margin-bottom: 0.14%;
+.daysContainer,.weekContainer{
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    grid-template-rows: 1fr;
+    grid-gap: 0.5rem;
 }
 
 .calenderButton,.calenderButtonHidden{
-    width: 14%;
-    height: 100%;
-    margin-left: 0.14%;
-    border: 1px solid #7C40A9;
-    color: #7C40A9;
-    border-radius: 5px;
-    background-color: white;
-    transition: background-color 1s,color 1s;
-    font-size: x-large;
+    min-width: 6rem;
+    min-height: 4rem;
+    background: none;
+    border-radius: 3%;
+    border: 1px solid #7579e7;
+    color: #7579e7; 
+    font-size: 1rem;
 }
 
-.calenderButton:hover{
-    border: none;
+.currentDay{
+    background: transparent;
+    border: 1px solid #7579e7;
+    color: #7579e7; 
+    box-shadow: 0 0 15px #7579e7;
+    outline:none;
+    font-size: 1rem;
+}
+
+
+.calenderButton:hover,.calenderButtonHidden:hover,.calenderButton:active,.calenderButtonHidden:active,.calenderButton:focus,.calenderButtonHidden:focus,.currentDay:hover,.currentDay:active,.currentDay:focus{
+    background: #7579e7;
+    border: 1px solid #7579e7;
     color: white; 
-    background-color: #7C40A9;
-    transition: background-color 1s,color 1s;
+    box-shadow: 0 0 10px #7579e7;
+    outline:none;
+    font-size: 1.25rem;
 }
 
 .calenderButtonHidden{
-    visibility: hidden;    
+    visibility: hidden;
 }
 
-@media screen and (min-width: 1280px) and (max-width: 1366px){
-    .weekContainer{
-        height: 15%;
+@media screen and (max-width: 1400px){
+    .calenderContainer{
+        grid-template-rows: 0.35fr 4.65fr;
     }
-    .calenderUpperBlock{
-        flex-basis: 6%;
-    }
-}
 
-@media screen and (min-width: 1150px) and (max-width: 1280px){
-    .weekContainer{
-        height: 14%;
-    }
-    .calenderUpperBlock{
-        flex-basis: 6.5%;
-    }
     .calenderDateHeading{
-        font-size: medium;
+        font-size: 1.25rem;
     }
-    .calenderButton{
-        font-size: large;
+
+    .calenderUpperInnerBlock button{
+        height: 2.5rem;
+        width: 2.5rem;
     }
 }
-
-@media screen and (max-width: 1150px){
-    .weekContainer{
-        height: 13%;
-    }
-    .calenderUpperBlock{
-        flex-basis: 7%;
-    }
-    .calenderDateHeading,.calenderButton{
-        font-size: medium;
-    }
-}
-

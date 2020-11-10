@@ -1,8 +1,7 @@
 html{
-    height: 100vh;
+    height: 100%;
     margin : 0;
     min-width: 1024px;
-    min-height: 1024px;
 }
 
 body{

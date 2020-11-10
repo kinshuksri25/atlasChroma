@@ -47,8 +47,17 @@
     border-left: 1px solid #bfdcae;
 }
 
-button{
+.googleLoginButton,.signUpButton,.loginButton{
+    border: 1px solid #007bff;
     width: 70%;
+    background-color: rgba(0,0,0,0);
+    color: #007bff;
+}
+
+.googleLoginButton:hover,.signUpButton:hover,.loginButton:hover,.googleLoginButton:active,.signUpButton:active,.loginButton:active{
+    border: none;
+    background-color: #007bff;
+    color: white;
 }
 
 signUpAttributes:focus,.loginAttributes:focus{
@@ -107,11 +116,5 @@ signUpAttributes:focus,.loginAttributes:focus{
     }
     .formContainer{
         flex-basis: 21%;
-    }
-}
-
-@media screen and (max-height: 768px){
-    .lowerTitleContainer,.signUpContainer{
-        flex: none;
     }
 }

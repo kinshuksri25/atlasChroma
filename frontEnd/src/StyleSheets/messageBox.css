@@ -1,0 +1,200 @@
+
+.MessageBox{
+    position: fixed;
+    bottom: 0rem;
+    right: 0.5rem;
+    padding: 0rem;
+    min-width: 17rem;
+    box-sizing: border-box;
+    background: white;
+    border: 1px solid #336daa;
+    border-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: none;
+}
+
+.MessageBox h6{
+    box-sizing: border-box;
+    padding-top: 0.25rem;
+    height: 1.5rem;
+    text-align: center;
+    color: white;
+    background: #336daa;
+    margin: 0px;
+}
+
+.unread{
+    background: #cc5d29 !important;
+}
+
+.MessageBox > ul {
+    padding: 0 0.3rem;
+    padding-top: 0.3rem;
+    min-height: 22.5rem;
+    overflow-y: auto;
+}
+
+.MessageBox > ul > li{
+    position: relative;
+}
+
+
+.Online{
+    position: absolute;
+    right: 0.1rem;
+    top: 0.3rem;
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    border: none;
+    background: chartreuse;
+}
+
+.chatBox{
+    position: fixed;
+    bottom: 0rem;
+    right: 18rem;
+    padding: 0rem;
+    box-sizing: border-box;
+    min-height: 24.0625rem;
+    max-height: 24.0625rem;
+    min-width: 18rem;
+    max-width: 18rem;
+    display: grid;
+    grid-template-rows: 1fr 2rem;
+    grid-template-columns: 1fr;
+    border: 1px solid #336daa;
+    border-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: none;
+    background: white;
+}
+
+.chatWindow{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1.5rem 1fr;
+    flex-direction: column;
+    padding-bottom: 0rem;
+    overflow-y: hidden;
+    grid-gap: 4px;
+}
+
+.chatWindow > h6{
+    position: relative;
+    box-sizing: border-box;
+    padding-top: 0.25rem;
+    height: 1.5rem;
+    text-align: center;
+    color: white;
+    background: #336daa;
+    margin: 0px;
+}
+
+.closeChat{
+    position: absolute;
+    right: 0.3rem;
+    top: 0.2rem;
+}
+
+.chatWindow > h6 > span{
+    margin: 0px;
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-inline-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.chatWindow > ul{
+    overflow-y: auto;
+}
+
+.offlineHeader{
+    border-bottom: 1px solid lightblue;
+    margin-bottom: 0.2rem;
+}
+
+.userOnline{
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-bottom: 0.3rem;
+    border-radius: 50%;
+    border: none;
+    background: chartreuse;
+}
+
+.chatWindow > ul {
+    padding: 0.3rem;
+    padding-bottom: 0px;
+}
+
+.offlineHeader{
+    overflow-wrap: break-word;
+}
+
+.SenderContainer{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.Sender,.Reciever{
+    display: inline-block;
+    max-width: 12rem;
+    border: none;
+    border-radius: 5px;
+    padding: 0.2rem;
+    color: white;
+    overflow-wrap: break-word;
+    margin-bottom: 0.2rem;
+}
+
+.Sender{
+    background: #336daa;
+}
+
+.Reciever{
+    background: #0c498a;
+}
+
+.inputContainer{
+    display: flex;
+    justify-content: space-between;
+    padding: 0.1rem 0.5rem;
+    padding-left: 0.2rem;
+}
+
+.inputContainer > input{
+    border: 1px solid #4799f0; 
+    border-radius: 5px; 
+    min-width: 15rem;
+    max-width: 15rem;  
+}
+
+.inputContainer > button{
+    width: 1.75rem;
+    height: 1.75rem;
+    border: none;
+    color: white;
+    background: #28a745;
+    border-radius: 50%;
+}
+
+
+.unreadCount{
+    text-align: center;
+    padding: 0.1rem;
+    min-width: 1.3rem;
+    max-width: 2rem;
+    display: inline-block;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    background: #cc0e4e;
+    color: white;
+}

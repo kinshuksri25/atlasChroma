@@ -1,35 +1,13 @@
-.outerBoardContainer{
+.boardContainer{
     width: 100%;
     height: 100%;
-    padding: 0.5%;
     margin: 0px;  
     background: linear-gradient(to right, #000000, #434343);
 }
 
-.innerBoardContainer{
+.boardContainer > div{
     width: 100%;
     height: 100%;
-    box-sizing: content-box; 
-}
-
-.projectSetup{
-    box-sizing: border-box;
-    background: white;
-    border: none;
-    width: 20%;
-    border-radius: 5px;
-    min-width: 380px;
-    height: 15%;
-    margin: 20% auto;
-    min-height: 139px;
-    text-align: center;
-    padding: 1%;
-}
-
-.templateButton{
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    margin-top: 4.5%;
+    margin: 0;
+    padding: 0;
 }

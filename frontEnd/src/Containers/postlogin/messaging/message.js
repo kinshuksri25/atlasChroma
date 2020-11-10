@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 import {chatObject} from '../../../../../lib/constants/storeConstants';
 import {EMSG} from '../../../../../lib/constants/contants';
-import {addMsgAction} from "../../../store/actions/chatActions";
 
 class Message extends Component{
     constructor(props){
@@ -17,12 +16,6 @@ class Message extends Component{
         this.buildChatWindow = this.buildChatWindow.bind(this);
     }
 
-    componentDidMount(){
-        this.props.io.on("setMessage",(data) => {
-            this.props.addMsgState({...data.messageObject},data.roomName);   
-        });
-    }
-
     onChangeHandler(event){
         this.setState({message : event.target.value});
     }
@@ -33,8 +26,8 @@ class Message extends Component{
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let userOnline = false;
         this.props.userList.map(user => {
-            if(user.username != this.props.user.username){
-                userOnline = user.status ? true : false;
+            if(user.username == this.props.recipientUserName){
+                userOnline = user.status;
             }    
         });
 
@@ -52,30 +45,33 @@ class Message extends Component{
         let reciverOffline = false;
         this.props.userList.map(user => {
             if(user.username == this.props.recipientUserName)
-                reciverOffline = true;
+                reciverOffline = user.status;
         });
         for(let key in this.props.chatRooms){
             chats = this.props.chatRooms[this.props.roomName] != undefined ? [...this.props.chatRooms[this.props.roomName]] : chats;
         }
 
         let chatJSX = chats.map(chat => {
-            return(<li className = {chat.sender}>{chat.message}</li>);
+            let classname = chat.sender == this.props.user.username ? "Sender" : "Reciever";
+            let msgContainer = classname+"Container";
+            return(<div className={msgContainer}><li className = {classname}>{chat.message}</li></div>);
         });
-        return (<ul>
-                    <li hidden = {reciverOffline}>{this.props.recipientName} {EMSG.CLI_MSG_OFFLINE}</li>
-                    {chatJSX}
-                </ul>);
+        return (<div className = "chatWindow">
+                    <h6><span>{this.props.recipientName}</span> {reciverOffline && <div className="userOnline"></div>} <span className="closeChat" onClick={this.props.toggleChatWindow}>x</span></h6>
+                    <ul>
+                        <li className="offlineHeader" hidden = {reciverOffline}>{this.props.recipientName} {EMSG.CLI_MSG_OFFLINE}</li>
+                        {chatJSX}
+                    </ul>
+                </div>);
     }
 
     render(){
         let chatWindowJSX = this.buildChatWindow();
         return (<div className = "chatBox">
-                    <div className = "chatWindow">
-                        {chatWindowJSX}
-                    </div>
-                    <div>
+                   {chatWindowJSX}
+                    <div className="inputContainer">
                         <input type = "text" value = {this.state.message} onChange = {this.onChangeHandler} className = "messageInput"/>
-                        <button onClick = {this.onSubmitHandler}>Send</button>
+                        <button onClick = {this.onSubmitHandler}>&gt;</button>
                     </div>
                 </div>);
     }
@@ -90,12 +86,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-const mapDispatchToProps = dispatch => {
-    return {
-        addMsgState: (msgObject,roomname) =>{
-            dispatch(addMsgAction(msgObject,roomname));
-        } 
-    };
-};
-
-export default connect(mapStateToProps,mapDispatchToProps)(Message); 
+export default connect(mapStateToProps,null)(Message); 

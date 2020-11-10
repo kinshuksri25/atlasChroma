@@ -113,6 +113,9 @@ server.init = (runtimeEnvironment,port) => {
     server.https.listen(port, function() {
         console.log("The https server is listening on port "+port+" in "+runtimeEnvironment+" mode");
     });
+    //clear all cookies 
+    cookieHandler.clearCookies();
+
     //listening to client socket events
     socket.handleEvents(io);
 

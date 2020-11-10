@@ -10,31 +10,11 @@ import JitsiContainer from '../jitsi';
 class MeetingEvent extends Component{
     constructor(props){
         super(props);
-        this.state = {  dateHelper : new DateHelper(),
-                        currentTime : "",
-                        eventDate : props.currentYear+"-"+props.currentMonth+"-"+props.currentDate,
-                        isOpen : false};
+        this.state = {isOpen : false};
         this.meetingJSX = this.meetingJSX.bind(this);
-        this.setCurrentTime = this.setCurrentTime.bind(this);
         this.sortStories = this.sortStories.bind(this);
         this.startMeeting = this.startMeeting.bind(this);
         this.closeMeeting = this.closeMeeting.bind(this);
-    }
-
-    componentDidMount(){
-        this.setCurrentTime();
-        setInterval(() => {
-            this.setCurrentTime();
-        },1800000);
-    }
-
-    setCurrentTime(){
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
-        let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
-        if(currentDate == eventDate)
-            this.setState({currentTime : new Date().getHours().toString()+":00"});
     }
 
     sortStories(stories){
@@ -63,25 +43,14 @@ class MeetingEvent extends Component{
         }else{
             let sortedEvent = this.sortStories(this.props.meetings);
             let meetings = [];
-            let currentDateObject = this.state.dateHelper.currentDateGenerator();
-            let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
             sortedEvent.map(event => {
-                let status = "";
-                let startTime = parseInt(event.StartTime.substring(0,2));
-                let endTime = parseInt(event.EndTime.substring(0,2));
-                let currentTime = parseInt(this.state.currentTime.substring(0,2));
-                if(this.state.currentTime == ""){
-                    status = currentDate < this.state.eventDate ? "YettoStart" : "Finished"
-                }else{
-                    status = startTime > currentTime ? "YettoStart" : startTime <= currentTime && endTime <= currentTime ? "Finished" : "CurrentlyActive";
-                }
-                meetings.push(<div className = {status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
-                                <div className="scheduledCardTitle" onClick={event.creator == this.props.user.username && this.props.onClick}>RoomName: {event.EventTitle}</div>
-                                <h5 className="creator" onClick={event.creator == this.props.user.username && this.props.onClick}>MeetingCreator: {event.creator}</h5>
-                                <h5 className="code">MeetingCode: {event.password}</h5>
-                                <button className = "startMeeting" onClick = {this.startMeeting} disabled = {false}>Start Meeting</button>
-                                {status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
-                                {status != "YettoStart" && <span className = "status">{status}</span>}
+                meetings.push(<div className = {event.status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
+                                <div className="scheduledCardTitle" onClick={event.creator == this.props.user.username && this.props.onClick}>{event.EventTitle}</div>
+                                <span className="creator" onClick={event.creator == this.props.user.username && this.props.onClick}>Creator:{event.creator}</span>
+                                <div className="meetingDescription">{event.Description}</div>  
+                                <button className = "startMeeting" onClick = {this.startMeeting} hidden = {event.status != "CurrentlyActive"}>&gt;</button>
+                                {event.status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
+                                {event.status == "Finished" && <span className = "status">{event.status}</span>}
                             </div>);
             });
             return (<div className = "CardGroup">{meetings}</div>);

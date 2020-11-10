@@ -51,31 +51,10 @@ templateBuilderConstants.SDLC = [
         CHILDREN : []
     },
     {
-        _id:"",
+        _id:"WORK IN PROGRESS",
         NAME:"WORK IN PROGRESS",
         WIP: false,
         EXTENDS : "",
-        CHILDREN : ["DESIGN","DEVELOPMENT","TESTING"]
-    },
-    {
-        _id:"",
-        NAME:"DESIGN",
-        WIP: true,
-        EXTENDS : "WORK IN PROGRESS",
-        CHILDREN : []
-    },
-    {
-        _id:"",
-        NAME:"DEVELOPMENT",
-        WIP: true,
-        EXTENDS : "WORK IN PROGRESS",
-        CHILDREN : []
-    },
-    {
-        _id:"",
-        NAME:"TESTING",
-        WIP: true,
-        EXTENDS : "WORK IN PROGRESS",
         CHILDREN : []
     },
     {

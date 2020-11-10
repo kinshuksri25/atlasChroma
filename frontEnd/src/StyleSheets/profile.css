@@ -1,0 +1,124 @@
+.profileContainer{
+    height: 100%;
+    display:grid;
+    place-items: center;
+    font-family: 'Comfortaa', cursive;
+}
+
+.profileContainer div{
+    display: grid;
+    place-items: center;
+    grid-template-columns: 1fr;
+    border: none;
+    box-shadow: 0 0 15px darkgray;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 0.5rem;
+}
+
+
+.profileContainer div *{
+    box-sizing: border-box;
+    margin: 0.25rem;
+    font-size: 1rem;
+}
+
+.profilePictureContainer{
+    position: relative;
+    border:none;
+    width: 15rem;
+    height: 15rem;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.profilePic{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15rem;
+    height: 15rem;
+    margin: 0px !important;
+    transform: scale(1);
+    transition: transform 1s;
+}
+
+.profilePictureContainer:focus,.profilePic:focus{
+    outline:none;
+}
+
+.profilePic:hover{
+    transform: scale(1.35);
+    transition: transform 1s;
+}
+
+.profileContainer div input{
+    height: 2.5rem;
+    width:  25rem;
+    padding: 0.2rem;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+}
+
+.profileContainer div input:hover,.profileContainer div input:active,.profileContainer div input:focus{
+    border: 1px solid #007bff;
+    box-shadow: 0 0 10px #4169e1;
+    outline: none;
+}
+
+.updateButton,.deleteButton{
+    height: 3rem;
+    width:  20rem;
+    background:transparent;
+}
+
+.updateButton{
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    color:#007bff;
+}
+
+.updateButton:hover,.updateButton:active{
+    background: #007bff;
+    color:white;
+}
+
+.deleteButton{
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+    color:#dc3545; 
+}
+
+.deleteButton:hover,.deleteButton:active{
+    background: #dc3545; 
+    color:white;
+}
+
+
+@media screen and (max-width: 1400px){
+    .profileContainer div *{
+        font-size: 0.85rem;
+    }
+
+    .profilePictureContainer{
+        width: 13rem;
+        height: 13rem;
+    }
+
+    .profilePic{
+        width: 13rem;
+        height: 13rem;
+        margin: 0px !important;
+    }
+
+    .profileContainer div input{
+        height: 2rem;
+        width:  22rem;
+    }
+
+    .updateButton,.deleteButton{
+        height: 2.5rem;
+        width:  17rem;
+    }
+}

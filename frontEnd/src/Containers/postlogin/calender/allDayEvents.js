@@ -16,7 +16,7 @@ class AllDayEvent extends Component{
 
     onStoryClick(event){
         let projectID = "";
-        this.props.allDayStories.map(story => {  //this has to come from props
+        this.props.allDayStories.map(story => {  
             if(story._id == event.target.id){
                 projectID = story.projectID;
             }
@@ -68,7 +68,7 @@ class AllDayEvent extends Component{
             });
             this.props.allDayEvents.map(event => {  
                 allDayJSX.push(<div className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    
-                                    <span className = "cardTitle">{event.EventTitle}</span>
+                                    <p className = "cardTitle">{event.EventTitle}</p>
                                     <p className = "cardDescription">{event.Description}</p>
                                 </div>);
             });

@@ -19,11 +19,17 @@ class CalenderDate extends Component{
     }
 
     changeActiveTab(event){
+        let eventButton = document.getElementById("Events");
+        let notesButton = document.getElementById("Notes");
         let activeEvent = "";
         if(event.target.id == "Events"){
             activeEvent = "Events";
+            eventButton.className = "foreground";
+            notesButton.className = "background";
         }else{
             activeEvent = "Notes";
+            eventButton.className = "background";
+            notesButton.className = "foreground";
         }
         this.setState({activeTab : activeEvent});
     }
@@ -38,11 +44,11 @@ class CalenderDate extends Component{
                     <div className = "calenderDateUpperContainer">
                         <div className = "topUpperBlock">
                             <Button className = "backButton" onClick={this.props.onClickHandler}>&#8672;</Button>
-                            <h3 className = "calenderHeading">{heading}</h3>
+                            <div>{heading}</div>
                         </div>
                         <div className = "topLowerBlock">
-                            <Button id="Events" disabled={this.state.activeTab == "Events"} variant="danger" className = "tab" onClick={this.changeActiveTab}>Events</Button>
-                            <Button id="Notes"  disabled={this.state.activeTab == "Notes"} variant="info" className = "tab" onClick={this.changeActiveTab}>Notes</Button>
+                            <button id="Events" disabled={this.state.activeTab == "Events"} className="foreground" onClick={this.changeActiveTab}>Events</button>
+                            <button id="Notes"  disabled={this.state.activeTab == "Notes"} className="background" onClick={this.changeActiveTab}>Notes</button>
                         </div>
                     </div>
                     {this.state.activeTab == "Events" && <Events currentMonth = {this.props.currentMonth} 

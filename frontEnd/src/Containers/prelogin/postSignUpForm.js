@@ -69,7 +69,7 @@ class PostSignUpForm extends Component {
                     //set the session
                     cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                     //TODO --> change the pushState 'state' and 'title'
-                    window.history.pushState({},"",urls.DASHBOARD);
+                    window.history.pushState({},"",urls.PROJECT);
                 }
             });
         } else {
@@ -82,16 +82,16 @@ class PostSignUpForm extends Component {
     render() {
         let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div>: <img className ="profilePhoto" src={this.state.photo}/>;
         return (<div className = "postSignUpFormPage">
-                   <div className="heading">Just a couple of more details, and you will be off to the races!</div>
+                   <div className="heading"><span>Just a couple of more details, and you will be off to the races!</span></div>
                    <div className = "postSignupFormContainer">
-                        <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
-                        {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
-                        <div className="postSignUpForm">
+                        <div>
+                            <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                            {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
                             <SimpleForm formAttributes = { formConstants.postSignup }
                             submitHandler = { this.onSubmitHandler }
                             changeHandler = { this.onChangeHandler }
-                            changeFieldNames = {["Phone"]}/>  
-                        </div>   
+                            changeFieldNames = {["Phone"]}/> 
+                        </div>  
                     </div>
                 </div>);
     }

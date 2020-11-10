@@ -33,7 +33,7 @@ class Projects extends Component {
         }
 
         openModal(event){
-            let clssName = event.target.className.substring(0,event.target.className.indexOf(" "));
+            let clssName = event.target.className;
             switch(clssName){
                 case "openAddModal" :
                     this.setState({action : "ADD"}); 
@@ -76,8 +76,8 @@ class Projects extends Component {
                   transform             : 'translate(-50%, -50%)'
                 }
             };
-            return (<div className = "projectsPageContainer">
-                        <div className = "projectDashboardUpperBlock">
+            return (<div className = "projectDashboard">
+                        <div className = "projectDashboardUpper">
                             <FilterForm 
                             orderBy={this.state.orderBy} 
                             searchFunction={this.searchProject}
