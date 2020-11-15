@@ -11,7 +11,8 @@ class story{
                 startdate= generateCurrentDate(),
                 duedate="",
                 currentstatus="",
-                comments=""}) {
+                comments="",
+                status=""}) {
         
         this._id = _id;              
         this.storytitle=storytitle;
@@ -22,6 +23,7 @@ class story{
         this.duedate=duedate;
         this.currentstatus=currentstatus;
         this.comments=comments;
+        this.status=status;
     }
 
     getStoryDetails(){
@@ -34,7 +36,8 @@ class story{
             startdate:this.startdate,
             currentstatus:this.currentstatus,
             duedate:this.duedate,
-            comments:this.comments          
+            comments:this.comments,
+            status:this.status          
         }
 
         return storyObject;
@@ -48,7 +51,8 @@ class story{
                    startdate=this.startdate,
                    currentstatus=this.currentstatus,
                    duedate=this.dueDate,
-                   comments=this.comments}){
+                   comments=this.comments,
+                   status=this.status}){
 
             this._id = _id;            
             this.storytitle=storytitle;
@@ -58,7 +62,8 @@ class story{
             this.startdate=startdate;
             this.currentstatus=currentstatus;
             this.duedate=duedate;
-            this.comments=comments;        
+            this.comments=comments;    
+            this.status=status;    
 
     }
 }

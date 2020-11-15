@@ -55,7 +55,7 @@ templateBuilderConstants.SDLC = [
         NAME:"WORK IN PROGRESS",
         WIP: false,
         EXTENDS : "",
-        CHILDREN : []
+        CHILDREN : []    
     },
     {
         _id:"",

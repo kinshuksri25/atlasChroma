@@ -63,7 +63,7 @@ class StoryContainer extends Component{
         let stories = this.getStories();
         stories = this.sortStories(stories);
         let storyContainer = stories.map(story => {
-            return <Story storyDetails = {story}/>
+            return <Story currentProject={this.props.currentProject} storyDetails = {story}/>
         });
         return(<div>{storyContainer}</div>);
     }

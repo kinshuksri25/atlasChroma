@@ -1,7 +1,7 @@
 //Dependencies
 import React, { Component } from 'react';
-import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import { hot } from "react-hot-loader";
 import {Card, CardGroup} from 'react-bootstrap';
 
 import "../../../StyleSheets/allDayEvents.css";
@@ -11,6 +11,7 @@ class AllDayEvent extends Component{
         super(props);
         this.allDayJSX = this.allDayJSX.bind(this);
         this.onStoryClick = this.onStoryClick.bind(this);
+        this.onProjectClick = this.onProjectClick.bind(this);
         this.sortStories = this.sortStories.bind(this);
     }
 
@@ -24,6 +25,12 @@ class AllDayEvent extends Component{
         let url = "/projects/"+projectID+"?storyID="+event.target.id; 
         window.history.replaceState({}, "",url);
     }
+
+    onProjectClick(event){
+        let url = "/projects/"+event.target.id; 
+        window.history.replaceState({}, "",url);
+    }
+
 
     sortStories(stories){
         let priorityList = {
@@ -54,16 +61,30 @@ class AllDayEvent extends Component{
     }
 
     allDayJSX(){
-        if(this.props.allDayEvents.length == 0 ){
+        let currentDay = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
+        if(this.props.allDayEvents.length == 0 && this.props.allDayStories.length == 0){
             return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedStories = this.sortStories(this.props.allDayStories); 
             let allDayJSX = [];
+            
+            this.props.user.projects.map( project => {
+                 if(project.duedate == currentDay && this.user.username == project.projectlead){
+                    allDayJSX.push(
+                        <div className = {project.status} id = {project._id} onClick={this.onProjectClick}>  
+                                    <p className = "cardTitle">{project.title}</p>
+                                    <p className = "cardDescription">{project.description}</p>
+                                    <p className = "projStatus">Status : {project.status}</p>
+                        </div>);
+                 }
+            });
+
+
             sortedStories.map(story => {
                 allDayJSX.push(<div className = {story.priority} id = {story._id} onClick={this.onStoryClick}>  
-                                    <h3>{story.storytitle}</h3>
-                                    <h4>{story.description}</h4>
-                                    <h4>Priority : {story.priority}</h4>
+                                    <p className = "cardTitle">{story.storytitle}</p>
+                                    <p className = "cardDescription">{story.description}</p>
+                                    <p className = "status">Priority : {story.priority}</p>
                                 </div>);
             });
             this.props.allDayEvents.map(event => {  
@@ -81,4 +102,10 @@ class AllDayEvent extends Component{
     }
 }
 
-export default connect(null,null)(AllDayEvent); 
+const mapStateToProps = state => {
+    return {
+        user : state.userStateReducer
+    }
+}
+
+export default connect(mapStateToProps,null)(AllDayEvent); 

@@ -71,7 +71,8 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
         let projectClass = new project({title : requestObject.reqBody.title,
             description : requestObject.reqBody.description,
             projectlead : requestObject.reqBody.projectleader,
-            contributors : requestObject.reqBody.contributors});
+            contributors : requestObject.reqBody.contributors,
+            duedate:requestObject.reqBody.duedate});
 
         let projectObject = projectClass.getProjectDetails();
         let template = {
@@ -148,7 +149,9 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         || requestObject.reqBody.hasOwnProperty("description") 
         || requestObject.reqBody.hasOwnProperty("contributors") 
         || requestObject.reqBody.hasOwnProperty('projectleader') 
-        || requestObject.reqBody.hasOwnProperty("templatedetails")){
+        || requestObject.reqBody.hasOwnProperty("templatedetails")
+        || requestObject.reqBody.hasOwnProperty("duedate")
+        || requestObject.reqBody.hasOwnProperty("status")){
 
     let push = {};
     let set = {}; 
@@ -163,7 +166,12 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
         set.projectlead = requestObject.reqBody.projectleader;
     }if(requestObject.reqBody.hasOwnProperty("templatedetails")){
         set.templatedetails = requestObject.reqBody.templatedetails;
+    }if(requestObject.reqBody.hasOwnProperty("duedate")){
+        set.duedate = requestObject.reqBody.duedate;
+    }if(requestObject.reqBody.hasOwnProperty("status")){
+        set.status = requestObject.reqBody.status;
     }
+
     set.modificationdate = generateCurrentDate();
     if(JSON.stringify(set)!=JSON.stringify({})){
         updateQuery["$set"] = {...set};
@@ -202,6 +210,10 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                         oldContributors.indexOf(user.username) != -1 && oldContributorsEmail.push(user.email);
                         removedContributors.indexOf(user.username) != -1 && removedContributorsEmail.push(user.email);
                     });
+
+                    templateBuilder = {};
+
+                    requestObject.reqBody.hasOwnProperty("projectleader") && googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,[...requestObject.reqBody.projectLeadEmails],OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.CHANGELEAD,templateBuilder);
         
                     //send emails to respective groups
                     if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){

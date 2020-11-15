@@ -22,6 +22,10 @@ class SearchFeild extends Component{
         this.onChange = this.onChange.bind(this);
         this.onSuggestionClick = this.onSuggestionClick.bind(this);
     }
+    
+    componentDidMount(){
+        console.log(this.props.disableInputs);
+    }
 
     static getDerivedStateFromProps(props, state){
        if(JSON.stringify(state) == JSON.stringify({})){
@@ -79,6 +83,7 @@ class SearchFeild extends Component{
             let selectedJSX = this.search(constant);
             return(<div className = "searchForm">
                         <Form.Control type="text" 
+                        disabled={this.props.disableInputs}
                         name = {constant.name}
                         id = {constant.id}
                         placeholder = {constant.placeholder} 

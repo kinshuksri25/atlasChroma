@@ -139,6 +139,7 @@ class PostLoginRouter extends Component {
         let finalRootComponent = !highlightHide ? <div style={{gridTemplateColumns: '1fr'}}>
                                                     <Menu menuArray = {menuConstants}/> 
                                                     <div className = "mainContainer">{this.containerSelector()}</div>
+                                                    {this.props.io != "" && JSON.stringify(this.props.user) != JSON.stringify(userObject) && <MessageBox/>}
                                                 </div> :
                                                 <div>
                                                     <Menu menuArray = {menuConstants}/> 

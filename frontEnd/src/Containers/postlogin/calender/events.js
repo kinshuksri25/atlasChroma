@@ -507,7 +507,12 @@ class Events extends Component{
                         <button id="meetingsButton" onClick={this.eventSelector}><span>Meetings</span></button>
                     </div>
                     <div hidden={this.state.selectedButton != "allDayButton"} className = "allDayContainer">
-                        <AllDayEvent allDayEvents={this.state.allDayEvents} allDayStories = {this.state.allDayStories} onClick = {this.triggerModal}/>
+                        <AllDayEvent allDayEvents={this.state.allDayEvents} 
+                                    currentMonth = {this.props.currentMonth} 
+                                    currentYear = {this.props.currentYear} 
+                                    currentDate = {this.props.currentDate} 
+                                    allDayStories = {this.state.allDayStories} 
+                                    onClick = {this.triggerModal}/>
                     </div>               
                     <div hidden={this.state.selectedButton != "scheduledButton"} className = "timedContainer">
                         <TimedEvent timedEvents={this.state.timedEvents} onClick = {this.triggerModal}/>

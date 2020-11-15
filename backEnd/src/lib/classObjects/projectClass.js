@@ -12,7 +12,9 @@ class project{
                 creationdate= generateCurrentDate(),
                 modificationdate="",
                 templatedetails = {},
-                storydetails = []}){
+                storydetails = [],
+                duedate = "",
+                status = "InProgress"}){
         
         this._id = _id;                    
         this.title = title;
@@ -23,6 +25,8 @@ class project{
         this.modificationdate=modificationdate;
         this.templatedetails = templatedetails;
         this.storydetails = storydetails;
+        this.duedate = duedate;
+        this.status = status;
     }
 
     getProjectDetails(){
@@ -35,7 +39,9 @@ class project{
             creationdate:this.creationdate,
             modificationdate:this.modificationdate,
             templatedetails:this.templatedetails,
-            storydetails:this.storydetails
+            storydetails:this.storydetails,
+            duedate:this.duedate,
+            status: this.status
         } 
         return {...projectDetails};
     }
@@ -48,7 +54,9 @@ class project{
                       creationdate=this.creationdate,
                       modificationdate=this.modificationdate,
                       templatedetails=this.templatedetails,
-                      storydetails=this.storydetails}){
+                      storydetails=this.storydetails,
+                      duedate=this.duedate,
+                      status=this.status}){
 
         this._id = _id;                
         this.title = title;
@@ -59,6 +67,8 @@ class project{
         this.modificationdate=modificationdate;
         this.templatedetails=templatedetails;
         this.storydetails=storydetails;
+        this.duedate=duedate;
+        this.status=status;
     }
 }
 

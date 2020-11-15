@@ -27,11 +27,12 @@ class Story extends Component{
                         duedate : "",
                         columnArray : [],
                         storyContributor : "",
-                        storyPriority : ""
+                        storyPriority : "",
                      };
                           
         this.moveStory = this.moveStory.bind(this);
         this.editStory = this.editStory.bind(this);
+        this.findPhoto = this.findPhoto.bind(this);
         this.closeStoryModel = this.closeStoryModel.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
         this.updateFormhandler = this.updateFormhandler.bind(this);
@@ -55,7 +56,9 @@ class Story extends Component{
                             storyComments : this.props.storyDetails.comments,
                             duedate : this.props.storyDetails.duedate, 
                             storyContributor : this.props.storyDetails.contributor,
-                            storyPriority : this.props.storyDetails.priority});
+                            storyPriority : this.props.storyDetails.priority,   
+                            contributorPhoto: photo
+                        });
         }
         let columnPostion = 0;
         let columns = this.generateColumnArray();
@@ -83,7 +86,13 @@ class Story extends Component{
                 this.setState({storyPriority : event.target.value});
                 break;
             case "duedate":
-                this.setState({duedate : event.target.value});
+                if(event.target.value >= this.props.currentProject.duedate){
+                    errorObject.msg = "Invalid date selected";
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);
+                }else{
+                    this.setState({duedate : event.target.value});
+                }
                 break;    
             case "contributor":
                 this.setState({storyContributor : event.target.value});
@@ -214,6 +223,12 @@ class Story extends Component{
             let storyDetails = {};
             storyDetails._id = this.props.storyDetails._id;
             storyDetails.currentStatus = columns[newPosition]._id;
+            console.log(this.props.storyDetails.status);
+            if(columns[newPosition].workFlowEnd == true){
+                storyDetails.status = "Finished";
+            }else if(columns[newPosition].workFlowEnd == undefined && this.props.storyDetails.status == "Finished"){
+                storyDetails.status = "Ongoing";
+            }
             storyDetails.oldName = this.state.storytitle;
             httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
@@ -265,9 +280,20 @@ class Story extends Component{
         this.setState({hover:true});
     }
 
+    findPhoto(){
+        let photo = "";
+        this.props.userList.map(user => {
+            photo = this.props.storyDetails.contributor == user.username ? user.photo : photo;
+        });
+
+        return photo;
+    }
+
     render(){
+        let disableInput = this.props.user.username == this.state.storyContributor || this.props.user.username == this.props.currentProject.projectlead ? false : true;
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
         let disableUpdate = (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
                                 this.state.storyDescription != this.state.oldStoryDetails.description || 
                                     this.state.storyComments != this.state.oldStoryDetails.comments || 
@@ -287,10 +313,14 @@ class Story extends Component{
                                 onClick={this.editStory}
                                 onMouseOver={this.onMouseOver}
                                 onMouseLeave={this.onMouseLeave}>
-                                <h3 className = "tileHeading">{this.props.storyDetails.storytitle}</h3>
-                                <h4 className = "tileDescription">{this.props.storyDetails.storydescription}</h4>
-                                <button className="promoteStory" hidden={promoteShow} onClick={this.moveStory}>-\</button>
-                                <button className="demoteStory" hidden={demoteShow} onClick={this.moveStory}>/-</button>
+                                <p className = "tileHeading">{this.props.storyDetails.storytitle}</p>
+                                <p className = "tileDescription">{this.props.storyDetails.description}</p>
+                                {this.props.storyDetails.status == "Finished" || <p className = "duedate">Due: {this.props.storyDetails.duedate}</p>}
+                                {this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate > currentDate && <p className = "duedate">OverDue</p>}
+                                {this.props.storyDetails.status == "Finished" && <p className = "status">Finished</p>}
+                                <p className = "storyContributor">Contributor: <img className = "Picture" src={this.findPhoto()}/></p> 
+                                <button className="promoteStory" hidden={promoteShow} onClick={this.moveStory}>&gt;</button>
+                                <button className="demoteStory" hidden={demoteShow} onClick={this.moveStory}>&lt;</button>
                                 <button className="deleteStory" hidden={!this.state.hover} onClick={this.deleteStory}>/_\</button>
                             </div> 
                             :"";
@@ -300,11 +330,11 @@ class Story extends Component{
 				isOpen={this.state.isOpen}
 				onRequestClose={this.closeStoryModel}
 				contentLabel="">
-                    <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
-                    <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
-                    <input type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
-                    <input type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
-                    <select className = "priority" onChange = {this.onChangeHandler}>
+                    <input disabled={disableInput} type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
+                    <input disabled={disableInput} type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
+                    <input disabled={disableInput} type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
+                    <input disabled={disableInput} type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
+                    <select disabled={disableInput} className = "priority" onChange = {this.onChangeHandler}>
                         {
                             this.state.priorityList.map(priority => {
                                 if(this.state.storyPriority == priority)
@@ -314,7 +344,7 @@ class Story extends Component{
                             })
                         }
                     </select>
-                    <select className = "contributor" onChange = {this.onChangeHandler}>
+                    <select disabled={disableInput} className = "contributor" onChange = {this.onChangeHandler}>
                         {
                             this.state.contributorList.map(contributor => {
                                 if(this.state.storyContributor == contributor)
@@ -324,7 +354,7 @@ class Story extends Component{
                             })
                         }
                     </select>
-                    <button disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</button>
+                    <button hidden = {disableInput} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</button>
 				</Modal>
                </div>);
     }
@@ -340,7 +370,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state) => {
     return {
-        user: state.userStateReducer
+        user: state.userStateReducer,
+        userList : state.userListStateReducer
     }
 };
 

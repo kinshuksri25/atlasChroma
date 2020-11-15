@@ -3,6 +3,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
 
+import DateHelper from "../../generalContainers/date";
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import cookieManager from '../../../Components/cookieManager';
 import setMsgAction from '../../../store/actions/msgActions';
@@ -14,10 +15,13 @@ class EditProject extends Component{
     constructor(props){
         super(props);
         this.state={
+            statusList : ["OnHold","InProgress","Finished"],
             title : this.props.projectDetails.title,
             description : this.props.projectDetails.description,
             projectleader : this.props.projectDetails.projectlead,
             contributors : this.props.projectDetails.contributors,
+            duedate : this.props.projectDetails.duedate,
+            status : this.props.projectDetails.status,
             disableUpdate : true,
             isOpen : false       
         }
@@ -59,7 +63,9 @@ class EditProject extends Component{
         let projectObject = {
             projectID : globalThis.props.projectDetails._id,
             oldContributors : this.props.projectDetails.contributors,
-            oldTitle : this.props.projectDetails.title
+            oldTitle : this.props.projectDetails.title,
+            projectLeadEmails : []
+            
         };
 
         if(this.state.title != this.props.projectDetails.title){
@@ -67,9 +73,20 @@ class EditProject extends Component{
         }if(this.state.description != this.props.projectDetails.description){
             projectObject.description = this.state.description;
         }if(this.state.projectleader != this.props.projectDetails.projectlead){
+            this.props.userList.map(user => {
+                if(user.username == this.state.projectleader || user.username == this.props.projectDetails.projectlead){
+                    console.log(user.email);
+                    projectObject.projectLeadEmails.push(user.email);
+                }
+            });
             projectObject.projectleader = this.state.projectleader;
+
         }if(JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors)){
             projectObject.contributors = this.state.contributors;
+        }if(this.state.status != this.props.projectDetails.status){
+            projectObject.status = this.state.status;
+        }if(this.state.duedate != this.props.projectDetails.duedate){  
+            projectObject.duedate = this.state.duedate;
         }
         
         let duplicateTitle = false;
@@ -129,13 +146,49 @@ class EditProject extends Component{
     }
 
     onChangeHandler(event){
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let errorObject = {};
         switch(event.target.className){
             case "projectTitle":
                 this.setState({title : event.target.value});
                 break;
             case "projectDescription":
                 this.setState({description : event.target.value});
-                break;    
+                break;   
+            case "duedate":
+                let isdueDateChangeAllowed = true;
+                this.props.projectDetails.storydetails.map(story => {
+                    isdueDateChangeAllowed = story.duedate >= event.target.value ? false : isdueDateChangeAllowed;
+                });
+                if(isdueDateChangeAllowed){
+                    if(event.target.value > currentDate){
+                        this.setState({duedate : event.target.value});
+                    }else{
+                        errorObject.msg = "Invalid date selected";
+                        errorObject.status = "ERROR";
+                        this.props.setMsgState(errorObject);
+                    }
+                }else{
+                    errorObject.msg = "unable to change the duedate, as some of the stories have a duedate more than the actual project deadline";
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);
+                }
+                break;
+            case "status":
+                let statusChangeValid = true;
+                this.props.projectDetails.storydetails.map(story => {
+                    statusChangeValid = story.status != "Finished" ? false : statusChangeValid;
+                });
+                if(statusChangeValid){
+                    this.setState({status : event.target.value});
+                }else{
+                    errorObject.msg = "unable to mark the project as finished, as some of the stories are currently open";
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);
+                }
+                break;
         }
     }
 
@@ -177,24 +230,38 @@ class EditProject extends Component{
         let disableUpdate = this.state.title != this.props.projectDetails.title || 
                                 this.state.description != this.props.projectDetails.description || 
                                     this.state.projectleader != this.props.projectDetails.projectlead ||
-                                    JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors) && 
-                                        (this.state.title != "" && this.state.description != "" && this.state.projectleader != "")  ? false : true;
+                                        this.state.duedate != this.props.projectDetails.duedate ||
+                                            this.state.status != this.props.projectDetails.status || 
+                                                JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors) && 
+                                                (this.state.title != "" && this.state.description != "" && this.state.projectleader != "")  ? false : true;
+        let disableSearch = this.props.user.username == this.props.projectDetails.projectlead ? false : true;                                        
 
         return (<div>     
                     <div className = "editProject">
-                        <input type = "text" value = {this.state.title} className = "projectTitle" onChange = {this.onChangeHandler}/>
-                        <input type = "text" value = {this.state.description} className = "projectDescription" onChange = {this.onChangeHandler}/>
-                        <SearchFeild unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
+                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type = "text" value = {this.state.title} className = "projectTitle" onChange = {this.onChangeHandler}/>
+                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type = "text" value = {this.state.description} className = "projectDescription" onChange = {this.onChangeHandler}/>
+                        <SearchFeild disableInputs={disableSearch} unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
                         <ul className = "contributorList">
                             {
                                 this.state.contributors.map( contributor => {
-                                    return(<li onClick={this.deleteContributor} className={contributor}>{contributor}</li>);
+                                    return(<li onClick={this.props.user.username != this.props.projectDetails.projectlead || this.deleteContributor} className={contributor}>{contributor}</li>);
                                 })
                             }
                         </ul>
-                        <button disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
+                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
+                        <select disabled={this.props.user.username != this.props.projectDetails.projectlead} className = "status" onChange = {this.onChangeHandler}>
+                            {
+                                this.state.statusList.map(status => {
+                                    if(this.state.status == status)
+                                        return (<option value = { status } selected>{status}</option>);
+                                    else
+                                        return (<option value = { status }>{status}</option>);
+                                })
+                            }
+                         </select>
+                        <button hidden = {this.props.user.username != this.props.projectDetails.projectlead} disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
                         <button className = "closeEditModal" onClick = {this.props.disableProjectForm}>Back</button>
-                        <button className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
+                        <button hidden = {this.props.user.username != this.props.projectDetails.projectlead} className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
                     </div> 
                     <Modal
                     isOpen={this.state.isOpen}

@@ -244,6 +244,15 @@ formConstants.addProject = [
         isRequired: true
     },
     {
+        name: "DueDate",
+        type: "Date",
+        placeholder: "Due Date",
+        id: "dueDate",
+        className: "addProjectAttributes",
+        isHidden: false,
+        isRequired: true
+    },
+    {
         name: "Add Project",
         type: "button",
         variantType : "success",

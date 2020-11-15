@@ -30,26 +30,22 @@ class BoardColumn extends Component{
     }
     
     buildColumn(){
-        let style = {
-            float : "left",
-            width : this.props.width
-        }
         if(this.state.columnChildren.length == 0){
-            return(<div style = {style} className = "phaseContainer" id = {this.state.columnID}>
+            return(<div className = "phaseContainer" id = {this.state.columnID}>
                         <div className = "phaseHeading">{this.state.columnHeading}</div>
-                        <div className="storiesContainer">
-                            <StoryContainer columnID = {this.state.columnID}/>
-                        </div>
+                        <StoryContainer currentProject={this.props.currentProject} columnID = {this.state.columnID}/>
                     </div>);
         }else{
-            return(<div style = {style} className = "phaseContainer" id = {this.state.columnID}>
+            return(<div className = "phaseContainer" id = {this.state.columnID}>
                         <div className = "phaseHeading">{this.state.columnHeading}</div>
+                         <div className = "phaseBody">
                             {
                                 this.state.columnChildren.map(child => {
                                 let width = this.props.width/this.state.columnChildren.length; 
-                                return <BoardColumn columnDetails = {child} width = {width}/>
+                                return <BoardColumn currentProject={this.props.currentProject} columnDetails = {child}/>
                                 })
                             }
+                         </div>   
                     </div>);
         }
     }

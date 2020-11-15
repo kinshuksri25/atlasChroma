@@ -79,7 +79,8 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
             priority : requestObject.reqBody.Priority,
             duedate : requestObject.reqBody.EndDate,
             currentstatus : requestObject.reqBody.currentStatus,
-            comments : requestObject.reqBody.Comments}); 
+            comments : requestObject.reqBody.Comments,
+            status : "Ongoing"}); 
 
         let template = {
             storyLink : "",
@@ -151,7 +152,10 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
             set["storydetails.$.currentstatus"] = requestObject.reqBody.storyDetails.currentStatus;
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("Comments")){
             set["storydetails.$.comments"] = requestObject.reqBody.storyDetails.Comments;
+        }if(requestObject.reqBody.storyDetails.hasOwnProperty("status")){
+            set["storydetails.$.status"] = requestObject.reqBody.storyDetails.status;
         }
+        
 
         let template = {
             storyName : requestObject.reqBody.oldStoryName,
@@ -170,23 +174,43 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
             template.projectName = updatedProject.title;
             mongo.read(DBCONST.userCollection,{username : updatedStories.contributor},{}).then(resolvedResult => {
                 let contributorEmailID = resolvedResult[0].email;
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedEmail => {
-                    response.STATUS = 200;
-                    response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_SHH_STRUPSUC;
-                    resolve(response);
-                }).catch(rejectedEmail => {
-                    let payload = {
-                        "participants" : [contributorEmailID],
-                        "template" : "MOVESTORY",
-                        "templateData" : template
-                    };
-                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                    response.STATUS = 201;
-                    response.PAYLOAD = {};
-                    response.SMSG = SMSG.SVR_SHH_ISTRUPSUC;
-                    resolve(response);    
-                });
+                if(requestObject.reqBody.storyDetails.status == "Finished"){
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.FINISHEDSTORY,template).then(resolvedEmail => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_STRUPSUC;
+                        resolve(response);
+                    }).catch(rejectedEmail => {
+                        let payload = {
+                            "participants" : [contributorEmailID],
+                            "template" : "FINISHEDSTORY",
+                            "templateData" : template
+                        };
+                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                        response.STATUS = 201;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_ISTRUPSUC;
+                        resolve(response);    
+                    });
+                }else{
+                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedEmail => {
+                        response.STATUS = 200;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_STRUPSUC;
+                        resolve(response);
+                    }).catch(rejectedEmail => {
+                        let payload = {
+                            "participants" : [contributorEmailID],
+                            "template" : "MOVESTORY",
+                            "templateData" : template
+                        };
+                        mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                        response.STATUS = 201;
+                        response.PAYLOAD = {};
+                        response.SMSG = SMSG.SVR_SHH_ISTRUPSUC;
+                        resolve(response);    
+                    });
+                }
             }).catch(rejectedResult => {
                 response.STATUS = 201;
                 response.PAYLOAD = {};

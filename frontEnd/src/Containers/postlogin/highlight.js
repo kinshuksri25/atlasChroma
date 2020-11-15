@@ -63,7 +63,8 @@ class Highlight extends Component{
 
         complieStories (){
                 let currentDateObject = new DateHelper().currentDateGenerator();
-                let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+                let currentMonth = parseInt(currentDateObject.month)+1;
+                let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
                 let priorityList = {
                         "Urgent" : 5,
                         "High" : 4,
@@ -76,7 +77,7 @@ class Highlight extends Component{
                 this.props.user.projects.map(project => {
                         if(project.storydetails.length != 0){
                                 project.storydetails.map(story => {
-                                        if(story.duedate >= currentDate){
+                                        if(story.duedate >= currentDate && story.contributor == this.props.user.username){
                                                 let tempStory = {...story};
                                                 tempStory.projectID = project._id;
                                                 tempStory.projectName = project.title;
@@ -85,7 +86,7 @@ class Highlight extends Component{
                                 });
                         }
                 });
-                for(let i = 1;i<compliedStories.length;i++){
+                for(let i = 1;i<compliedStories.length;i++){ 
                     let finalPosition = -1;
                     for(let j=i-1;j>=0;j--){
                         if(compliedStories[i].duedate < compliedStories[j].duedate){
@@ -135,7 +136,7 @@ class Highlight extends Component{
                         let link = "https://localhost:3000/projects/"+compliedStories[j].projectID+"?storyID="+compliedStories[j]._id;
                         storiesListJSX.push(<div id={link} onClick={this.redirect}>
                                                 {currentDate < compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at {compliedStories[j].duedate}</h6>}
-                                                {currentDate < compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at today</h6>}
+                                                {currentDate == compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at today</h6>}
                                         </div>);
                }
                 return [...storiesListJSX];

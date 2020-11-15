@@ -1,13 +1,150 @@
 .boardContainer{
+    position: relative;
     width: 100%;
     height: 100%;
-    margin: 0px;  
-    background: linear-gradient(to right, #000000, #434343);
+    margin: 0px;
+    padding: 0px 0.5rem;  
+    overflow: auto;
+    display: grid;
+    grid-template-rows: 1.6rem 1fr;
+    grid-template-columns: 1fr;
 }
 
-.boardContainer > div{
+.boardContainer > h5{
+    box-sizing: border-box;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+    padding-top: 0.35rem;
+    font-size: 1.5rem;
+    color: slategray;
+}
+
+.boardContainer > button{
+    position: absolute;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: none;
+    border-radius: 50%;
+    bottom: 3rem;
+    right: 3rem;
+    background: #336daa;
+    color: white;
+}
+
+.innerBoardContainer{
     width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
+    box-sizing: border-box;
+    overflow-x: auto;
+    margin: 0px;
+    padding: 1rem 0px; 
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-rows: 1fr;
+    grid-auto-flow: column;
+}
+
+.innerBoardContainer > div {
+    border-radius: 5px;
+    background: lightseagreen;
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0.5rem;
+}
+
+.phaseContainer{
+    min-width: 23rem;
+    height: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1.75rem 1fr;
+}
+
+.phaseHeading{
+    box-sizing: border-box;
+    color: white;
+    text-align: center;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid white;
+}
+
+.phaseBody{
+    box-sizing: border-box; 
+    display: grid;
+    grid-template-rows: 1fr; 
+    grid-auto-flow: column;
+    grid-gap: 0.2rem;
+}
+
+.phaseBody > div {
+    min-width: 25rem;
+}
+
+.storyTileContainer{
+    border-radius: 5px;
+    background: white;  
+    display: grid;
+    grid-template-rows: 2rem 1fr 1fr 2rem;
+    grid-gap: 0.25rem;
+    position: relative;
+    padding: 0.1rem;
+}
+
+.tileHeading{
+    font-size: 1.5rem;
+    margin:0px;
+    padding: 0px;
+}
+
+.tileDescription{
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 0.5rem;
+}
+
+.storyContributor{
+    font-size: 1rem;
+    margin: 0px;
+}
+
+.storyContainer{
+    overflow-y: auto;
+}
+
+.promoteStory,.demoteStory,.deleteStory{
+    position: absolute;
+    bottom: 0.2rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
+    background: #336daa;
+    color: white;
+}
+
+.deleteStory{
+    right: 0.2rem;
+}
+
+.promoteStory{
+    right: 2.4rem;
+}
+
+.demoteStory{
+    right: 4.6rem;
+}
+
+.Picture{
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
 }

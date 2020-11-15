@@ -1,6 +1,7 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
+import DateHelper from "../../generalContainers/date";
 import "../../../StyleSheets/addProject.css"
 import cookieManager from '../../../Components/cookieManager';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
@@ -86,17 +87,22 @@ class AddProject extends Component{
     }
     
     onSubmitHandler(formObject){
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         let errorObject = {...msgObject};
         let formData = formObject.formData;
-        if(this.state.contributors.length != 0 && this.state.projectLeader != "" && this.state.projectExists){
+        if(this.state.contributors.length != 0 && this.state.projectLeader != "" && !this.state.projectExists && formData.dueDate > currentDate){
             formData.title = formData.Title;
             formData.description = formData.Description;
             formData.contributors = this.state.contributors;
             formData.projectleader = this.state.projectLeader;
+            formData.duedate = formData.dueDate;
             delete formData.Description;
             delete formData.Title;
+            delete formData.dueDate;
             globalThis.props.cancel();
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){

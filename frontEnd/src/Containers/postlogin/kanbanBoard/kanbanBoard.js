@@ -66,11 +66,10 @@ class KanbanBoard extends Component {
     buildBoard(template = this.selectProject().templatedetails){
         let board = "";
         let groupedTemplate = this.groupTemplate(template);
-        let width = this.state.componentWidth/groupedTemplate.length;
         board = groupedTemplate.map(template => {
-            return(<BoardColumn columnDetails = {template} width = {width}/>);    
+            return(<BoardColumn currentProject={this.selectProject()} columnDetails = {template}/>);    
         });
-        return (<div>{board}</div>);
+        return (<div className = "innerBoardContainer">{board}</div>);
     }
 
     addStory(){
@@ -85,16 +84,15 @@ class KanbanBoard extends Component {
         let currentProject = this.selectProject();
         let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
         return (<div className="boardContainer">
+                    <h5>{currentProject.title}</h5>
                     <Modal
                     isOpen={this.state.showStoryForm}
                     contentLabel="">
                         <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
                     </Modal>
-                    <div>
-                        {boardJSX}
-                    </div>
+                    {boardJSX}
                     {JSON.stringify(currentProject) != JSON.stringify({}) && 
-                        JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) && 
+                        currentProject.templatedetails.length > 0 && 
                             <button onClick={this.addStory} id="addStoryButton">+</button>}
                 </div>);
     }

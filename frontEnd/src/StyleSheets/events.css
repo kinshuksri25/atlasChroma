@@ -83,7 +83,7 @@
     padding: 0.25rem;
 }
 
-.allDayCard{
+.allDayCard,.Urgent,.High,.Medium,.Low,.OnHold{
     padding-left: 0.1rem;
     border: 1px solid #336daa;
     border-radius: 5px;

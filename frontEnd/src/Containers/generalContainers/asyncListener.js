@@ -78,6 +78,7 @@ listener.listenEvents = (io) => {
                                 story.duedate = details.data.duedate;
                                 story.priority = details.data.priority;
                                 story.description = details.data.description;
+                                story.status = details.data.status;
                             }
                         });
                     }

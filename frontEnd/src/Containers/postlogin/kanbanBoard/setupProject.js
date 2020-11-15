@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import Modal from 'react-modal';
 import "../../../StyleSheets/setupProject.css";
 import SimpleForm from '../../../Forms/simpleform';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
@@ -19,7 +20,8 @@ class SetupProject extends Component {
         this.state = {
             currentProject : {},
             nextPage : false,
-            currentTemplate: "" 
+            currentTemplate: "" ,
+            toggleConfirmationModal : false
         };
         this.formBuilder = this.formBuilder.bind(this);
         this.changePage = this.changePage.bind(this);
@@ -27,6 +29,7 @@ class SetupProject extends Component {
         this.setLoadedTemplate = this.setLoadedTemplate.bind(this);
         this.onTemplateSubmit = this.onTemplateSubmit.bind(this);
         this.randValueGenerator = this.randValueGenerator.bind(this);
+        this.toggleConfirmationModal = this.toggleConfirmationModal.bind(this);
         
     }
     
@@ -73,8 +76,14 @@ class SetupProject extends Component {
                       <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
                       <div className="buttonContainer">
                         <button className="templateBackButton" onClick={this.changePage}>&lt;</button>
-                        <button className="submitTemplate" onClick={this.onTemplateSubmit} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</button>
+                        <button className="submitTemplate" onClick={this.toggleConfirmationModal} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</button>
                       </div>
+                      <Modal
+                        isOpen={this.state.toggleConfirmationModal}>
+                            <button onClick={this.toggleConfirmationModal}>X</button>
+                            <h5>The last phase in this workflow seemns to be {}, and will be marked as the end of the workflow. If you need a different phase to be the end please make the necessary changes and contiue.</h5>
+                            <button onClick={this.onTemplateSubmit}>&gt;</button>
+                      </Modal>
                     </div>);
         }
     }
@@ -101,7 +110,9 @@ class SetupProject extends Component {
         let errorObject = {};
         if(this.templateValidator()){
             let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
-            httpsMiddleware.httpsRequest("/project", "PUT", headers,{oldContributors : [...globalThis.state.currentProject.contributors],contributors : [...globalThis.state.currentProject.contributors],templatedetails : [...globalThis.state.currentProject.templatedetails],projectID : globalThis.state.currentProject._id},function(error,responseObject) {
+            let finalTemplate = [...globalThis.state.currentProject.templatedetails];
+            finalTemplate[finalTemplate.length-1].workFlowEnd = true;
+            httpsMiddleware.httpsRequest("/project", "PUT", headers,{oldContributors : [...globalThis.state.currentProject.contributors],contributors : [...globalThis.state.currentProject.contributors],templatedetails : [...finalTemplate],projectID : globalThis.state.currentProject._id},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
                         errorObject.msg = error;
@@ -145,6 +156,10 @@ class SetupProject extends Component {
           i++;
         }
         return randomValue;
+    }
+
+    toggleConfirmationModal(){
+        this.setState({toggleConfirmationModal : !this.state.toggleConfirmationModal});
     }
 
     render(){

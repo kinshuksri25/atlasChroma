@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import {Card,Button} from "react-bootstrap";
 import {OverlayTrigger,Tooltip} from 'react-bootstrap';
 
+import DateHelper from "../../generalContainers/date";
 import "../../../StyleSheets/projectContainer.css";
 import {urls} from '../../../../../lib/constants/contants';
 
@@ -37,6 +38,9 @@ class ProjectContainer extends Component{
     }
 
     renderProjectTabs(){
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
         if(this.props.user.projects.length != 0){
             let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.projects);
             let projectContainer = sortedProjectArray.map(project => {
@@ -64,12 +68,12 @@ class ProjectContainer extends Component{
                             <p id="projectDescription" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
                                 {project.description}
                             </p>
-                            <h6 id="contributors" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                            <h6 id="contributors" className = {project._id}>
                                 Contributors:
                                     {contributorJSX}
                                     {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
                             </h6>
-                            <h6 id="projectLead" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                            <h6 id="projectLead" className = {project._id}>
                                 Project Lead:
                                     {
                                         this.getProfilePictures(project.projectlead).map(user => {
@@ -79,7 +83,12 @@ class ProjectContainer extends Component{
                                         })
                                     }
                             </h6>
-                            <Button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</Button>
+                            <p id="projectStatus" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                                {project.status == "InProgress" && project.duedate <= currentDate && <span>Due: {project.duedate}</span>}
+                                {project.status == "InProgress" && project.duedate > currentDate && <span>OverDue</span>}
+                                {project.status == "InProgress" || <span>{project.status}</span>}
+                            </p>
+                            <button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</button>
                             <Modal
                             isOpen={this.state.showContributors}
                             contentLabel="">

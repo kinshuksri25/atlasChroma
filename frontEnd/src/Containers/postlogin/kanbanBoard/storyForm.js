@@ -33,6 +33,7 @@ class StoryForm extends Component {
     }
 
     onChangeHandler(event){
+        let errorObject = {};
         switch(event.target.className){
             case "storyTitle":
                 this.setState({storyTitle : event.target.value});
@@ -47,7 +48,13 @@ class StoryForm extends Component {
                 this.setState({storyPriority : event.target.value});
                 break;
             case "duedate":
-                this.setState({duedate : event.target.value});
+                if(event.target.value >= this.props.projectDetails.duedate){
+                    errorObject.msg = "Invalid date selected";
+                    errorObject.status = "ERROR";
+                    this.props.setMsgState(errorObject);
+                }else{
+                    this.setState({duedate : event.target.value});
+                }
                 break;    
             case "contributor":
                 this.setState({storyContributor : event.target.value});

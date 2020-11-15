@@ -11,7 +11,7 @@ class TemplateBuilder extends Component {
     constructor(props){
         super(props);
         this.state ={
-            loadedTemplate : [],
+            loadedTemplate : [...this.props.template],
             formData : {NAME : "",
                         WIP : false,
                         PHASE:"Phase",
@@ -20,7 +20,7 @@ class TemplateBuilder extends Component {
             isFeildDisabled : true,
             editForm : true,
             isSubPhase : true,
-            disableWIP : false,
+            disableWIP : false
         };
         this.getStyle = this.getStyle.bind(this);
         this.addPhase = this.addPhase.bind(this);
@@ -39,9 +39,7 @@ class TemplateBuilder extends Component {
     }
 
     componentDidMount(){
-        this.setState({loadedTemplate:[...this.props.template]},() => {
-            this.props.setLoadedTemplate(this.state.loadedTemplate);
-        });
+        this.props.setLoadedTemplate(this.state.loadedTemplate);
     }
 
     getStyle(el,styleProp)
@@ -209,6 +207,7 @@ class TemplateBuilder extends Component {
                 formData.WIP = formData.WIP == "" ? false : formData.WIP;
                 formData._id = this.props.randValueGenerator(); 
                 let newTemplate = {
+                    _id : formData._id,
                     NAME : formData.NAME,
                     WIP : formData.WIP,
                     EXTENDS : formData.EXTENDS,
@@ -361,8 +360,7 @@ class TemplateBuilder extends Component {
     
     render(){
         let formContainer = this.formBuilder();
-        let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;      
-
+        let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;    
         return(<div className = "templateBuilderContainer">
                     {formContainer}
                     <button className="templateAddButton" onClick={this.addPhase}>+</button>

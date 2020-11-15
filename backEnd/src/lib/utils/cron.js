@@ -15,6 +15,49 @@ cron.startJobs = () => {
     cron.allDayEventReminder().start();
     cron.timedEventReminder().start();
     cron.deleteFinshedEvents().start();
+    cron.updateProjectAndStoryStatus().start();
+}
+
+cron.updateProjectAndStoryStatus = () => {
+    return new CronJob('0 0 * * *', function(){
+        let currentDateObject = {};
+        currentDateObject.month = new Date().getMonth().toString().length == 1 ? "0"+parseInt(new Date().getMonth()+1) : parseInt(new Date().getMonth()+1);
+        currentDateObject.year =  new Date().getFullYear();
+        currentDateObject.date = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate(); 
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        mongo.read(DBCONST.projectCollection,{},{}).then(resolvedResult => {
+            resolvedResult.map(project => {
+               if(project.duedate > currentDate){
+                   
+                   let contributorUserName = [...project.contributors];
+                   let contributorEmail = [];
+                   let template = {}
+                   mongo.read(DBCONST.userCollection,{$in:{username:[...contributorUserName]}},{projection:{username:1,email:1,_id:0}}).then(userResult => {
+                        //check for stories
+                        project.storydetails.map(story => {
+                            userResult.map(user => {
+                                contributorEmail.indexOf(user.email) >= 0 || contributorEmail.push(user.email);
+                                if(story.contributor == user.username){ 
+                                    googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,user.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.STYOVERDUE,template).catch(rejectedResult => {
+                                        throw rejectedResult;
+                                    }); 
+                                }
+                            })
+                        });
+                        googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,[...contributorEmail],OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.PROJOVERDUE,template).then(resolvedResult => {
+                            console.log(resolvedResult);
+                        }).catch(rejectedResult => {
+                            throw rejectedResult;
+                        }); 
+                   }).catch(rejectedResult =>{
+                       throw rejectedResult;
+                   });
+               }
+            });
+        }).catch(rejectedResult => {
+            console.log(rejectedResult);
+        });
+    })
 }
 
 cron.chatBackup = () => {
