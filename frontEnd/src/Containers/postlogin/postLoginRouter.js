@@ -19,7 +19,7 @@ import menuConstants from '../../Menu/menuConstants';
 import {msgObject} from '../../../../lib/constants/storeConstants';
 import LoadingComponent from '../generalContainers/loadingComponent';
 import setUserAction from '../../store/actions/userActions';
-import {urls} from "../../../../lib/constants/contants";
+import {urls,EMSG} from "../../../../lib/constants/contants";
 import listener from '../generalContainers/asyncListener';
 import updateTime from '../../store/actions/clockActions';
 import MessageBox from "../postlogin/messaging/messageBox";
@@ -36,26 +36,49 @@ class PostLoginRouter extends Component {
     }
 
     componentDidMount(){ 
+
+        setInterval(()=>{
+            console.log(navigator.onLine);
+        },500);
+
         //setting up io instance in redux store
-        let io = clientSocket('https://localhost:5000',{transports: ['websocket']});
+        let io = clientSocket('https://localhost:5000',{transports: ['websocket'],
+                                                        reconnection: true, 
+                                                        reconnectionAttempts: 5,
+                                                        reconnectionDelay: 2000,  
+                                                        reconnectionDelayMax: 6000});
         this.props.setSocketState(io); 
         listener.listenEvents(io);
 
-        //connect to server socket
-       io.on("connect",() => {
-           console.log("socket connected to server");
-           let userID = cookieManager.getUserSessionDetails();
-           io.emit('login',userID);
-            let queryString = "";
-            if(userID){
-                let cookieDetails = {"CookieID" : userID};
-                this.getUserData(cookieDetails,queryString);
-                queryString+="&userID="+userID;
-                this.getUserData(cookieDetails,queryString);
-            }else{
+        io.on('reconnect_failed',()=>{
+            console.log("disconnect");
+            if(cookieManager.getUserSessionDetails()){
+                let errorObject = {};
+                errorObject.msg = EMSG.CLI_QURY_BCKDWN;
+                errorObject.status = "ERROR";
+                this.props.setMsgState(errorObject);
+                cookieManager.clearUserSession();
                 window.history.pushState({}, "",urls.LANDING);
             }
         });
+
+        let userID = cookieManager.getUserSessionDetails();
+        let queryString = "";
+        if(userID){
+
+        //connect to server socket
+        io.on("connect",() => {
+            console.log("socket connected to server");
+            io.emit('login',userID);
+        });
+
+        let cookieDetails = {"CookieID" : userID};
+        this.getUserData(cookieDetails,queryString);
+        queryString+="&userID="+userID;
+        this.getUserData(cookieDetails,queryString);
+        }else{
+            window.history.pushState({}, "",urls.LANDING);
+        }
     }
 
     getUserData(headers,queryString){ 
@@ -64,15 +87,11 @@ class PostLoginRouter extends Component {
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 let errorObject = {...msgObject};
                 if(error){
-                    errorObject.msg = error;
-                    errorObject.status = "ERROR";
-                    globalThis.props.setMsgState(errorObject);
-                }else{
-                    errorObject.msg = responseObject.EMSG;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
                 }
-                cookieManager.clearUserSession(); 
+                cookieManager.clearUserSession();
                 window.history.pushState({}, "",urls.LANDING);
             }else{
                 queryString != "" && globalThis.props.setUserState({...responseObject.PAYLOAD});

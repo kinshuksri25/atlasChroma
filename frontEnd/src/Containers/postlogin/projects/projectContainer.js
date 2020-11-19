@@ -147,27 +147,34 @@ class ProjectContainer extends Component{
             case "Alphabetically":
                 selection="title";
                 break;
+            case "Project DueDate":
+                    selection="duedate";
+                    break;                
              default:
                  selection="creationdate";
                  break;           
         }
-
-        let sel={},tempVal={},counter=0,selIndex=0;
+        let sel={},counter=0,selIndex=-1;
         let arrLen = sortedArray.length;
         for(let i = 0; i < arrLen; i++){
-            counter = i;
+            selIndex = -1;
+            counter = i-1;
             sel = sortedArray[i];
-            while(counter < arrLen){
-                if(sortedArray[counter][selection] <= sel[selection])
+            while(counter >= 0){
+                if((sortedArray[counter][selection] > sel[selection]) || (sortedArray[counter][selection] == sel[selection] && sortedArray[counter]["title"] > sel["title"]))
                 {
-                    sel = sortedArray[counter];
                     selIndex = counter;
                 }
-                counter++;
+                counter--;
             }
-            tempVal = sortedArray[i];
-            sortedArray[i] = sel;
-            sortedArray[selIndex] = tempVal;
+            if(selIndex != -1){
+                let temp = i-1;
+                while(temp >= selIndex){
+                    sortedArray[temp+1] = sortedArray[temp];
+                    temp --;
+                }
+                sortedArray[selIndex] = sel;
+            }
         }
         return sortedArray;
     }

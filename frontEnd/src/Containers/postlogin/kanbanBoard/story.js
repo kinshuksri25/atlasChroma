@@ -190,9 +190,10 @@ class Story extends Component{
         httpsMiddleware.httpsRequest("/stories","PUT", headers,{storyDetails : {...storyObject}},function(error,responseObject) {
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
@@ -233,9 +234,10 @@ class Story extends Component{
             httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
@@ -260,9 +262,11 @@ class Story extends Component{
         httpsMiddleware.httpsRequest("/stories","DELETE", headers,queryParams,function(error,responseObject){
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.msg = error;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";

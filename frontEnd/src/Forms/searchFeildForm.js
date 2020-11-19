@@ -22,10 +22,6 @@ class SearchFeild extends Component{
         this.onChange = this.onChange.bind(this);
         this.onSuggestionClick = this.onSuggestionClick.bind(this);
     }
-    
-    componentDidMount(){
-        console.log(this.props.disableInputs);
-    }
 
     static getDerivedStateFromProps(props, state){
        if(JSON.stringify(state) == JSON.stringify({})){

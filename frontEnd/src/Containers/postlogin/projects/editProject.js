@@ -9,7 +9,7 @@ import cookieManager from '../../../Components/cookieManager';
 import setMsgAction from '../../../store/actions/msgActions';
 import SearchFeild from '../../../Forms/searchFeildForm';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
-import {EMSG,SMSG} from '../../../../../lib/constants/contants';
+import {EMSG,SMSG,urls} from '../../../../../lib/constants/contants';
 
 class EditProject extends Component{
     constructor(props){
@@ -41,12 +41,12 @@ class EditProject extends Component{
         let projectQuery = "projectID="+globalThis.props.projectDetails._id;
         globalThis.props.disableProjectForm(); 
         httpsMiddleware.httpsRequest("/project", "DELETE", headers,projectQuery,function(error,responseObject) {
-            console.log(responseObject);
             if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
@@ -96,13 +96,13 @@ class EditProject extends Component{
         });
         globalThis.props.disableProjectForm(); 
         if(!duplicateTitle){
-            console.log(projectObject);
             httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";

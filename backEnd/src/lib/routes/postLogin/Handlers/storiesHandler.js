@@ -7,6 +7,7 @@ const mongo = require("../../../utils/data");
 const {EMSG,SMSG,SINGLE,OAuthCONST,EMAILTEMPLATES,DBCONST} = require("../../../../../../lib/constants/contants");
 const googleApis = require("../../../googleApis/googleAPI");
 const story = require("../../../classObjects/storyClass");
+const { generateCurrentDate } = require("../../../utils/helper");
 
 //declaring the module
 const storyHandler = {};
@@ -88,7 +89,7 @@ storyHandler.stories.post = (route,requestObject,io) => new Promise((resolve,rej
             projectName : requestObject.reqBody.projectName
         };
 
-    mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory}},{returnOriginal: false},SINGLE).then(resolvedResult =>{
+    mongo.update(DBCONST.projectCollection,{_id : requestObject.reqBody.projectID},{$push : {storydetails : newStory},$set:{modificationdate: generateCurrentDate()}},{returnOriginal: false},SINGLE).then(resolvedResult =>{
         io.emit("updatingDetails",{event : "addingStory", data : {...newStory.getStoryDetails(),projectID : requestObject.reqBody.projectID}});
         mongo.read(DBCONST.userCollection,{username: requestObject.reqBody.Contributor},{}).then(resolvedResult => {
             let contributorEmailID = resolvedResult[0].email;
@@ -155,7 +156,9 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
         }if(requestObject.reqBody.storyDetails.hasOwnProperty("status")){
             set["storydetails.$.status"] = requestObject.reqBody.storyDetails.status;
         }
-        
+        let currentDate = generateCurrentDate();
+    
+        set.modificationdate = currentDate;
 
         let template = {
             storyName : requestObject.reqBody.oldStoryName,

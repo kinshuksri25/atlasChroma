@@ -11,6 +11,7 @@ import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
 import setMsgAction from '../../../store/actions/msgActions';
 import setUserAction from '../../../store/actions/userActions';
+import {EMSG,urls} from '../../../../../lib/constants/contants';
 
 
 class Notes extends Component{
@@ -50,9 +51,10 @@ class Notes extends Component{
         httpsMiddleware.httpsRequest("/notes","POST",headers,{...notesObject,emailID : globalThis.props.user.email},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
@@ -78,9 +80,10 @@ class Notes extends Component{
         httpsMiddleware.httpsRequest("/notes","DELETE",headers,queryString,function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
@@ -119,9 +122,10 @@ class Notes extends Component{
         httpsMiddleware.httpsRequest("/notes","PUT",headers,{...notesObject},function(error,responseObject){
             if(error || (responseObject.STATUS != 200 && responseObject.STATUS != 201)){
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }else{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";

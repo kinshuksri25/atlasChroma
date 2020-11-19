@@ -11,11 +11,15 @@ import cookieManager from './Components/cookieManager';
 import LoadingComponent from './Containers/generalContainers/loadingComponent';
 import PreLoginRouter from './Components/prelogin/preLoginRouter';
 import PostLoginRouter from './Containers/postlogin/postLoginRouter';
+import Modal from 'react-modal';
 
 class Router extends Component {
 
     constructor(props){
         super(props); 
+        this.state={
+            online:true
+        }
     }
 
     componentDidMount(){
@@ -23,6 +27,7 @@ class Router extends Component {
             if(this.props.currentUrl == "" || this.props.currentUrl != window.location.pathname){
                 this.props.setUrlState(window.location.pathname);
             } 
+            this.setState({online:navigator.onLine});
         },500);
     }
 
@@ -31,6 +36,10 @@ class Router extends Component {
         return (<div className="routerContainer"> 
                     <MsgContainer/>
                     <LoadingComponent/>
+                    <Modal
+                    isOpen={!this.state.online}>
+                        Uh-Oh!, You Just got disconnected.
+                    </Modal>
                     {router} 
                 </div>);
     }

@@ -30,7 +30,6 @@ class Scheduler extends Component {
                         let month=fullDate.substring(4,6);
                         let year = fullDate.substring(0,4);
                         if( 1940 <= year && year <= 2200 && 0 <= month && month <= 11 && 1 <= date && date <= state.dateHelper.getMonthDays(month,year)){
-                                console.log("called3");
                                 return{ currentDate : date,
                                         currentMonth : month,
                                         currentYear : year };  

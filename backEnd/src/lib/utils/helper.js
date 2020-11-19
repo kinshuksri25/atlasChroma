@@ -21,7 +21,7 @@ helperFunctions.randValueGenerator = (valueLength = 10) => {
 
 helperFunctions.generateCurrentDate = () => {
   let currentDateObject = {};
-  currentDateObject.month = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
+  currentDateObject.month = new Date().getMonth().toString().length == 1 ? "0"+(parseInt(new Date().getMonth())+1) : (parseInt(new Date().getMonth())+1);
   currentDateObject.year =  new Date().getFullYear();
   currentDateObject.date = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();  
   currentDateObject.time = new Date().getHours().toString()+":00";
@@ -35,6 +35,7 @@ helperFunctions.generateCurrentTime = () => {
   return time;
 }
 
+// this needs to be checked
 helperFunctions.interpolate = (str,data) => {
 	str = typeof(str) == 'string' && str.length > 0 ? str : '';
 	data = typeof(data) == 'object' && data !==null ? data : {};

@@ -67,9 +67,10 @@ class PostAuth extends Component{
         }, () => {
             httpsMiddleware.httpsRequest('/signup/userAvaliablity', 'GET', headers, userNameCheckQueryString,function(error,responseObject) {
                 if(error){
-                    errorObject.msg = error;
+                    errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LANDING);
                 }else{
                     if (responseObject.Status == "ERROR") {
                         errorObject.msg = responseObject.EMSG;
@@ -124,10 +125,10 @@ class PostAuth extends Component{
         let globalThis = this;
         httpsMiddleware.httpsRequest("/googleAuth/postAuth", "POST", headers,queryObject,function(error,responseObject) {
             if(error || responseObject.STATUS != 200){
-                errorObject.msg = error;
+                errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                 errorObject.status = "ERROR";
                 globalThis.props.setMsgState(errorObject);
-                window.history.pushState({},"",urls.LOGIN);
+                window.history.pushState({},"",urls.LANDING);
             }else{
                 if(JSON.stringify(responseObject.PAYLOAD) == JSON.stringify({})){
                     globalThis.props.changeLoadingState(false);
@@ -159,9 +160,10 @@ class PostAuth extends Component{
                         globalThis.props.changeLoadingState(false);
                         if(error || responseObject.Status == "ERROR"){
                             if(error){
-                                errorObject.msg = error;
+                                errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                                 errorObject.status = "ERROR";
                                 globalThis.props.setMsgState(errorObject);
+                                window.history.pushState({},"",urls.LANDING);
                             }else{
                                 errorObject.msg = responseObject.EMSG;
                                 errorObject.status = "ERROR";
@@ -199,7 +201,7 @@ class PostAuth extends Component{
 
     render(){
             let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div>: <img className ="profilePhoto" src={this.state.photo}/>;
-            return ( <div className = "postAuthContainer">
+            return (<div className = "postAuthContainer" hidden={this.props.isLoading}>
                         <div className="heading"><span>A username here, a password there and we will be done!</span></div>
                         <div className = "postAuthForm">  
                             <div>

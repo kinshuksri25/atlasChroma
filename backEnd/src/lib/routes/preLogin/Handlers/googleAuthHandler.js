@@ -196,7 +196,6 @@ googleAuthHandler.postAuth = (requestObject,io) => new Promise((resolve,reject) 
                     response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
                 }).catch(error => {
-                    //TODO --> add scheduler to handle this use case
                     response.STATUS = 500;
                     response.EMSG = error;
                     reject(response);
@@ -206,7 +205,6 @@ googleAuthHandler.postAuth = (requestObject,io) => new Promise((resolve,reject) 
                     response.EMSG = EMSG.SVR_OATH_LGNDND;
                     reject(response);
                 }).catch(error => {
-                    //TODO --> add scheduler to handle this use case
                     response.STATUS = 500;
                     response.EMSG = error;
                     reject(response);

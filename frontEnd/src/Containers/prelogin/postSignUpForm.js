@@ -32,6 +32,7 @@ class PostSignUpForm extends Component {
             window.history.pushState({},"",urls.LANDING);
         }else{
             this.setState({ID:ID});
+            localStorage.clear();
         }
     }
 
@@ -56,20 +57,22 @@ class PostSignUpForm extends Component {
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers, formObject.formData,function(error,responseObject) {
                 if(error || responseObject.Status == "ERROR"){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LANDING);
+                        localStorage.clear();
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
                     }
                 }else{
-                    console.log(responseObject);
                     //set the session
                     cookieManager.setUserSessionDetails(responseObject.PAYLOAD);
                     //TODO --> change the pushState 'state' and 'title'
                     window.history.pushState({},"",urls.PROJECT);
+                    localStorage.clear();
                 }
             });
         } else {

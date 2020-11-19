@@ -20,11 +20,8 @@ cron.startJobs = () => {
 
 cron.updateProjectAndStoryStatus = () => {
     return new CronJob('0 0 * * *', function(){
-        let currentDateObject = {};
-        currentDateObject.month = new Date().getMonth().toString().length == 1 ? "0"+parseInt(new Date().getMonth()+1) : parseInt(new Date().getMonth()+1);
-        currentDateObject.year =  new Date().getFullYear();
-        currentDateObject.date = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate(); 
-        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+
+        let currentDate = generateCurrentDate();
         mongo.read(DBCONST.projectCollection,{},{}).then(resolvedResult => {
             resolvedResult.map(project => {
                if(project.duedate > currentDate){
@@ -116,7 +113,7 @@ cron.sendFailedEmail = () => {
     return new CronJob('0 */2 * * *', function() {
         mongo.read(DBCONST.failedEmailCollection,{},{}).then(resolvedResult => { 
             resolvedResult.map(mailDetails => {
-                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,mailDetails.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES[mailDetails.template],mailDetails.templateData).then(resolvedResult => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,mailDetails.payload.participants,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES[mailDetails.payload.template],mailDetails.payload.templateData).then(resolvedResult => {
                     mongo.delete(DBCONST.failedEmailCollection,{_id:mailDetails._id},{},SINGLE).then(resolvedResult => {
                         console.log(resolvedResult);
                     }).catch(rejectedResult => {

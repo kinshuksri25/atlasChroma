@@ -7,7 +7,7 @@ import cookieManager from '../../../Components/cookieManager';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import formConstants from '../../../Forms/formConstants';
 import searchFeildConstants from '../../../Forms/searchFeildConstants';
-import {EMSG} from '../../../../../lib/constants/contants';
+import {EMSG,urls} from '../../../../../lib/constants/contants';
 import setMsgAction from '../../../store/actions/msgActions';
 import {msgObject} from '../../../../../lib/constants/storeConstants';
 import SimpleForm from '../../../Forms/simpleform';
@@ -94,22 +94,23 @@ class AddProject extends Component{
         let globalThis = this;
         let errorObject = {...msgObject};
         let formData = formObject.formData;
-        if(this.state.contributors.length != 0 && this.state.projectLeader != "" && !this.state.projectExists && formData.dueDate > currentDate){
+        if(this.state.contributors.length != 0 && this.state.projectLeader != "" && !this.state.projectExists && formData.DueDate > currentDate){
             formData.title = formData.Title;
             formData.description = formData.Description;
             formData.contributors = this.state.contributors;
             formData.projectleader = this.state.projectLeader;
-            formData.duedate = formData.dueDate;
+            formData.duedate = formData.DueDate;
             delete formData.Description;
             delete formData.Title;
-            delete formData.dueDate;
+            delete formData.DueDate;
             globalThis.props.cancel();
             httpsMiddleware.httpsRequest(formObject.route, formObject.method, headers,formData,function(error,responseObject){
                 if(error || (responseObject.STATUS != 200 && responseObject.STATUS !=201)){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";

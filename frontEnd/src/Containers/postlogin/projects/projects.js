@@ -21,7 +21,6 @@ class Projects extends Component {
                     orderBy:"Recently Created",
                     action : ""
                 };
-                this.searchProject = this.searchProject.bind(this);
                 this.openModal = this.openModal.bind(this);
                 this.closeModal = this.closeModal.bind(this);
                 this.changeOrderBy = this.changeOrderBy.bind(this);
@@ -55,10 +54,6 @@ class Projects extends Component {
         closeModal(){
             this.setState({action : "",editProject : {}}); 
         }
-
-        searchProject(projectName){
-            console.log(projectName);
-        }
         
         changeOrderBy(event){
             this.setState({orderBy:event.target.value});
@@ -81,7 +76,8 @@ class Projects extends Component {
                         <div className = "projectDashboardUpper">
                             <FilterForm 
                             orderBy={this.state.orderBy} 
-                            searchFunction={this.searchProject}
+                            userlist={this.props.userList}
+                            projects={this.props.user.projects}
                             changeOrderBy={this.changeOrderBy}
                             options = {filterFormConstants.projectFilter}/> 
                         </div>
@@ -103,7 +99,8 @@ class Projects extends Component {
 
 const mapStateToProps = (state) => {
         return {
-            user: state.userStateReducer
+            user: state.userStateReducer,
+            userList: state.userListStateReducer
         }
 };
  

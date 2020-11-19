@@ -15,6 +15,7 @@ class SimpleForm extends Component {
         this.stateBuilder = this.stateBuilder.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.onKeyDownHandler = this.onKeyDownHandler.bind(this);
+        this.offFocus = this.offFocus.bind(this);
     }   
     
     componentDidMount(){
@@ -34,6 +35,11 @@ class SimpleForm extends Component {
             let newState = this.state.formData;
             this.props.changeHandler(newState);
         }
+    }
+
+    offFocus(){
+        let newState = this.state.formData;
+        this.props.changeHandler(newState);
     }
 
     stateBuilder () {
@@ -110,6 +116,8 @@ class SimpleForm extends Component {
                                                 hidden = { param.isHidden }
                                                 required = { param.isRequired }
                                                 onKeyDown = { this.onKeyDownHandler }
+                                                onBlur={this.offFocus}
+                                                autoComplete="off"
                                                 tabIndex = "0" />
                                             </Form.Group>
                                          
@@ -140,7 +148,8 @@ class SimpleForm extends Component {
                                                     className = { param.className }
                                                     onChange = { this.onChangeHandler }
                                                     hidden = { param.isHidden }
-                                                    required = { param.isRequired }/> 
+                                                    required = { param.isRequired }
+                                                    autoComplete="off"/> 
                                                 </Form.Group>);                                                       
                                                 break;                                                                
 
@@ -155,7 +164,8 @@ class SimpleForm extends Component {
                                                     className = { param.className }
                                                     onChange = { this.onChangeHandler }
                                                     hidden = { param.isHidden }
-                                                    required = { param.isRequired }/>   
+                                                    required = { param.isRequired }
+                                                    autoComplete="off"/>   
                                                 </Form.Group>        
                                           break;
                                         }

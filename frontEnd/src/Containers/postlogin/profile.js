@@ -84,9 +84,10 @@ class Profile extends Component{
             httpsMiddleware.httpsRequest("/user",'PUT',headers,{...userObject},function(error,responseObject){
                 if(responseObject.STATUS != 200 || error){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
@@ -113,9 +114,10 @@ class Profile extends Component{
             httpsMiddleware.httpsRequest("/user", "DELETE", headers,queryObject,function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";

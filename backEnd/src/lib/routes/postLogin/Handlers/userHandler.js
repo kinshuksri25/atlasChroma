@@ -195,22 +195,42 @@ userHandler.user.delete = (route,requestObject,io) => new Promise((resolve,rejec
         mongo.delete(DBCONST.userCollection,{username : requestObject.queryObject.username},{$pull : {username : requestObject.queryObject.username}},{remove: true},SINGLE).then(resolvedResult => {
             let deletedData = resolvedResult.value;
             io.emit("updatingDetails",{event : "deleteingUser", data : {username : deletedData.username}});  
-            googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,deletedData.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
-                response.STATUS = 200;
-                response.PAYLOAD = {};
-                response.SMSG = SMSG.SVR_UHH_USRDELSUC;       
-                resolve(response); 
-            }).catch(rejectedEmail => {
-                let payload = {
-                    "participants" : deletedData.email,
-                    "template" : "DELETEUSER",
-                    "templateData" : template
-                };
-                mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
-                response.STATUS = 201;
-                response.PAYLOAD = {};
-                response.SMSG = SMSG.SVR_UHH_IUSRDELSUC;        
-                resolve(response); 
+            googleApis.revokeAccess(deletedData.refreshtoken).then(resolvedCode => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,deletedData.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_UHH_USRDELSUC;       
+                    resolve(response); 
+                }).catch(rejectedEmail => {
+                    let payload = {
+                        "participants" : deletedData.email,
+                        "template" : "DELETEUSER",
+                        "templateData" : template
+                    };
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                    response.STATUS = 201;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_UHH_IUSRDELSUC;        
+                    resolve(response); 
+                });
+            }).catch(rejectedCode => {
+                googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,deletedData.email,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEUSER,template).then(resolvedEmail => {
+                    response.STATUS = 200;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_UHH_USRDELGLFL;       
+                    resolve(response); 
+                }).catch(rejectedEmail => {
+                    let payload = {
+                        "participants" : deletedData.email,
+                        "template" : "DELETEUSER",
+                        "templateData" : template
+                    };
+                    mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
+                    response.STATUS = 201;
+                    response.PAYLOAD = {};
+                    response.SMSG = SMSG.SVR_UHH_IUSRDELSUC;        
+                    resolve(response); 
+                });
             });
         }).catch(rejectedResult => {
             response.STATUS = 500;

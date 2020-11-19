@@ -10,7 +10,7 @@ class project{
                 projectlead="",
                 contributors=[], 
                 creationdate= generateCurrentDate(),
-                modificationdate="",
+                modificationdate=generateCurrentDate(),
                 templatedetails = {},
                 storydetails = [],
                 duedate = "",

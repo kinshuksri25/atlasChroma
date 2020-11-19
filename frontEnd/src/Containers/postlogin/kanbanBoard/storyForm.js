@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import cookieManager from '../../../Components/cookieManager'
 import setMsgAction from '../../../store/actions/msgActions';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
+import {EMSG,urls} from '../../../../../lib/constants/contants';
 
 class StoryForm extends Component {
 
@@ -91,9 +92,10 @@ class StoryForm extends Component {
             httpsMiddleware.httpsRequest("/stories","POST", headers, {...formData},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
-                        errorObject.msg = error;
+                        errorObject.msg = EMSG.CLI_QURY_BCKDWN;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }else{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";

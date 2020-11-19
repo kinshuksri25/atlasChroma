@@ -90,8 +90,8 @@ googleApis.getAccessToken = (refreshToken) => new Promise((resolve,reject) => {
 //params --> refreshToken - string
 //returns --> promise - object
 googleApis.getUserDetails = (refreshToken) => new Promise((resolve,reject) => {
-    //get access token 
-    googleApis.getAccessToken(refreshToken).then(resolvedResult => {
+        //get access token 
+        googleApis.getAccessToken(refreshToken).then(resolvedResult => {
         profile.getProfileDetails(resolvedResult,OAuthCONST.profileDetails).then(resolvedResult => {
             resolve (resolvedResult);
         }).catch(rejectedResult => {
@@ -101,8 +101,22 @@ googleApis.getUserDetails = (refreshToken) => new Promise((resolve,reject) => {
         console.log(rejectedResult);
         reject(EMSG.SVR_OAUTH_CONNERR);
     });
+ 
 });
 
+
+googleApis.revokeAccess = (refreshToken) => new Promise((resolve,reject) => {
+    if(refreshToken == null){
+        resolve("SUCCESS");
+    }else{
+        auth.revokeRefreshToken(OAuthCONST.revokeUrl,refreshToken).then(resolvedResult => {
+            resolve (resolvedResult);  
+        }).catch(rejectedResult => {
+            console.log(rejectedResult);
+            reject (EMSG.SVR_OAUTH_CONNERR);
+        });
+    }
+});
 
 //exporting the module 
 module.exports = googleApis;

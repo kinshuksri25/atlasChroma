@@ -36,6 +36,37 @@ auth.buildAuthURL = (email,uniqueState,authUrlTemplate,currentScopes,appAuthDeta
 
 };
 
+//function for revoking refresh token
+//params -->
+//returns --> 
+auth.revokeRefreshToken = (revokeTemplateUrl,refreshToken) => new Promise((resolve,reject) =>{
+    let revokeUrl = revokeTemplateUrl+"?token="+refreshToken;
+    //https request
+    let revokedToken = https.request(revokeUrl, function(response) {
+
+        let responseString = '';
+
+        response.on('data', function(chunk) {
+            responseString += decoder.write(chunk);
+        });
+
+        response.on('end', function() {
+            responseString += decoder.end();
+            responseString = JSON.parse(responseString);
+            resolve(responseString);
+        });
+    });
+
+        //error checking
+        revokedToken.on('error', (error) => {
+            console.log(error.code);
+            reject(EMSG.SVR_OAUTH_CONNERR);
+        });
+
+        //send request
+        revokedToken.end();
+});
+
 //function for token retrival
 //params --> authRequest - object
 //returns --> promise - tokenObject 
@@ -86,7 +117,7 @@ auth.tokenGeneration = (authRequest) => new Promise((resolve,reject) => {
 
         //error checking
         accessTokenReq.on('error', (error) => {
-            console.log(error.message);
+            console.log(error.code);
             reject(EMSG.SVR_OAUTH_CONNERR);
         });
 
