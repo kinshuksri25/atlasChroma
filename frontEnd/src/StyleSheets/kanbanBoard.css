@@ -10,26 +10,36 @@
     grid-template-columns: 1fr;
 }
 
-.boardContainer > h5{
+.boardContainer > h3{
+    font-weight: 600;
     box-sizing: border-box;
     text-align: center;
     padding: 0px;
     margin: 0px;
     padding-top: 0.35rem;
     font-size: 1.5rem;
-    color: slategray;
+    color: white;
+    text-shadow: 0px 0px 5px black;
 }
 
-.boardContainer > button{
+.Info{
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
+    top: 0.6rem;
+    right: 2rem;
+}
+
+#addStoryButton{
     position: absolute;
     width: 3.5rem;
     height: 3.5rem;
     border: none;
     border-radius: 50%;
     bottom: 3rem;
-    right: 3rem;
-    background: #336daa;
-    color: white;
+    left: 3rem;
 }
 
 .innerBoardContainer{
@@ -47,14 +57,14 @@
 
 .innerBoardContainer > div {
     border-radius: 5px;
-    background: lightseagreen;
+    background:transparent;
     box-sizing: border-box;
     margin: 0px;
     padding: 0.5rem;
 }
 
 .phaseContainer{
-    min-width: 23rem;
+    min-width: 22rem;
     height: 100%;
     box-sizing: border-box;
     display: grid;
@@ -63,8 +73,10 @@
 }
 
 .phaseHeading{
+    font-weight: 500;
     box-sizing: border-box;
     color: white;
+    text-shadow: 0px 0px 5px black;
     text-align: center;
     font-size: 1.25rem;
     margin-bottom: 0.25rem;
@@ -84,14 +96,47 @@
     min-width: 25rem;
 }
 
-.storyTileContainer{
-    border-radius: 5px;
-    background: white;  
+.storyFinished,.storyInProgress,.storyOnHold,.storyOverDue{
+    border-radius: 5px;  
     display: grid;
-    grid-template-rows: 2rem 1fr 1fr 2rem;
+    grid-template-rows: 2rem 1fr 1rem 2rem;
     grid-gap: 0.25rem;
     position: relative;
-    padding: 0.1rem;
+    padding: 0.3rem;
+    margin: 0.5rem 0px;
+    color: white;
+}
+
+.storyFinished{
+    background: #28a745;
+}
+
+.storyInProgress{
+    background: #336daa;
+}
+
+.storyOnHold{
+    background: #14aa91;
+}
+
+.storyOverDue{
+    background: #aa212d;
+}
+
+.storyFinished:hover,.storyFinished:active{
+    background: #19702d;
+}
+
+.storyInProgress:hover,.storyInProgress:active{
+    background: #285585;
+}
+
+.storyOnHold:hover,.storyOnHold:active{
+    background: #107e6b;
+}
+
+.storyOverDue:hover,.storyOverDue:active{
+    background: #6d141b;
 }
 
 .tileHeading{
@@ -105,10 +150,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     margin-bottom: 0.5rem;
+    height: 3rem;
 }
+
+.storyDuedate,.storyStatus{
+    margin: 0px !important;
+    padding-bottom: 0.5rem !important;
+}
+
 
 .storyContributor{
     font-size: 1rem;
@@ -119,27 +171,34 @@
     overflow-y: auto;
 }
 
-.promoteStory,.demoteStory,.deleteStory{
+.promoteStory,.demoteStory,.deleteStory,.demoteStoryRight{
     position: absolute;
     bottom: 0.2rem;
     width: 2rem;
     height: 2rem;
     border: none;
-    border-radius: 50%;
-    background: #336daa;
-    color: white;
 }
 
 .deleteStory{
     right: 0.2rem;
 }
 
-.promoteStory{
+.promoteStory,.demoteStoryRight{
     right: 2.4rem;
 }
 
 .demoteStory{
     right: 4.6rem;
+}
+
+.demoteStoryRight:hover,.promoteStory:hover,.deleteStory:hover,.demoteStory:hover{
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
+.demoteStoryRight:active,.promoteStory:active,.deleteStory:active,.demoteStory:active{
+    width: 1.7rem;
+    height: 1.7rem;
 }
 
 .Picture{

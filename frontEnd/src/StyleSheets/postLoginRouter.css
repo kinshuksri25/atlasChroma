@@ -3,6 +3,7 @@
     height: 100%;
     box-sizing: border-box;
     font-family: 'Comfortaa', cursive;
+    background: linear-gradient(125deg,#70D6FF 20%,#FF70A6 20% 40%,#FF9770 40% 60%,#FFD670 60% 80%,#E9FF70 80% 100%);
 }
 
 .postLoginContainer > div{

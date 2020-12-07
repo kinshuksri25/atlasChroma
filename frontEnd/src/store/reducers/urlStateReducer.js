@@ -9,7 +9,7 @@ export default function urlStateReducer (state = urlObject, actions) {
     switch(actions.type){
 
         case actionTypes.CHANGEURL : 
-               return {currentUrl : actions.payload};
+               return {currentUrl : actions.payload,activeTab: actions.payload.split("/")[1]};
                break;
         default : 
                return {...state};

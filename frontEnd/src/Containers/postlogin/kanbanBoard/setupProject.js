@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import {Button} from 'react-bootstrap';
 import Modal from 'react-modal';
 import "../../../StyleSheets/setupProject.css";
 import SimpleForm from '../../../Forms/simpleform';
@@ -21,8 +22,9 @@ class SetupProject extends Component {
         this.state = {
             currentProject : {},
             nextPage : false,
-            currentTemplate: "" ,
-            toggleConfirmationModal : false
+            currentTemplate: "SIMPLE" ,
+            toggleConfirmationModal : false,
+            workflowEnd: ""
         };
         this.formBuilder = this.formBuilder.bind(this);
         this.changePage = this.changePage.bind(this);
@@ -47,9 +49,10 @@ class SetupProject extends Component {
     formBuilder(){
         if(!this.state.nextPage){
            return(<div className = "template">
+                    <h5>Pick a template!</h5> 
                     <SimpleForm formAttributes = { formConstants.boardTemplateSelector }
                         submitHandler = { this.changePage }
-                        options = {[["Template Type","SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
+                        options = {[["SIMPLE","SDLC","MANUFACTURING","CUSTOM"]]}
                         changeFieldNames = {[]} />
                   </div>);
         }else{
@@ -74,15 +77,16 @@ class SetupProject extends Component {
                    
             });
             return(<div className="template">
+                    <h5>Customize it your way!</h5> 
                       <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
                       <div className="buttonContainer">
-                        <button className="templateBackButton" onClick={this.changePage}>&lt;</button>
-                        <button className="submitTemplate" onClick={this.toggleConfirmationModal} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</button>
+                        <Button variant="success" className="templateBackButton" onClick={this.changePage}>&lt;</Button>
+                        <Button variant="success" className="submitTemplate" onClick={this.toggleConfirmationModal} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</Button>
                       </div>
                       <Modal
                         isOpen={this.state.toggleConfirmationModal}>
                             <button onClick={this.toggleConfirmationModal}>X</button>
-                            <h5>The last phase in this workflow seemns to be {}, and will be marked as the end of the workflow. If you need a different phase to be the end please make the necessary changes and contiue.</h5>
+                            <h5>The last phase in this workflow seems to be {this.state.workflowEnd}, and will be marked as the end of the workflow. If you need a different phase to be the end please make the necessary changes and contiue.</h5>
                             <button onClick={this.onTemplateSubmit}>&gt;</button>
                       </Modal>
                     </div>);
@@ -136,17 +140,14 @@ class SetupProject extends Component {
 
     changePage(formObject){
         if(formObject.hasOwnProperty("formData")){
-            if(formObject.formData.TemplateType != ""){
-                let templateType = formObject.formData.TemplateType;
-                this.setState({nextPage : true, currentTemplate: templateType});   
+            if(formObject.formData.TemplateType != "" && formObject.formData.TemplateType != "Select Template"){
+                this.setState({nextPage : true, currentTemplate: formObject.formData.TemplateType});   
             }else{
-                errorObject.msg = EMSG.CLI_PRJSTP_INVLDTMP;
-                errorObject.status = "ERROR";
-                this.props.setMsgState(errorObject);
+                this.setState({nextPage : true});   
             }
         }
         else
-            this.setState({nextPage : false, currentTemplate: ""});   
+            this.setState({nextPage : false, currentTemplate: "SIMPLE"});   
     }
 
     randValueGenerator(valueLength = 10){
@@ -161,12 +162,12 @@ class SetupProject extends Component {
     }
 
     toggleConfirmationModal(){
-        this.setState({toggleConfirmationModal : !this.state.toggleConfirmationModal});
+        this.setState({toggleConfirmationModal : !this.state.toggleConfirmationModal,workflowEnd: this.state.currentProject.templatedetails[this.state.currentProject.templatedetails.length-1].NAME});
     }
 
     render(){
         let setupContainer = this.formBuilder();
-        return(<div className="projectSetup">
+        return(<div className="projectSetup"> 
                     {setupContainer}
                </div>);
     }

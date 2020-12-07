@@ -151,7 +151,7 @@ class Profile extends Component{
     }
     
     render(){
-        let buttonInner = this.state.photo == "" ? <div>+</div> : <img className="profilePic" src={this.state.photo}/>;
+        let buttonInner = this.state.photo == "" ? <div className="innerbtn">+</div> : <img className="profilePic" src={this.state.photo}/>;
         let disabledUpdate = this.state.firstName != this.props.user.firstname && this.state.firstName != ""|| 
                                 this.state.lastName != this.props.user.lastname && this.state.lastName != ""|| 
                                     this.state.photo != this.props.user.photo ||

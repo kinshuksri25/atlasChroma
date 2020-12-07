@@ -71,16 +71,7 @@ class JitsiContainer extends Component {
         
        return (<div>
                     <button onClick = {this.cleanMeeting}>X</button>
-                    <Jitsi
-                    roomName={this.props.roomDetails.roomname}
-                    displayName={this.props.roomDetails.name}
-                    containerStyle={{ width: '1200px', height: '800px' }}
-                    password = {this.props.roomDetails.password}
-                    interfaceConfig={interfaceConfig}
-                    config={config}
-                    domain = {"meet.jit.si"}
-                    onAPILoad={JitsiMeetAPI =>  this.onLoadApi(JitsiMeetAPI)}
-                    />
+                    <Jitsi/>
                 </div>);
     }
 

@@ -7,8 +7,9 @@
 
 .filterInnerContainer{
     display: flex;
+    padding: 0px 5rem;
     width: 100% !important;
-    justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .orderBy{
@@ -18,4 +19,42 @@
 .projectSearch{
     flex-basis: 75%;
     margin-right: 3%;
+}
+
+.suggestions{
+    position: absolute;
+    z-index: 1;
+    top: 2.05rem;
+    background: white;
+    min-width: 60%;
+    padding: 0px;
+    border-radius: 5px;
+}
+
+.suggestions li{
+    display: flex;
+    justify-content: space-evenly;
+    height: 3rem;
+    background: white;
+    padding: 0.3rem 0px;
+}
+
+.suggestions li:first-child{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.suggestions li:last-child{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.suggestions li:hover{
+    background: rgb(139, 197, 255);
+}
+
+@media screen and (max-width: 1366px){
+    .suggestions{
+        width: 100%;
+    }
 }

@@ -4,6 +4,9 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import url from 'url';
 
+import promote from "../../../Images/icons/right.png";
+import demote from "../../../Images/icons/left.png";
+import del from "../../../Images/icons/delete.png";
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
@@ -56,8 +59,7 @@ class Story extends Component{
                             storyComments : this.props.storyDetails.comments,
                             duedate : this.props.storyDetails.duedate, 
                             storyContributor : this.props.storyDetails.contributor,
-                            storyPriority : this.props.storyDetails.priority,   
-                            contributorPhoto: photo
+                            storyPriority : this.props.storyDetails.priority
                         });
         }
         let columnPostion = 0;
@@ -151,7 +153,10 @@ class Story extends Component{
                         break;
             case "demoteStory" : 
                         position -= 1;
-                        break;                                                           
+                        break; 
+            case "demoteStoryRight" :
+                        position -= 1;
+                        break;                                                          
         }
         let selectedColumn = columnArray[position];
 
@@ -219,6 +224,9 @@ class Story extends Component{
                 case "demoteStory" : 
                             newPosition -= 1;
                             break;
+                case "demoteStoryRight" : 
+                            newPosition -= 1;
+                            break;                            
                                                                         
             }
             let storyDetails = {};
@@ -308,24 +316,28 @@ class Story extends Component{
                                                         this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
                                                             this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;   
                                                                                                                                         
-        let demoteShow = this.state.columnPosition != 0 && this.state.hover ? false : true;
-        let promoteShow = this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
+        let demoteShow = this.props.storyDetails.priority != "OnHold" && this.state.columnPosition != 0 && this.state.hover ? false : true;
+        let promoteShow = this.props.storyDetails.priority != "OnHold" && this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
+        let storyStatus = this.props.storyDetails.status == "Finished" ? "storyFinished" : this.props.storyDetails.duedate > currentDate ? "storyInProgress" : "storyOverDue";
+        storyStatus = this.props.storyDetails.priority == "OnHold" ? "storyOnHold" : storyStatus;
+        let demoteStoryClass = promoteShow ? "demoteStoryRight" : "demoteStory";
         let storyJSX = this.props.storyDetails.storyTitle != "" && 
                         this.props.storyDetails.storyDescription != "" ? 
-                            <div className = "storyTileContainer" 
+                            <div className = {storyStatus} 
                                 id = {this.props.storyDetails._id} 
                                 onClick={this.editStory}
                                 onMouseOver={this.onMouseOver}
                                 onMouseLeave={this.onMouseLeave}>
                                 <p className = "tileHeading">{this.props.storyDetails.storytitle}</p>
                                 <p className = "tileDescription">{this.props.storyDetails.description}</p>
-                                {this.props.storyDetails.status == "Finished" || <p className = "duedate">Due: {this.props.storyDetails.duedate}</p>}
-                                {this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate > currentDate && <p className = "duedate">OverDue</p>}
-                                {this.props.storyDetails.status == "Finished" && <p className = "status">Finished</p>}
+                                {this.props.storyDetails.priority != "OnHold" && this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate > currentDate && <p className = "storyDuedate">Due: {this.props.storyDetails.duedate}</p>}
+                                {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate < currentDate && <p className = "duedate">OverDue</p>}
+                                {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status == "Finished" && <p className = "storyStatus">Finished</p>}
+                                {this.props.storyDetails.priority == "OnHold" && <p className = "storyStatus">OnHold</p>}
                                 <p className = "storyContributor">Contributor: <img className = "Picture" src={this.findPhoto()}/></p> 
-                                <button className="promoteStory" hidden={promoteShow} onClick={this.moveStory}>&gt;</button>
-                                <button className="demoteStory" hidden={demoteShow} onClick={this.moveStory}>&lt;</button>
-                                <button className="deleteStory" hidden={!this.state.hover} onClick={this.deleteStory}>/_\</button>
+                                <img className="promoteStory" hidden={promoteShow} src={promote} onClick={this.moveStory}/>
+                                <img className={demoteStoryClass} hidden={demoteShow} src={demote} onClick={this.moveStory}/>
+                                <img className="deleteStory" hidden={!this.state.hover} src={del} onClick={this.deleteStory}/>
                             </div> 
                             :"";
         return(<div>

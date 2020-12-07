@@ -4,13 +4,20 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    grid-row-start: 2;
+    grid-row-end: 3;
 }
-
 
 .template{
     background-color: white;
     border-radius: 7px;
     margin:auto;
+    box-shadow: 0 0 15px black;
+}
+
+.template > h5{
+    text-align:center;
+    margin: 0.5rem 0;
 }
 
 .buttonContainer{
@@ -48,11 +55,18 @@
 #EDIT,#INFO,#REMOVE{
     vertical-align: middle;
     margin: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+#EDIT:hover,#INFO:hover,#REMOVE:hover{
     width: 2rem;
     height: 2rem;
-    border: 1px solid #28a745;
-    border-radius: 50%;
-    color: #28a745;
+}
+
+#EDIT:active,#INFO:active,#REMOVE:active{
+    width: 1.8rem;
+    height: 1.8rem;
 }
 
 .templateButton,.templateBackButton,.templateAddButton,.submitTemplate{
@@ -64,14 +78,16 @@
     border: none;
     background-color:#28a745;
     color: white;
+    outline: #28a745;
 }
 
 .templateAddButton{
-    display: inline;
     position: absolute;
     top: 0px;
     right: 0px;
     margin: 0px;
     padding:0px;
+    height: 2.5rem;
+    width: 2.5rem;
 }
 

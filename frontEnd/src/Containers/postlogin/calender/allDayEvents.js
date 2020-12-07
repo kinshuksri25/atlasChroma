@@ -5,6 +5,7 @@ import { hot } from "react-hot-loader";
 import {Card, CardGroup} from 'react-bootstrap';
 
 import "../../../StyleSheets/allDayEvents.css";
+import DateHelper from "../../generalContainers/date";
 
 class AllDayEvent extends Component{
     constructor(props){
@@ -18,16 +19,16 @@ class AllDayEvent extends Component{
     onStoryClick(event){
         let projectID = "";
         this.props.allDayStories.map(story => {  
-            if(story._id == event.target.id){
+            if(story._id == event.currentTarget.id){
                 projectID = story.projectID;
             }
         });
-        let url = "/projects/"+projectID+"?storyID="+event.target.id; 
+        let url = "/projects/"+projectID+"?storyID="+event.currentTarget.id; 
         window.history.replaceState({}, "",url);
     }
 
     onProjectClick(event){
-        let url = "/projects/"+event.target.id; 
+        let url = "/projects/"+event.currentTarget.id; 
         window.history.replaceState({}, "",url);
     }
 
@@ -61,20 +62,25 @@ class AllDayEvent extends Component{
     }
 
     allDayJSX(){
-        let currentDay = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
-        if(this.props.allDayEvents.length == 0 && this.props.allDayStories.length == 0){
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDay = this.props.currentYear+"-"+(parseInt(this.props.currentMonth)+1)+"-"+this.props.currentDate;
+        if(this.props.allDayEvents.length == 0 && this.props.allDayStories.length == 0 && this.props.user.projects.length == 0){
             return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedStories = this.sortStories(this.props.allDayStories); 
             let allDayJSX = [];
             
             this.props.user.projects.map( project => {
-                 if(project.duedate == currentDay && this.user.username == project.projectlead){
+                 if(project.duedate == currentDay && project.contributors.indexOf(this.props.user.username) >= 0){
                     allDayJSX.push(
                         <div className = {project.status} id = {project._id} onClick={this.onProjectClick}>  
                                     <p className = "cardTitle">{project.title}</p>
                                     <p className = "cardDescription">{project.description}</p>
-                                    <p className = "projStatus">Status : {project.status}</p>
+                                    {project.duedate < currentDate && project.status == "InProgress" && <p className = "projStatus">OverDue</p>}
+                                    {project.duedate >= currentDate && project.status == "InProgress" && <p className = "projStatus">InProgress</p>}
+                                    {project.status == "InProgress" || <p className = "projStatus">Finished</p>}
                         </div>);
                  }
             });

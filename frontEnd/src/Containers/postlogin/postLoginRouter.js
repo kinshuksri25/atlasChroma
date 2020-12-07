@@ -37,10 +37,6 @@ class PostLoginRouter extends Component {
 
     componentDidMount(){ 
 
-        setInterval(()=>{
-            console.log(navigator.onLine);
-        },500);
-
         //setting up io instance in redux store
         let io = clientSocket('https://localhost:5000',{transports: ['websocket'],
                                                         reconnection: true, 
@@ -145,7 +141,11 @@ class PostLoginRouter extends Component {
                 }
             }  
         }else{
-            return <LoadingComponent/>;
+            if(cookieManager.getUserSessionDetails()){
+                return <LoadingComponent/>;
+            }else{
+                window.history.replaceState({}, "",urls.LANDING);
+            }
         }    
     }
    

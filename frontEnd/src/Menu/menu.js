@@ -15,17 +15,8 @@ class Menu extends Component{
 
     constructor(props){
         super(props);
-        this.state = {
-            currentUrl:"" 
-        }
         this.onClickHandler = this.onClickHandler.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
-    }
-
-    componentDidMount(){
-        let url = this.props.url == "" ? window.location.pathname.substring(1).toLowerCase() : this.props.url;
-        this.setState({currentUrl: url});
-        
     }
 
     renderMenu(){
@@ -37,11 +28,12 @@ class Menu extends Component{
         }else{
             let url = window.location.pathname.substring(1).toLowerCase();
             let menu = this.props.menuArray.map(menuElement => {
-                let menu = menuElement.title != "Profile" ? <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
-                                                                <img src={menuElement.image} width = "30" height = "30"/>
+                let tabClassName = menuElement.route == this.props.activeTab ? "current" : "inactive";
+                let menu = menuElement.title != "Profile" ? <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className={tabClassName} onClick={this.onClickHandler}>
+                                                                <img src={menuElement.image}/>
                                                             </button> :
-                                                            <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className="menuButton" onClick={this.onClickHandler}>
-                                                                <img src={this.props.user.photo} width = "50" height = "50"/>
+                                                            <button disabled = {url.indexOf(menuElement.route) >= 0} title={menuElement.title} id={menuElement.route} className={tabClassName} onClick={this.onClickHandler}>
+                                                                <img src={this.props.user.photo}/>
                                                             </button>;
                 return(
                          <div className = "menuButtonContainer">
@@ -54,11 +46,8 @@ class Menu extends Component{
     }
 
     onClickHandler(event){
-        let route = event.target.id;
-        this.setState({currentUrl : route}, () => {
-            //push new url to history
-            window.history.pushState({},"",window.location.origin+"/"+route); 
-        });
+        let route = event.currentTarget.id;
+        window.history.pushState({},"",window.location.origin+"/"+route); 
     }
 
     render(){
@@ -71,7 +60,8 @@ class Menu extends Component{
 const mapStateToProps = (state) => {
     return {
         url: state.urlStateReducer.currentUrl,
-        user : state.userStateReducer
+        user : state.userStateReducer,
+        activeTab : state.urlStateReducer.activeTab
     }
 };
 

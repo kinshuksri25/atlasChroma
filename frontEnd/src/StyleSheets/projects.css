@@ -7,7 +7,7 @@
     overflow: hidden;
 }
 
-.projectDashboardUpper .filterInnerContainer,.projectDashboardUpper .filterContainer{
+.projectDashboardUpper,.projectDashboardUpper .filterContainer{
     box-sizing: inherit;
     display:flex;
     justify-content: center;
@@ -19,27 +19,54 @@
     flex-direction: column;
 }
 
-.projectDashboardUpper .filterInnerContainer input,.projectDashboardUpper .filterInnerContainer select{
-    box-sizing: content-box;
+.projectDashboardUpper .filterInnerContainer select{
+    box-sizing: border-box;
     height: 2rem;
     padding: 1px;
-    border: 2px solid black;
     margin: 0px;
 }
 
-.projectDashboardUpper .filterInnerContainer input{
-    margin-left: 2rem;
-    max-width: 900px;
+.projectDashboardUpper .filterInnerContainer select{
+    flex-basis: 20%;
 }
+
+.projectDashboardUpper .filterInnerContainer div{
+    position: relative;
+    margin-left: 2rem;
+    flex-basis: 60%;
+    padding: 0px;
+    border: none;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: 2rem 1fr;
+    grid-template-columns: 1fr;
+}
+
+.projectDashboardUpper .filterInnerContainer div input{
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
+    max-height: 2rem;
+}
+
 
 @media screen and (max-width: 1400px){
     .projectDashboard{
         grid-template-rows: 0.5fr 4.5fr;
     }
 
-    .projectDashboardUpper .filterInnerContainer input,.projectDashboardUpper .filterInnerContainer select{
-        height: 1.5rem;
+    .filterInnerContainer{
+        padding: 0px 3rem;
     }
+
+    .projectDashboardUpper .filterInnerContainer div{
+        flex-basis: 70%;
+    }
+
+    .projectDashboardUpper .filterInnerContainer select{
+        flex-basis: 25%;
+    }
+    
 
     .projectDashboardUpper {
         padding: 0.75rem 1.2rem;

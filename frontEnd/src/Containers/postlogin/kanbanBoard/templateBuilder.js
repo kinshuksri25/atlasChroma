@@ -1,6 +1,10 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
+import edit from "../../../Images/icons/edit.png";
+import info from "../../../Images/icons/info.png";
+import remove from "../../../Images/icons/delete.png";
+import {Button} from 'react-bootstrap';
 import Modal from 'react-modal';
 import "../../../StyleSheets/templateBuilder.css";
 import {EMSG} from "../../../../../lib/constants/contants"; 
@@ -336,20 +340,20 @@ class TemplateBuilder extends Component {
             let mouseoverArray = [
                     {
                         NAME : "EDIT",
-                        IMAGEURL : ""
+                        IMAGEURL : edit
                     },
                     {
                         NAME : "INFO",
-                        IMAGEURL : ""
+                        IMAGEURL : info
                     },
                     {
                         NAME : "REMOVE",
-                        IMAGEURL : ""
+                        IMAGEURL : remove
                     }
                 ];
             mouseoverArray.map(mouseovr => {
-                let button = document.createElement("Button");
-                button.innerHTML = mouseovr.IMAGEURL;
+                let button  = document.createElement("img");
+                button.src = mouseovr.IMAGEURL;
                 button.id = mouseovr.NAME;
                 button.className = event.target.id; 
                 button.onclick = this.mouseOverClick;
@@ -363,7 +367,7 @@ class TemplateBuilder extends Component {
         let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;    
         return(<div className = "templateBuilderContainer">
                     {formContainer}
-                    <button className="templateAddButton" onClick={this.addPhase}>+</button>
+                    <Button variant="success" className="templateAddButton" onClick={this.addPhase}>+</Button>
                     <Modal
                     isOpen={this.state.currentAction != ""}
                     contentLabel="">

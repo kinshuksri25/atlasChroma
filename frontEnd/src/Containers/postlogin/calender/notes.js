@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import {Button} from "react-bootstrap";
 import "../../../StyleSheets/notes.css";
 import Modal from 'react-modal';
 import SimpleForm from '../../../Forms/simpleform';
@@ -34,10 +35,10 @@ class Notes extends Component{
     }
 
     onChangeHandler(event){
-        if(event.target.className == "title"){
-            this.setState({editedNotesTitle: event.target.value});
+        if(event.currentTarget.className.indexOf("title")>=0){
+            this.setState({editedNotesTitle: event.currentTarget.value});
         } else{
-            this.setState({editedNotesDescription: event.target.value});
+            this.setState({editedNotesDescription: event.currentTarget.value});
         }
     }
 
@@ -150,7 +151,7 @@ class Notes extends Component{
 
     buildJSX(){
         let notes = [...this.props.user.notes];
-        let notesJSX = [];
+        let notesJSX = []
         notes.map(note => {
                 if(this.props.calenderDate == note.creationdate){
                     notesJSX.push( <div id={note._id} className="notesContainer" onClick={this.displayNotesForm}>
@@ -159,19 +160,18 @@ class Notes extends Component{
                                     </div>)  
                 }
         });
-        console.log(notesJSX);
         return notesJSX.length != 0 ? <div className="notesJSXContainer">{notesJSX}</div> : <div className="emptyNotesContainer">Looks a little quite around here, add some notes organise yourself....</div>;
     }
 
     displayNotesForm(event){
-        if(event.target.className == "displayFormButton"){
+        if(event.currentTarget.className.indexOf("displayFormButton")>=0){
             this.setState({modalStatus : "ADD"});
-        }else if(event.target.className == "hideEditFormButton" || event.target.className == "hideFormButton"){
+        }else if(event.currentTarget.className.indexOf("hideEditFormButton") >=0 || event.currentTarget.className.indexOf("hideFormButton")>=0){
             this.setState({modalStatus : "",editedNotesTitle:"",editedNotesDescription:"",selectedNotesTitle:"",selectedNotesDescription:"",notesID : ""});
         }else {
             let selectedNote = {};
             this.props.user.notes.map(note => {
-                selectedNote = note._id == event.target.id ? {...note} : selectedNote;
+                selectedNote = note._id == event.currentTarget.id ? {...note} : selectedNote;
             });
             this.setState({modalStatus : "EDIT",selectedNotesTitle:selectedNote.title,editedNotesTitle: selectedNote.title,
                                 selectedNotesDescription:selectedNote.description,editedNotesDescription: selectedNote.description,notesID : selectedNote._id});
@@ -183,7 +183,7 @@ class Notes extends Component{
     let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
                             (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
     return(<div className = "calenderDateLowerNotesContainer"> 
-                <button disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</button> 
+                <Button variant="success" disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</Button> 
                 <Modal
                 isOpen={this.state.modalStatus == "ADD"}
                 contentLabel="">

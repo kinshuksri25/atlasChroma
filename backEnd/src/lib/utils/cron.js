@@ -24,7 +24,7 @@ cron.updateProjectAndStoryStatus = () => {
         let currentDate = generateCurrentDate();
         mongo.read(DBCONST.projectCollection,{},{}).then(resolvedResult => {
             resolvedResult.map(project => {
-               if(project.duedate > currentDate){
+               if(project.duedate.substring(6,8) == currentDate.substring(6,8) && currentDate.substring(9,11) - project.duedate.substring(9,11) == 1){
                    
                    let contributorUserName = [...project.contributors];
                    let contributorEmail = [];

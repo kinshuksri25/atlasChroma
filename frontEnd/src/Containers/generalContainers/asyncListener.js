@@ -115,6 +115,7 @@ listener.listenEvents = (io) => {
                             project.projectlead = details.data.projectlead;
                             project.description = details.data.description;
                             project.contributors = [...details.data.contributors];
+                            project.status = details.data.status;
                         }
                     });
                     store.dispatch(setUserAction({...user}));     

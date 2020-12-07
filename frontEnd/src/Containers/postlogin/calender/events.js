@@ -4,6 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
 
+import {Button} from "react-bootstrap";
 import "../../../StyleSheets/events.css";
 import formConstants from '../../../Forms/formConstants';
 import cookieManager from '../../../Components/cookieManager';
@@ -61,7 +62,7 @@ class Events extends Component{
             project.storydetails.map(story => {
                 let allDayEvent = {...story};
                 allDayEvent.projectID = project._id;
-                let currentAdjustedMonth = 1+parseInt(props.currentMonth);
+                let currentAdjustedMonth = props.currentMonth;
                 currentAdjustedMonth = currentAdjustedMonth < 10 ? "0"+currentAdjustedMonth : currentAdjustedMonth;
                 allDayEvent.contributor == props.user.username && 
                 allDayEvent.duedate == props.currentYear+"-"+currentAdjustedMonth+"-"+props.currentDate && allDayStories.push(allDayEvent);
@@ -118,7 +119,7 @@ class Events extends Component{
         let allDay = document.getElementById("allDayButton");
         let meetingsDay = document.getElementById("meetingsButton");
         let timedDay = document.getElementById("scheduledButton");
-        switch(event.target.id){
+        switch(event.currentTarget.id){
             case "allDayButton":
                 allDay.className="active";
                 meetingsDay.className="";
@@ -136,7 +137,7 @@ class Events extends Component{
                 break;
         }
 
-        this.setState({selectedButton:event.target.id});
+        this.setState({selectedButton:event.currentTarget.id});
 
     }
 
@@ -156,16 +157,16 @@ class Events extends Component{
     
     triggerModal(event){
         let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
-        if(event.target.className == "ADD"){
+        if(event.currentTarget.className.indexOf("ADD") >= 0){
             this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
-        }else if(event.target.className == "CLOSE"){
+        }else if(event.currentTarget.className.indexOf("CLOSE") >= 0){
             this.state.currentMode != "ADD" && window.history.pushState({}, "",date);
             this.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
         }else{
             let combinedArray = [...this.state.allDayEvents,...this.state.timedEvents,...this.state.meetings];
             let selectedEvent = {};
             combinedArray.map(combiEvent => {
-                if(combiEvent._id == event.target.id)
+                if(combiEvent._id == event.currentTarget.id)
                 {
                     selectedEvent = {...combiEvent};
                 }
@@ -430,8 +431,10 @@ class Events extends Component{
     createUnfilteredList(){
         let userList = [...this.props.userList];
         userList.map(user => {
-            user.id = user.username;
-            user.title = user.firstname + " " + user.lastname;
+           if(user.username != this.props.user.username){
+                user.id = user.username;
+                user.title = user.firstname + " " + user.lastname;
+           }
         });
         return userList;
     }
@@ -448,7 +451,7 @@ class Events extends Component{
         let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
         let eventDate = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;                                                                                                                                            
         return(<div className = "calenderDateLowerEventContainer">
-                    <button disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</button>
+                    <Button variant="success" disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</Button>
                     <Modal
                     isOpen={this.state.currentMode != ""}
                     contentLabel="">

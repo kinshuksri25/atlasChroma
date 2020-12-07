@@ -14,7 +14,7 @@ clock.startClock = () => {
         let state = store.getState();
         let previousTime = state.clockStateReducer.previousTime;
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let date= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        let date= currentDateObject.year+"-"+(parseInt(currentDateObject.month)+1)+"-"+currentDateObject.date;
         let time  = currentDateObject.time;
         if(previousTime != time){
             let user = {...state.userStateReducer};
@@ -23,21 +23,21 @@ clock.startClock = () => {
                 let eventDate = event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate;  
                 if(event.EventType != "All Day"){  
                     if(eventDate < date){
-                        event.status = "Finished";
+                        event.status = "finished";
                     }else if(eventDate > date){
                         event.status = "YettoStart";
                     }else{
                         if(event.StartTime > time){
                             event.status = "YettoStart";                          
                         }else if(event.StartTime < time && event.EndTime <= time){
-                            event.status = "Finished"
+                            event.status = "finished"
                         }else if(event.StartTime <= time && event.EndTime >= time){
                             event.status = "CurrentlyActive"
                         }
                     }
                     event.status == "CurrentlyActive" && store.dispatch(setMsgAction({msg: eventName+", has started" ,status:"SUCCESS"}));
                 }else{
-                    event.status == eventDate > date ? "YettoStart" : eventDate < date ? "Finished" : "CurrentlyActive";
+                    event.status == eventDate > date ? "YettoStart" : eventDate < date ? "finished" : "CurrentlyActive";
                 }
             });
             store.dispatch(setUserAction({...user}));

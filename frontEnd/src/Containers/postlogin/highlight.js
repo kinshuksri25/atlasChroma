@@ -112,7 +112,7 @@ class Highlight extends Component{
         buildEventList(){
               let eventListJSX = [];
               let currentDateObject = new DateHelper().currentDateGenerator();
-              let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+              let currentDate= currentDateObject.year+"-"+(parseInt(currentDateObject.month)+1)+"-"+currentDateObject.date;
               let compliedEvents = this.sortEvents();
               for(let j=0;j<compliedEvents.length && j<9;j++){
                 let dateSum = compliedEvents[j].CreationYear+compliedEvents[j].CreationMonth+compliedEvents[j].CreationDate;      

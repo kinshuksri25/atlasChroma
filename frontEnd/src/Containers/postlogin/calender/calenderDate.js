@@ -35,15 +35,14 @@ class CalenderDate extends Component{
     }
 
     render(){
-        let date = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
+        let date = this.props.currentYear+"-"+(parseInt(this.props.currentMonth)+1)+"-"+this.props.currentDate;
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+(parseInt(currentDateObject.month)+1)+"-"+currentDateObject.date;
         let heading = this.props.currentDate+" "+this.props.currentMonthName+" "+this.props.currentYear;
-
         return(<div className = "centralEventsNotesContainer">
                     <div className = "calenderDateUpperContainer">
                         <div className = "topUpperBlock">
-                            <Button className = "backButton" onClick={this.props.onClickHandler}>&#8672;</Button>
+                            <Button variant = "primary" className = "backButton" onClick={this.props.onClickHandler}>&#8672;</Button>
                             <div>{heading}</div>
                         </div>
                         <div className = "topLowerBlock">
@@ -51,7 +50,7 @@ class CalenderDate extends Component{
                             <button id="Notes"  disabled={this.state.activeTab == "Notes"} className="background" onClick={this.changeActiveTab}>Notes</button>
                         </div>
                     </div>
-                    {this.state.activeTab == "Events" && <Events currentMonth = {this.props.currentMonth} 
+                    {this.state.activeTab == "Events" && <Events currentMonth = {parseInt(this.props.currentMonth)+1} 
                                                                 currentYear = {this.props.currentYear} 
                                                                 currentDate = {this.props.currentDate}/> }
                     {this.state.activeTab == "Events" || <Notes calenderDate = {date} disableAdd = {date != currentDate}/>}                                                            

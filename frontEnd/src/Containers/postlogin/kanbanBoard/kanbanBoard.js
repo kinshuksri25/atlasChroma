@@ -4,10 +4,11 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
 import "../../../StyleSheets/kanbanBoard.css";
-
+import {Button} from "react-bootstrap";
 import SetupProject from './setupProject';
 import StoryForm from './storyForm';
 import BoardColumn from './boardColumn';
+import ProjectDetails from './projectDetails';
 import {urls} from '../../../../../lib/constants/contants';
 
 class KanbanBoard extends Component {
@@ -16,13 +17,14 @@ class KanbanBoard extends Component {
         super(props);
         this.state={
             showStoryForm:false,
-            componentWidth : screen.width
+            openProjectInfo : false
         };
         this.addStory = this.addStory.bind(this);
         this.closeStory = this.closeStory.bind(this);
         this.buildBoard = this.buildBoard.bind(this);
         this.selectProject = this.selectProject.bind(this);
         this.groupTemplate = this.groupTemplate.bind(this);
+        this.openProjectInfoModal = this.openProjectInfoModal.bind(this);
     }
     
     static getDerivedStateFromProps(props,state){
@@ -80,20 +82,29 @@ class KanbanBoard extends Component {
         this.setState({showStoryForm : false});      
     }
 
+    openProjectInfoModal(){
+        this.setState({openProjectInfo : !this.state.openProjectInfo});
+    }
+
     render(){
         let currentProject = this.selectProject();
+        let hideBoardDetails = JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 ? false : true;
         let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
-        return (<div className="boardContainer">
-                    <h5>{currentProject.title}</h5>
+        return (<div className="boardContainer" style={JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? {} : {background:"linear-gradient(145deg,#FDC5F5 20%,#F7AEF8 20% 40%,#B388EB 40% 60%,#8093F1 60% 80%,#72DDF7 80% 100%)"}}>
+                    {JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 && <h3>{currentProject.title}</h3>}
+                    {JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 && <Button className = "Info" onClick={this.openProjectInfoModal}>i</Button>}
                     <Modal
                     isOpen={this.state.showStoryForm}
                     contentLabel="">
                         <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
                     </Modal>
+                    <Modal
+                    isOpen={this.state.openProjectInfo}
+                    contentLabel="">
+                        <ProjectDetails projectDetails = {currentProject} closeModal={this.openProjectInfoModal}/>
+                    </Modal>
                     {boardJSX}
-                    {JSON.stringify(currentProject) != JSON.stringify({}) && 
-                        currentProject.templatedetails.length > 0 && 
-                            <button onClick={this.addStory} id="addStoryButton">+</button>}
+                    {JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 && <Button onClick={this.addStory} id="addStoryButton">+</Button>}
                 </div>);
     }
 }

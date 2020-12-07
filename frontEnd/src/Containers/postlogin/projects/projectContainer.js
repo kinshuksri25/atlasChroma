@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import {Card,Button} from "react-bootstrap";
 import {OverlayTrigger,Tooltip} from 'react-bootstrap';
 
+import edit from "../../../Images/icons/edit.png";
 import DateHelper from "../../generalContainers/date";
 import "../../../StyleSheets/projectContainer.css";
 import {urls} from '../../../../../lib/constants/contants';
@@ -60,19 +61,15 @@ class ProjectContainer extends Component{
                         );
                     }
                 }
-
+                let cardStatus = project.duedate > currentDate ? "Due: "+project.duedate : project.duedate == currentDate ? "Due Today" : "OverDue";
                 let buttonHidden = this.state.projects[project._id] == undefined ? true : this.state.projects[project._id];
+                let cardID = project.duedate < currentDate && project.status == "InProgress" ? "OverDue" : project.status;
                 return(
-                        <div id = "projectCard" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit} onClick = {this.onClick}>
-                            <h3 id="projectTitle" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>{project.title}</h3>
-                            <p id="projectDescription" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
+                        <div id = {cardID} className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit} onClick = {this.onClick}>
+                            <h3 id="projectTitle" className = {project._id}>{project.title}</h3>
+                            <p id="projectDescription" className = {project._id}>
                                 {project.description}
                             </p>
-                            <h6 id="contributors" className = {project._id}>
-                                Contributors:
-                                    {contributorJSX}
-                                    {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
-                            </h6>
                             <h6 id="projectLead" className = {project._id}>
                                 Project Lead:
                                     {
@@ -83,12 +80,16 @@ class ProjectContainer extends Component{
                                         })
                                     }
                             </h6>
-                            <p id="projectStatus" className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit}>
-                                {project.status == "InProgress" && project.duedate <= currentDate && <span>Due: {project.duedate}</span>}
-                                {project.status == "InProgress" && project.duedate > currentDate && <span>OverDue</span>}
+                            <h6 id="contributors" className = {project._id}>
+                                Contributors:
+                                    {contributorJSX}
+                                    {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
+                            </h6>
+                            <p id="projectStatus" className = {project._id}>
+                                {project.status == "InProgress" && <span>{cardStatus}</span>}
                                 {project.status == "InProgress" || <span>{project.status}</span>}
                             </p>
-                            <button hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal">/\</button>
+                            <img hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal" src = {edit}/>
                             <Modal
                             isOpen={this.state.showContributors}
                             contentLabel="">
@@ -119,13 +120,13 @@ class ProjectContainer extends Component{
 
     hideEdit(event){
         let projects = this.state.projects;
-        projects[event.target.className] = true;
+        projects[event.currentTarget.className] = true;
         this.setState({projects : {...projects}}); 
     }
 
     showEdit(event){
         let projects = this.state.projects;
-        projects[event.target.className] = false;
+        projects[event.currentTarget.className] = false;
         this.setState({projects : {...projects}});
     }
 
@@ -183,7 +184,7 @@ class ProjectContainer extends Component{
         let container = this.renderProjectTabs();
         return(<div className = "projectDashboardLower">
                 {container}
-                <button className = "openAddModal" onClick={this.props.showEditProject} hidden = {this.props.action != ""}>+</button>
+                <Button variant="success" className = "openAddModal" onClick={this.props.showEditProject} hidden = {this.props.action != ""}>+</Button>
               </div>);
     }
 }

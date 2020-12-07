@@ -6,6 +6,9 @@ import {Accordion,Card,OverlayTrigger,Tooltip} from 'react-bootstrap';
 import signUpLogo from '../../Images/icons/signUpIcon.png';
 import loginLogo from '../../Images/icons/loginIcon.png';
 import googleLogo from '../../Images/icons/googleIcon.png';
+import signUpLogoColor from '../../Images/icons/signUpIconColor.png';
+import loginLogoColor from '../../Images/icons/loginIconColor.png';
+import googleLogoColor from '../../Images/icons/googleIconColor.png';
 import SimpleForm from '../../Forms/simpleform';
 import cookieManager from '../../Components/cookieManager';
 import formConstants from '../../Forms/formConstants';
@@ -26,7 +29,11 @@ class PreLoginForms extends Component {
             "validUserName": false,
             "email": "",
             "username": "",
-            "disableButton" : false 
+            "disableButton" : false,
+            "loginHover" : false, 
+            "signUpHover" : false, 
+            "googleHover" : false, 
+            "activeTab" : "signUp"
         };
         this.onLoginSubmitHandler = this.onLoginSubmitHandler.bind(this);
         this.checkPasswordValidity = this.checkPasswordValidity.bind(this);
@@ -34,6 +41,13 @@ class PreLoginForms extends Component {
         this.emailValidator = this.emailValidator.bind(this);
         this.userNameValidator = this.userNameValidator.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
+        this.mouseOverHandler = this.mouseOverHandler.bind(this);
+        this.mouseOutHandler = this.mouseOutHandler.bind(this);
+        this.changeActiveTab = this.changeActiveTab.bind(this);
+    }
+
+    componentDidMount(){
+        this.props.changeLoadingState(false);
     }
 
     //TODO --> this has to be called when offclick happens
@@ -237,12 +251,56 @@ class PreLoginForms extends Component {
         this.setState({disableButton : false});
     }
 
+    mouseOverHandler(event){
+        if(event.currentTarget.className.indexOf("signUpOptionContainer")>=0){
+            this.setState({"loginHover" : false, 
+                            "signUpHover" : true, 
+                            "googleHover" : false,});
+        }else if(event.currentTarget.className.indexOf("loginOptionContainer")>=0){
+            this.setState({"loginHover" : true, 
+                            "signUpHover" : false, 
+                            "googleHover" : false,});
+        }else if(event.currentTarget.className.indexOf("googleOptionContainer")>=0){
+            this.setState({"loginHover" : false, 
+                            "signUpHover" : false, 
+                            "googleHover" : true,});
+        }
+    }
+
+    mouseOutHandler(event){
+        if(event.currentTarget.className.indexOf("signUpOptionContainer")>=0){
+            this.setState({"signUpHover" : false});
+        }else if(event.currentTarget.className.indexOf("loginOptionContainer")>=0){
+            this.setState({"loginHover" : false});
+        }else if(event.currentTarget.className.indexOf("googleOptionContainer")>=0){
+            this.setState({"googleHover" : false});
+        }
+    }
+
+    changeActiveTab(event){
+        if(event.target.className.indexOf("buttonText")>=0){
+            if(event.currentTarget.className.indexOf("signUpOptionContainer")>=0){
+                this.state.activeTab == "signUp" || this.setState({"activeTab" : "signUp"});
+                this.state.activeTab == "signUp" && this.setState({"activeTab" : ""});
+            }else if(event.currentTarget.className.indexOf("loginOptionContainer")>=0){
+                this.state.activeTab == "login" || this.setState({"activeTab" : "login"});
+                this.state.activeTab == "login" && this.setState({"activeTab" : ""});
+            }else if(event.currentTarget.className.indexOf("googleOptionContainer")>=0){
+                this.state.activeTab == "google" || this.setState({"activeTab" : "google"});
+                this.state.activeTab == "google" && this.setState({"activeTab" : ""});
+            }
+        }
+    }
+
     render() {
-        return (<Accordion  className="signUpContainer">
-                    <Card className = "loginOptionContainer">
+        let signUp = this.state.activeTab == "signUp" ? signUpLogoColor : this.state.signUpHover ? signUpLogoColor : signUpLogo;
+        let login = this.state.activeTab == "login" ? loginLogoColor : this.state.loginHover ? loginLogoColor : loginLogo;
+        let google = this.state.activeTab == "google" ? googleLogoColor : this.state.googleHover ? googleLogoColor : googleLogo;
+        return (<Accordion  className="signUpContainer" defaultActiveKey="0">
+                    <Card className = "signUpOptionContainer" onMouseOver={this.mouseOverHandler} onMouseOut={this.mouseOutHandler} onClick={this.changeActiveTab}>
                         <OverlayTrigger placement="left" overlay={<Tooltip> <strong>SignUp</strong>.</Tooltip>}>
                         <Accordion.Toggle className="buttonText" id = "signup" as={Card.Header} eventKey="0">
-                            <img src={signUpLogo} alt="signUpLogo" width="50" height="50"/>
+                            <img src={signUp} alt="signUpLogo" width="50" height="50"/>
                         </Accordion.Toggle>      
                         </OverlayTrigger>
                         <Accordion.Collapse className = "preloginAccordianBody" eventKey="0">
@@ -255,25 +313,25 @@ class PreLoginForms extends Component {
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
-                    <Card className = "loginOptionContainer">
+                    <Card className = "loginOptionContainer" onMouseOver={this.mouseOverHandler} onMouseOut={this.mouseOutHandler} onClick={this.changeActiveTab}>
                         <OverlayTrigger placement="left" overlay={<Tooltip> <strong>Login</strong>.</Tooltip>}>
                             <Accordion.Toggle className="buttonText" as={Card.Header} eventKey="1">
-                                <img src={loginLogo} alt="loginLogo" width="50" height="50"/>
+                                <img src={login} alt="loginLogo" width="50" height="50"/>
                             </Accordion.Toggle>          
                         </OverlayTrigger>
                         <Accordion.Collapse className = "preloginAccordianBody" eventKey="1">
                             <Card.Body className ="preloginCardBody">
-                                <h4 className="loginTitle">Login using your AtlasChroma Credentials</h4>
+                                <h4 className="loginTitle">Login using your Sokratic Credentials</h4>
                                 <SimpleForm formAttributes = { formConstants.login }
                                 submitHandler = { this.onLoginSubmitHandler }
                                 changeFieldNames = {[]}/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
-                    <Card className = "loginOptionContainer">
+                    <Card className = "googleOptionContainer" onMouseOver={this.mouseOverHandler} onMouseOut={this.mouseOutHandler} onClick={this.changeActiveTab}>
                         <OverlayTrigger placement="left" overlay={<Tooltip> <strong>Google SignUp/Login</strong>.</Tooltip>}>
                             <Accordion.Toggle className="buttonText" as={Card.Header} eventKey="2">
-                                <img src={googleLogo} alt="googleLogo" width="50" height="50"/>
+                                <img src={google} alt="googleLogo" width="50" height="50"/>
                             </Accordion.Toggle>
                         </OverlayTrigger>
                         <Accordion.Collapse className = "preloginAccordianBody" eventKey="2">

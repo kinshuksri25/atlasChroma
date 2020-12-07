@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import {Button} from 'react-bootstrap';
 import "../../../StyleSheets/scheduler.css";
 import DateHelper from '../../generalContainers/date';
 import CalenderDate from './calenderDate';
@@ -48,13 +49,14 @@ class Scheduler extends Component {
         }
 
         changeMonth(event){
+                console.log(event.target.id);
                 let currentMonth = this.state.currentMonth;
                 if(currentMonth < "09"){        
-                        currentMonth = event.target.className == "next" ? "0"+(parseInt(currentMonth)+1) : "0"+(parseInt(currentMonth)-1);
+                        currentMonth = event.target.id == "next" ? "0"+(parseInt(currentMonth)+1) : "0"+(parseInt(currentMonth)-1);
                 }else{
-                        currentMonth = event.target.className == "next" ? parseInt(currentMonth)+1 : currentMonth <= 10 ? "0"+(parseInt(currentMonth)-1) : parseInt(currentMonth)-1;
+                        currentMonth = event.target.id == "next" ? parseInt(currentMonth)+1 : currentMonth <= 10 ? "0"+(parseInt(currentMonth)-1) : parseInt(currentMonth)-1;
                 }
-                switch(event.target.className){
+                switch(event.target.id){
                         case "next" :  
                                 if(this.state.currentMonth == "11"){
                                         this.setState({
@@ -160,9 +162,9 @@ class Scheduler extends Component {
                                 {this.state.currentDate == "" &&   <div className = "calenderContainer"> 
                                                                         <div className = "calenderUpperBlock">
                                                                                 <div className="calenderUpperInnerBlock">
-                                                                                        <button onClick = {this.changeMonth} className = "previous">&lt;</button>
+                                                                                        <Button variant="primary" onClick = {this.changeMonth} id = "previous">&lt;</Button>
                                                                                         <div className = "calenderDateHeading">{month[this.state.currentMonth]},{this.state.currentYear}</div>
-                                                                                        <button onClick = {this.changeMonth} className = "next">&gt;</button>
+                                                                                        <Button variant="primary" onClick = {this.changeMonth} id = "next">&gt;</Button>
                                                                                 </div>
                                                                         </div>
                                                                         <div className = "calenderLowerBlock">{this.buildCalender()}</div>

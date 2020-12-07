@@ -1,9 +1,20 @@
 .preloginRootContainer{
-    background: #141e30;
+    background: linear-gradient(to top right,#F69700 10%,#FFEB85 70%, #85D0FF 35%);
     width: 100%;
     height: 100%;
     display: flex;
     font-family: 'Comfortaa', cursive;
+    position: relative;
+    z-index: 0;
+}
+
+.landingBackgroundImage{
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    width: calc(995px*75/100);
+    height: calc(697.67px*75/100);
+    z-index: -10;
 }
 
 .upperTitleContainer,.formContainer{
@@ -13,100 +24,215 @@
 }
 
 .upperTitleContainer{
-    padding-right: 3%;
-    padding-left: 3%;
-    color: #E6E6FA;
+    padding-right: 1.5%;
+    padding-left: 4.5%;
+    color: white;
+}
+
+.titleImage{
+    width: 100px;
+    height: 100px;
+    margin-right: 1rem;
 }
 
 .landingTitle{
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 4rem;
+    text-shadow: 2px 2px 4px #000000;
+    text-shadow: 2px 2px 6px #000000;
 }
 
 .landingSubtitle{
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 3.5rem;
+    text-shadow: 2px 2px 4px #000000;
+    text-shadow: 2px 2px 6px #000000;
+    padding-left: 2rem;
 }
 
-.loginOptionContainer{
+.loginOptionContainer,.signUpOptionContainer,.googleOptionContainer{
     background-color: rgba(1,1,1,0);
     border: none;
 }
 
 .preloginAccordianBody{
-    background-color: white;
+    background-color: transparent;
+}
+
+.card-header{
+    border: none;
 }
 
 .buttonText{
     background-color: rgba(1,1,1,0);
 }
 
-.buttonText:hover,.buttonText:active{
-    background: linear-gradient(to bottom ,#141e30, #0a0f18);
-}
-
 .signUpContainer{
     border-left: 1px solid #bfdcae;
 }
 
-.googleLoginButton,.signUpButton,.loginButton{
+.signUpButton{
     border: 1px solid #007bff;
     width: 70%;
     background-color: rgba(0,0,0,0);
     color: #007bff;
 }
 
-.googleLoginButton:hover,.signUpButton:hover,.loginButton:hover,.googleLoginButton:active,.signUpButton:active,.loginButton:active{
-    border: none;
-    background-color: #007bff;
-    color: white;
+.loginButton,.googleLoginButton{
+    border: 1px solid #28a745;
+    width: 70%;
+    background-color: rgba(0,0,0,0);
+    color: #28a745;   
 }
 
-signUpAttributes:focus,.loginAttributes:focus{
+.signUpButton:hover,.signUpButton:active{
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    outline-color: #007bff;
+}
+
+.googleLoginButton:hover,.loginButton:hover,.googleLoginButton:active,.loginButton:active{
+    border: 1px solid #28a745;
+    background-color: #28a745;
+    color: white;
+    outline-color: #28a745;
+}
+
+.signUpAttributes:focus,.loginAttributes:focus{
+    border: 1px solid #007bff;
     outline: none !important;
-    box-shadow: 0 0 10px #4169e1 !important;
+    box-shadow: 0 0 10px #007bff !important;
 }
 
 @media screen and (max-width: 1024px){
+    .landingTitle{
+        font-weight: 400;
+        font-size: 2.5rem;
+    }
+    .landingSubtitle{
+        font-weight: 300;
+        font-size: 2rem;
+    }
     .upperTitleContainer{
         flex-basis: 70%;
     }
     .formContainer{
         flex-basis: 30%;
     }
+    .landingBackgroundImage{
+        width: calc(995px*44/100);
+        height: calc(697.67px*44/100);
+    }
+    .titleImage{
+        width: 55px;
+        height: 55px;
+        margin-right: 0.6rem;
+    }
 }
 
 @media screen and (min-width: 1024px) and (max-width: 1280px){
+    .landingTitle{
+        font-weight: 500;
+        font-size: 3rem;
+    }
+    .landingSubtitle{
+        font-weight: 400;
+        font-size: 2.5rem;
+    }
     .upperTitleContainer{ 
         flex-basis: 71%;
     }
     .formContainer{
         flex-basis: 29%;
     }
+    .landingBackgroundImage{
+        width: calc(995px*46/100);
+        height: calc(697.67px*46/100);
+    }
+    .titleImage{
+        width: 70px;
+        height: 70px;
+        margin-right: 0.8rem;
+    }
 }
 
 @media screen and (min-width: 1280px) and (max-width: 1366px){
+    .landingTitle{
+        font-weight: 500;
+        font-size: 3rem;
+    }
+    .landingSubtitle{
+        font-weight: 400;
+        font-size: 2.5rem;
+    }
     .upperTitleContainer{ 
         flex-basis: 73%;
     }
     .formContainer{
         flex-basis: 27%;
     }
+    .landingBackgroundImage{
+        width: calc(995px*48/100);
+        height: calc(697.67px*48/100);
+    }
+    .titleImage{
+        width: 70px;
+        height: 70px;
+        margin-right: 0.8rem;
+    }
 }
 
 @media screen and (min-width: 1366px) and (max-width: 1400px){
+    .landingTitle{
+        font-weight: 600;
+        font-size: 3.5rem;
+    }
+    .landingSubtitle{
+        font-weight: 500;
+        font-size: 3rem;
+    }
     .upperTitleContainer{ 
         flex-basis: 75%;
     }
     .formContainer{
         flex-basis: 25%;
     }
+    .landingBackgroundImage{
+        width: calc(995px*50/100);
+        height: calc(697.67px*50/100);
+    
+    }
+    .titleImage{
+        width: 80px;
+        height: 80px;
+        margin-right: 1rem;
+    }
 }
 
 @media screen and (min-width: 1400px) and (max-width: 1600px){
+    .landingTitle{
+        font-weight: 600;
+        font-size: 3.5rem;
+    }
+    .landingSubtitle{
+        font-weight: 500;
+        font-size: 3rem;
+    }
     .upperTitleContainer{ 
         flex-basis: 77%;
     }
     .formContainer{
         flex-basis: 23%;
+    }
+    .landingBackgroundImage{
+        width: calc(995px*60/100);
+        height: calc(697.67px*60/100);
+    }
+    .titleImage{
+        width: 80px;
+        height: 80px;
+        margin-right: 1rem;
     }
 }
 

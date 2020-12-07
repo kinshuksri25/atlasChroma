@@ -1,16 +1,25 @@
 import React,{ Component } from "react";
 
 import "../StyleSheets/FilterForm.css";
+import {Form} from "react-bootstrap";
 
 export default class FilterForm extends Component{
 
     constructor(props){
         super(props);
         this.state ={
-            suggestions : []
+            suggestions : [],
+            searchTerm: ""
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.offFocus = this.offFocus.bind(this);
+    }
+
+    offFocus(event){
+       setTimeout(()=>{
+        this.setState({searchTerm:"",suggestions:[]});
+       },230);
     }
 
     onChange(event){
@@ -29,35 +38,35 @@ export default class FilterForm extends Component{
                     suggestions.push({...projectObject});
                 } 
             });
-            this.setState({suggestions : [...suggestions]});
+            this.setState({suggestions : [...suggestions],searchTerm:searchTerm});
         }else{
-            this.setState({suggestions : []});
+            this.setState({suggestions : [],searchTerm:searchTerm});
         }
     }
 
     onSubmit(event){
-        let url = "/projects/"+event.target.id; 
-        window.history.replaceState({}, "",url);
+        let url = "/projects/"+event.currentTarget.id; 
+        window.history.pushState({}, "",url);
     }
 
     render(){
         return(
             <div className = "filterContainer">
                 <div className = "filterInnerContainer">
-                    <select className = "orderBy" id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}>
+                    <Form.Control as="select" className = "orderBy" id = "orderBy" onChange={this.props.changeOrderBy} value={this.props.orderBy}>
                         {
                             this.props.options.map(option => {
                                 return (<option value = {option}>{option}</option>);
                             })
                         }
-                    </select>
-                    <div>
-                        <input className = "projectSearch" type = "text" placeHolder = "Project Search" id = "inputSearch" onChange={this.onChange}/>
+                    </Form.Control>
+                    <div  onBlur={this.offFocus}>
+                        <Form.Control as="input" autoComplete="off" className = "projectSearch" type = "text" value={this.state.searchTerm} placeHolder = "Project Search" id = "inputSearch" onChange={this.onChange}/>
                         <ul className="suggestions">
                             {
                                 this.state.suggestions.map(suggestion => {
                                    return( <li id={suggestion._id} onClick={this.onSubmit}>
-                                                {suggestion.title}  ProjectLead:  <img className = "profilePicture" src={suggestion.leadPhoto}/>  
+                                                <span className="suggestionTitle">{suggestion.title}</span>  <span>ProjectLead:<img className = "profilePicture" src={suggestion.leadPhoto}/></span>  
                                             </li>)
                                 })
                             }

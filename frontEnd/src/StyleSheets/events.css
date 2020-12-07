@@ -9,13 +9,10 @@
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
-    border: 1px solid #28a745;
     position: absolute;
     top: 4.5rem;
     right: 1.2rem;
-    color: #28a745;
-    background: transparent;
-    font-size: 1rem;
+    color: white;
 }
 
 #meetingsButton{
@@ -26,13 +23,6 @@
 #allDayButton{
     border-bottom-left-radius: 5px;
     border-top-left-radius: 5px;
-}
-
-.calenderDateLowerEventContainer > button:hover, .calenderDateLowerEventContainer > button:focus, .calenderDateLowerEventContainer > button:active{
-    color: white;
-    background: #28a745;
-    outline:none;
-    box-shadow: 0px 0px 20px #28a745;
 }
 
 .eventSelectorContainer{
@@ -51,7 +41,7 @@
 }
 
 .eventSelectorContainer > button:hover,.eventSelectorContainer > button:focus {
-    background: #336daa;
+    background: #285585;
     font-size: 1.25rem;
     outline:none;
 }
@@ -66,6 +56,8 @@
     height: 100%;
     display: grid;
     place-items: center;
+    color: white;
+    text-shadow: 0px 0px 10px black;
 }
 
 .allDayContainer,.timedContainer,.meetingContainer,.innerEventContainer{
@@ -85,44 +77,98 @@
 
 .allDayCard,.Urgent,.High,.Medium,.Low,.OnHold{
     padding-left: 0.1rem;
-    border: 1px solid #336daa;
+    background: #336daa;
     border-radius: 5px;
-    color: #336daa;
+    color: white;
     min-height: 14.43rem;
 }
 
-.allDayCard:hover,.allDayCard:active{
+.InProgress{
     background: #336daa;
-    color: white;
-}
-
-.Finished,.YettoStart,.CurrentlyActive{
-    min-height: 14.375rem;
 }
 
 .Finished{
-    padding-left: 0.1rem;
-    border-radius: 5px;
-    border: 1px solid #28a745;
-    color: #28a745;
+    background: #28a745;
 }
 
-.Finished:active,.Finished:hover{
-    border: 1px solid #28a745;
-    background:#28a745;
+.OverDue,.Urgent{
+    background: #aa212d;
+}
+
+.High{
+    background: #bd5713;
+}
+
+.Medium{
+    background: #cbce0e;
+}
+
+.Low{
+    background: #5a9c04;
+}
+
+.OnHold{
+    background: #14aa91;
+}
+
+.InProgress:hover,.InProgress:active{
+    background: #285585;
+}
+
+.Finished:hover,.Finished:active{
+    background: #19702d;
+}
+
+.OverDue:hover,.OverDue:active,.Urgent:hover,.Urgent:active{
+    background: #6d141b;
+}
+
+.High:hover,.High:active{
+    background: #994711;
+}
+
+.Medium:hover,.Medium:active{
+    background: #aeb10d;
+}
+
+.Low:hover,.Low:active{
+    background: #3e6b02;
+}
+
+.OnHold:hover,.OnHold:active{
+    background: #107e6b;
+}
+
+.allDayCard:hover,.allDayCard:active{
+    background: #285585;
+    color: white;
+}
+
+.finished,.YettoStart,.CurrentlyActive{
+    min-height: 14.375rem;
+}
+
+.finished{
+    padding-left: 0.1rem;
+    border-radius: 5px;
+    background: #28a745;
+    color: white;
+}
+
+.finished:active,.finished:hover{
+    background: #19702d;
     color: white;
 }
 
 .YettoStart{
     padding-left: 0.1rem;
     border-radius: 5px;
-    border: 1px solid #d67e36;
-    color: #d67e36;
+    background: #ffbb00;
+    color: white;
 }
 
 .YettoStart:active,.YettoStart:hover{
-    border: 1px solid #d67e36;
-    background:#d67e36;
+    background:#b19600;
     color: white;
 }
 
@@ -130,13 +176,12 @@
     position: relative;
     padding-left: 0.1rem;
     border-radius: 5px;
-    border: 1px solid #336daa;
-    color: #336daa; 
+    background: #336daa;
+    color: white; 
 }
 
 .CurrentlyActive:active,.CurrentlyActive:hover{
-    border: 1px solid #336daa;
-    background:#336daa;
+    background:#285585;
     color: white;
 }
 
@@ -192,14 +237,24 @@
 }
 
 .startMeeting{
-    height: 2rem;
-    width: 2rem;
-    border: 1px solid #28a745;
+    background:transparent;
+    border: none;
     border-radius: 50%;
-    background:white;
-    color:#28a745;
+    outline: none !important;
+    position: absolute;
+    right:0.25rem;
+    bottom:0.25rem;
 }
 
+.openMeeting{
+    height: 2rem;
+    width: 2rem;
+}
+
+.openMeeting:hover{
+    height: 2.35rem;
+    width: 2.35rem;
+}
 
 .timing,.status{
     display: inline-block;

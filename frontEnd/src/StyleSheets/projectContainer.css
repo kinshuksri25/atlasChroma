@@ -20,21 +20,58 @@
     grid-gap:0.5rem;
 }
 
-#projectCard{
+#InProgress,#Finished,#OnHold,#OverDue{
     position: relative;
     box-sizing: border-box;
-    background-color:yellow;
     width: 100%;
     padding: 0.25rem;
+    border-radius: 7px;
+    color: white;
+}
+
+#InProgress{
+    background: #336daa;
+}
+
+#Finished{
+    background: #28a745;
+}
+
+#OnHold{
+    background: #14aa91;
+}
+
+#OverDue{
+    background: #aa212d;
+}
+
+#InProgress:hover,#InProgress:active{
+    background: #285585;
+}
+
+#Finished:hover,#Finished:active{
+    background: #19702d;
+}
+
+#OnHold:hover,#OnHold:active{
+    background: #107e6b;
+}
+
+#OverDue:hover,#OverDue:active{
+    background: #6d141b;
 }
 
 #projectDescription{
-    min-height: 7.5rem;
+    min-height: 2.6rem;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+}
+
+#projectTitle{
+    margin-top: 0.5rem;
 }
 
 .profilePicture{
@@ -48,8 +85,20 @@
     position: absolute;
     bottom: 1rem;
     right: 0.25rem;
-    background-color: rgba(0,0,0,0);
-    color: #007bff;
+    width: 2rem;
+    height: 2rem;
+    transition: width 0.1s,height 0.1s;
+}
+
+.openEditModal:hover{
+    height: 2.25rem;
+    width: 2.25rem;
+    transition: width 0.2s,height 0.2s;
+}
+
+.openEditModal:active{
+    height: 2.1rem;
+    width: 2.1rem;
 }
 
 .openAddModal{
@@ -60,6 +109,10 @@
     height: 3rem;
     border: none;
     border-radius: 50%;
-    background-color: #28a745;
     color:white;
+}
+
+.noProjectTitle{
+    color: white;
+    text-shadow: 0px 0px 10px black;
 }

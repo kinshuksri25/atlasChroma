@@ -15,20 +15,9 @@
     bottom: 0.75rem;
     right: 1.2rem;
     position: absolute;
-    border: 1px solid #28a745;
     border-radius: 50%;
-    color: #28a745;
-    background: white;
-    font-size: 1.25rem;
-    border: none;
-}
-
-
-.displayFormButton:hover,.displayFormButton:active,.displayFormButton:focus{
     color: white;
-    background: #28a745;
-    outline: none;
-    box-shadow: 0px 0px 20px #28a745;
+    font-size: 1.25rem;
 }
 
 .notesJSXContainer{
@@ -38,17 +27,18 @@
 }
 
 .notesContainer{
-    background:transparent;
+    background:#5F95CF;
     color: white;
-    border: 1px solid white;
+    border: 1px solid #5F95CF;
     border-radius: 5px;
     margin: 0.5rem 0px;
+    padding: 0.25rem 0.5rem;
 }
 
 .notesContainer:hover,.notesContainer:active{
-    color: #336daa;
-    border: 1px solid white;
-    background: white;
+    color: white;
+    border: 1px solid #4F8BCA;
+    background: #4F8BCA;
 }
 
 .notesDescription{

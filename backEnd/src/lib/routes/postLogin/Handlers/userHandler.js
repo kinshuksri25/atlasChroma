@@ -124,7 +124,6 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
 //params --> route - string, requestObject - object
 //returns --> promise - object
 userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) => {
-    
     let response = {
         EMSG : "",
         PAYLOAD : {},
@@ -135,8 +134,7 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
         || requestObject.reqBody.hasOwnProperty('lastname') 
         || requestObject.reqBody.hasOwnProperty("phonenumber")
         || requestObject.reqBody.hasOwnProperty("photo")){
-            
-        let set = {}; 
+        let set = {"$set":{}}; 
         if(requestObject.reqBody.hasOwnProperty("password")){
             let encryptedPassword = encryptionAPI.hash(requestObject.reqBody.password);
             set["$set"].password = encryptedPassword;
@@ -150,7 +148,6 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
             set["$set"].photo = requestObject.reqBody.photo;
         }
         mongo.update(DBCONST.userCollection,{username : requestObject.reqBody.username},{...set},{returnOriginal: false},SINGLE).then(resolvedSet => {
-            console.log(resolvedSet);
             resolvedSet = resolvedSet.value; 
             let updatedUser = {
                 username : resolvedSet.username,
@@ -172,7 +169,6 @@ userHandler.user.put = (route,requestObject,io) => new Promise((resolve,reject) 
             reject(response); 
         });
     }else{
-        console.log("called");
         response.STATUS = 400;
         response.EMSG = EMSG.SVR_HNDLS_INREQ;
         reject(response);

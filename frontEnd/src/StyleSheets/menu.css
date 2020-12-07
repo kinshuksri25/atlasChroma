@@ -3,3 +3,40 @@
     align-self: center;
     z-index: 10;
 }
+
+.menuButtonContainer button{
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    transition: margin-left 0.2s;
+}
+
+.menuButtonContainer button:active{
+    outline: none;
+}
+
+.menuButtonContainer button > img{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    transition: width 0.2s, height 0.2s;
+}
+
+.menuButtonContainer button > img:hover{
+    width: 42px;
+    height: 42px;
+    transition: width 0.2s, height 0.2s;
+}
+
+.current{
+    cursor: not-allowed;
+    margin-left: 0.35rem;
+    transition: margin-left 0.2s;
+}
+
+.active > img{
+    width: 42px !important;
+    height: 42px !important;
+}
+
+.menuButtonContainer button:focus {outline:0;}

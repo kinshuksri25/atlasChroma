@@ -32,9 +32,8 @@ class Projects extends Component {
         }
 
         openModal(event){
-            let clssName = event.target.className;
-            console.log(clssName);
-            switch(clssName){
+            let clssName = event.currentTarget.className.split(" ");
+            switch(clssName[0]){
                 case "openAddModal" :
                     this.setState({action : "ADD"}); 
                     break;

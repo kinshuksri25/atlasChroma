@@ -1,12 +1,14 @@
-.postAuthContainer{
+.postAuthPage{
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, #0575e6, #021b79);
+    background: linear-gradient(100deg,#BCD901 20%,#6799bd 15%,#09594D 95%);
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 5fr;
     text-align: center;
     font-family: 'Comfortaa', cursive;
+    position: relative;
+    z-index: 0;
 }
 
 .heading {
@@ -14,39 +16,79 @@
     flex-direction: column;
     justify-content:flex-end;
     color: white;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 1.7rem;
+    text-shadow: 1px 1px 2px #000000;
 }
 
-.postAuthForm{
+.postAuthFormContainer{
     box-sizing: border-box;
     padding: 5rem;
 }
 
-.postAuthForm > div{
+.postAuthFormContainer > div{
     display: inline-block;
     box-sizing: border-box;
     border:none;
     border-radius: 7px;
     background-color: white;   
     padding: 1rem;
+    box-shadow: 0 0 15px rgb(66, 63, 63);
 }
 
-.profilePictureButton{
+.innerbtn{
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-shadow: none; 
+    font-size: 1.3rem !important;  
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    transform: scale(1);
+    transition: transform 0.2s ease;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.5s ease;
+}
+
+.profilePictureContainer{
     position: relative;
     border:none;
-    width: 10rem;
-    height: 10rem;
+    width: 14rem !important;
+    height: 14rem !important;
     border-radius: 50%;
     margin-bottom: 1rem;
     overflow: hidden;
+    background: #c9d5eb;
 }
 
-.profilePhoto{
+.profilePic{
     position: absolute;
     top: 0;
     left: 0;
+    width: 14rem !important;
+    height: 14rem !important;
+    margin: 0px !important;
+    transform: scale(1);
+    transition: transform 1s;
 }
+
+.profilePictureContainer:focus,.profilePic:focus{
+    outline:none;
+}
+
+.profilePic:hover{
+    transform: scale(1.35);
+    transition: transform 1s ease;
+}
+
+.innerbtn:hover{
+    transform: scale(1.35);
+    transition: transform 0.2s ease;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: background-color 0.5s ease;
+}
+
 
 .postAuthAttributes{
     width: 20rem;
@@ -56,10 +98,75 @@
     border: 1px solid #007bff;
     background-color: rgba(0,0,0,0);
     color: #007bff;
+    width: 12rem;
 }
 
 .postAuthButton:hover,.postAuthButton:active{
     border: 1px solid #007bff;
     background-color: #007bff;
     color: white;
+    outline-color: #007bff;
+}
+
+@media screen and (max-width: 1280px){
+    .heading{
+        font-size: 1.3rem;
+    }
+
+    .postAuthFormContainer{
+        padding-top: 3rem;
+    }
+    .postAuthAttributes{
+        width:16rem;
+    }
+
+    .profilePictureContainer{
+        width: 10.5rem !important;
+        height: 10.5rem !important;
+    }
+
+    .profilePic{
+        width: 10.5rem !important;
+        height: 10.5rem !important;
+    }
+    .innerbtn{
+        font-size: 1rem !important;
+    }
+
+    .postAuthButton{
+        width: 10rem;
+    }
+
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1400px){
+    .heading{
+        font-size: 1.5rem;
+    }
+
+    .postAuthFormContainer{
+        padding-top: 3.5rem;
+    }
+
+    .postAuthAttributes{
+        width:18rem;
+    }
+
+    .profilePictureContainer{
+        width: 12rem !important;
+        height: 12rem !important;
+    }
+
+    .profilePic{
+        width: 12rem !important;
+        height: 12rem !important;
+    }
+    .innerbtn{
+        font-size: 1.2rem !important;
+    }
+
+    .postAuthButton{
+        width: 11rem;
+    }
+
 }

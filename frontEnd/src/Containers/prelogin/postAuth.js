@@ -200,12 +200,12 @@ class PostAuth extends Component{
     }
 
     render(){
-            let buttonInner = this.state.photo == "" ? <div style={{width: "100%"}}> + </div>: <img className ="profilePhoto" src={this.state.photo}/>;
-            return (<div className = "postAuthContainer" hidden={this.props.isLoading}>
+            let buttonInner = this.state.photo == "" ? <div className="innerbtn"> + </div>: <img className ="profilePic" src={this.state.photo}/>;
+            return (<div className = "postAuthPage" hidden={this.props.isLoading}>
                         <div className="heading"><span>A username here, a password there and we will be done!</span></div>
-                        <div className = "postAuthForm">  
+                        <div className = "postAuthFormContainer">  
                             <div>
-                                <button className = 'profilePictureButton' onClick ={this.showPhotoSelector}>{buttonInner}</button>
+                                <button className = 'profilePictureContainer' onClick ={this.showPhotoSelector}>{buttonInner}</button>
                                 {this.state.displayPhotoSel && <ProfilePicture openModal = {this.state.displayPhotoSel} selectProfilePic = {this.changeProfilePic} cancelHandler = {this.showPhotoSelector}/>}
                                     <SimpleForm formAttributes = { formConstants.postAuthForm }
                                     submitHandler = { this.onSubmitHandler }

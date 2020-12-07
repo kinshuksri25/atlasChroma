@@ -185,7 +185,7 @@ formConstants.login = [
     {
         name: "Login",
         type: "button",
-        variantType : "primary",
+        variantType : "success",
         route: '/login',
         id: "loginButton",
         className: "loginButton"
@@ -209,7 +209,7 @@ formConstants.googleLogin = [{
     {
         name: "Login",
         type: "button",
-        variantType : "primary",
+        variantType : "success",
         route: '/googleAuth',
         id: "googleLoginButton",
         className: "googleLoginButton"

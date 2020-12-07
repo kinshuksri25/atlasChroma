@@ -4,6 +4,7 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
 
+import meeting from '../../../Images/icons/meeting.png';
 import DateHelper from '../../generalContainers/date';
 import JitsiContainer from '../jitsi';
 
@@ -45,12 +46,12 @@ class MeetingEvent extends Component{
             let meetings = [];
             sortedEvent.map(event => {
                 meetings.push(<div className = {event.status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
-                                <div className="scheduledCardTitle" onClick={event.creator == this.props.user.username && this.props.onClick}>{event.EventTitle}</div>
-                                <span className="creator" onClick={event.creator == this.props.user.username && this.props.onClick}>Creator:{event.creator}</span>
+                                <div className="scheduledCardTitle">{event.EventTitle}</div>
+                                <span className="creator">Creator:{event.creator}</span>
                                 <div className="meetingDescription">{event.Description}</div>  
-                                <button className = "startMeeting" onClick = {this.startMeeting} hidden = {event.status != "CurrentlyActive"}>&gt;</button>
+                                <button className = "startMeeting" onClick = {this.startMeeting} hidden = {event.status != "CurrentlyActive"}><img className = "openMeeting" src = {meeting}/></button>
                                 {event.status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
-                                {event.status == "Finished" && <span className = "status">{event.status}</span>}
+                                {event.status == "finished" && <span className = "status">{event.status}</span>}
                             </div>);
             });
             return (<div className = "CardGroup">{meetings}</div>);
@@ -58,6 +59,7 @@ class MeetingEvent extends Component{
     }
 
     startMeeting (event){
+        event.stopPropagation();
         let selectedEvent = {};
         this.props.meetings.map(meeting => {
             if(event.target.className == meeting._id)
