@@ -3,10 +3,13 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import cancel from "../../../Images/icons/cancel.png";
+import {Form,Button} from 'react-bootstrap';
 import cookieManager from '../../../Components/cookieManager'
 import setMsgAction from '../../../store/actions/msgActions';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import {EMSG,urls} from '../../../../../lib/constants/contants';
+import DateHelper from '../../generalContainers/date';
 
 class StoryForm extends Component {
 
@@ -69,10 +72,11 @@ class StoryForm extends Component {
     onStoryAddHandler(){
         let globalThis = this;
         let errorObject = {};
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+(new Date().getMonth()+1) : (new Date().getMonth()+1);
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+new Date().getDate();
+        let currentDateObject = new DateHelper().currentDateGenerator();
+        let currentMonth = parseInt(currentDateObject.month)+1;
+        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
         if(this.state.storyTitle != "" && this.state.storyDescription != "" && 
-            this.state.storyContributor != "" && this.state.duedate >= currentDate && this.state.storyPriority != "" &&
+            this.state.storyContributor != "" && (this.state.duedate > currentDate || this.state.duedate == currentDate) && this.state.storyPriority != "" &&
                 this.state.currentStatus != "" && this.state.storyComments != ""){
 
             let formData = {
@@ -131,39 +135,53 @@ class StoryForm extends Component {
 
     render(){                                                                   
         let storyFormJSX =  <div>
-                                <input type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
-                                <input type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
-                                <input type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
-                                <input type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
-                                <select className = "priority" onChange = {this.onChangeHandler}>
-                                    {
-                                        this.state.priorityList.map(priority => {
-                                            return (<option value = { priority }>{priority}</option>);
-                                        })
-                                    }
-                                </select>
-                                <select className = "contributor" onChange = {this.onChangeHandler}>
-                                    {
-                                        this.state.contributorList.map(contributor => {
-                                            return (<option value = { contributor }>{contributor}</option>);
-                                        })
-                                    }
-                                </select>
-                                <select className = "selectPhase" onChange = {this.onChangeHandler}>
-                                    <option value = "" selected>Select Phase</option>
-                                    {
-                                        this.state.columnArray.map(column => {
-                                            if(!column.hasChildren){
-                                                return(<option value = { column.ID }>{column.NAME}</option>);
-                                            }
-                                        })
-                                    }
-                                </select>
-                                <button onClick = {this.onStoryAddHandler}>Add</button>
+                                <Form.Group>
+                                    <Form.Control type ="text" value = {this.state.storyTitle} className = "storyTitle" placeHolder="Title" onChange = {this.onChangeHandler}/>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control as ="textarea" rows = "4" value = {this.state.storyDescription} className = "storyDescription" placeHolder="Description" onChange = {this.onChangeHandler}/>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control as = "textarea" rows = "3" value = {this.state.storyComments} placeHolder="Comments" className = "comments" onChange = {this.onChangeHandler}/>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control as="select" className = "priority" onChange = {this.onChangeHandler}>
+                                        {
+                                            this.state.priorityList.map(priority => {
+                                                return (<option value = { priority }>{priority}</option>);
+                                            })
+                                        }
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control as="select" className = "contributor" onChange = {this.onChangeHandler}>
+                                        {
+                                            this.state.contributorList.map(contributor => {
+                                                return (<option value = { contributor }>{contributor}</option>);
+                                            })
+                                        }
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Control as="select" className = "selectPhase" onChange = {this.onChangeHandler}>
+                                        <option value = "" selected>Select Phase</option>
+                                        {
+                                            this.state.columnArray.map(column => {
+                                                if(!column.hasChildren){
+                                                    return(<option value = { column.ID }>{column.NAME}</option>);
+                                                }
+                                            })
+                                        }
+                                    </Form.Control>
+                                </Form.Group>        
+                                <Button className="storyAddButton" onClick = {this.onStoryAddHandler}>Add</Button>
                             </div>;
-        return (<div> 
+        return (<div>
+                    <button id="storiesAddCancel" className = "hideFormButton addCancel" onClick = {this.props.closeForm}><img src={cancel}/></button>
                     {storyFormJSX}
-                    <button onClick = {this.props.closeForm}>X</button>
                 </div>);
     }
 }

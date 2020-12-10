@@ -4,6 +4,8 @@ import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import url from 'url';
 
+import cancel from "../../../Images/icons/cancel.png";
+import {Button,Form} from "react-bootstrap";
 import promote from "../../../Images/icons/right.png";
 import demote from "../../../Images/icons/left.png";
 import del from "../../../Images/icons/delete.png";
@@ -74,30 +76,30 @@ class Story extends Component{
     }
 
     onChangeHandler(event){
-        switch(event.target.className){
+        switch(event.currentTarget.id){
             case "storyTitle":
-                this.setState({storyTitle : event.target.value});
+                this.setState({storyTitle : event.currentTarget.value});
                 break;
             case "storyDescription":
-                this.setState({storyDescription : event.target.value});
+                this.setState({storyDescription : event.currentTarget.value});
                 break;
             case "comments":
-                this.setState({storyComments : event.target.value});
+                this.setState({storyComments : event.currentTarget.value});
                 break;
             case "priority":
-                this.setState({storyPriority : event.target.value});
+                this.setState({storyPriority : event.currentTarget.value});
                 break;
             case "duedate":
-                if(event.target.value >= this.props.currentProject.duedate){
+                if(event.currentTarget.value >= this.props.currentProject.duedate){
                     errorObject.msg = "Invalid date selected";
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);
                 }else{
-                    this.setState({duedate : event.target.value});
+                    this.setState({duedate : event.currentTarget.value});
                 }
                 break;    
             case "contributor":
-                this.setState({storyContributor : event.target.value});
+                this.setState({storyContributor : event.currentTarget.value});
                 break;      
         }
     }
@@ -302,6 +304,19 @@ class Story extends Component{
     }
 
     render(){
+        const customStyles = {
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              heigth                : '10%',
+              marginRight           : '-50%',
+              padding               : '1.8rem',
+              borderRadius          : '8px',
+              transform             : 'translate(-50%, -50%)'
+            }
+        };
         let disableInput = this.props.user.username == this.state.storyContributor || this.props.user.username == this.props.currentProject.projectlead ? false : true;
         let currentDateObject = new DateHelper().currentDateGenerator();
         let currentMonth = parseInt(currentDateObject.month)+1;
@@ -314,7 +329,7 @@ class Story extends Component{
                                                 this.state.storyPriority != this.state.oldStoryDetails.priority) && (this.state.storyTitle != "" && 
                                                     this.state.storyDescription != "" && this.state.storyComments != "" && 
                                                         this.state.storyContributor != "Contributors" && this.state.duedate != "" && 
-                                                            this.state.duedate >= currentDate && this.state.storyPriority != "StoryPriority") ? false : true;   
+                                                            (this.state.duedate > currentDate || this.state.duedate == currentDate) && this.state.storyPriority != "StoryPriority") ? false : true;   
                                                                                                                                         
         let demoteShow = this.props.storyDetails.priority != "OnHold" && this.state.columnPosition != 0 && this.state.hover ? false : true;
         let promoteShow = this.props.storyDetails.priority != "OnHold" && this.state.columnPosition != this.generateColumnArray().length-1 && this.state.hover ? false : true;
@@ -344,33 +359,46 @@ class Story extends Component{
                 {storyJSX}
                 <Modal
 				isOpen={this.state.isOpen}
-				onRequestClose={this.closeStoryModel}
-				contentLabel="">
-                    <input disabled={disableInput} type ="text" value = {this.state.storyTitle} className = "storyTitle" onChange = {this.onChangeHandler}/>
-                    <input disabled={disableInput} type ="textarea" rows = "5" cols = "20" value = {this.state.storyDescription} className = "storyDescription" onChange = {this.onChangeHandler}/>
-                    <input disabled={disableInput} type = "textarea" rows = "5" cols = "20" value = {this.state.storyComments} className = "comments" onChange = {this.onChangeHandler}/>
-                    <input disabled={disableInput} type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
-                    <select disabled={disableInput} className = "priority" onChange = {this.onChangeHandler}>
-                        {
-                            this.state.priorityList.map(priority => {
-                                if(this.state.storyPriority == priority)
-                                    return (<option value = { priority } selected>{priority}</option>);
-                                else
-                                    return (<option value = { priority }>{priority}</option>);
-                            })
-                        }
-                    </select>
-                    <select disabled={disableInput} className = "contributor" onChange = {this.onChangeHandler}>
-                        {
-                            this.state.contributorList.map(contributor => {
-                                if(this.state.storyContributor == contributor)
-                                    return (<option value = { contributor } selected>{contributor}</option>);
-                                else
-                                    return (<option value = { contributor }>{contributor}</option>);
-                            })
-                        }
-                    </select>
-                    <button hidden = {disableInput} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</button>
+				contentLabel=""
+                style = {customStyles}>
+                    <button id="notesAddCancel" className = "hideFormButton addCancel" onClick={this.closeStoryModel}><img src={cancel}/></button>
+                    <Form.Group>
+                        <Form.Control disabled={disableInput} type ="text" value = {this.state.storyTitle} id = "storyTitle" onChange = {this.onChangeHandler}/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control disabled={disableInput} as ="textarea" rows = "5" value = {this.state.storyDescription} id = "storyDescription" onChange = {this.onChangeHandler}/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control disabled={disableInput} as = "textarea" rows = "3" value = {this.state.storyComments} id = "comments" onChange = {this.onChangeHandler}/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control disabled={disableInput} type ="date" value = {this.state.duedate} id = "duedate" onChange = {this.onChangeHandler}/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control as="select" disabled={disableInput} id = "priority" onChange = {this.onChangeHandler}>
+                            {
+                                this.state.priorityList.map(priority => {
+                                    if(this.state.storyPriority == priority)
+                                        return (<option value = { priority } selected>{priority}</option>);
+                                    else
+                                        return (<option value = { priority }>{priority}</option>);
+                                })
+                            }
+                        </Form.Control>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control as="select" disabled={disableInput} id = "contributor" onChange = {this.onChangeHandler}>
+                            {
+                                this.state.contributorList.map(contributor => {
+                                    if(this.state.storyContributor == contributor)
+                                        return (<option value = { contributor } selected>{contributor}</option>);
+                                    else
+                                        return (<option value = { contributor }>{contributor}</option>);
+                                })
+                            }
+                        </Form.Control>
+                    </Form.Group>
+                    <Button className="updateStoryButton" variant="warning" hidden = {disableInput} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</Button>
 				</Modal>
                </div>);
     }

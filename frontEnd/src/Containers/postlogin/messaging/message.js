@@ -21,23 +21,25 @@ class Message extends Component{
     }
 
     onSubmitHandler(){
-        let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
-        let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
-        let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
-        let userOnline = false;
-        this.props.userList.map(user => {
-            if(user.username == this.props.recipientUserName){
-                userOnline = user.status;
-            }    
-        });
+        if(this.state.message!=""){
+            let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
+            let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
+            let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
+            let userOnline = false;
+            this.props.userList.map(user => {
+                if(user.username == this.props.recipientUserName){
+                    userOnline = user.status;
+                }    
+            });
 
-        let chat = {...chatObject};
-        chat.sender = this.props.user.username;
-        chat.recipient = this.props.recipientUserName;
-        chat.message = this.state.message;
-        chat.date = currentDate;
-        chat.msgDelivered = userOnline;
-        this.props.io.emit("sendMessage",{roomName : this.props.roomName,messageObject : {...chat}});
+            let chat = {...chatObject};
+            chat.sender = this.props.user.username;
+            chat.recipient = this.props.recipientUserName;
+            chat.message = this.state.message;
+            chat.date = currentDate;
+            chat.msgDelivered = userOnline;
+            this.props.io.emit("sendMessage",{roomName : this.props.roomName,messageObject : {...chat}});
+        }
     }
 
     buildChatWindow(){

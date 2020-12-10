@@ -2,6 +2,7 @@
 import React,{Component} from 'react';
 import { connect } from 'react-redux';
 
+import cancel from "../Images/icons/cancel.png";
 import SuggestionComponent from './suggestion';
 import {EMSG} from '../../../lib/constants/contants';
 import setMsgAction from '../store/actions/msgActions';
@@ -29,14 +30,20 @@ class SearchFeild extends Component{
             props.constants.map(constant => {
                 searchState[constant.id] = "";
                 if(constant.type == 0){
-                    searchState[constant.stateValueName] = {};
+                    searchState[constant.stateValueName] = props.feilds == undefined ? {} : {...props.feilds[constant.stateValueName]};
                 }else{
-                    searchState[constant.stateValueName] = [];
+                    searchState[constant.stateValueName] = props.feilds == undefined ? [] : [...props.feilds[constant.stateValueName]];
                 }
             });
             return {...searchState,openModal : false};
        }else{
-            return null;
+            let searchState = {...state};
+            props.constants.map(constant => {
+                if(JSON.stringify(state[constant.stateValueName]) != JSON.stringify(props.feilds[constant.stateValueName])){                    
+                    searchState[constant.stateValueName] = props.feilds[constant.stateValueName];    
+                }
+            })
+            return {...searchState};
        }
     }
 
@@ -47,31 +54,7 @@ class SearchFeild extends Component{
     }
 
     removeUser(event){
-        let isValid = true;
-        let index = 0;
-        let errorObject = {};
-        this.props.constants.map(constant => {
-            if(constant.type == 0 && this.state[constant.stateValueName].id == event.target.id){
-                errorObject.msg = EMSG.CLI_PRJ_LEADDEL;
-                errorObject.status = "ERROR";
-                this.props.setMsgState(errorObject);
-                isValid = false;
-            }else if(constant.type == 1 && isValid){
-                let valueArray = [...this.state[constant.stateValueName]];
-                valueArray.map(value =>{
-                    if(event.target.id == value.id){
-                        valueArray.splice(index,1);
-                        let changedList = {};
-                        changedList[constant.stateValueName] = valueArray;
-                        this.setState({...changedList});
-                    }else{index++;}
-                });
-
-                this.props.onRemoveClick(event.target.id);
-            }  
-            index = 0; 
-        }); 
-        this.setState({openModal : false});
+        this.props.onRemoveClick(event.target.id); 
     }
 
     buildJSX(){
@@ -85,6 +68,7 @@ class SearchFeild extends Component{
                         placeholder = {constant.placeholder} 
                         value = {this.state[constant.id]} 
                         className = 'searchBox'
+                        autoComplete="off"
                         onChange = {this.onChange}/>
                         <SuggestionComponent 
                         searchBoxValue = {constant.stateValueName}
@@ -111,31 +95,32 @@ class SearchFeild extends Component{
               heigth                : '10%',
               marginRight           : '-50%',
               paddingTop            : '0.8rem',
+              borderRadius          : '5px',
               transform             : 'translate(-50%, -50%)'
             }
         };
         if(this.state[constant.stateValueName].length == undefined && JSON.stringify(this.state[constant.stateValueName]) != JSON.stringify({})){
             let listJSX = <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{this.state[constant.stateValueName].tooltip}</strong>.</Tooltip>}>
-                            <img className = "profilePicture" id = {this.state[constant.stateValueName].id} src={this.state[constant.stateValueName].photo} width = "30" height = "30"/>    
+                            <img className = "suggestionProfilePic" id = {this.state[constant.stateValueName].id} src={this.state[constant.stateValueName].photo}/>    
                         </OverlayTrigger>
-            selectedJSX =   <div className = "profileContainer">
+            selectedJSX =   <div className = "selectedProfileContainer">
                                 <h6>Current {constant.name}:</h6>
                                 {listJSX}
                             </div>
         }else if(this.state[constant.stateValueName].length > 0){
             let listJSX = this.state[constant.stateValueName].map(user => {
                     return( <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{user.tooltip}</strong>.</Tooltip>}>
-                                <img className = "profilePicture" id = {user.id} src={user.photo} width = "30" height = "30" onClick={this.removeUser}/>    
+                                <img className = "suggestionProfilePic" id = {user.id} src={user.photo} onClick={this.removeUser}/>    
                             </OverlayTrigger>);
             });
-            selectedJSX =   <div className = "profileContainer">
+            selectedJSX =   <div className = "selectedProfileContainer">
                                 <h6>Current {constant.name}:</h6>
-                                {listJSX.slice(0,3)}
-                                {this.state[constant.stateValueName].length > 3 && <span className = "moreContri" onClick = {this.toggleModal}>+ {this.state[constant.stateValueName].length-3} more</span>}
+                                {listJSX.slice(0,4)}
+                                {this.state[constant.stateValueName].length > 4 && <span className = "moreContri" onClick = {this.toggleModal}>+ {this.state[constant.stateValueName].length-4} more</span>}
                                 <Modal
                                 isOpen={this.state.openModal}
                                 style = {customStyles}>
-                                    <button className = "closeAddModal" onClick={this.toggleModal}>X</button>
+                                    <button className = "addCancel" onClick={this.toggleModal}><img src={cancel}/></button>
                                     <div className = "contributorList">{listJSX}</div>
                                 </Modal>
                             </div>
@@ -150,32 +135,6 @@ class SearchFeild extends Component{
 
 
     onSuggestionClick(selectedValue,searchBoxID,searchBoxValue){   
-        let updatedState = this.state;
-        let selectedUser = {};
-        let valueFound = false;
-        updatedState[searchBoxID] = "";
-        this.props.unfilteredList.map(user => {
-            if(user.id == selectedValue){
-                selectedUser.tooltip = user.title;
-                selectedUser.photo = user.photo;
-                selectedUser.id = user.id;
-            }
-        });
-        if(updatedState[searchBoxValue].length == undefined){
-            updatedState[searchBoxValue] = {...selectedUser};
-        }
-        this.props.constants.map(constant => {
-            if(constant.type == 1)
-            {
-                updatedState[constant.stateValueName].map(value =>{
-                    if(value.id == selectedValue){
-                        valueFound = true;
-                    }
-                });
-                valueFound || updatedState[constant.stateValueName].push(selectedUser);
-            }
-        });
-        this.setState({...updatedState});
         this.props.onSuggestionClick(selectedValue,searchBoxID);
     }
 

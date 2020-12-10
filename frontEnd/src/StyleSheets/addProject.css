@@ -1,0 +1,34 @@
+.addCancel{
+    position: absolute;
+    border: none;
+    border-radius: 50%;
+    margin-bottom: 0.75rem;
+    top: 0px;
+    right: 0.9rem;
+    background: transparent;
+}
+
+.addCancel img{
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.addCancel img:hover{
+    height: 1.7rem;
+    width: 1.7rem;
+}
+
+.addCancel img:active{
+    height: 1.6rem;
+    width: 1.6rem;
+}
+
+.addCancel:focus{
+    outline: none;
+}
+
+.addProjectAttributes{
+    margin:0px;
+    width: 28rem;
+    resize: none;
+}

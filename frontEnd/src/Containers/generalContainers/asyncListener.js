@@ -114,6 +114,7 @@ listener.listenEvents = (io) => {
                             project.title = details.data.title;
                             project.projectlead = details.data.projectlead;
                             project.description = details.data.description;
+                            project.duedate = details.data.duedate;
                             project.contributors = [...details.data.contributors];
                             project.status = details.data.status;
                         }

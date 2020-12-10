@@ -45,11 +45,11 @@ class MeetingEvent extends Component{
             let sortedEvent = this.sortStories(this.props.meetings);
             let meetings = [];
             sortedEvent.map(event => {
-                meetings.push(<div className = {event.status} id = {event._id} onClick={event.creator == this.props.user.username && this.props.onClick}>  
+                meetings.push(<div className = {event.status} id = {event._id} onClick={event.creator == this.props.user.username && event.status == "YettoStart" && this.props.onClick}>  
                                 <div className="scheduledCardTitle">{event.EventTitle}</div>
                                 <span className="creator">Creator:{event.creator}</span>
                                 <div className="meetingDescription">{event.Description}</div>  
-                                <button className = "startMeeting" onClick = {this.startMeeting} hidden = {event.status != "CurrentlyActive"}><img className = "openMeeting" src = {meeting}/></button>
+                                <button className = "startMeeting" id={event._id} onClick = {this.startMeeting} hidden = {event.status != "CurrentlyActive"}><img className = "openMeeting" src = {meeting}/></button>
                                 {event.status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
                                 {event.status == "finished" && <span className = "status">{event.status}</span>}
                             </div>);
@@ -62,7 +62,7 @@ class MeetingEvent extends Component{
         event.stopPropagation();
         let selectedEvent = {};
         this.props.meetings.map(meeting => {
-            if(event.target.className == meeting._id)
+            if(event.currentTarget.id == meeting._id)
                 selectedEvent =  meeting;
         });
         let roomDetails = {

@@ -39,7 +39,7 @@ class TimedEvent extends Component{
             let sortedEvent = this.sortStories(this.props.timedEvents); 
             let timedJSX = [];
             sortedEvent.map(event => {
-                timedJSX.push(<div className = {event.status} id = {event._id} onClick={this.props.onClick}>  
+                timedJSX.push(<div className = {event.status} id = {event._id} onClick={event.status == "YettoStart" && this.props.onClick}>  
                                 <div className = "scheduledCardTitle">{event.EventTitle}</div>
                                 <div className = "cardBody">
                                     <p className = "scheduledCardDescription">{event.Description}</p>

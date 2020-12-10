@@ -1,6 +1,7 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
 
+import cancel from "../../../Images/icons/cancel.png";
 import DateHelper from "../../generalContainers/date";
 import "../../../StyleSheets/addProject.css"
 import cookieManager from '../../../Components/cookieManager';
@@ -20,13 +21,16 @@ class AddProject extends Component{
         this.state = {
             contributors:[],
             projectLeader:"",
-            projectExists:true
+            projectExists:true,
+            prepContributors:[],
+            prepProjectLeader:{}
         };
         this.titleChecker = this.titleChecker.bind(this);
         this.onRemoveClick = this.onRemoveClick.bind(this);
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
         this.suggestionAllocator = this.suggestionAllocator.bind(this);
         this.createUnfilteredList = this.createUnfilteredList.bind(this);
+        this.prepList = this.prepList.bind(this);
     }
 
     createUnfilteredList(){
@@ -39,14 +43,27 @@ class AddProject extends Component{
     }
 
     onRemoveClick(username){
-        let index = 0;
-        let valueArray = [...this.state.contributors];
-        valueArray.map(value =>{
-            if(username == value){
-                valueArray.splice(index,1);
-            }else{index++;}
-        });
-        this.setState({contributors : [...valueArray]});
+        let errorObject = {};
+        if(this.state.contributors.length == 1){
+            errorObject.msg = "Contributors for the project cannot be empty";
+            errorObject.status = "ERROR";
+            this.props.setMsgState(errorObject);
+        }else{
+           if(username!= this.state.projectLeader){
+            let contributors = [...this.state.contributors];
+            let newContributors = [];
+            contributors.map(contributor => {
+                contributor != username && newContributors.push(contributor);
+            });
+            this.setState({contributors : [...newContributors]},()=>{
+                this.prepList();
+            });
+           }else{
+            errorObject.msg = "Connot delete projectleader directly from the contributor list.";
+            errorObject.status = "ERROR";
+            this.props.setMsgState(errorObject); 
+           }
+        }
     }
 
     suggestionAllocator(selectedValue,searchBoxID){
@@ -55,7 +72,9 @@ class AddProject extends Component{
             case "projectLead":
                 let leadExists = this.state.projectLeader == selectedValue ? true : false;
                 if(!leadExists){
-                    this.setState({projectLeader : selectedValue});
+                    this.setState({projectLeader : selectedValue},()=>{
+                        this.prepList();
+                    });
                     this.suggestionAllocator(selectedValue,"contributors");
                 }
                 break;
@@ -70,7 +89,9 @@ class AddProject extends Component{
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);
                 }
-                this.setState({contributors : contributor});
+                this.setState({contributors : contributor},()=>{
+                    this.prepList();
+                });
                 break;    
         }
     }
@@ -125,10 +146,32 @@ class AddProject extends Component{
         }
     }
 
+    prepList(){
+        let prepContributors = [];
+        let prepProjectLeader = {};
+        this.props.userList.map(user => {
+            if(user.username == this.state.projectLeader){
+                let tempUser = {...user};
+                tempUser.id = tempUser.username;
+                tempUser.tooltip = tempUser.firstname+" "+tempUser.lastname;
+                tempUser.title = tempUser.tooltip;
+                prepProjectLeader = {...tempUser};
+            }
+            if(this.state.contributors.indexOf(user.username) >=0){
+                let tempUser = {...user};
+                tempUser.id = tempUser.username;
+                tempUser.tooltip = tempUser.firstname+" "+tempUser.lastname;
+                tempUser.title = tempUser.tooltip;
+                prepContributors.push({...tempUser});
+            }
+        });
+        this.setState({"prepContributors" : [...prepContributors],"prepProjectLeader" : {...prepProjectLeader}});
+    }
+
     render(){
         return(<div className = "addprojectContainer">
-                <button className = "closeAddModal" onClick={this.props.cancel}>X</button>
-                <SearchFeild 
+                <button className = "addCancel" onClick={this.props.cancel}><img src={cancel}/></button>
+                <SearchFeild feilds={{"projectLeadName":{...this.state.prepProjectLeader},"contributorList":[...this.state.prepContributors]}} 
                 onRemoveClick = {this.onRemoveClick}
                 unfilteredList = {this.createUnfilteredList()} 
                 constants = {searchFeildConstants.addProject} 

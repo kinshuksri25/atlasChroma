@@ -42,3 +42,46 @@
     background: #4169e1;
     color: white; 
 }
+
+.stories{
+    padding: 0.25rem;
+    margin: 0.25rem;
+    border-radius: 5px;
+    color: white;
+}
+
+.Later,.Active,.Today,.missedConvo{
+    color: white;
+    padding: 0.25rem;
+    margin: 0.25rem;
+    background: #eb8628;
+    border-radius: 5px;
+}
+.Today{
+    background: #59dd6b;
+}
+
+.Active,.stories,.missedConvo{
+    background: #597add;
+}
+
+.Active:hover{
+    background: #3c5396;
+}
+
+.Today:hover{
+    background: #31793b;
+}
+
+.Later:hover{
+    background: #b96b22;
+}
+
+@media screen and (max-width: 1450px){ 
+    .hightlightedStories h5,.hightlightedEvents h5,.MissedConversation h5{
+        font-size: 1rem !important;
+    }
+    .Later,.Active,.Today,.missedConvo,.stories{
+        font-size: 80% !important;
+    }
+}

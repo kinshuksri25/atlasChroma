@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
+import {Form,Button} from 'react-bootstrap';
 
-import {Button} from "react-bootstrap";
+import cancel from "../../../Images/icons/cancel.png";
 import "../../../StyleSheets/events.css";
 import formConstants from '../../../Forms/formConstants';
 import cookieManager from '../../../Components/cookieManager';
@@ -39,6 +40,7 @@ class Events extends Component{
             currentTime : "",
             participants : [this.props.user.username],
             currentMode : "",
+            prepParticipants : [],
             selectedButton:"allDayButton"
         };
         this.eventSelector = this.eventSelector.bind(this);
@@ -51,6 +53,7 @@ class Events extends Component{
         this.triggerModal = this.triggerModal.bind(this);
         this.deleteEvent = this.deleteEvent.bind(this);
         this.checkUpdate = this.checkUpdate.bind(this);
+        this.prepParticipants = this.prepParticipants.bind(this);
     }
 
     static getDerivedStateFromProps(props,state){
@@ -111,6 +114,8 @@ class Events extends Component{
                 Description:selectedEvent.Description,
                 selectedEvent : selectedEvent, 
                 participants : selectedEvent.EventType == "Meeting" ? selectedEvent.participants : ""
+            },() => {
+                this.prepParticipants();
             });
         }
     }
@@ -142,23 +147,26 @@ class Events extends Component{
     }
 
     
-    removeParticipant(event){
+    removeParticipant(username){
         let participants = [...this.state.participants];
         let errorObject = {};
-        if(event.target.id == this.props.user.username || participants.length == 2){
-            errorObject.msg = event.target.id == this.props.user.username ? "You cannot remove the meeting creator" : "You need to have alteast 1 participant";
+        if(username == this.props.user.username || participants.length <= 2){
+            errorObject.msg = username == this.props.user.username ? "You cannot remove the meeting creator" : "You need to have alteast 1 participant";
             errorObject.status = "ERROR";
             this.props.setMsgState(errorObject);
             return;
+        }else{
+            participants.indexOf(username) > 0 && participants.splice(participants.indexOf(username),1);
+            this.setState({participants : participants},()=>{this.prepParticipants();});
         }
-        participants.indexOf(event.target.id) > 0 && participants.splice(participants.indexOf(event.target.id),1);
-        this.setState({participants : participants});
     }
     
     triggerModal(event){
         let date = this.props.currentYear+this.props.currentMonth+this.props.currentDate;
         if(event.currentTarget.className.indexOf("ADD") >= 0){
-            this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
+            this.setState({currentMode : "ADD",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]},()=>{
+                this.prepParticipants();
+            });
         }else if(event.currentTarget.className.indexOf("CLOSE") >= 0){
             this.state.currentMode != "ADD" && window.history.pushState({}, "",date);
             this.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
@@ -175,6 +183,7 @@ class Events extends Component{
             this.setState({currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
                                         endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]},() => {
                                             window.history.pushState({}, "",date+"?eventID="+selectedEvent._id);
+                                            this.prepParticipants();
                                         });
         }
     }
@@ -371,21 +380,21 @@ class Events extends Component{
     
     onChangeHandler(event){
 
-        switch(event.target.className){
+        switch(event.currentTarget.id){
             case "eventTypeDropDown":
-                this.setState({eventType : event.target.value});
+                this.setState({eventType : event.currentTarget.value});
                 break;
             case "stateTime" : 
-                this.setState({startTime : event.target.value});
+                this.setState({startTime : event.currentTarget.value});
                 break;
             case "endTime" : 
-                this.setState({endTime : event.target.value});
+                this.setState({endTime : event.currentTarget.value});
                 break;      
             case "title" :
-                this.setState({EventTitle : event.target.value});
+                this.setState({EventTitle : event.currentTarget.value});
                 break; 
             case "description" :
-                this.setState({Description : event.target.value});
+                this.setState({Description : event.currentTarget.value});
                 break;                                                                      
         }
     }
@@ -424,22 +433,49 @@ class Events extends Component{
     
     suggestionAllocator(selectedValue,searchBoxID){
         let participants = [...this.state.participants];
-        participants.indexOf(selectedValue) > 0 || participants.push(selectedValue);
-        this.setState({participants : participants});
+        participants.indexOf(selectedValue) >= 0 || participants.push(selectedValue);
+        this.setState({participants : participants},()=>{
+            this.prepParticipants();
+        });
     }
     
     createUnfilteredList(){
         let userList = [...this.props.userList];
         userList.map(user => {
-           if(user.username != this.props.user.username){
-                user.id = user.username;
-                user.title = user.firstname + " " + user.lastname;
-           }
+            user.id = user.username;
+            user.title = user.firstname + " " + user.lastname;
         });
         return userList;
     }
 
+    prepParticipants(){
+        let prepParticipants = [];
+        this.props.userList.map(user => {
+            if(this.state.participants.indexOf(user.username) >=0){
+                let tempUser = {...user};
+                tempUser.id = user.username;
+                tempUser.title = user.firstname+" "+user.lastname;
+                tempUser.tooltip = user.firstname+" "+user.lastname;
+                prepParticipants.push(tempUser);
+            }
+        });
+        this.setState({"prepParticipants":  prepParticipants});
+    }
+
     render(){
+        const customStyles = {
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              heigth                : '10%',
+              marginRight           : '-50%',
+              padding               : '1.8rem',
+              borderRadius          : '8px',
+              transform             : 'translate(-50%, -50%)'
+            }
+        };
         let timeArray = ["00:00","01:00","02:00","03:00","04:00",
                         "05:00","06:00","07:00","08:00",
                         "09:00","10:00","11:00","12:00",
@@ -454,9 +490,10 @@ class Events extends Component{
                     <Button variant="success" disabled = {eventDate < currentDate} className = "ADD" onClick = {this.triggerModal}>+</Button>
                     <Modal
                     isOpen={this.state.currentMode != ""}
-                    contentLabel="">
-                            <button onClick = {this.triggerModal} className = "CLOSE">X</button>
-                            <select className="eventTypeDropDown" onChange={this.onChangeHandler} disabled = {this.state.currentMode == "EDIT"}>
+                    contentLabel=""
+                    style = {customStyles}>
+                            <button id="notesAddCancel" className = "CLOSE addCancel" onClick = {this.triggerModal}><img src={cancel}/></button>
+                            <Form.Control as="select" id="eventTypeDropDown" onChange={this.onChangeHandler} disabled = {this.state.currentMode == "EDIT"}>
                                 <option value = "">EventType</option>
                                 {
                                     this.state.options.map(option => {
@@ -466,8 +503,8 @@ class Events extends Component{
                                             return <option value={option}>{option}</option>
                                     })
                                 }
-                            </select>
-                            <select className="stateTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
+                            </Form.Control>
+                            <Form.Control as="select" id="stateTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
                                     <option value = "">Start Time</option>
                                 {
                                     timeArray.map(time => {
@@ -477,8 +514,8 @@ class Events extends Component{
                                             return <option value={time}>{time}</option>
                                     })
                                 }
-                            </select>
-                            <select className="endTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
+                            </Form.Control>
+                            <Form.Control as="select" id="endTime" onChange={this.onChangeHandler} hidden={this.state.eventType == "All Day" || this.state.eventType == ""}>
                                     <option value = "">End Time</option>
                                 {
                                     timeArray.map(time => {
@@ -488,19 +525,20 @@ class Events extends Component{
                                             return <option value={time}>{time}</option>
                                     })
                                 }
-                            </select>
+                            </Form.Control>
                             <div className = "participantsContainer" hidden = {this.state.eventType != "Meeting"}>
                                 <SearchFeild 
+                                feilds={{"participantsList":[...this.state.prepParticipants]}}
                                 onRemoveClick = {this.removeParticipant}
                                 unfilteredList = {this.createUnfilteredList()} 
                                 constants = {searchFeildConstants.addParticipants} 
                                 onSuggestionClick = {this.suggestionAllocator}/>
                             </div>
                             {this.state.currentMode == "EDIT" && <div>
-                                                                    <input type = "text" value = {this.state.EventTitle} className = "title" onChange={this.onChangeHandler}/>
-                                                                    <input type = "text" value = {this.state.Description} className = "description" onChange={this.onChangeHandler}/>
-                                                                    <button onClick = {this.updateEvent} disabled={this.checkUpdate()}>Update</button>
-                                                                    <button onClick = {this.deleteEvent}>Delete</button>
+                                                                    <Form.Control type = "text" value = {this.state.EventTitle} id = "title" onChange={this.onChangeHandler}/>
+                                                                    <Form.Control as = "textarea" rows="5" value = {this.state.Description} id = "description" onChange={this.onChangeHandler}/>
+                                                                    <Button variant = "warning" className="editEventButton" onClick = {this.updateEvent} disabled={this.checkUpdate()}>Update</Button>
+                                                                    <Button variant = "danger" className="deleteEventButton" onClick = {this.deleteEvent}>Delete</Button>
                                                                 </div>} 
                             {this.state.currentMode == "EDIT" || <div>
                                                                     <SimpleForm formAttributes = { formConstants.addEvent }

@@ -20,7 +20,7 @@ class Highlight extends Component{
         sortEvents (){
                 let events = [];
                 this.props.user.events.map(event => {
-                        if(event.EventType != "All Day" && event.status != "Finished"){
+                        if(event.EventType != "All Day" && event.status != "finished"){
                                 events.push(event);
                         } 
                 });  
@@ -118,11 +118,12 @@ class Highlight extends Component{
                 let dateSum = compliedEvents[j].CreationYear+compliedEvents[j].CreationMonth+compliedEvents[j].CreationDate;      
                 let link = "https://localhost:3000/scheduler/"+dateSum+"?eventID="+compliedEvents[j]._id;
                 let refDate = compliedEvents[j].CreationYear+"-"+compliedEvents[j].CreationMonth+"-"+compliedEvents[j].CreationDate;
-                eventListJSX.push(<div id={link} onClick={this.redirect}>
-                                {refDate > currentDate && <h6>You have {compliedEvents[j].EventTitle}, on {refDate} at {compliedEvents[j].StartTime}</h6>}
-                                {refDate == currentDate && compliedEvents[j].status == "YettoStart" && <h6>You have {compliedEvents[j].EventTitle},today at {compliedEvents[j].StartTime}</h6>}
-                                {refDate == currentDate && compliedEvents[j].status == "CurrentlyActive" && <h6>{compliedEvents[j].EventTitle},has started</h6>}
-                        </div>);    
+                let status = refDate > currentDate ? "Later" : compliedEvents[j].status == "YettoStart" ? "Today" : "Active";
+                eventListJSX.push(<div className = {status} id={link} onClick={this.redirect}>
+                                        {status == "Later" && <h6>You have {compliedEvents[j].EventTitle}, on {refDate} at {compliedEvents[j].StartTime}</h6>}
+                                        {status == "Today" && <h6>You have {compliedEvents[j].EventTitle},today at {compliedEvents[j].StartTime}</h6>}
+                                        {status == "Active" && <h6>{compliedEvents[j].EventTitle},has started</h6>}
+                                </div>);    
               }  
               return [...eventListJSX];
         }
@@ -134,7 +135,8 @@ class Highlight extends Component{
                 let compliedStories = this.complieStories();
                 for(let j=0;j<compliedStories.length && j<9;j++){
                         let link = "https://localhost:3000/projects/"+compliedStories[j].projectID+"?storyID="+compliedStories[j]._id;
-                        storiesListJSX.push(<div id={link} onClick={this.redirect}>
+                        let storyClass = compliedStories[j].priority + " stories";
+                        storiesListJSX.push(<div className = {storyClass}  id={link} onClick={this.redirect}>
                                                 {currentDate < compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at {compliedStories[j].duedate}</h6>}
                                                 {currentDate == compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at today</h6>}
                                         </div>);
@@ -156,13 +158,13 @@ class Highlight extends Component{
                                                 });
                                         }
                         }
-                        senderName != "" && missedConvo.push(<div><h6>While you were away, {senderName} pinged you.</h6></div>);
+                        senderName != "" && missedConvo.push(<div className="missedConvo"><h6>While you were away, {senderName} pinged you.</h6></div>);
                 }
                 return [...missedConvo];
         }
 
         redirect(event){
-                window.history.replaceState({}, "",event.target.id);
+                window.history.replaceState({}, "",event.currentTarget.id);
         }
 
         render(){

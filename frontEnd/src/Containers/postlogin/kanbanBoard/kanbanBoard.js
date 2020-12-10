@@ -87,6 +87,20 @@ class KanbanBoard extends Component {
     }
 
     render(){
+        const customStyles = {
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              heigth                : '10%',
+              marginRight           : '-50%',
+              paddingTop            : '1.8rem',
+              paddingBottom         : '1.8rem',
+              borderRadius          : '5px',
+              transform             : 'translate(-50%, -50%)'
+            }
+        };
         let currentProject = this.selectProject();
         let hideBoardDetails = JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 ? false : true;
         let boardJSX = JSON.stringify(currentProject.templatedetails) != JSON.stringify({}) ? this.buildBoard() : <SetupProject/>;
@@ -95,12 +109,14 @@ class KanbanBoard extends Component {
                     {JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 && <Button className = "Info" onClick={this.openProjectInfoModal}>i</Button>}
                     <Modal
                     isOpen={this.state.showStoryForm}
-                    contentLabel="">
+                    contentLabel=""
+                    style = {customStyles}>
                         <StoryForm closeForm={this.closeStory} projectDetails = {currentProject}/>
                     </Modal>
                     <Modal
                     isOpen={this.state.openProjectInfo}
-                    contentLabel="">
+                    contentLabel=""
+                    style = {customStyles}>
                         <ProjectDetails projectDetails = {currentProject} closeModal={this.openProjectInfoModal}/>
                     </Modal>
                     {boardJSX}

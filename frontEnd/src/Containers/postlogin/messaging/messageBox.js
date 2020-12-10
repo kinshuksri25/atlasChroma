@@ -51,8 +51,7 @@ class MessageBox extends Component{
                 }
                 this.setState({unreadUserMsgs: [...unreadUserMsgs]});
             }
-
-            if(this.state.hideMessageWindow){
+            if(this.state.hideMessageWindow && data.messageObject.sender != this.props.user.username && data.messageObject.sender != this.state.currentRecipientUserName){
                 let heading = document.getElementById("messagesHeading");
                 heading.className = "unread";
             }

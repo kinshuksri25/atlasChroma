@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import https from 'https';
 
+import cancel from "../../Images/icons/cancel.png";
+import refresh from "../../Images/icons/refresh.png";
 import "../../StyleSheets/profilePicture.css";
 import Modal from 'react-modal';
 import setLoadingAction from '../../store/actions/loadingActions';
@@ -17,12 +19,24 @@ class ProfilePicture extends Component {
             profilePics : []
         }
         this.buildPictureGen = this.buildPictureGen.bind(this);
+        this.loadPicture = this.loadPicture.bind(this);
     }
 
-    componentDidMount(){
+    componentDidMount(){    
+        this.loadPicture();
+    }
+
+    buildPictureGen(){
+        let pictures = [];
+        this.state.profilePics.map(picture => {
+            pictures.push(<div><img src={picture.urls.thumb} onClick={this.props.selectProfilePic} className = "photo"/></div>);                        
+        });
+        return (<div className = "pictureContainer">{pictures}</div>);
+    }
+
+    loadPicture(){
         let globalThis = this;
-        let randomPage = Math.floor(Math.random() * 30);
-        let picGen = https.request("https://picsum.photos/v2/list?page="+randomPage, (response) => {
+        let picGen = https.request("https://api.unsplash.com//photos/random?client_id=NheQe5dqK5XKOrBoA2MHddLyVlGDSW3mcrDZuseFOkE&count=9&orientation=squarish", (response) => {
 
             let responseString = '';
 
@@ -33,24 +47,12 @@ class ProfilePicture extends Component {
             response.on('end', function() {
                 responseString += decoder.end();
                 responseString = JSON.parse(responseString);
-                console.log(responseString);
                 globalThis.setState({
                     profilePics : responseString.slice(0,9)
                 });
             });
         });
         picGen.end();
-    }
-
-    buildPictureGen(){
-        let pictures = [];
-        let count = 0;
-        //let count = Math.floor(Math.random() * 30);
-        while(count < 9){
-            pictures.push(<img src={this.state.profilePics[count].download_url} onClick={this.props.selectProfilePic} className = "photo"/>);                        
-            count++;
-        }
-        return (<div className = "pictureContainer">{pictures}</div>);
     }
 
     render(){
@@ -66,8 +68,8 @@ class ProfilePicture extends Component {
               right                 : 'auto',
               bottom                : 'auto',
               marginRight           : '-50%',
-              paddingTop            : '0px',
-              maxWidth              : '36%',
+              padding               : '25px',
+              borderRadius          : '8px',
               transform             : 'translate(-50%, -50%)'
             }
           };
@@ -76,7 +78,8 @@ class ProfilePicture extends Component {
                 isOpen={this.props.openModal && this.state.profilePics.length != 0}
                 style={customStyles}>
                     <div className = "gridContainer">
-                        <button className = "cancel" onClick={this.props.cancelHandler}>X</button>
+                        <button className = "refresh" onClick={this.loadPicture}><img src={refresh}/></button>
+                        <button className = "cancel" onClick={this.props.cancelHandler}><img src={cancel}/></button>
                         {profilePicture}
                      </div>   
                 </Modal>);

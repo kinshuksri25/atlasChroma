@@ -65,29 +65,27 @@ class AllDayEvent extends Component{
         let currentDateObject = new DateHelper().currentDateGenerator();
         let currentMonth = parseInt(currentDateObject.month)+1;
         let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
-        let currentDay = this.props.currentYear+"-"+(parseInt(this.props.currentMonth)+1)+"-"+this.props.currentDate;
-        if(this.props.allDayEvents.length == 0 && this.props.allDayStories.length == 0 && this.props.user.projects.length == 0){
+        let currentDay = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
+        let allDayJSX = [];
+        this.props.user.projects.map( project => {
+            if(project.duedate == currentDay && project.contributors.indexOf(this.props.user.username) >= 0){
+                let status = project.status == "InProgress" ? project.duedate < currentDate ? "OverDue" : "InProgress" : project.status;
+                allDayJSX.push(
+                    <div className = {status} id = {project._id} onClick={this.onProjectClick}>  
+                        <p className = "cardTitle">{project.title}</p>
+                        <p className = "cardDescription">{project.description}</p>
+                        <p className = "projStatus">{status}</p>
+                    </div>);
+             }
+        });
+        if(this.props.allDayEvents.length == 0 && this.props.allDayStories.length == 0 && allDayJSX.length==0){
             return <div className = "emptyHeadingContainer"><h3 className = "emptyHeading">Nothing planned for today..</h3></div>;
         }else{
             let sortedStories = this.sortStories(this.props.allDayStories); 
-            let allDayJSX = [];
-            
-            this.props.user.projects.map( project => {
-                 if(project.duedate == currentDay && project.contributors.indexOf(this.props.user.username) >= 0){
-                    allDayJSX.push(
-                        <div className = {project.status} id = {project._id} onClick={this.onProjectClick}>  
-                                    <p className = "cardTitle">{project.title}</p>
-                                    <p className = "cardDescription">{project.description}</p>
-                                    {project.duedate < currentDate && project.status == "InProgress" && <p className = "projStatus">OverDue</p>}
-                                    {project.duedate >= currentDate && project.status == "InProgress" && <p className = "projStatus">InProgress</p>}
-                                    {project.status == "InProgress" || <p className = "projStatus">Finished</p>}
-                        </div>);
-                 }
-            });
-
 
             sortedStories.map(story => {
-                allDayJSX.push(<div className = {story.priority} id = {story._id} onClick={this.onStoryClick}>  
+                let storyClass = story.priority + " stry";
+                allDayJSX.push(<div className = {storyClass} id = {story._id} onClick={this.onStoryClick}>  
                                     <p className = "cardTitle">{story.storytitle}</p>
                                     <p className = "cardDescription">{story.description}</p>
                                     <p className = "status">Priority : {story.priority}</p>

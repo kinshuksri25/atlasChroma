@@ -57,3 +57,24 @@
     color: white;
     font-size: 1.5rem;
 }
+
+#notesAddCancel{
+    right: 1.5rem;
+}
+
+#addNotesButton{
+    width: 100%;
+}
+
+.deleteNotes,.editNotes{
+    display: block;
+}
+
+.addNotesAttributes,.notesTitleEdit,.notesDescriptionEdit,.deleteNotes,.editNotes{
+    width: 28rem;
+}
+
+.editNotes{
+    margin-bottom: 1rem;
+    color: white !important;
+}

@@ -207,3 +207,20 @@
     border: none;
     border-radius: 50%;
 }
+
+.storyTitle,#storyTitle,.storyDescription,#storyDescription,.comments,#comments,.duedate,#duedate,.priority,#priority,.contributor,#contributor,.selectPhase,#selectPhase{
+    width: 28rem;
+}
+
+.storyAddButton{
+    width: 28rem;
+}
+
+.storiesAddCancel{
+    right: 1.2rem;
+}
+
+.updateStoryButton{
+    width: 100%;
+    color:white;
+}

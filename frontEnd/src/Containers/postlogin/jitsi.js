@@ -68,10 +68,19 @@ class JitsiContainer extends Component {
         defaultLanguage: "es",
         prejoinPageEnabled: false
         };
-        
+        console.log(this.props.roomDetails);
        return (<div>
                     <button onClick = {this.cleanMeeting}>X</button>
-                    <Jitsi/>
+                    <Jitsi
+                    config={config}
+                    interfaceConfig={interfaceConfig}
+                    containerStyle={{ width: '1200px', height: '800px'}}
+                    domain = {"meet.jit.si"}
+                    password = {this.props.roomDetails.password}
+                    onAPILoad={JitsiMeetAPI =>  this.onLoadApi(JitsiMeetAPI)}
+                    roomName={this.props.roomDetails.roomname}
+                    displayName={this.props.roomDetails.name}
+                    />
                 </div>);
     }
 

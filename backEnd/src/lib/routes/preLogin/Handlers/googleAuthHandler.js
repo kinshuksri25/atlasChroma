@@ -28,7 +28,7 @@ googleAuthHandler.googleAuth = (requestObject,io) => new Promise((resolve,reject
        };  
     //check the request object
     if(requestObject.queryObject.Email != undefined && requestObject.method == "GET"){
-        mongo.read(DBCONST.userCollection,{ email: requestObject.queryObject.Email }, {projection : {userName : 1}}).then(resultSet => {
+        mongo.read(DBCONST.userCollection,{ email: requestObject.queryObject.Email }, {projection : {userName : 1,state:1}}).then(resultSet => {
             //check if user exists
             if (JSON.stringify(resultSet) == JSON.stringify([])) {
                 //set user object

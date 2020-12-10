@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import {Button} from "react-bootstrap";
+import cancel from "../../../Images/icons/cancel.png";
+import {Button,Form} from "react-bootstrap";
 import "../../../StyleSheets/notes.css";
 import Modal from 'react-modal';
 import SimpleForm from '../../../Forms/simpleform';
@@ -180,26 +181,45 @@ class Notes extends Component{
 
     render(){
     let bodyJSX = this.buildJSX();
+    const customStyles = {
+        content : {
+          top                   : '50%',
+          left                  : '50%',
+          right                 : 'auto',
+          bottom                : 'auto',
+          heigth                : '10%',
+          marginRight           : '-50%',
+          padding               : '1.8rem',
+          borderRadius          : '8px',
+          transform             : 'translate(-50%, -50%)'
+        }
+    };
     let updateInvalid = this.state.editedNotesTitle != this.state.selectedNotesTitle  || this.state.editedNotesDescription != this.state.selectedNotesDescription && 
                             (this.state.editedNotesDescription != "" && this.state.editedNotesTitle != "") ? false : true;        
     return(<div className = "calenderDateLowerNotesContainer"> 
                 <Button variant="success" disabled = {this.props.disableAdd} className = "displayFormButton" onClick={this.displayNotesForm}>+</Button> 
                 <Modal
                 isOpen={this.state.modalStatus == "ADD"}
-                contentLabel="">
-                    <button className = "hideFormButton" onClick={this.displayNotesForm}>X</button> 
+                contentLabel=""
+                style = {customStyles}>
+                    <button id="notesAddCancel" className = "hideFormButton addCancel" onClick={this.displayNotesForm}><img src={cancel}/></button>
                     <SimpleForm formAttributes = { formConstants.addNotes }
                     submitHandler = { this.onSubmitHandler }
                     changeFieldNames = {[]}/>
                 </Modal> 
                 <Modal
                 isOpen={this.state.modalStatus == "EDIT"}
-                contentLabel="">
-                    <button className = "hideEditFormButton" onClick={this.displayNotesForm}>X</button> 
-                    <input type="text" value={this.state.editedNotesTitle} onChange={this.onChangeHandler} className="title"/>
-                    <input type="text" value={this.state.editedNotesDescription} onChange={this.onChangeHandler} className="description"/>
-                    <button className = "deleteNotes" disabled={updateInvalid} onClick={this.updateHandler}>update</button>
-                    <button className = "deleteNotes" onClick={this.deleteHandler}>delete</button>
+                contentLabel=""
+                style = {customStyles}>
+                    <button id="notesAddCancel" className = "hideFormButton addCancel" onClick={this.displayNotesForm}><img src={cancel}/></button>
+                    <Form.Group>
+                        <Form.Control type="text" value={this.state.editedNotesTitle} onChange={this.onChangeHandler} className="notesTitleEdit"/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Control as="textarea" rows="3" value={this.state.editedNotesDescription} onChange={this.onChangeHandler} className="notesDescriptionEdit"/>
+                    </Form.Group>
+                    <Button variant="warning" className = "editNotes" disabled={updateInvalid} onClick={this.updateHandler}>update</Button>
+                    <Button variant="danger" className = "deleteNotes" onClick={this.deleteHandler}>delete</Button>
                 </Modal>
                 {bodyJSX}
             </div>

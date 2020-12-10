@@ -95,7 +95,14 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
             for(key in activeLoginDetails){
                 valueArray.push(activeLoginDetails[key]);
             }
-            mongo.read(DBCONST.userCollection,{},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1}}).then(resolvedSet => {
+            mongo.read(DBCONST.userCollection,{$and:[{username:{$not:{$eq:null}}},
+                                                {email:{$not:{$eq:null}}},
+                                                {firstname:{$not:{$eq:null}}},
+                                                {lastname:{$not:{$eq:null}}},
+                                                {username:{$not:{$eq:""}}},
+                                                {email:{$not:{$eq:""}}},
+                                                {firstname:{$not:{$eq:""}}},
+                                                {lastname:{$not:{$eq:""}}}]},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1}}).then(resolvedSet => {
                 if(resolvedSet.length != 0){   
 
                     resolvedSet.map(user => {

@@ -1,29 +1,85 @@
 .gridContainer{
-    display: flex;
-    flex-direction: column;
+    display: relative;
 }
 
-.cancel{
-    flex-basis: 10%;
-    width: 100%;
+.cancel,.refresh{
+    position: absolute;
     border: none;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px; 
+    border-radius: 50%;
     margin-bottom: 0.75rem;
+    top: 0px;
+    right: 1.4rem;
+    background: transparent;
+}
+
+.cancel img, .refresh img{
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.cancel img:hover, .refresh img:hover{
+    height: 1.7rem;
+    width: 1.7rem;
+}
+
+.cancel img:active, .refresh img:active{
+    height: 1.6rem;
+    width: 1.6rem;
+}
+
+
+.cancel:hover,.cancel:active,.cancel:focus,.refresh:hover,.refresh:active,.refresh:focus{
+    outline: none;
+}
+
+.refresh{
+    right: 3.2rem;
 }
 
 .pictureContainer{
-    flex-basis: 90%;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(3,1fr);
     grid-template-rows: repeat(3,1fr);
 }
 
-.photo{
+.pictureContainer div{
+    box-sizing: border-box;
     border: none;
-    border-radius: 5px;
-    padding: 0.75rem;
-    width: 200px;
-    height: 200px;
+    border-radius: 8px;
+    margin: 0.25rem;
+    overflow: hidden;
 }
 
+.photo{
+    width: 12.5rem;
+    height: 12.5rem;
+}
+
+@media screen and (max-width: 1024px){
+    .photo{
+        width: 9rem;
+        height: 9rem;
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px){
+    .photo{
+        width: 10rem;
+        height: 10rem;
+    }
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1366px){
+    .photo{
+        width: 10.5rem;
+        height: 10.5rem;
+    }
+}
+
+@media screen and (min-width: 1366px) and (max-width: 1400px){
+    .photo{
+        width: 11rem;
+        height: 11rem;
+    }
+}

@@ -65,9 +65,9 @@ class Projects extends Component {
                   left                  : '50%',
                   right                 : 'auto',
                   bottom                : 'auto',
-                  width                 : '25%',
                   marginRight           : '-50%',
-                  paddingTop            : '0.8rem',
+                  paddingTop            : '1.8rem',
+                  borderRadius          : '8px',
                   transform             : 'translate(-50%, -50%)'
                 }
             };

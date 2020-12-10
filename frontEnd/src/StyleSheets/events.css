@@ -75,7 +75,7 @@
     padding: 0.25rem;
 }
 
-.allDayCard,.Urgent,.High,.Medium,.Low,.OnHold{
+.allDayCard,.stry,.InProgress,.Finished,.OverDue{
     padding-left: 0.1rem;
     background: #336daa;
     border-radius: 5px;
@@ -96,7 +96,7 @@
 }
 
 .High{
-    background: #bd5713;
+    background: #eb8628;;
 }
 
 .Medium{
@@ -124,7 +124,7 @@
 }
 
 .High:hover,.High:active{
-    background: #994711;
+    background: #b96b22;
 }
 
 .Medium:hover,.Medium:active{
@@ -260,4 +260,26 @@
     display: inline-block;
     margin-top: 0.80rem;
     margin-bottom: 0.45rem;
+}
+
+.addEventAttributes{
+    width: 28rem;
+}
+
+#eventTypeDropDown,#stateTime,#endTime{
+    margin-bottom: 1rem;
+}
+
+#title,#description{
+    width: 28rem;
+    margin-bottom: 1rem;
+}
+
+.editEventButton{
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.deleteEventButton{
+    width: 100%;
 }

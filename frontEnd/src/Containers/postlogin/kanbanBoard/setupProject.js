@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
+import cancel from "../../../Images/icons/cancel.png";
 import {Button} from 'react-bootstrap';
 import Modal from 'react-modal';
 import "../../../StyleSheets/setupProject.css";
@@ -76,6 +77,19 @@ class SetupProject extends Component {
                 constant._id = this.randValueGenerator();
                    
             });
+
+            const customStyles = {
+                content : {
+                  top                   : '50%',
+                  left                  : '50%',
+                  right                 : 'auto',
+                  bottom                : 'auto',
+                  marginRight           : '-50%',
+                  paddingTop            : '1.8rem',
+                  borderRadius          : '8px',
+                  transform             : 'translate(-50%, -50%)'
+                }
+            };
             return(<div className="template">
                     <h5>Customize it your way!</h5> 
                       <TemplateBuilder template={constants} setLoadedTemplate = {this.setLoadedTemplate} randValueGenerator ={this.randValueGenerator}/>
@@ -84,10 +98,11 @@ class SetupProject extends Component {
                         <Button variant="success" className="submitTemplate" onClick={this.toggleConfirmationModal} hidden={!this.state.nextPage} disabled={this.state.currentTemplate == "" ? true : this.state.currentProject.templatedetails.length ==0 ? true : false}>&gt;</Button>
                       </div>
                       <Modal
-                        isOpen={this.state.toggleConfirmationModal}>
-                            <button onClick={this.toggleConfirmationModal}>X</button>
-                            <h5>The last phase in this workflow seems to be {this.state.workflowEnd}, and will be marked as the end of the workflow. If you need a different phase to be the end please make the necessary changes and contiue.</h5>
-                            <button onClick={this.onTemplateSubmit}>&gt;</button>
+                        isOpen={this.state.toggleConfirmationModal}
+                        style={customStyles}>
+                            <button className = "addCancel" onClick={this.toggleConfirmationModal}><img src={cancel}/></button>
+                            <h6 className="projectDeleteConfirm">The last phase in this workflow seems to be {this.state.workflowEnd}, and will be marked as the end of the workflow.<br/> If you need a different phase to be the end please make the necessary changes and contiue.</h6>
+                            <Button variant="success" className="projectDel" onClick={this.onTemplateSubmit}>Finish</Button>
                       </Modal>
                     </div>);
         }

@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
+import cancel from "../../../Images/icons/cancel.png";
+import {Form,Button} from "react-bootstrap";
 
+import "../../../StyleSheets/editProject.css";
 import DateHelper from "../../generalContainers/date";
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import cookieManager from '../../../Components/cookieManager';
@@ -23,15 +26,22 @@ class EditProject extends Component{
             duedate : this.props.projectDetails.duedate,
             status : this.props.projectDetails.status,
             disableUpdate : true,
-            isOpen : false       
+            isOpen : false,
+            projectLeadDetails:{},
+            contributorDetails:[]      
         }
         this.onSubmit = this.onSubmit.bind(this);
+        this.updateFeilds = this.updateFeilds.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.deleteContributor = this.deleteContributor.bind(this);
         this.suggestionAllocator = this.suggestionAllocator.bind(this);
         this.createUnfilteredList = this.createUnfilteredList.bind(this);
         this.deleteProjectAlert = this.deleteProjectAlert.bind(this);
         this.deleteProject = this.deleteProject.bind(this);
+    }
+
+    componentDidMount(){
+        this.updateFeilds();
     }
 
     deleteProject(){
@@ -119,24 +129,26 @@ class EditProject extends Component{
     }
 
     deleteProjectAlert(event){
-        event.target.className == "deleteAlert" && this.setState({isOpen : true});
-        event.target.className == "deleteAlert" || this.setState({isOpen : false});
+        event.target.id == "deleteAlert" && this.setState({isOpen : true});
+        event.target.id == "deleteAlert" || this.setState({isOpen : false});
     }
 
-    deleteContributor(event){
+    deleteContributor(username){
         let errorObject = {};
         if(this.state.contributors.length == 1){
             errorObject.msg = "Contributors for the project cannot be empty";
             errorObject.status = "ERROR";
             this.props.setMsgState(errorObject);
         }else{
-           if(event.target.className != this.state.projectleader){
+           if(username!= this.state.projectleader){
             let contributors = [...this.state.contributors];
             let newContributors = [];
             contributors.map(contributor => {
-                contributor != event.target.className && newContributors.push(contributor);
+                contributor != username && newContributors.push(contributor);
             });
-            this.setState({contributors : [...newContributors]});
+            this.setState({contributors : [...newContributors]},()=>{
+                this.updateFeilds();
+            });
            }else{
             errorObject.msg = "Connot delete projectleader directly from the contributor list.";
             errorObject.status = "ERROR";
@@ -150,11 +162,11 @@ class EditProject extends Component{
         let currentMonth = parseInt(currentDateObject.month)+1;
         let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
         let errorObject = {};
-        switch(event.target.className){
+        switch(event.currentTarget.id){
             case "projectTitle":
                 this.setState({title : event.target.value});
                 break;
-            case "projectDescription":
+            case "projectDesc":
                 this.setState({description : event.target.value});
                 break;   
             case "duedate":
@@ -202,11 +214,14 @@ class EditProject extends Component{
     }
 
     suggestionAllocator(selectedValue,searchBoxID){
+        let errorObject = {};
         switch(searchBoxID){
             case "projectLead":
                 let leadExists = this.state.projectleader == selectedValue ? true : false;
                 if(!leadExists){
-                    this.setState({projectleader : selectedValue});
+                    this.setState({projectleader : selectedValue},()=>{
+                        this.updateFeilds();
+                    });
                     this.suggestionAllocator(selectedValue,"contributors");
                 }
                 break;
@@ -221,12 +236,48 @@ class EditProject extends Component{
                     errorObject.status = "ERROR";
                     this.props.setMsgState(errorObject);
                 }
-                this.setState({contributors : contributor});
+                this.setState({contributors : contributor},()=>{
+                    this.updateFeilds();
+                });
                 break;    
         }
     }
 
+    updateFeilds(){
+        let prepContributors = [];
+        let prepProjectLeader = {};
+        this.props.userList.map(user => {
+            if(user.username == this.state.projectleader){
+                let tempUser = {...user};
+                tempUser.id = tempUser.username;
+                tempUser.tooltip = tempUser.firstname+" "+tempUser.lastname;
+                tempUser.title = tempUser.tooltip;
+                prepProjectLeader = {...tempUser};
+            }
+            if(this.state.contributors.indexOf(user.username) >=0){
+                let tempUser = {...user};
+                tempUser.id = tempUser.username;
+                tempUser.tooltip = tempUser.firstname+" "+tempUser.lastname;
+                tempUser.title = tempUser.tooltip;
+                prepContributors.push({...tempUser});
+            }
+        });
+        this.setState({"contributorDetails" : [...prepContributors],"projectLeadDetails" : {...prepProjectLeader}});
+    }
+
     render(){
+        const customStyles = {
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              marginRight           : '-50%',
+              paddingTop            : '1.8rem',
+              borderRadius          : '8px',
+              transform             : 'translate(-50%, -50%)'
+            }
+        };
         let disableUpdate = this.state.title != this.props.projectDetails.title || 
                                 this.state.description != this.props.projectDetails.description || 
                                     this.state.projectleader != this.props.projectDetails.projectlead ||
@@ -238,37 +289,45 @@ class EditProject extends Component{
 
         return (<div>     
                     <div className = "editProject">
-                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type = "text" value = {this.state.title} className = "projectTitle" onChange = {this.onChangeHandler}/>
-                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type = "text" value = {this.state.description} className = "projectDescription" onChange = {this.onChangeHandler}/>
-                        <SearchFeild disableInputs={disableSearch} unfilteredList = {this.createUnfilteredList()} constants = {searchFeildConstants.addProject} onSuggestionClick = {this.suggestionAllocator}/>
-                        <ul className = "contributorList">
-                            {
-                                this.state.contributors.map( contributor => {
-                                    return(<li onClick={this.props.user.username != this.props.projectDetails.projectlead || this.deleteContributor} className={contributor}>{contributor}</li>);
-                                })
-                            }
-                        </ul>
-                        <input disabled={this.props.user.username != this.props.projectDetails.projectlead} type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
-                        <select disabled={this.props.user.username != this.props.projectDetails.projectlead} className = "status" onChange = {this.onChangeHandler}>
-                            {
-                                this.state.statusList.map(status => {
-                                    if(this.state.status == status)
-                                        return (<option value = { status } selected>{status}</option>);
-                                    else
-                                        return (<option value = { status }>{status}</option>);
-                                })
-                            }
-                         </select>
-                        <button hidden = {this.props.user.username != this.props.projectDetails.projectlead} disabled = {disableUpdate} onClick = {this.onSubmit}>Update</button>
-                        <button className = "closeEditModal" onClick = {this.props.disableProjectForm}>Back</button>
-                        <button hidden = {this.props.user.username != this.props.projectDetails.projectlead} className = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</button>
+                        <button className = "addCancel" onClick = {this.props.disableProjectForm}><img src={cancel}/></button>
+                        <Form.Group>
+                            <Form.Control disabled={this.props.user.username != this.props.projectDetails.projectlead} type = "text" value = {this.state.title} id="projectTitle" onChange = {this.onChangeHandler}/>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Control disabled={this.props.user.username != this.props.projectDetails.projectlead} rows="4" as = "textarea" value = {this.state.description} id="projectDesc" onChange = {this.onChangeHandler}/>
+                        </Form.Group>
+                        
+                        { this.state.contributorDetails.length !=0 &&  <SearchFeild feilds={{"projectLeadName":{...this.state.projectLeadDetails},"contributorList":[...this.state.contributorDetails]}} 
+                                                                        disableInputs={disableSearch}
+                                                                        onRemoveClick = {this.deleteContributor} 
+                                                                        unfilteredList = {this.createUnfilteredList()} 
+                                                                        constants = {searchFeildConstants.addProject} 
+                                                                        onSuggestionClick = {this.suggestionAllocator}/>}
+                        <Form.Group>
+                            <Form.Control disabled={this.props.user.username != this.props.projectDetails.projectlead} type ="date" value = {this.state.duedate} id="duedate"onChange = {this.onChangeHandler}/>
+                        </Form.Group>                                                                          
+                        <Form.Group>
+                            <Form.Control as="select" disabled={this.props.user.username != this.props.projectDetails.projectlead} id = "status" onChange = {this.onChangeHandler}>
+                                {
+                                    this.state.statusList.map(status => {
+                                        if(this.state.status == status)
+                                            return (<option value = { status } selected>{status}</option>);
+                                        else
+                                            return (<option value = { status }>{status}</option>);
+                                    })
+                                }
+                            </Form.Control>
+                        </Form.Group>
+                        <Button variant="warning" hidden = {this.props.user.username != this.props.projectDetails.projectlead} id="updateProjectButton" disabled = {disableUpdate} onClick = {this.onSubmit}>Update</Button>
+                        <Button variant="danger" hidden = {this.props.user.username != this.props.projectDetails.projectlead} id = "deleteAlert" onClick = {this.deleteProjectAlert}>Delete</Button>
                     </div> 
                     <Modal
                     isOpen={this.state.isOpen}
-                    contentLabel="">   
-                        <h3>Do you want to delete {this.props.projectDetails.title} ? </h3>
-                        <button onClick = {this.deleteProject}>Yes</button>
-                        <button className = "deleteNo" onClick = {this.deleteProjectAlert}>No</button>
+                    contentLabel=""
+                    style={customStyles}>   
+                        <button id="deleteNo" className = "addCancel" onClick = {this.deleteProjectAlert}><img src={cancel}/></button>
+                        <h3 className="projectDeleteConfirm">Do you want to delete {this.props.projectDetails.title} ? </h3>
+                        <Button variant="danger" className="projectDel" onClick = {this.deleteProject}>Delete</Button>
                     </Modal>                                                
                 </div>);
     }

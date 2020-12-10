@@ -1,68 +1,64 @@
 .suggestionBox{
-    font-family: 'Baloo Tamma 2', cursive;
-    font-weight: 500;
-    position: absolute;
-    z-index: 10;
-    border-radius: 5px;
-    margin: 0px;
-    padding:0px;
-    background-color: white;
-    left: 2.6%;
-    top: 100%;
-    width: 95%;
+   position: absolute;
+   z-index: 1;
+   border: none;
+   border-radius: 5px;
+   width: 100%;
+   background: rgb(221, 227, 230);
 }
 
-.suggestion{
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
 
 .searchForm{
-    position: relative;
+   position: relative;
+   margin-bottom: 1rem;
 }
 
 ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    padding-left: 0.7rem;
+    list-style-type:none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.suggestionBox ul li:first-child{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.suggestionBox ul li:last-child{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.suggestion{
+    margin: 0px;
+    box-sizing: border-box;
+    padding: 0.25rem;
+}
+
+.suggestion:hover{
+    background: lightblue;
+    color: white;
+}
+
+.selectedProfileContainer{
+    box-sizing: border-box;
+    margin: 0px;
+    padding-top: 0.5rem;
+    padding-bottom: 0px;
 }
 
 
-.searchBox{
-    margin-bottom: 1rem;
-}
-
-.addProjectAttributes,.searchBox{
-    margin-left: auto;
-    margin-right: auto;
-    width: 95%;
-    resize: none;
-}
-
-.profilePicture{
-    border: none;
+.suggestionProfilePic{
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
-    margin-left: 0.3rem;
-}
-
-.profileContainer{
-    font-family: 'Baloo Tamma 2', cursive;
-    font-weight: 500;
-    font-size: 0.8rem;
-    margin: 1rem;
-}
-
-.moreContri{
-    font-size:1.2rem; 
-    margin-left: 1rem;
+    margin: 0.15rem;
 }
 
 .contributorList{
-    display: flex;
-    justify-content: space-evenly;
+    display: inline-block;
 }
 
-#addProjectButton{
-    margin-left: 0.7rem;
+#cancel{
+    right: 0.25rem;
 }
