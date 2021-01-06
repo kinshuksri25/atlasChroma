@@ -13,11 +13,8 @@ const cookieHandler = {};
 //params --> requestObjectID - string, UserName - string
 //returns --> promise
 cookieHandler.createCookies = (requestObjectID,username)  => new Promise ((resolve,reject) =>{
-    let options = {
-        type : 'EX',
-        expiryTime : 60*30
-    };
-    redisClass.addData(requestObjectID,username,{...options}).then(resolvedResult => {
+
+    redisClass.addData(requestObjectID,username,{}).then(resolvedResult => {
         resolve(requestObjectID);
     }).catch(rejectedResult => {
         reject(rejectedResult);

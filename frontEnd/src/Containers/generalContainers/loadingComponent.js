@@ -41,7 +41,10 @@ class LoadingComponent extends Component {
               right                 : 'auto',
               bottom                : 'auto',
               marginRight           : '-50%',
-              transform             : 'translate(-50%, -50%)'
+              transform             : 'translate(-50%, -50%)',
+              background            : 'transparent',
+              border                : 'none',
+              overflow              : 'visible'
             }
           };
         return(<Modal

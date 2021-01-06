@@ -22,6 +22,11 @@
     color: white;
     background: #336daa;
     margin: 0px;
+    cursor: default;
+}
+
+.MessageBox h6:hover{
+    background: #244d79; 
 }
 
 .unread{
@@ -37,6 +42,11 @@
 
 .MessageBox > ul > li{
     position: relative;
+}
+
+.MessageBox > ul > li:hover{
+    cursor: pointer;
+    color:rgb(155, 149, 149);
 }
 
 
@@ -98,6 +108,10 @@
     position: absolute;
     right: 0.3rem;
     top: 0.2rem;
+}
+
+.closeChat:hover{
+    cursor: pointer;
 }
 
 .chatWindow > h6 > span{
@@ -177,12 +191,11 @@
 }
 
 .inputContainer > button{
-    width: 1.75rem;
-    height: 1.75rem;
-    border: none;
-    color: white;
-    background: #28a745;
-    border-radius: 50%;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    border-radius: 50% !important;
+    padding: 0px;
+    padding-left: 2px; 
 }
 
 

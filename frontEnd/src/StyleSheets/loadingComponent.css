@@ -1,4 +1,12 @@
 .spinners{
-    min-width: 125px;
-    min-height: 125px;
+    width: 100px;
+    height: 100px;
+}
+
+
+@media screen and (max-width: 1400px){
+    .spinners{
+        width: 80px;
+        height: 80px;
+    }
 }

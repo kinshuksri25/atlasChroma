@@ -1,0 +1,70 @@
+.infoCancel{
+    position: absolute;
+    border: none;
+    border-radius: 50%;
+    margin-bottom: 0.75rem;
+    top: 2px;
+    right: 0.6rem;
+    background: transparent;
+}
+
+.infoCancel img{
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.infoCancel img:hover{
+    height: 1.7rem;
+    width: 1.7rem;
+}
+
+.infoCancel img:active{
+    height: 1.6rem;
+    width: 1.6rem;
+}
+
+.infoCancel:focus{
+    outline: none;
+}
+
+
+.radialGraphContainer, .secDetailContainer{
+    display: grid;
+    margin: 0px;
+    padding: 0px;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 0px;
+    padding-bottom: 0.5rem;
+}
+
+.secDetailContainer{
+    font-family: 'Comfortaa', cursive;
+    text-align: center;
+}
+
+
+.projectDetailsBody{
+    overflow: auto;
+    max-height : 5.5rem;
+}
+
+
+.projectDetailsBody > p{
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+}
+
+.projectDetailsBody > p:hover{
+    background: rgb(224, 222, 222);
+    cursor: pointer;
+}
+
+
+.projectDetailsEmptyBody {
+    height: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
+
+import cancel from "../../../Images/icons/cancel.png";
 import "../../../StyleSheets/kanbanBoard.css";
 import {Button} from "react-bootstrap";
 import SetupProject from './setupProject';
@@ -117,7 +119,8 @@ class KanbanBoard extends Component {
                     isOpen={this.state.openProjectInfo}
                     contentLabel=""
                     style = {customStyles}>
-                        <ProjectDetails projectDetails = {currentProject} closeModal={this.openProjectInfoModal}/>
+                        <button className = "infoCancel" onClick={this.openProjectInfoModal}><img src={cancel}/></button>
+                        <ProjectDetails projectDetails = {currentProject}/>
                     </Modal>
                     {boardJSX}
                     {JSON.stringify(currentProject) != JSON.stringify({}) && currentProject.templatedetails.length > 0 && <Button onClick={this.addStory} id="addStoryButton">+</Button>}

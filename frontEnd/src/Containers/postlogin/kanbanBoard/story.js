@@ -12,6 +12,7 @@ import del from "../../../Images/icons/delete.png";
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import setMsgAction from '../../../store/actions/msgActions';
 import Modal from 'react-modal';
+import {OverlayTrigger,Tooltip} from 'react-bootstrap';
 import {urls,EMSG} from '../../../../../lib/constants/contants';
 import cookieManager from '../../../Components/cookieManager';
 import DateHelper from '../../generalContainers/date';
@@ -35,9 +36,10 @@ class Story extends Component{
                         storyPriority : "",
                      };
                           
+        this.dummyHandler = this.dummyHandler.bind(this);
         this.moveStory = this.moveStory.bind(this);
         this.editStory = this.editStory.bind(this);
-        this.findPhoto = this.findPhoto.bind(this);
+        this.findUser = this.findUser.bind(this);
         this.closeStoryModel = this.closeStoryModel.bind(this);
         this.deleteStory = this.deleteStory.bind(this);
         this.updateFormhandler = this.updateFormhandler.bind(this);
@@ -73,6 +75,10 @@ class Story extends Component{
             }
         }
         this.setState({columnPosition:columnPostion});                      
+    }
+
+    dummyHandler(event){
+        event.stopPropagation();
     }
 
     onChangeHandler(event){
@@ -294,13 +300,14 @@ class Story extends Component{
         this.setState({hover:true});
     }
 
-    findPhoto(){
-        let photo = "";
+    findUser(){
+        let foundUser = {name:"", photo:""};
         this.props.userList.map(user => {
-            photo = this.props.storyDetails.contributor == user.username ? user.photo : photo;
+            foundUser.photo = this.props.storyDetails.contributor == user.username ? user.photo : foundUser.photo;
+            foundUser.name = this.props.storyDetails.contributor == user.username ? user.firstname+" "+user.lastname : foundUser.name;
         });
 
-        return photo;
+        return {...foundUser};
     }
 
     render(){
@@ -310,7 +317,6 @@ class Story extends Component{
               left                  : '50%',
               right                 : 'auto',
               bottom                : 'auto',
-              heigth                : '10%',
               marginRight           : '-50%',
               padding               : '1.8rem',
               borderRadius          : '8px',
@@ -319,8 +325,7 @@ class Story extends Component{
         };
         let disableInput = this.props.user.username == this.state.storyContributor || this.props.user.username == this.props.currentProject.projectlead ? false : true;
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let disableUpdate = (this.state.storyTitle != this.state.oldStoryDetails.storytitle || 
                                 this.state.storyDescription != this.state.oldStoryDetails.description || 
                                     this.state.storyComments != this.state.oldStoryDetails.comments || 
@@ -343,16 +348,18 @@ class Story extends Component{
                                 onClick={this.editStory}
                                 onMouseOver={this.onMouseOver}
                                 onMouseLeave={this.onMouseLeave}>
-                                <p className = "tileHeading">{this.props.storyDetails.storytitle}</p>
-                                <p className = "tileDescription">{this.props.storyDetails.description}</p>
+                                <div className = "tileHeading">{this.props.storyDetails.storytitle}</div>
+                                <div className = "tileDescription">{this.props.storyDetails.description}</div>
                                 {this.props.storyDetails.priority != "OnHold" && this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate > currentDate && <p className = "storyDuedate">Due: {this.props.storyDetails.duedate}</p>}
                                 {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate < currentDate && <p className = "duedate">OverDue</p>}
                                 {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status == "Finished" && <p className = "storyStatus">Finished</p>}
                                 {this.props.storyDetails.priority == "OnHold" && <p className = "storyStatus">OnHold</p>}
-                                <p className = "storyContributor">Contributor: <img className = "Picture" src={this.findPhoto()}/></p> 
-                                <img className="promoteStory" hidden={promoteShow} src={promote} onClick={this.moveStory}/>
-                                <img className={demoteStoryClass} hidden={demoteShow} src={demote} onClick={this.moveStory}/>
-                                <img className="deleteStory" hidden={!this.state.hover} src={del} onClick={this.deleteStory}/>
+                                <p className = "storyContributor">Contributor: <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{this.findUser().name}</strong>.</Tooltip>}>
+                                                                                    <img className = "Picture" src={this.findUser().photo} onClick={this.dummyHandler}/>
+                                                                                </OverlayTrigger></p> 
+                                { this.props.currentProject.status != "Finished" && <img className="promoteStory" hidden={promoteShow} src={promote} onClick={this.moveStory}/>}
+                                { this.props.currentProject.status != "Finished" && <img className={demoteStoryClass} hidden={demoteShow} src={demote} onClick={this.moveStory}/>}
+                                { this.props.currentProject.status != "Finished" && <img className="deleteStory" hidden={!this.state.hover} src={del} onClick={this.deleteStory}/>}
                             </div> 
                             :"";
         return(<div>

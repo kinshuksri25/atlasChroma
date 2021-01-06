@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import Modal from 'react-modal';
 
 import meeting from '../../../Images/icons/meeting.png';
-import DateHelper from '../../generalContainers/date';
 import JitsiContainer from '../jitsi';
 
 class MeetingEvent extends Component{
@@ -79,11 +78,27 @@ class MeetingEvent extends Component{
     }
 
     render(){
+        const customStyles = {
+            overlay:{
+                background: 'rgba(255, 255, 255, 0.378)',
+            },
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              heigth                : '10%',
+              marginRight           : '-50%',
+              borderRadius          : '5px',
+              transform             : 'translate(-50%, -50%)',
+            }
+        };
         return(<div className = "innerEventContainer">
                     {this.meetingJSX()}
                     <Modal
                     isOpen={this.state.isOpen}
-                    contentLabel="">
+                    contentLabel=""
+                    style = {customStyles}>
                         <JitsiContainer roomDetails = {this.state.roomDetails} onClose = {this.closeMeeting}/>
                     </Modal>
                 </div>);

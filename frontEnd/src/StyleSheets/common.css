@@ -13,6 +13,7 @@ body{
     height: 100%;
     margin : 0;
     position: relative;
+    font-family: 'Comfortaa', cursive;
 }
 
 .routerContainer{

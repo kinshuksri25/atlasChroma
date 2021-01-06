@@ -1,17 +1,21 @@
 #projectTitle,#projectDesc,#duedate,#status{
     width: 28rem;
+    font-family: 'Comfortaa', cursive;
 }
 
 #projectTitle{
     margin-top: 0px;
+    font-family: 'Comfortaa', cursive;
 }
 
 #updateProjectButton{
     margin-bottom: 1rem;
+    font-family: 'Comfortaa', cursive;
 }
 
 #deleteAlert,#updateProjectButton{
     width: 100%;
+    font-family: 'Comfortaa', cursive;
 }
 
 
@@ -19,8 +23,11 @@
     width: 28rem;
     text-align: center;
     margin-bottom: 1rem;
+    font-family: 'Comfortaa', cursive;
+    font-size: large;
 }
 
 .projectDel{
     width: 100%;
+    font-family: 'Comfortaa', cursive;
 }

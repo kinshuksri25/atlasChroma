@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import cancel from "../../../Images/icons/cancel.png";
 import {Form,Button} from 'react-bootstrap';
-import cookieManager from '../../../Components/cookieManager'
+import cookieManager from '../../../Components/cookieManager';
 import setMsgAction from '../../../store/actions/msgActions';
 import httpsMiddleware from '../../../middleware/httpsMiddleware';
 import {EMSG,urls} from '../../../../../lib/constants/contants';
@@ -38,7 +38,7 @@ class StoryForm extends Component {
 
     onChangeHandler(event){
         let errorObject = {};
-        switch(event.target.className){
+        switch(event.target.id){
             case "storyTitle":
                 this.setState({storyTitle : event.target.value});
                 break;
@@ -73,8 +73,7 @@ class StoryForm extends Component {
         let globalThis = this;
         let errorObject = {};
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         if(this.state.storyTitle != "" && this.state.storyDescription != "" && 
             this.state.storyContributor != "" && (this.state.duedate > currentDate || this.state.duedate == currentDate) && this.state.storyPriority != "" &&
                 this.state.currentStatus != "" && this.state.storyComments != ""){
@@ -126,7 +125,8 @@ class StoryForm extends Component {
             let column = {
                 "NAME" : template.EXTENDS != "" ? template.EXTENDS +"->"+template.NAME : template.NAME,
                 "ID" : template._id,
-                "hasChildren": template.CHILDREN.length > 0 ? true : false
+                "hasChildren": template.CHILDREN.length > 0 ? true : false,
+                "workFlowEnd" : template.workFlowEnd
             }
             return ({...column});
         });
@@ -136,19 +136,19 @@ class StoryForm extends Component {
     render(){                                                                   
         let storyFormJSX =  <div>
                                 <Form.Group>
-                                    <Form.Control type ="text" value = {this.state.storyTitle} className = "storyTitle" placeHolder="Title" onChange = {this.onChangeHandler}/>
+                                    <Form.Control type ="text" value = {this.state.storyTitle} id = "storyTitle" placeHolder="Title" onChange = {this.onChangeHandler}/>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control as ="textarea" rows = "4" value = {this.state.storyDescription} className = "storyDescription" placeHolder="Description" onChange = {this.onChangeHandler}/>
+                                    <Form.Control as ="textarea" rows = "4" value = {this.state.storyDescription} id = "storyDescription" placeHolder="Description" onChange = {this.onChangeHandler}/>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control as = "textarea" rows = "3" value = {this.state.storyComments} placeHolder="Comments" className = "comments" onChange = {this.onChangeHandler}/>
+                                    <Form.Control as = "textarea" rows = "3" value = {this.state.storyComments} id="comments" placeholder="Comments" onChange = {this.onChangeHandler}/>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control type ="date" value = {this.state.duedate} className = "duedate" onChange = {this.onChangeHandler}/>
+                                    <Form.Control type ="date" value = {this.state.duedate} id = "duedate" onChange = {this.onChangeHandler}/>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control as="select" className = "priority" onChange = {this.onChangeHandler}>
+                                    <Form.Control as="select" id = "priority" onChange = {this.onChangeHandler}>
                                         {
                                             this.state.priorityList.map(priority => {
                                                 return (<option value = { priority }>{priority}</option>);
@@ -157,7 +157,7 @@ class StoryForm extends Component {
                                     </Form.Control>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control as="select" className = "contributor" onChange = {this.onChangeHandler}>
+                                    <Form.Control as="select" id = "contributor" onChange = {this.onChangeHandler}>
                                         {
                                             this.state.contributorList.map(contributor => {
                                                 return (<option value = { contributor }>{contributor}</option>);
@@ -166,11 +166,11 @@ class StoryForm extends Component {
                                     </Form.Control>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Control as="select" className = "selectPhase" onChange = {this.onChangeHandler}>
+                                    <Form.Control as="select" id = "selectPhase" onChange = {this.onChangeHandler}>
                                         <option value = "" selected>Select Phase</option>
                                         {
                                             this.state.columnArray.map(column => {
-                                                if(!column.hasChildren){
+                                                if(!column.hasChildren && !column.workFlowEnd){
                                                     return(<option value = { column.ID }>{column.NAME}</option>);
                                                 }
                                             })

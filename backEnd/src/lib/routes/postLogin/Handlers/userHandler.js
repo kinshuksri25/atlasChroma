@@ -102,13 +102,13 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
                                                 {username:{$not:{$eq:""}}},
                                                 {email:{$not:{$eq:""}}},
                                                 {firstname:{$not:{$eq:""}}},
-                                                {lastname:{$not:{$eq:""}}}]},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1}}).then(resolvedSet => {
+                                                {lastname:{$not:{$eq:""}}}]},{projection:{_id:0, username:1,email: 1,firstname: 1,lastname: 1,photo: 1,phonenumber:1}}).then(resolvedSet => {
                 if(resolvedSet.length != 0){   
 
                     resolvedSet.map(user => {
                         user.status = valueArray.indexOf(user.username) >= 0 ? true : false;
                     });
-                    
+                    console.log(resolvedSet);
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = SMSG.SVR_UHH_RDUSR; 

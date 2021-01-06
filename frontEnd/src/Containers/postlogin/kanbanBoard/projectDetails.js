@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import ReactApexCharts from 'react-apexcharts'
+
+import "../../../StyleSheets/projectDetails.css"
 import DateHelper from '../../generalContainers/date';
 
 class ProjectDetails extends Component{
@@ -32,8 +34,7 @@ class ProjectDetails extends Component{
         let overDueStoriesCount = 0;
 
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
 
         this.props.projectDetails.storydetails.map(story => {
             story.priority == "OnHold" && story.status != "Finished" && onHoldStoriesCount++;
@@ -212,8 +213,7 @@ class ProjectDetails extends Component{
 
     topOverDueStories(){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let overDueStories = [];
         this.props.projectDetails.storydetails.map(story => {
             story.duedate < currentDate && story.status != "Finished" && overDueStories.push(story);
@@ -223,29 +223,32 @@ class ProjectDetails extends Component{
             overDueStories = overDueStories.length <= 5 ? overDueStories : overDueStories.slice(0,5);
 
             return(<div>
-                <h4>Top OverDue Stories</h4>
-                {
-                    overDueStories.map(story =>{
-                        let photo = "";
-                        this.props.userList.map(user => {
-                            photo = user.username == story.contributor ? user.photo : photo;
-                        });
-                        return (<p id={story._id} onClick={this.onClickStory}>{story.storytitle} {photo}</p>)
-                    })
-                }
-            </div>)
+                        <h6><strong>Top OverDue Stories</strong></h6>
+                        <div className="projectDetailsBody">
+                            {
+                                overDueStories.map(story =>{
+                                    let photo = "";
+                                    this.props.userList.map(user => {
+                                        photo = user.username == story.contributor ? user.photo : photo;
+                                    });
+                                    return (<p id={story._id} onClick={this.onClickStory}>{story.storytitle} <img className = "profilePicture" src={photo} onClick={this.dummyHandler} onClick={this.dummyHandler}/></p>)
+                                })
+                            }
+                        </div>
+                    </div>)
         }else{
            return(<div>
-                    <h4>Top OverDue Stories</h4>
-                    <p>Looks Like you have no overdue stories</p>
+                    <h6><strong>Top OverDue Stories</strong></h6>
+                    <div className="projectDetailsEmptyBody">
+                        <p>Looks Like you have no overdue stories</p>
+                    </div>
                   </div>)
         }
     }
 
     topHighPriorityStories(){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate = currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
 
         let highPriorityStories = [];
         this.props.projectDetails.storydetails.map(story => {
@@ -255,21 +258,25 @@ class ProjectDetails extends Component{
             highPriorityStories = this.sortStories(highPriorityStories);
             highPriorityStories = highPriorityStories.length <= 5 ? highPriorityStories : highPriorityStories.slice(0,5);
             return(<div>
-                        <h4>High Priority Stories</h4>
-                        {
-                            highPriorityStories.map(story =>{
-                                let photo = "";
-                                this.props.userList.map(user => {
-                                    photo = user.username == story.contributor ? user.photo : photo;
-                                });
-                                return (<p id={story._id} onClick={this.onClickStory}>{story.storytitle} {photo}</p>)
-                            })
-                        }
+                        <h6><strong>High Priority Stories</strong></h6>
+                        <div className="projectDetailsBody">
+                            {
+                                highPriorityStories.map(story =>{
+                                    let photo = "";
+                                    this.props.userList.map(user => {
+                                        photo = user.username == story.contributor ? user.photo : photo;
+                                    });
+                                    return (<p id={story._id} onClick={this.onClickStory}>{story.storytitle} <img className = "profilePicture" src={photo} onClick={this.dummyHandler} onClick={this.dummyHandler}/></p>)
+                                })
+                            }
+                        </div>
                     </div>)
         }else{
            return(<div>
-                    <h4>High Priority Stories</h4>
-                    <p>Looks Like you have no stories in this project</p>
+                    <h6><strong>High Priority Stories</strong></h6>
+                    <div className="projectDetailsEmptyBody">
+                        <p>Looks Like you have no stories in this project</p>
+                    </div>
                   </div>)
         }
     }
@@ -277,12 +284,15 @@ class ProjectDetails extends Component{
     render(){
 
         return(<div>
-            <button onClick={this.props.closeModal}>X</button>
-            {this.buildStoriesRadialBar()}
-            {this.buildProgressRadialBar()}
-            {this.topOverDueStories()}
-            {this.topHighPriorityStories()}
-        </div>);
+                    <div className = "radialGraphContainer">
+                        {this.buildStoriesRadialBar()}
+                        {this.buildProgressRadialBar()}
+                    </div>
+                    <div className = "secDetailContainer">   
+                        {this.topOverDueStories()}
+                        {this.topHighPriorityStories()}
+                    </div>
+                </div>);
     }
 
 }

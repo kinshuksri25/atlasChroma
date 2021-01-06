@@ -63,12 +63,11 @@ class AllDayEvent extends Component{
 
     allDayJSX(){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let currentDay = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         let allDayJSX = [];
         this.props.user.projects.map( project => {
-            if(project.duedate == currentDay && project.contributors.indexOf(this.props.user.username) >= 0){
+            if(project.duedate == currentDay && project.contributors.indexOf(this.props.user.username) >= 0 && project.status != "Finished"){
                 let status = project.status == "InProgress" ? project.duedate < currentDate ? "OverDue" : "InProgress" : project.status;
                 allDayJSX.push(
                     <div className = {status} id = {project._id} onClick={this.onProjectClick}>  
@@ -84,12 +83,14 @@ class AllDayEvent extends Component{
             let sortedStories = this.sortStories(this.props.allDayStories); 
 
             sortedStories.map(story => {
-                let storyClass = story.priority + " stry";
-                allDayJSX.push(<div className = {storyClass} id = {story._id} onClick={this.onStoryClick}>  
-                                    <p className = "cardTitle">{story.storytitle}</p>
-                                    <p className = "cardDescription">{story.description}</p>
-                                    <p className = "status">Priority : {story.priority}</p>
-                                </div>);
+                if(story.status != "Finished"){
+                    let storyClass = story.priority + " stry";
+                    allDayJSX.push(<div className = {storyClass} id = {story._id} onClick={this.onStoryClick}>  
+                                        <p className = "cardTitle">{story.storytitle}</p>
+                                        <p className = "cardDescription">{story.description}</p>
+                                        <p className = "status">Priority : {story.priority}</p>
+                                    </div>);
+                }
             });
             this.props.allDayEvents.map(event => {  
                 allDayJSX.push(<div className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    

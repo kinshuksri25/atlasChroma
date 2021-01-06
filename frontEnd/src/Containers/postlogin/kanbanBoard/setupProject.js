@@ -101,8 +101,8 @@ class SetupProject extends Component {
                         isOpen={this.state.toggleConfirmationModal}
                         style={customStyles}>
                             <button className = "addCancel" onClick={this.toggleConfirmationModal}><img src={cancel}/></button>
-                            <h6 className="projectDeleteConfirm">The last phase in this workflow seems to be {this.state.workflowEnd}, and will be marked as the end of the workflow.<br/> If you need a different phase to be the end please make the necessary changes and contiue.</h6>
-                            <Button variant="success" className="projectDel" onClick={this.onTemplateSubmit}>Finish</Button>
+                            <h6 className="projectDeleteConfirm">The last phase in this workflow seems to be {this.state.workflowEnd}, and will be marked as the end of the workflow.<br/> Is that ok?.</h6>
+                            <Button variant="success" className="projectDel" onClick={this.onTemplateSubmit}>Yep</Button>
                       </Modal>
                     </div>);
         }

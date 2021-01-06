@@ -109,12 +109,13 @@ class AddProject extends Component{
     
     onSubmitHandler(formObject){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
         let globalThis = this;
         let errorObject = {...msgObject};
         let formData = formObject.formData;
+        console.log(formData.DueDate);
+        console.log(currentDate);
         if(this.state.contributors.length != 0 && this.state.projectLeader != "" && !this.state.projectExists && formData.DueDate > currentDate){
             formData.title = formData.Title;
             formData.description = formData.Description;

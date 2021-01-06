@@ -62,16 +62,16 @@ class PostLoginRouter extends Component {
         let queryString = "";
         if(userID){
 
-        //connect to server socket
-        io.on("connect",() => {
-            console.log("socket connected to server");
-            io.emit('login',userID);
-        });
+            //connect to server socket
+            io.on("connect",() => {
+                console.log("socket connected to server");
+                io.emit('login',userID);
+            });
 
-        let cookieDetails = {"CookieID" : userID};
-        this.getUserData(cookieDetails,queryString);
-        queryString+="&userID="+userID;
-        this.getUserData(cookieDetails,queryString);
+            let cookieDetails = {"CookieID" : userID};
+            this.getUserData(cookieDetails,queryString);
+            queryString+="&userID="+userID;
+            this.getUserData(cookieDetails,queryString);
         }else{
             window.history.pushState({}, "",urls.LANDING);
         }

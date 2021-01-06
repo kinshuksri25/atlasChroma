@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
+import {Button} from "react-bootstrap";
 
 import {chatObject} from '../../../../../lib/constants/storeConstants';
 import {EMSG} from '../../../../../lib/constants/contants';
@@ -73,7 +74,7 @@ class Message extends Component{
                    {chatWindowJSX}
                     <div className="inputContainer">
                         <input type = "text" value = {this.state.message} onChange = {this.onChangeHandler} className = "messageInput"/>
-                        <button onClick = {this.onSubmitHandler}>&gt;</button>
+                        <Button variant="success" onClick = {this.onSubmitHandler}>&gt;</Button>
                     </div>
                 </div>);
     }

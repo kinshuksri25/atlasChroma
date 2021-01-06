@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import {Card,Button} from "react-bootstrap";
 import {OverlayTrigger,Tooltip} from 'react-bootstrap';
 
+import cancel from "../../../Images/icons/cancel.png";
 import edit from "../../../Images/icons/edit.png";
 import DateHelper from "../../generalContainers/date";
 import "../../../StyleSheets/projectContainer.css";
@@ -25,6 +26,7 @@ class ProjectContainer extends Component{
         this.hideEdit = this.hideEdit.bind(this);
         this.getProfilePictures = this.getProfilePictures.bind(this);
         this.openContributorListModal = this.openContributorListModal.bind(this);
+        this.dummyHandler = this.dummyHandler.bind(this);
     }
 
     getProfilePictures(typeOfProfile){
@@ -38,10 +40,13 @@ class ProjectContainer extends Component{
         return profilePictureList;
     }
 
+    dummyHandler(event){
+        event.stopPropagation();
+    }
+
     renderProjectTabs(){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         if(this.props.user.projects.length != 0){
             let sortedProjectArray = this.sortProjects(this.props.orderBy,this.props.user.projects);
             let projectContainer = sortedProjectArray.map(project => {
@@ -56,11 +61,27 @@ class ProjectContainer extends Component{
                         let photo = contributorList[i].photo;
                         contributorJSX.push(
                             <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{name}</strong>.</Tooltip>}>
-                                <img className = "profilePicture" src={photo}/>                                     
+                                <img className = "profilePicture" src={photo} onClick={this.dummyHandler} onClick={this.dummyHandler}/>                                     
                             </OverlayTrigger>
                         );
                     }
                 }
+                const customStyles = {
+                    overlay:{
+                        background: 'rgba(255, 255, 255, 0.378)',
+                    },
+                    content : {
+                      top                   : '50%',
+                      left                  : '50%',
+                      right                 : 'auto',
+                      bottom                : 'auto',
+                      heigth                : '10%',
+                      marginRight           : '-50%',
+                      paddingTop            : '0.8rem',
+                      borderRadius          : '5px',
+                      transform             : 'translate(-50%, -50%)'
+                    }
+                };
                 let cardStatus = project.duedate > currentDate ? "Due: "+project.duedate : project.duedate == currentDate ? "Due Today" : "OverDue";
                 let buttonHidden = this.state.projects[project._id] == undefined ? true : this.state.projects[project._id];
                 let cardID = project.duedate < currentDate && project.status == "InProgress" ? "OverDue" : project.status;
@@ -71,19 +92,19 @@ class ProjectContainer extends Component{
                                 {project.description}
                             </p>
                             <h6 id="projectLead" className = {project._id}>
-                                Project Lead:
+                                Project Lead: 
                                     {
                                         this.getProfilePictures(project.projectlead).map(user => {
-                                            return (<OverlayTrigger placement="right" overlay={<Tooltip> <strong>{user.firstname+" "+user.lastname}</strong>.</Tooltip>}>
-                                                        <img className = "profilePicture" src={user.photo}/>
+                                            return (<OverlayTrigger placement="right" overlay={<Tooltip><div><strong>{user.firstname+" "+user.lastname}.</strong></div></Tooltip>}>
+                                                        <img className = "profilePicture" src={user.photo} onClick={this.dummyHandler}/>
                                                     </OverlayTrigger>);
                                         })
                                     }
                             </h6>
                             <h6 id="contributors" className = {project._id}>
-                                Contributors:
+                                Contributors: 
                                     {contributorJSX}
-                                    {contributorList.length > numberOfContributors && <span onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
+                                    {contributorList.length > numberOfContributors && <span className="moreContri" onClick={this.openContributorListModal}> +{contributorList.length-numberOfContributors}</span>}                              
                             </h6>
                             <p id="projectStatus" className = {project._id}>
                                 {project.status == "InProgress" && <span>{cardStatus}</span>}
@@ -92,17 +113,19 @@ class ProjectContainer extends Component{
                             <img hidden = {buttonHidden} onClick = {this.props.showEditProject} id = {project._id} className = "openEditModal" src = {edit}/>
                             <Modal
                             isOpen={this.state.showContributors}
-                            contentLabel="">
-                                <button className = "openAddModal" onClick={this.openContributorListModal}>X</button>
-                                {
-                                    contributorList.map(contributor => {
-                                        return(
-                                            <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{contributor.firstname+" "+contributor.lastname}</strong>.</Tooltip>}>
-                                                <img className = "profilePicture" src={contributor.photo}/>                                     
-                                            </OverlayTrigger>
-                                        )
-                                    })
-                                }
+                            style = {customStyles}>
+                                <button className = "contriCancel" onClick={this.openContributorListModal}><img src={cancel}/></button>
+                                <div className = "contributorList">
+                                    {
+                                        contributorList.map(contributor => {
+                                            return(
+                                                <OverlayTrigger placement="bottom" overlay={<Tooltip> <strong>{contributor.firstname+" "+contributor.lastname}</strong>.</Tooltip>}>
+                                                    <img className = "profilePicture" src={contributor.photo} onClick={this.dummyHandler}/>                                     
+                                                </OverlayTrigger>
+                                            )
+                                        })
+                                    }
+                                </div>
                             </Modal>
                         </div> 
                     );

@@ -14,7 +14,7 @@ clock.startClock = () => {
         let state = store.getState();
         let previousTime = state.clockStateReducer.previousTime;
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let date= currentDateObject.year+"-"+(parseInt(currentDateObject.month)+1)+"-"+currentDateObject.date;
+        let date= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let time  = currentDateObject.time;
         if(previousTime != time){
             let user = {...state.userStateReducer};

@@ -58,9 +58,9 @@ class Scheduler extends Component {
                 }
                 switch(event.target.id){
                         case "next" :  
-                                if(this.state.currentMonth == "11"){
+                                if(this.state.currentMonth == "12"){
                                         this.setState({
-                                                currentMonth : "00",
+                                                currentMonth : "01",
                                                 currentYear : this.state.currentYear + 1
                                         });
                                 }else{
@@ -70,9 +70,9 @@ class Scheduler extends Component {
                                 }
                                 break;
                         case "previous" :
-                                if(this.state.currentMonth == "00"){
+                                if(this.state.currentMonth == "01"){
                                         this.setState({
-                                                currentMonth : "11",
+                                                currentMonth : "12",
                                                 currentYear : this.state.currentYear - 1
                                         });
                                 }else{
@@ -89,7 +89,7 @@ class Scheduler extends Component {
                 let currentDayObject = this.state.dateHelper.currentDateGenerator();
                 let noOfDays = this.state.dateHelper.getMonthDays(this.state.currentMonth,this.state.currentYear);
                 let dayCounter = 1;
-                let firstDay = new Date(this.state.currentYear,this.state.currentMonth,1).toDateString().substring(0,3);
+                let firstDay = new Date(this.state.currentYear,this.state.currentMonth-1,1).toDateString().substring(0,3);
                 let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
                 let noOfWeeks =0;
                 for(let i=0;i<days.length;i++){
@@ -145,18 +145,18 @@ class Scheduler extends Component {
 
         render(){
                 let month = {
-                        "00" : "January",
-                        "01" : "Februray",
-                        "02" : "March",
-                        "03" : "April",
-                        "04" : "May",
-                        "05" : "June",
-                        "06" : "July",
-                        "07" : "August",
-                        "08" : "September",
-                        "09" : "October",
-                        "10" : "November",
-                        "11"  : "December"                           
+                        "01" : "January",
+                        "02" : "Februray",
+                        "03" : "March",
+                        "04" : "April",
+                        "05" : "May",
+                        "06" : "June",
+                        "07" : "July",
+                        "08" : "August",
+                        "09" : "September",
+                        "10" : "October",
+                        "11" : "November",
+                        "12"  : "December"                           
                      } 
                 return(<div className = "parentSchedulerContainer">
                                 {this.state.currentDate == "" &&   <div className = "calenderContainer"> 

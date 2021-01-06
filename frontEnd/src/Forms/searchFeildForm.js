@@ -91,7 +91,6 @@ class SearchFeild extends Component{
               left                  : '50%',
               right                 : 'auto',
               bottom                : 'auto',
-              width                 : '30%',
               heigth                : '10%',
               marginRight           : '-50%',
               paddingTop            : '0.8rem',
@@ -120,7 +119,7 @@ class SearchFeild extends Component{
                                 <Modal
                                 isOpen={this.state.openModal}
                                 style = {customStyles}>
-                                    <button className = "addCancel" onClick={this.toggleModal}><img src={cancel}/></button>
+                                    <button className = "contriCancel" onClick={this.toggleModal}><img src={cancel}/></button>
                                     <div className = "contributorList">{listJSX}</div>
                                 </Modal>
                             </div>

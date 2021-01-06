@@ -92,10 +92,6 @@
     grid-gap: 0.2rem;
 }
 
-.phaseBody > div {
-    min-width: 25rem;
-}
-
 .storyFinished,.storyInProgress,.storyOnHold,.storyOverDue{
     border-radius: 5px;  
     display: grid;
@@ -168,6 +164,7 @@
 }
 
 .storyContainer{
+    overflow: hidden;
     overflow-y: auto;
 }
 

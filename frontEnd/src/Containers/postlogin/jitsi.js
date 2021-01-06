@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 import Jitsi from 'react-jitsi'
+import cancel from "../../Images/icons/cancel.png";
 
 import setMsgAction from '../../store/actions/msgActions';
 
@@ -10,7 +11,8 @@ class JitsiContainer extends Component {
     constructor(props){
         super(props);
         this.state = {
-            api : ""
+            api : "",
+            screenWidth: screen.width
         }
         this.buildJitsi = this.buildJitsi.bind(this);
         this.cleanMeeting = this.cleanMeeting.bind(this);
@@ -68,13 +70,13 @@ class JitsiContainer extends Component {
         defaultLanguage: "es",
         prejoinPageEnabled: false
         };
-        console.log(this.props.roomDetails);
-       return (<div>
-                    <button onClick = {this.cleanMeeting}>X</button>
+        
+       return (<div style={{paddingTop:"10px"}}>
+                    <button className="infoCancel" onClick = {this.cleanMeeting}><img src={cancel}/></button>
                     <Jitsi
                     config={config}
                     interfaceConfig={interfaceConfig}
-                    containerStyle={{ width: '1200px', height: '800px'}}
+                    containerStyle={{width: '800px', height: '600px'}}
                     domain = {"meet.jit.si"}
                     password = {this.props.roomDetails.password}
                     onAPILoad={JitsiMeetAPI =>  this.onLoadApi(JitsiMeetAPI)}

@@ -11,10 +11,10 @@ let redisClass = {};
 //adding data to the redis cache
 //params --> key - stirng, value - string, options - object
 //output --> promise
-redisClass.addData = (key,value,options) => new Promise((resolve,reject) => {
+redisClass.addData = (key,value) => new Promise((resolve,reject) => {
     let redisInstance = redis.createClient();
-    if(key != "" || value != "" || JSON.stringify(options) != JSON.stringify({})){
-        redisInstance.set(key,value,options.type,options.expiryTime,(err,response) => {
+    if(key != "" || value != ""){
+        redisInstance.set(key,value,(err,response) => {
             if(err){
                 redisInstance.quit();
                 console.log(err);

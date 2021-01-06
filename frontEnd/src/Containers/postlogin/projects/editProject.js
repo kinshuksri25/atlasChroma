@@ -38,6 +38,7 @@ class EditProject extends Component{
         this.createUnfilteredList = this.createUnfilteredList.bind(this);
         this.deleteProjectAlert = this.deleteProjectAlert.bind(this);
         this.deleteProject = this.deleteProject.bind(this);
+        this.checkStatus = this.checkStatus.bind(this);
     }
 
     componentDidMount(){
@@ -66,7 +67,17 @@ class EditProject extends Component{
         });
     }
 
+    checkStatus(){
+        let storyStatus = true;
+        this.props.projectDetails.storydetails.map(story => {
+            storyStatus = story.status != "Finished" ? false : storyStatus;
+        });
+
+        return storyStatus;
+    }
+
     onSubmit(){
+        let validStatus = true;
         let globalThis = this;
         let errorObject = {};
         let headers = {"CookieID" : cookieManager.getUserSessionDetails()};
@@ -85,7 +96,6 @@ class EditProject extends Component{
         }if(this.state.projectleader != this.props.projectDetails.projectlead){
             this.props.userList.map(user => {
                 if(user.username == this.state.projectleader || user.username == this.props.projectDetails.projectlead){
-                    console.log(user.email);
                     projectObject.projectLeadEmails.push(user.email);
                 }
             });
@@ -94,6 +104,8 @@ class EditProject extends Component{
         }if(JSON.stringify(this.state.contributors) != JSON.stringify(this.props.projectDetails.contributors)){
             projectObject.contributors = this.state.contributors;
         }if(this.state.status != this.props.projectDetails.status){
+            console.log(this.state.status);
+            validStatus = this.state.status == "Finished" ? this.checkStatus() : true;
             projectObject.status = this.state.status;
         }if(this.state.duedate != this.props.projectDetails.duedate){  
             projectObject.duedate = this.state.duedate;
@@ -105,7 +117,7 @@ class EditProject extends Component{
                 duplicateTitle = true;
         });
         globalThis.props.disableProjectForm(); 
-        if(!duplicateTitle){
+        if(!duplicateTitle && validStatus){
             httpsMiddleware.httpsRequest("/project", "PUT", headers,{...projectObject},function(error,responseObject) {
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -121,9 +133,16 @@ class EditProject extends Component{
                 } 
             });
         }else{
-            errorObject.msg = EMSG.CLI_PRJ_UPDERR;
-            errorObject.status = "ERROR";
-            globalThis.props.setMsgState(errorObject);
+            if(duplicateTitle){
+                errorObject.msg = EMSG.CLI_PRJ_UPDERR;
+                errorObject.status = "ERROR";
+                globalThis.props.setMsgState(errorObject);
+            }
+            if(!validStatus){
+                errorObject.msg = "Cannot update the story status to Finished as some stories are still incomplete";
+                errorObject.status = "ERROR";
+                globalThis.props.setMsgState(errorObject);
+            }
         }
 
     }
@@ -159,8 +178,7 @@ class EditProject extends Component{
 
     onChangeHandler(event){
         let currentDateObject = new DateHelper().currentDateGenerator();
-        let currentMonth = parseInt(currentDateObject.month)+1;
-        let currentDate= currentDateObject.year+"-"+currentMonth+"-"+currentDateObject.date;
+        let currentDate= currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let errorObject = {};
         switch(event.currentTarget.id){
             case "projectTitle":
@@ -189,17 +207,7 @@ class EditProject extends Component{
                 }
                 break;
             case "status":
-                let statusChangeValid = true;
-                this.props.projectDetails.storydetails.map(story => {
-                    statusChangeValid = story.status != "Finished" ? false : statusChangeValid;
-                });
-                if(statusChangeValid){
-                    this.setState({status : event.target.value});
-                }else{
-                    errorObject.msg = "unable to mark the project as finished, as some of the stories are currently open";
-                    errorObject.status = "ERROR";
-                    this.props.setMsgState(errorObject);
-                }
+                this.setState({status : event.target.value});
                 break;
         }
     }
@@ -326,7 +334,7 @@ class EditProject extends Component{
                     contentLabel=""
                     style={customStyles}>   
                         <button id="deleteNo" className = "addCancel" onClick = {this.deleteProjectAlert}><img src={cancel}/></button>
-                        <h3 className="projectDeleteConfirm">Do you want to delete {this.props.projectDetails.title} ? </h3>
+                        <h3 className="projectDeleteConfirm">Do you want to delete<br/> {this.props.projectDetails.title}? </h3>
                         <Button variant="danger" className="projectDel" onClick = {this.deleteProject}>Delete</Button>
                     </Modal>                                                
                 </div>);
