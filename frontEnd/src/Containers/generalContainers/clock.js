@@ -19,7 +19,7 @@ clock.startClock = () => {
         if(previousTime != time){
             let user = {...state.userStateReducer};
             user.events.map(event => {
-                let eventName = event.EventType;
+                let eventName = event.EventTitle;
                 let eventDate = event.CreationYear+"-"+event.CreationMonth+"-"+event.CreationDate;  
                 if(event.EventType != "All Day"){  
                     if(eventDate < date){
