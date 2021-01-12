@@ -108,7 +108,6 @@ userHandler.user.get = (route,requestObject,io) => new Promise((resolve,reject) 
                     resolvedSet.map(user => {
                         user.status = valueArray.indexOf(user.username) >= 0 ? true : false;
                     });
-                    console.log(resolvedSet);
                     response.STATUS = 200;
                     response.PAYLOAD = {};
                     response.SMSG = SMSG.SVR_UHH_RDUSR; 

@@ -33,7 +33,7 @@ class BoardColumn extends Component{
         if(this.state.columnChildren.length == 0){
             return(<div className = "phaseContainer" id = {this.state.columnID}>
                         <div className = "phaseHeading">{this.state.columnHeading}</div>
-                        <StoryContainer currentProject={this.props.currentProject} columnID = {this.state.columnID}/>
+                        <StoryContainer currentProject={this.props.currentProject} columnID = {this.state.columnID} maxStoryWidth={this.props.maxStoryWidth}/>
                     </div>);
         }else{
             return(<div className = "phaseContainer" id = {this.state.columnID}>
@@ -41,8 +41,7 @@ class BoardColumn extends Component{
                          <div className = "phaseBody">
                             {
                                 this.state.columnChildren.map(child => {
-                                let width = this.props.width/this.state.columnChildren.length; 
-                                return <BoardColumn currentProject={this.props.currentProject} columnDetails = {child}/>
+                                return <BoardColumn currentProject={this.props.currentProject} columnDetails = {child} maxStoryWidth={this.props.maxStoryWidth}/>
                                 })
                             }
                          </div>   

@@ -78,9 +78,15 @@
     outline: none;
 }
 
-.updateButton,.deleteButton{
+.deleteButton{
     height: 3rem;
     width:  100%;
+}
+
+#updateProfileButton{
+    height: 3rem;
+    width:  100%;
+    color: white;
 }
 
 

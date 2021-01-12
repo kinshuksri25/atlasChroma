@@ -22,6 +22,7 @@
 }
 
 #InProgress,#Finished,#OnHold,#OverDue{
+    cursor: pointer;
     position: relative;
     box-sizing: border-box;
     width: 100%;
@@ -63,6 +64,7 @@
 }
 
 #projectDescription{
+    word-wrap: break-word;
     min-height: 2.6rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -72,7 +74,13 @@
 }
 
 #projectTitle{
+    max-width: 100%;
     margin-top: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
 }
 
 .profilePicture{

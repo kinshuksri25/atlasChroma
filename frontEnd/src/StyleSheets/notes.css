@@ -41,8 +41,17 @@
     background: #4F8BCA;
 }
 
+.notesTitle{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
 .notesDescription{
     font-size: 1rem;
+    word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

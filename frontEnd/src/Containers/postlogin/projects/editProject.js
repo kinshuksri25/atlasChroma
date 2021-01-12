@@ -62,6 +62,7 @@ class EditProject extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             } 
         });
@@ -94,6 +95,7 @@ class EditProject extends Component{
         }if(this.state.description != this.props.projectDetails.description){
             projectObject.description = this.state.description;
         }if(this.state.projectleader != this.props.projectDetails.projectlead){
+            projectObject.oldlead = this.props.projectDetails.projectlead;
             this.props.userList.map(user => {
                 if(user.username == this.state.projectleader || user.username == this.props.projectDetails.projectlead){
                     projectObject.projectLeadEmails.push(user.email);
@@ -129,6 +131,7 @@ class EditProject extends Component{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }
                 } 
             });

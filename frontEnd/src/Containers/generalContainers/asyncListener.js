@@ -57,8 +57,10 @@ listener.listenEvents = (io) => {
                 break;
             case "addingStory" :
                 user.projects.map(project => {
+                    console.log(details.data);
                     if(project._id == details.data.projectID)
                     {
+                        console.log("called");
                         delete details.data.projectID;
                         project.storydetails.push({...details.data});
                     }

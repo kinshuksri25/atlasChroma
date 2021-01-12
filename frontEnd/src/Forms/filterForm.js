@@ -34,7 +34,9 @@ export default class FilterForm extends Component{
                     this.props.userlist.map(user => {
                         if(user.username == project.projectlead)
                             projectObject.leadPhoto = user.photo;
+                            projectObject.name = user.firstname+" "+user.lastname;
                     })
+                    projectObject.updatedtitle = projectObject.title.length > 20 ? projectObject.title.substring(0,18)+"..." : projectObject.title; 
                     suggestions.push({...projectObject});
                 } 
             });
@@ -65,8 +67,8 @@ export default class FilterForm extends Component{
                         <ul className="suggestions">
                             {
                                 this.state.suggestions.map(suggestion => {
-                                   return( <li id={suggestion._id} onClick={this.onSubmit}>
-                                                <span className="suggestionTitle">{suggestion.title}</span>  <span>ProjectLead:<img className = "profilePicture" src={suggestion.leadPhoto}/></span>  
+                                   return( <li title={suggestion.title} id={suggestion._id} onClick={this.onSubmit}>
+                                                <span className="suggestionTitle">{suggestion.updatedtitle}</span>  <span>ProjectLead:<img title={suggestion.name} className = "profilePicture" src={suggestion.leadPhoto}/></span>  
                                             </li>)
                                 })
                             }

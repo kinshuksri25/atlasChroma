@@ -22,11 +22,13 @@
 }
 
 .suggestions{
+    cursor: pointer;
     position: absolute;
     z-index: 1;
     top: 2.05rem;
     background: white;
     min-width: 60%;
+    width: 100%;
     padding: 0px;
     border-radius: 5px;
 }
@@ -50,11 +52,10 @@
 }
 
 .suggestions li:hover{
+    color: white;
     background: rgb(139, 197, 255);
 }
 
-@media screen and (max-width: 1366px){
-    .suggestions{
-        width: 100%;
-    }
+.suggestionTitle{
+    padding: 3px;
 }

@@ -15,7 +15,6 @@ socket.handleEvents = (io) =>{
         socket.on("login", (userID) => {
             if(userID){
                 cookieHandler.getCookie(userID).then(resolvedResult => {
-                    console.log("User "+resolvedResult+" connected with socketID: "+socket.id);
                     socketObject[resolvedResult] = socket.id;
                     io.clients((error, clients) => {
                         if (error) throw error;
@@ -54,7 +53,7 @@ socket.handleEvents = (io) =>{
                         });
                     }else{
                         privateRoomName = resolvedResult[0].roomname;
-                        !socket.rooms.hasOwnProperty(privateRoomName) && socket.join(privateRoomName,() =>{console.log("sender has joined the room "+privateRoomName);}); 
+                        !socket.rooms.hasOwnProperty(privateRoomName) && socket.join(privateRoomName); 
                     }
                     
                     let genData = { roomName : privateRoomName, 

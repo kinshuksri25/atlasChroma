@@ -63,14 +63,15 @@ class StoryContainer extends Component{
         let stories = this.getStories();
         stories = this.sortStories(stories);
         let storyContainer = stories.map(story => {
-            return <Story currentProject={this.props.currentProject} storyDetails = {story}/>
+            return <Story currentProject={this.props.currentProject} storyDetails = {story} maxStoryWidth={this.props.maxStoryWidth}/>
         });
         return(<div>{storyContainer}</div>);
     }
 
     render(){
+        let maxWidth = this.props.maxStoryWidth+"px";
         let storyContainerJSX = this.buildStoryContainer();
-        return(<div className = "storyContainer">
+        return(<div className = "storyContainer" style={{maxWidth : maxWidth,width : maxWidth}}>
                     {storyContainerJSX}
                </div>);
     }

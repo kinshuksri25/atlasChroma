@@ -73,30 +73,29 @@
 
 .signUpButton{
     border: 1px solid #007bff;
+    background-color: #007bff;
     width: 70%;
-    background-color: rgba(0,0,0,0);
-    color: #007bff;
+    color: white;
 }
 
 .loginButton,.googleLoginButton{
     border: 1px solid #28a745;
     width: 70%;
-    background-color: rgba(0,0,0,0);
-    color: #28a745;   
+    background-color: #28a745;
+    color: white;   
 }
 
 .signUpButton:hover,.signUpButton:active{
-    border: 1px solid #007bff;
-    background-color: #007bff;
-    color: white;
-    outline-color: #007bff;
+    border: 1px solid #0063cc;
+    background-color: #0063cc;
+    outline-color: #0063cc;
 }
 
 .googleLoginButton:hover,.loginButton:hover,.googleLoginButton:active,.loginButton:active{
-    border: 1px solid #28a745;
-    background-color: #28a745;
+    border: 1px solid #258a3d;
+    background-color: #258a3d;
     color: white;
-    outline-color: #28a745;
+    outline-color: #258a3d;
 }
 
 .signUpAttributes:focus,.loginAttributes:focus{

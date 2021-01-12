@@ -19,7 +19,7 @@ const googleApis = {};
 //returns --> promise - boolean
 googleApis.sendEmail = (senderEmail,recieverEmail,refreshToken,clientID,clientSecret,emailTemplate,replacementData) => new Promise((resolve,reject) => {
    //get the template data
-   fs.readFile(emailTemplate.templateLocation, function(error, data) {  
+   fs.readFile(emailTemplate.templateLocation, 'utf8', function(error, data) {  
     if (error) {
         console.log(error);
         reject(false);

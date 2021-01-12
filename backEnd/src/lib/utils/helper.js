@@ -35,10 +35,11 @@ helperFunctions.generateCurrentTime = () => {
   return time;
 }
 
-// this needs to be checked
+
 helperFunctions.interpolate = (str,data) => {
+
 	str = typeof(str) == 'string' && str.length > 0 ? str : '';
-	data = typeof(data) == 'object' && data !==null ? data : {};
+  data = typeof(data) == 'object' && data !==null ? data : {};
 
 	//for each key in the data object, 
 	//insert its value into the string at the corresponding placeholder

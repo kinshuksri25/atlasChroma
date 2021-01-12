@@ -143,6 +143,7 @@ class SetupProject extends Component {
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }
                 } 
             });

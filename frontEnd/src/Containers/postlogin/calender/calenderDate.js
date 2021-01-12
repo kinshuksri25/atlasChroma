@@ -35,7 +35,7 @@ class CalenderDate extends Component{
     }
 
     render(){
-        let date = this.props.currentYear+"-"+(parseInt(this.props.currentMonth)+1)+"-"+this.props.currentDate;
+        let date = this.props.currentYear+"-"+this.props.currentMonth+"-"+this.props.currentDate;
         let currentDateObject = new DateHelper().currentDateGenerator();
         let currentDate = currentDateObject.year+"-"+currentDateObject.month+"-"+currentDateObject.date;
         let heading = this.props.currentDate+" "+this.props.currentMonthName+" "+this.props.currentYear;

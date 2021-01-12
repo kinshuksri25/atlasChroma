@@ -309,7 +309,8 @@ class PreLoginForms extends Component {
                                 <SimpleForm formAttributes = { formConstants.signup }
                                 submitHandler = { this.onSignupSubmitHandler }
                                 changeHandler = { this.changeHandler }
-                                changeFieldNames = {["Email", "UserName"]}/> 
+                                changeFieldNames = {["Email", "UserName"]}
+                                toggle = {this.state.activeTab}/> 
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
@@ -324,7 +325,8 @@ class PreLoginForms extends Component {
                                 <h4 className="loginTitle">Login using your Sokratic Credentials</h4>
                                 <SimpleForm formAttributes = { formConstants.login }
                                 submitHandler = { this.onLoginSubmitHandler }
-                                changeFieldNames = {[]}/>
+                                changeFieldNames = {[]}
+                                toggle = {this.state.activeTab}/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
@@ -339,7 +341,8 @@ class PreLoginForms extends Component {
                                 <h4 className="loginTitle">Use One Click Google SignUp/Login</h4>
                                 <SimpleForm formAttributes = { formConstants.googleLogin }
                                 submitHandler = { this.onLoginSubmitHandler }
-                                changeFieldNames = {[]}/>
+                                changeFieldNames = {[]}
+                                toggle = {this.state.activeTab}/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>

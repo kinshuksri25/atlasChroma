@@ -1,10 +1,11 @@
 import React,{ Component } from "react";
 import { connect } from 'react-redux';
+import {Form,Button} from 'react-bootstrap';
 
+import cancel from "../../../Images/icons/cancel.png";
 import edit from "../../../Images/icons/edit.png";
 import info from "../../../Images/icons/info.png";
 import remove from "../../../Images/icons/delete.png";
-import {Button} from 'react-bootstrap';
 import Modal from 'react-modal';
 import "../../../StyleSheets/templateBuilder.css";
 import {EMSG} from "../../../../../lib/constants/contants"; 
@@ -46,15 +47,14 @@ class TemplateBuilder extends Component {
         this.props.setLoadedTemplate(this.state.loadedTemplate);
     }
 
-    getStyle(el,styleProp)
-{
-	var x = document.getElementById(el);
-	if (x.currentStyle)
-		var y = x.currentStyle[styleProp];
-	else if (window.getComputedStyle)
-		var y = document.defaultView.getComputedStyle(x,null).getPropertyValue(styleProp);
-	return y;
-}
+    getStyle(el,styleProp){
+        var x = document.getElementById(el);
+        if (x.currentStyle)
+            var y = x.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+            var y = document.defaultView.getComputedStyle(x,null).getPropertyValue(styleProp);
+        return y;
+    }
 
     formBuilder(){
         let groupedTemplate = this.groupTemplates();
@@ -363,6 +363,23 @@ class TemplateBuilder extends Component {
     }
     
     render(){
+        const customStyles = {
+            overlay:{
+                background: 'rgba(255, 255, 255, 0.378)',
+            },
+            content : {
+              top                   : '50%',
+              left                  : '50%',
+              right                 : 'auto',
+              bottom                : 'auto',
+              heigth                : '10%',
+              padding               : '1rem',
+              marginRight           : '-50%',
+              borderRadius          : '5px',
+              transform             : 'translate(-50%, -50%)',
+              textAlign             : 'center'
+            }
+        };
         let formContainer = this.formBuilder();
         let showPhaseSelector = this.state.currentAction == "ADD" ? false : true;    
         return(<div className = "templateBuilderContainer">
@@ -370,25 +387,34 @@ class TemplateBuilder extends Component {
                     <Button variant="success" className="templateAddButton" onClick={this.addPhase}>+</Button>
                     <Modal
                     isOpen={this.state.currentAction != ""}
-                    contentLabel="">
-                        <select id="phaseSelector" value = {this.state.formData.PHASE} hidden = {showPhaseSelector} onChange={this.onPhaseOptionChange}>
-                            <option selected="selected" value="Phase">Phase</option>
-                            <option value="SubPhase">SubPhase</option>   
-                        </select>
-                        <select id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
-                        <option>Parent Phase</option>  
-                        {
-                            !showPhaseSelector && this.groupTemplates().map(template => {
-                                                        return(template.map(opt => {
-                                                        return(<option value = {opt.NAME}>{opt.NAME}</option>)}));
-                                                    })
-                        }
-                        </select>
+                    contentLabel=""
+                    style = {customStyles}>
+                        <button className="infoCancel" id="cancels" onClick={this.clearForm}><img src={cancel}/></button>
+                        <Form.Group>
+                            <Form.Control as="select" id="phaseSelector" value = {this.state.formData.PHASE} hidden = {showPhaseSelector} onChange={this.onPhaseOptionChange}>
+                                <option selected="selected" value="Phase">Phase</option>
+                                <option value="SubPhase">SubPhase</option>   
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Control as="select" id="subPhaseSelector" onChange={this.onPhaseOptionChange} hidden = {this.state.formData.PHASE == "SubPhase" ? false : true}>
+                            <option>Parent Phase</option>  
+                            {
+                                !showPhaseSelector && this.groupTemplates().map(template => {
+                                                            return(template.map(opt => {
+                                                            return(<option value = {opt.NAME}>{opt.NAME}</option>)}));
+                                                        })
+                            }
+                            </Form.Control>
+                        </Form.Group>
                         <div hidden = {this.state.editForm}>
-                        <input type="text" id = "NAME" value={this.state.formData.NAME} onChange = {this.changeHandler} placeholder="Name" disabled = {this.state.isFeildDisabled}/>
-                        <input type="number" id = "WIP" value={this.state.formData.WIP} onChange = {this.changeHandler} placeholder="WIP" disabled = {this.state.isFeildDisabled || this.state.disableWIP}/>
-                        <button onClick={this.clearForm}>X</button>
-                        <button onClick={this.submitPhase} hidden = {this.state.isFeildDisabled}>&gt;</button>
+                            <Form.Group>
+                                <Form.Control type="text" id = "NAME" value={this.state.formData.NAME} onChange = {this.changeHandler} placeholder="Name" disabled = {this.state.isFeildDisabled}/>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Control type="number" id = "WIP" value={this.state.formData.WIP} onChange = {this.changeHandler} placeholder="WIP" disabled = {this.state.isFeildDisabled || this.state.disableWIP}/>
+                            </Form.Group>   
+                            <Button variant="success" className="projectDel" id="phaseSubmit" onClick={this.submitPhase} hidden = {this.state.isFeildDisabled}>DONE</Button>
                         </div>    
                     </Modal>
                </div>);

@@ -72,11 +72,13 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
         requestObject.reqBody.eventObject.password = helperFunctions.randValueGenerator(6);
         mongo.update(DBCONST.userCollection , query,{$push:{events : {...requestObject.reqBody.eventObject}}},{},MULTIPLE).then(resolvedSet => {
             if(isMeeting){
+                let creator = "";
                 io.emit("updatingDetails",{event : "addingMeeting", data : {...requestObject.reqBody.eventObject}});  
-                mongo.read(DBCONST.userCollection,{username : {$in : [...requestObject.reqBody.eventObject.participants]}},{projection : {email : 1 ,_id : 0}}).then(resolvedResult => {
+                mongo.read(DBCONST.userCollection,{username : {$in : [...requestObject.reqBody.eventObject.participants]}},{projection : {username : 1,firstname : 1,lastname : 1,email : 1 ,_id : 0}}).then(resolvedResult => {
                     let recipientList = [];
                     resolvedResult.map(user => {
                         recipientList.push(user.email);
+                        creator = user.username == requestObject.reqBody.eventObject.creator ? user.firstname+" "+user.lastname : creator;
                     });
                     //this might change 
                     let meetingDate = requestObject.reqBody.eventObject.CreationYear+"-"+requestObject.reqBody.eventObject.CreationMonth+"-"+requestObject.reqBody.eventObject.CreationDate;
@@ -85,8 +87,7 @@ eventHandler.event.post = (route, requestObject,io) => new Promise((resolve,reje
                         "meetingLink" : "",
                         "date" : meetingDate,
                         "startTime" : requestObject.reqBody.eventObject.StartTime,
-                        "participants" : [...requestObject.reqBody.eventObject.participants],
-                        "creator" : requestObject.reqBody.eventObject.creator
+                        "creator" : creator
                     };
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDEVENT,template).then(resolvedEmail => {
                         response.STATUS = 200;
@@ -239,10 +240,10 @@ eventHandler.event.delete = (route, requestObject,io) => new Promise((resolve,re
                 }
             });
             mongo.update(DBCONST.userCollection,{"events._id" : {$eq : requestObject.queryObject.eventID}},{ $pull: {events : {_id: requestObject.queryObject.eventID}}},{},MULTIPLE).then(resolvedSet => {
-                if(selectedEvent.EventType == "Meeting"){  
+                if(selectedEvent.EventType == "Meeting"){ 
                     io.emit("updatingDetails",{event : "deletingMeeting", data : {...selectedEvent}});    
                     let template = {
-                        eventName : selectedEvent.eventName
+                        eventName : selectedEvent.EventTitle
                     };
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETEEVENT,template).then(resolvedEmail => {
                         response.STATUS = 200;

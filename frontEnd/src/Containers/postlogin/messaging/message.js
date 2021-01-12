@@ -15,14 +15,22 @@ class Message extends Component{
         this.onChangeHandler = this.onChangeHandler.bind(this);
         this.onSubmitHandler = this.onSubmitHandler.bind(this);
         this.buildChatWindow = this.buildChatWindow.bind(this);
+        this.onKeyDownHandler = this.onKeyDownHandler.bind(this);
     }
 
     onChangeHandler(event){
         this.setState({message : event.target.value});
     }
 
+    onKeyDownHandler(event) {
+        if (event.key == "Enter") {
+            this.onSubmitHandler();
+        }
+    }
+
     onSubmitHandler(){
         if(this.state.message!=""){
+            this.setState({message:""});
             let currentMonth = new Date().getMonth().toString().length == 1 ? "0"+new Date().getMonth() : new Date().getMonth();
             let currentDay = new Date().getDate().toString().length != 1 ? new Date().getDate() : "0"+new Date().getDate();
             let currentDate = new Date().getFullYear()+"-"+currentMonth+"-"+currentDay;
@@ -73,7 +81,7 @@ class Message extends Component{
         return (<div className = "chatBox">
                    {chatWindowJSX}
                     <div className="inputContainer">
-                        <input type = "text" value = {this.state.message} onChange = {this.onChangeHandler} className = "messageInput"/>
+                        <input type = "text" value = {this.state.message} onChange = {this.onChangeHandler} className = "messageInput" onKeyDown = { this.onKeyDownHandler }/>
                         <Button variant="success" onClick = {this.onSubmitHandler}>&gt;</Button>
                     </div>
                 </div>);

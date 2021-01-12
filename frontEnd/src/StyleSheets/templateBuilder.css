@@ -1,0 +1,15 @@
+#cancels{
+    top: 1px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#phaseSubmit{
+    margin: 0px auto;
+    width: 70%;
+    height: 2rem;
+}
+
+#phaseSelector{
+    margin-top: 1rem;
+}

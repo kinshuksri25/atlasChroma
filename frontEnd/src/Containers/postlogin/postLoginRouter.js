@@ -127,9 +127,9 @@ class PostLoginRouter extends Component {
                         return <Profile/>;
                         break;                        
                     case "logout":
-                        // clock.unsubscribe();
-                        // listener.unsubscribe();
-                        // this.props.updateTime("");
+                        this.props.updateTime("");
+                        clock.unsubscribe();
+                        listener.unsubscribe();
                         this.props.io.emit("terminate",{cookieID : cookieManager.getUserSessionDetails(), username : this.props.user.username});
                         cookieManager.clearUserSession();
                         window.history.replaceState({}, "",urls.LANDING);

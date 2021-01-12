@@ -64,7 +64,7 @@
 }
 
 .phaseContainer{
-    min-width: 22rem;
+    min-width: 22.5rem;
     height: 100%;
     box-sizing: border-box;
     display: grid;
@@ -93,6 +93,7 @@
 }
 
 .storyFinished,.storyInProgress,.storyOnHold,.storyOverDue{
+    cursor: pointer;
     border-radius: 5px;  
     display: grid;
     grid-template-rows: 2rem 1fr 1rem 2rem;
@@ -136,12 +137,19 @@
 }
 
 .tileHeading{
+    word-wrap:break-word;
     font-size: 1.5rem;
     margin:0px;
     padding: 0px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
 }
 
 .tileDescription{
+    word-wrap:break-word;
     font-size: 1rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -217,7 +225,7 @@
     right: 1.2rem;
 }
 
-.updateStoryButton{
+#updateStoryButton{
     width: 100%;
     color:white;
 }

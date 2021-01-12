@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { hot } from "react-hot-loader";
 import { connect } from 'react-redux';
 
-import "../../../StyleSheets/timedEvents.css";
 
 class TimedEvent extends Component{
     constructor(props){
@@ -40,9 +39,9 @@ class TimedEvent extends Component{
             let timedJSX = [];
             sortedEvent.map(event => {
                 timedJSX.push(<div className = {event.status} id = {event._id} onClick={event.status == "YettoStart" && this.props.onClick}>  
-                                <div className = "scheduledCardTitle">{event.EventTitle}</div>
+                                <div title={event.EventTitle} className = "scheduledCardTitle">{event.EventTitle}</div>
                                 <div className = "cardBody">
-                                    <p className = "scheduledCardDescription">{event.Description}</p>
+                                    <p title={event.Description}  className = "scheduledCardDescription">{event.Description}</p>
                                     {event.status == "YettoStart" && <div className = "timing"><span>Starts: {event.StartTime}</span>  <span>Ends: {event.EndTime}</span></div>}
                                     {event.status != "YettoStart" && <span className = "status">{event.status}</span>}
                                 </div>

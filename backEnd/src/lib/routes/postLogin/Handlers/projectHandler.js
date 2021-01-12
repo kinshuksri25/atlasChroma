@@ -75,27 +75,27 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
             duedate:requestObject.reqBody.duedate});
 
         let projectObject = projectClass.getProjectDetails();
-        let template = {
-            projectName : projectObject.title,
-            projectLink : "",
-            projectLead : projectObject.projectlead,
-            contributors : projectObject.contributors
-        };
 
         mongo.insert(DBCONST.projectCollection,projectObject,{}).then(resolveResult => {           
             let insertedID = resolveResult.insertedId;
             projectObject._id = insertedID;
+            let projectLead = "";
             mongo.update(DBCONST.userCollection,{ username: { $in: projectObject.contributors } },{ $push: {projects : insertedID}}, {},MULTIPLE).then(resolvedSet => {
                 io.emit("updatingDetails",{event : "addingProject", data : {contributors : [...projectObject.contributors],body : {...projectObject}}});
-                mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {email : 1, _id : 0,firstname : 1}}).then(resolvedSet => {
+                mongo.read(DBCONST.userCollection,{username: { $in: projectObject.contributors }},{projection : {username: 1,email : 1, _id : 0,firstname : 1,lastname: 1}}).then(resolvedSet => {
+
                     let recipientList = [];
+                    let contributors  = "";
                     resolvedSet.map(user => {
                         recipientList.push(user.email);
+                        projectLead = user.username == requestObject.reqBody.projectleader ? user.firstname+" "+user.lastname : projectLead;
+                        contributors += user.firstname+" "+user.lastname+"<br>";
                     });
                     templateBuilder = {
                         projectName : requestObject.reqBody.title,
                         projectLink : "",
-                        contributors : requestObject.reqBody.contributors  
+                        projectLead : projectLead,
+                        contributors : contributors
                     };
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,recipientList,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                         response.STATUS = 200;
@@ -107,7 +107,7 @@ projectHandler.project.post = (route,requestObject,io) => new Promise((resolve,r
                         let payload = {
                             "participants" : [...recipientList],
                             "template" : "ADDPROJECT",
-                            "templateData" : template
+                            "templateData" : templateBuilder
                         };
                         mongo.insert(DBCONST.failedEmailCollection, {payload}, {});
                         throw rejectedEmail;
@@ -199,26 +199,28 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                 newContributors.length > 0 && io.emit("updatingDetails",{event : "addingProject", data : {contributors : [...newContributors],body : {...updatedProject}}});
                 removedContributors.length > 0 && io.emit("updatingDetails",{event : "deletingProject", data : {contributors : [...removedContributors],_id:requestObject.reqBody.projectID}});
 
-                mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0}}).then(resolvedSet => {
-        
+                mongo.read(DBCONST.userCollection,{username : {$in: [...newContributors,...removedContributors,...oldContributors]}},{projection : {username : 1, email : 1, _id : 0, firstname : 1, lastname : 1}}).then(resolvedSet => {
+
                     let newContributorsEmail = [];
                     let oldContributorsEmail = [];
                     let removedContributorsEmail = [];
-                    let templateBuilder = {};
+                    let templateBuilder = {oldLeader:"",newLeader:"",projectName:""};
                     resolvedSet.map(user => {
                         newContributors.indexOf(user.username) != -1 && newContributorsEmail.push(user.email);
                         oldContributors.indexOf(user.username) != -1 && oldContributorsEmail.push(user.email);
                         removedContributors.indexOf(user.username) != -1 && removedContributorsEmail.push(user.email);
+                        
+                        templateBuilder.oldLeader = requestObject.reqBody.oldlead == user.username ? user.firstname+" "+user.lastname : templateBuilder.oldLeader;
+                        templateBuilder.newLeader = requestObject.reqBody.projectleader== user.username ? user.firstname+" "+user.lastname : templateBuilder.newLeader;
                     });
-
-                    templateBuilder = {};
+                    templateBuilder.projectName = updatedProject.title;
 
                     requestObject.reqBody.hasOwnProperty("projectleader") && googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,[...requestObject.reqBody.projectLeadEmails],OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.CHANGELEAD,templateBuilder);
-        
+                    templateBuilder - {};
                     //send emails to respective groups
                     if(newContributorsEmail.length == 0 && removedContributorsEmail.length != 0){
                         templateBuilder = {
-                            projectName : requestObject.reqBody.oldTitle,
+                            projectName : updatedProject.title,
                             projectLink : ""  
                         };
                         googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,removedContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.REMOVEDUSER,templateBuilder).then(resolvedEmail => {
@@ -247,14 +249,14 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                         });
                     }else if(removedContributorsEmail.length == 0 && newContributorsEmail.length != 0){
                         templateBuilder = {
-                            projectName : requestObject.reqBody.oldTitle,
+                            projectName : updatedProject.title,
                             projectLink : "",
                             projectLead : updatedProject.projectlead,
                             contributors : updatedProject.contributors
                         };
                         googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,newContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.ADDPROJECT,templateBuilder).then(resolvedEmail => {
                             templateBuilder = {
-                                projectName : requestObject.reqBody.oldTitle,
+                                projectName : updatedProject.title,
                                 projectLink : ""  
                             };
                             googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {
@@ -282,7 +284,7 @@ projectHandler.project.put = (route,requestObject,io) => new Promise((resolve,re
                         });
                     }else{
                         templateBuilder = {
-                            projectName : requestObject.reqBody.oldTitle,
+                            projectName : updatedProject.title,
                             projectLink : ""  
                         };
                         googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,oldContributorsEmail,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.EDITPROJECT,templateBuilder).then(resolvedEmail => {

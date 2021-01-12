@@ -70,8 +70,19 @@ class KanbanBoard extends Component {
     buildBoard(template = this.selectProject().templatedetails){
         let board = "";
         let groupedTemplate = this.groupTemplate(template);
+        let maxStoryWidth = "";
+        let validColumns = 0;
+        template.map(template => {
+            if(template.CHILDREN.length==0){
+                validColumns++;
+            }
+        });
+        validColumns = validColumns > 5 ? 5 : validColumns;
+        maxStoryWidth = screen.availWidth-(16+(validColumns*16)+((validColumns-1)*8)+8);
+        maxStoryWidth = maxStoryWidth/validColumns;
+
         board = groupedTemplate.map(template => {
-            return(<BoardColumn currentProject={this.selectProject()} columnDetails = {template}/>);    
+            return(<BoardColumn currentProject={this.selectProject()} columnDetails = {template} maxStoryWidth = {maxStoryWidth}/>);    
         });
         return (<div className = "innerBoardContainer">{board}</div>);
     }

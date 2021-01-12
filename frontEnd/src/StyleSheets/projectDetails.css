@@ -28,7 +28,7 @@
 }
 
 
-.radialGraphContainer, .secDetailContainer{
+.radialGraphContainer{
     display: grid;
     margin: 0px;
     padding: 0px;
@@ -36,35 +36,4 @@
     grid-template-columns: 1fr 1fr;
     grid-gap: 0px;
     padding-bottom: 0.5rem;
-}
-
-.secDetailContainer{
-    font-family: 'Comfortaa', cursive;
-    text-align: center;
-}
-
-
-.projectDetailsBody{
-    overflow: auto;
-    max-height : 5.5rem;
-}
-
-
-.projectDetailsBody > p{
-    border: none;
-    border-radius: 10px;
-    margin-bottom: 0.5rem;
-}
-
-.projectDetailsBody > p:hover{
-    background: rgb(224, 222, 222);
-    cursor: pointer;
-}
-
-
-.projectDetailsEmptyBody {
-    height: 5.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }

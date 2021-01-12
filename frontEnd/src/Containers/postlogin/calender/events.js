@@ -106,7 +106,7 @@ class Events extends Component{
 
                 selectedEvent = eventID == event._id ? event : selectedEvent;
             });
-            JSON.stringify(selectedEvent) == JSON.stringify({}) && window.history.pushState({},"",date);
+            JSON.stringify(selectedEvent) == JSON.stringify({}) && window.history.replaceState({},"",date);
             JSON.stringify(selectedEvent) != JSON.stringify({}) && this.setState({
                 currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.EventType != "All Day" ? selectedEvent.StartTime : "",
                 endTime: selectedEvent.EventType != "All Day" ? selectedEvent.EndTime : "",
@@ -168,7 +168,7 @@ class Events extends Component{
                 this.prepParticipants();
             });
         }else if(event.currentTarget.className.indexOf("CLOSE") >= 0){
-            this.state.currentMode != "ADD" && window.history.pushState({}, "",date);
+            this.state.currentMode != "ADD" && window.history.replaceState({}, "",date);
             this.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",selectedEvent:{},participants:[this.props.user.username]});
         }else{
             let combinedArray = [...this.state.allDayEvents,...this.state.timedEvents,...this.state.meetings];
@@ -182,7 +182,7 @@ class Events extends Component{
             let participants = selectedEvent.hasOwnProperty("participants") ? selectedEvent.participants : this.state.participants;
             this.setState({currentMode : "EDIT",eventType : selectedEvent.EventType,startTime: selectedEvent.StartTime,
                                         endTime: selectedEvent.EndTime,EventTitle:selectedEvent.EventTitle,Description:selectedEvent.Description,selectedEvent : selectedEvent, participants : [...participants]},() => {
-                                            window.history.pushState({}, "",date+"?eventID="+selectedEvent._id);
+                                            window.history.replaceState({}, "",date+"?eventID="+selectedEvent._id);
                                             this.prepParticipants();
                                         });
         }
@@ -223,6 +223,7 @@ class Events extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }
             else{
@@ -255,7 +256,7 @@ class Events extends Component{
             }
         });
         globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
-        window.history.pushState({}, "",date);
+        window.history.replaceState({}, "",date);
     }
     
     deleteEvent(){
@@ -275,6 +276,7 @@ class Events extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }
             else{
@@ -293,7 +295,7 @@ class Events extends Component{
             }
         });
         globalThis.setState({currentMode : "",eventType : "",startTime:"",endTime:"",EventTitle:"",Description:"",participants:[globalThis.props.user.username]}); 
-        window.history.pushState({}, "",date);
+        window.history.replaceState({}, "",date);
     }
     
     addEvent(formObject){
@@ -349,6 +351,7 @@ class Events extends Component{
                             errorObject.msg = responseObject.EMSG;
                             errorObject.status = "ERROR";
                             globalThis.props.setMsgState(errorObject);
+                            window.history.pushState({},"",urls.LOGOUT);
                         }
                     }else{
                         if(eventObject.EventType != "Meeting"){
@@ -572,7 +575,8 @@ class Events extends Component{
 const mapStateToProps = (state) => {
     return {
         user : state.userStateReducer,
-        userList: state.userListStateReducer
+        userList: state.userListStateReducer,
+        currentUrl : state.urlStateReducer.currentUrl
     }
 };
 

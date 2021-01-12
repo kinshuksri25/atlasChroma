@@ -32,10 +32,10 @@ clock.startClock = () => {
                         }else if(event.StartTime < time && event.EndTime <= time){
                             event.status = "finished"
                         }else if(event.StartTime <= time && event.EndTime >= time){
+                            event.status != "CurrentlyActive" && store.dispatch(setMsgAction({msg: eventName+", has started" ,status:"SUCCESS"}));
                             event.status = "CurrentlyActive"
                         }
                     }
-                    event.status == "CurrentlyActive" && store.dispatch(setMsgAction({msg: eventName+", has started" ,status:"SUCCESS"}));
                 }else{
                     event.status == eventDate > date ? "YettoStart" : eventDate < date ? "finished" : "CurrentlyActive";
                 }

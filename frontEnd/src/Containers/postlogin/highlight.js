@@ -118,10 +118,11 @@ class Highlight extends Component{
                 let link = "https://localhost:3000/scheduler/"+dateSum+"?eventID="+compliedEvents[j]._id;
                 let refDate = compliedEvents[j].CreationYear+"-"+compliedEvents[j].CreationMonth+"-"+compliedEvents[j].CreationDate;
                 let status = refDate > currentDate ? "Later" : compliedEvents[j].status == "YettoStart" ? "Today" : "Active";
+                let description = compliedEvents[j].EventTitle.length > 20 ? compliedEvents[j].EventTitle.substring(0,18)+"..." : compliedEvents[j].EventTitle; 
                 eventListJSX.push(<div className = {status} id={link} onClick={this.redirect}>
-                                        {status == "Later" && <h6>You have {compliedEvents[j].EventTitle}, on {refDate} at {compliedEvents[j].StartTime}</h6>}
-                                        {status == "Today" && <h6>You have {compliedEvents[j].EventTitle},today at {compliedEvents[j].StartTime}</h6>}
-                                        {status == "Active" && <h6>{compliedEvents[j].EventTitle},has started</h6>}
+                                        {status == "Later" && <h6>You have <span title={compliedEvents[j].EventTitle}>{description}</span>, on {refDate} at {compliedEvents[j].StartTime}</h6>}
+                                        {status == "Today" && <h6>You have <span title={compliedEvents[j].EventTitle}>{description}</span>,today at {compliedEvents[j].StartTime}</h6>}
+                                        {status == "Active" && <h6>{description},has started</h6>}
                                 </div>);    
               }  
               return [...eventListJSX];
@@ -135,9 +136,11 @@ class Highlight extends Component{
                 for(let j=0;j<compliedStories.length && j<9;j++){
                         let link = "https://localhost:3000/projects/"+compliedStories[j].projectID+"?storyID="+compliedStories[j]._id;
                         let storyClass = compliedStories[j].priority + " stories";
+                        let description = compliedStories[j].storytitle.length > 20 ? compliedStories[j].storytitle.substring(0,18)+"..." : compliedStories[j].storytitle; 
+                        let projDescription = compliedStories[j].projectName.length > 20 ? compliedStories[j].projectName.substring(0,18)+"..." : compliedStories[j].projectName; 
                         storiesListJSX.push(<div className = {storyClass}  id={link} onClick={this.redirect}>
-                                                {currentDate < compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at {compliedStories[j].duedate}</h6>}
-                                                {currentDate == compliedStories[j].duedate && <h6>{compliedStories[j].storytitle}, part of {compliedStories[j].projectName} is due at today</h6>}
+                                                {currentDate < compliedStories[j].duedate && <h6><span title={compliedStories[j].storytitle}>{description}</span>, part of <span title={compliedStories[j].projectName}>{projDescription}</span> is due at {compliedStories[j].duedate}</h6>}
+                                                {currentDate == compliedStories[j].duedate && <h6><span title={compliedStories[j].storytitle}>{description}</span>, part of <span title={compliedStories[j].projectName}>{projDescription}</span> is due at today</h6>}
                                         </div>);
                }
                 return [...storiesListJSX];
@@ -170,19 +173,19 @@ class Highlight extends Component{
                 return(<div className="highLightContainer">
                                 <div className="hightlightedStories">
                                         <h5>Highlighted Stories</h5>
-                                        <div>
+                                        <div className="highlightsContainer">
                                                 {this.buildStoriesList()}
                                         </div>
                                 </div>
                                 <div className="hightlightedEvents">
                                         <h5>Highlighted Events</h5>
-                                        <div>
+                                        <div className="highlightsContainer">
                                                 {this.buildEventList()}
                                         </div>
                                 </div>
                                 <div className="MissedConversation">
                                         <h5>Missed Conversation</h5>
-                                        <div>
+                                        <div className="highlightsContainer">
                                                 {this.buildMissedConvo()}
                                         </div>
                                 </div> 

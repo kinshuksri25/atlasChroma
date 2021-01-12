@@ -16,7 +16,7 @@ let cookieManager = (function() {
 
     let setUserSessionDetails = function(userID) {
         let cookie =  new Cookies();
-        cookie.set('userID', userID, { path: '/', maxAge: 1800000 });   
+        cookie.set('userID', userID, {path: '/'});   
     };
 
     let clearUserSession = function(){

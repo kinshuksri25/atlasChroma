@@ -1,49 +1,36 @@
 .highLightContainer{
     margin: 0px;
-    padding: 0.5rem;
+    padding: 0 0.5rem;
     box-sizing: border-box;
-    display:grid;
-    grid-gap:0.25rem;
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(3,1fr);
 }
 
 .hightlightedStories,.hightlightedEvents,.MissedConversation{
     box-sizing: border-box;
     border-radius: 5px;
+    height: 32.5%;
+    overflow: hidden;
+    margin: 0.25rem 0;
 }
 
-.MissedConversation{
-    border: 1px solid #4169e1;
+
+.MissedConversation,.hightlightedEvents,.hightlightedStories{
+    border: 1px solid #1a3b9e;
 }
 
-.hightlightedEvents{
-    border: 1px solid #4169e1;
-}
-
-.hightlightedStories{
-    border: 1px solid #4169e1;
-}
-
-.hightlightedStories h5{
+.hightlightedStories h5,.hightlightedEvents h5,.MissedConversation h5{
     text-align: center;
-    background: #4169e1;
+    background: #1a3b9e;
     color: white;
 }
 
-.hightlightedEvents h5{
-    text-align: center;
-    background: #4169e1;
-    color: white;
-}
-
-.MissedConversation h5{
-    text-align: center;
-    background: #4169e1;
-    color: white; 
+.highlightsContainer{
+    padding-bottom: 1.5rem;
+    overflow-y: auto;
+    height: 97%;
 }
 
 .stories{
+    cursor: pointer;
     padding: 0.25rem;
     margin: 0.25rem;
     border-radius: 5px;
@@ -51,10 +38,11 @@
 }
 
 .Later,.Active,.Today,.missedConvo{
+    cursor: pointer;
     color: white;
     padding: 0.25rem;
     margin: 0.25rem;
-    background: #eb8628;
+    background: #d36c0b;
     border-radius: 5px;
 }
 .Today{
@@ -74,7 +62,7 @@
 }
 
 .Later:hover{
-    background: #b96b22;
+    background: #b85d09;
 }
 
 @media screen and (max-width: 1450px){ 

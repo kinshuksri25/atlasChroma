@@ -18,6 +18,10 @@
     font-family: 'Comfortaa', cursive;
 }
 
+#updateProjectButton{
+    color: white;
+}
+
 
 .projectDeleteConfirm{
     width: 28rem;

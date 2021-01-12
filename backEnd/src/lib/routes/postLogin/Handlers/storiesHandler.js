@@ -159,9 +159,8 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
         let currentDate = generateCurrentDate();
     
         set.modificationdate = currentDate;
-
         let template = {
-            storyName : requestObject.reqBody.oldStoryName,
+            storyName : requestObject.reqBody.storyDetails.oldStoryName,
             storyLink : requestObject.reqBody.storyDetails._id,
             status : requestObject.reqBody.storyDetails.hasOwnProperty("currentStatus") ? "moved to a different phase" : "edited",
         };
@@ -196,6 +195,7 @@ storyHandler.stories.put = (route,requestObject,io) => new Promise((resolve,reje
                         resolve(response);    
                     });
                 }else{
+                    template.storyName = requestObject.reqBody.storyDetails.oldName;
                     googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.MOVESTORY,template).then(resolvedEmail => {
                         response.STATUS = 200;
                         response.PAYLOAD = {};
@@ -244,18 +244,19 @@ storyHandler.stories.delete = (route,requestObject,io) => new Promise((resolve,r
        };
     if(requestObject.queryObject.projectID != undefined && requestObject.queryObject.storyID != undefined ){
         mongo.update(DBCONST.projectCollection,{_id : requestObject.queryObject.projectID},{$pull : {storydetails : {_id : requestObject.queryObject.storyID}}},{returnOriginal: true},SINGLE).then(resolvedResult => { 
-            let originalProject = resolvedResult.value;  
-            let deletedStory;
+            let originalProject = resolvedResult.value;
+            let deletedStory = {};
             originalProject.storydetails.map(story => {
-                if(story._id == requestObject.queryObject.storyID)
+                if(story._id == requestObject.queryObject.storyID){
                     deletedStory = story;
+                }
             });
             io.emit("updatingDetails",{event : "deletingStory", data : {projectID : originalProject._id, storyID : deletedStory._id}});
             mongo.read(DBCONST.userCollection,{username: deletedStory.contributor },{}).then(resolvedResult => {;
                 let contributorEmailID = resolvedResult[0].email;
                 let template = {
-                    "storyName" : deletedStory.title,
-                    "projectName" : originalProject.projectName,
+                    "storyName" : deletedStory.storytitle,
+                    "projectName" : originalProject.title,
                     "projectLink" : ""
                 };
                 googleApis.sendEmail(OAuthCONST.appAuth.senderEmail,contributorEmailID,OAuthCONST.appAuth.sendEmailRefreshToken,OAuthCONST.appAuth.clientID,OAuthCONST.appAuth.clientSecret,EMAILTEMPLATES.DELETESTORY,template).then(resolvedEmail => {

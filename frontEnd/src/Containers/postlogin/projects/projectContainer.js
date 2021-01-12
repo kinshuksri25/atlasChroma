@@ -87,8 +87,8 @@ class ProjectContainer extends Component{
                 let cardID = project.duedate < currentDate && project.status == "InProgress" ? "OverDue" : project.status;
                 return(
                         <div id = {cardID} className = {project._id} onMouseOver = {this.showEdit} onMouseLeave = {this.hideEdit} onClick = {this.onClick}>
-                            <h3 id="projectTitle" className = {project._id}>{project.title}</h3>
-                            <p id="projectDescription" className = {project._id}>
+                            <h3 id="projectTitle" title={project.title} className = {project._id}>{project.title}</h3>
+                            <p id="projectDescription" title={project.description} className = {project._id}>
                                 {project.description}
                             </p>
                             <h6 id="projectLead" className = {project._id}>
@@ -200,6 +200,11 @@ class ProjectContainer extends Component{
                 sortedArray[selIndex] = sel;
             }
         }
+
+        if(orderBy == "Recently Created"){
+            return sortedArray.reverse();
+        }
+
         return sortedArray;
     }
 

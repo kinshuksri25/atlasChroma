@@ -67,6 +67,7 @@
 }
 
 .CardGroup{
+    cursor: pointer;
     box-sizing: border-box;
     overflow-y:auto;
     display: grid;
@@ -194,9 +195,11 @@
     -webkit-box-orient: vertical;
     margin: 0px;
     margin-bottom: 0.2rem;
+    word-wrap: break-word;
 }
 
 .creator{
+    word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -207,6 +210,7 @@
 }
 
 .cardDescription,.scheduledCardDescription,.meetingDescription{
+    word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -278,6 +282,7 @@
 .editEventButton{
     width: 100%;
     margin-bottom: 1rem;
+    color: white !important;
 }
 
 .deleteEventButton{

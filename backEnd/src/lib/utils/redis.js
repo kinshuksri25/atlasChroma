@@ -64,7 +64,6 @@ redisClass.readData = (key) => new Promise((resolve,reject) => {
                 console.log(err);
                 reject(EMSG.SVR_UTL_RDSRDERR);
             }else{
-                console.log(response);
                 redisInstance.quit();
                 resolve(response);
             }

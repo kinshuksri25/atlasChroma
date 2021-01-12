@@ -61,6 +61,7 @@ class Notes extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }else{
                 let userObject = {...globalThis.props.user};
@@ -90,6 +91,7 @@ class Notes extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }else{
                 let userObject = {...globalThis.props.user};
@@ -132,6 +134,7 @@ class Notes extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }else{
                 let userObject = {...globalThis.props.user};
@@ -156,8 +159,8 @@ class Notes extends Component{
         notes.map(note => {
                 if(this.props.calenderDate == note.creationdate){
                     notesJSX.push( <div id={note._id} className="notesContainer" onClick={this.displayNotesForm}>
-                                        <h2 className="notesTitle">{note.title}</h2>
-                                        <p className="notesDescription">{note.description}</p>
+                                        <h2 title={note.title} className="notesTitle">{note.title}</h2>
+                                        <p title={note.description} className="notesDescription">{note.description}</p>
                                     </div>)  
                 }
         });

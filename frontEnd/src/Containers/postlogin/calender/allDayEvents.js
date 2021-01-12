@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { hot } from "react-hot-loader";
 import {Card, CardGroup} from 'react-bootstrap';
 
-import "../../../StyleSheets/allDayEvents.css";
 import DateHelper from "../../generalContainers/date";
 
 class AllDayEvent extends Component{
@@ -24,12 +23,12 @@ class AllDayEvent extends Component{
             }
         });
         let url = "/projects/"+projectID+"?storyID="+event.currentTarget.id; 
-        window.history.replaceState({}, "",url);
+        window.history.pushState({}, "",url);
     }
 
     onProjectClick(event){
         let url = "/projects/"+event.currentTarget.id; 
-        window.history.replaceState({}, "",url);
+        window.history.pushState({}, "",url);
     }
 
 
@@ -86,16 +85,16 @@ class AllDayEvent extends Component{
                 if(story.status != "Finished"){
                     let storyClass = story.priority + " stry";
                     allDayJSX.push(<div className = {storyClass} id = {story._id} onClick={this.onStoryClick}>  
-                                        <p className = "cardTitle">{story.storytitle}</p>
-                                        <p className = "cardDescription">{story.description}</p>
+                                        <p title={story.storytitle} className = "cardTitle">{story.storytitle}</p>
+                                        <p title={story.description} className = "cardDescription">{story.description}</p>
                                         <p className = "status">Priority : {story.priority}</p>
                                     </div>);
                 }
             });
             this.props.allDayEvents.map(event => {  
                 allDayJSX.push(<div className = "allDayCard" id = {event._id} onClick={this.props.onClick}>    
-                                    <p className = "cardTitle">{event.EventTitle}</p>
-                                    <p className = "cardDescription">{event.Description}</p>
+                                    <p title={event.EventTitle} className = "cardTitle">{event.EventTitle}</p>
+                                    <p title={event.Description} className = "cardDescription">{event.Description}</p>
                                 </div>);
             });
             return (<div className = "CardGroup">{allDayJSX}</div>);

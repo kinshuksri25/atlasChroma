@@ -93,6 +93,7 @@ class Profile extends Component{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }
                 }
             });
@@ -123,6 +124,7 @@ class Profile extends Component{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }
                 }else{
                     cookieManager.clearUserSession();
@@ -157,8 +159,7 @@ class Profile extends Component{
                                 this.state.lastName != this.props.user.lastname && this.state.lastName != ""|| 
                                     this.state.photo != this.props.user.photo ||
                                         (this.state.phonenumber != this.props.user.phonenumber && this.state.phonenumber != 0 && this.state.phonenumber != "") || 
-                                            (this.state.password != "" && this.state.confirmPassword) ? false : true;
-        console.log(disabledUpdate);        
+                                            (this.state.password != "" && this.state.confirmPassword) ? false : true;       
         return (<div className="profileContainer">
                     <div>
                         <button className="profilePictureContainer" onClick ={this.showPhotoSelector}>{buttonInner}</button>
@@ -170,7 +171,7 @@ class Profile extends Component{
                         <input type = "number" onChange={this.onChangeHandler} value = {this.state.phonenumber} className = "phonenumber"/>
                         <input type = "password" placeholder="Password" onChange={this.onChangeHandler} value = {this.state.password} className = "password"/>
                         <input type = "password" placeholder="ConfimPassword" onChange={this.onChangeHandler} value = {this.state.confirmPassword} className = "confirmPassword"/>
-                        <Button variant="warning" className = "updateButton" onClick={this.onSubmitHandler} disabled = {disabledUpdate} >Update</Button>
+                        <Button variant="warning" id = "updateProfileButton" onClick={this.onSubmitHandler} disabled = {disabledUpdate}>Update</Button>
                         <Button variant="danger" className = "deleteButton" onClick={this.onDeleteHandler}>Delete Account</Button>
                     </div>
                 </div>);

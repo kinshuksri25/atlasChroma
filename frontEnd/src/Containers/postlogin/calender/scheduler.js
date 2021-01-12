@@ -35,7 +35,7 @@ class Scheduler extends Component {
                                         currentMonth : month,
                                         currentYear : year };  
                         }else{
-                                window.history.pushState({}, "",urls.SCHEDULER);    
+                                window.history.pushState({}, "",urls.SCHEDULER);     
                         }
 
                 }else if(fullDate == "scheduler"){ 
@@ -135,11 +135,11 @@ class Scheduler extends Component {
                         let currentDay = event.target.id.length != 1 ? event.target.id : "0"+event.target.id;
                         this.setState({currentDate : currentDay},()=>{
                                 let date = this.state.currentYear+this.state.currentMonth+this.state.currentDate;
-                                window.history.replaceState({}, "","scheduler/"+date);
+                                window.history.pushState({}, "","scheduler/"+date);
                         });
                 }else{
                         this.setState({currentDate : ""});
-                        window.history.replaceState({}, "",window.location.pathname.substring(0,window.location.pathname.lastIndexOf("/"))); 
+                        window.history.pushState({}, "","/scheduler"); 
                 }    
         }
 
@@ -181,7 +181,8 @@ class Scheduler extends Component {
 
 const mapStateToProps = (state) => {
         return {
-            user : state.userStateReducer
+            user : state.userStateReducer,
+            currentUrl : state.urlStateReducer.currentUrl
         }
     };
     

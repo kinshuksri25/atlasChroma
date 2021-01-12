@@ -54,7 +54,7 @@ class Story extends Component{
     componentDidMount(){
         let storyID = url.parse(window.location.href,true).query.storyID;
         if(storyID != undefined && storyID == this.props.storyDetails._id){
-            window.history.pushState({}, "",this.currentProject()._id+"?storyID="+storyID);
+            window.history.replaceState({}, "",this.currentProject()._id+"?storyID="+storyID);
             this.setState({isOpen : true,
                             contributorList : ["Contributors",...this.currentProject().contributors],
                             oldStoryDetails : {...this.props.storyDetails},
@@ -65,16 +65,16 @@ class Story extends Component{
                             storyContributor : this.props.storyDetails.contributor,
                             storyPriority : this.props.storyDetails.priority
                         });
-        }
-        let columnPostion = 0;
-        let columns = this.generateColumnArray();
-        for(let i =0;i<columns.length;i++){
-            if(this.props.storyDetails.currentstatus == columns[i]._id){
-                columnPostion = i;
-                break;
+            let columnPostion = 0;
+            let columns = this.generateColumnArray();
+            for(let i =0;i<columns.length;i++){
+                if(this.props.storyDetails.currentstatus == columns[i]._id){
+                    columnPostion = i;
+                    break;
+                }
             }
-        }
-        this.setState({columnPosition:columnPostion});                      
+            this.setState({columnPosition:columnPostion}); 
+        }                     
     }
 
     dummyHandler(event){
@@ -121,7 +121,7 @@ class Story extends Component{
     }
 
     editStory(event){
-        window.history.pushState({}, "",this.currentProject()._id+"?storyID="+this.props.storyDetails._id);
+        window.history.replaceState({}, "",this.currentProject()._id+"?storyID="+this.props.storyDetails._id);
         this.setState({isOpen : true,
                         contributorList : ["Contributors",...this.currentProject().contributors],
                         oldStoryDetails : {...this.props.storyDetails},
@@ -135,7 +135,7 @@ class Story extends Component{
     }
 
     closeStoryModel(event){
-        window.history.pushState({}, "",this.currentProject()._id);
+        window.history.replaceState({}, "",this.currentProject()._id);
         this.setState({isOpen : false,
             storyTitle : "",
             storyDescription : "",
@@ -211,6 +211,7 @@ class Story extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }
         });  
@@ -240,13 +241,12 @@ class Story extends Component{
             let storyDetails = {};
             storyDetails._id = this.props.storyDetails._id;
             storyDetails.currentStatus = columns[newPosition]._id;
-            console.log(this.props.storyDetails.status);
             if(columns[newPosition].workFlowEnd == true){
                 storyDetails.status = "Finished";
             }else if(columns[newPosition].workFlowEnd == undefined && this.props.storyDetails.status == "Finished"){
                 storyDetails.status = "Ongoing";
             }
-            storyDetails.oldName = this.state.storytitle;
+            storyDetails.oldStoryName = this.props.storyDetails.storytitle;
             httpsMiddleware.httpsRequest("/stories","PUT", headers, {storyDetails: {...storyDetails}},function(error,responseObject){
                 if((responseObject.STATUS != 200 && responseObject.STATUS != 201) || error){
                     if(error){
@@ -258,6 +258,7 @@ class Story extends Component{
                         errorObject.msg = responseObject.EMSG;
                         errorObject.status = "ERROR";
                         globalThis.props.setMsgState(errorObject);
+                        window.history.pushState({},"",urls.LOGOUT);
                     }
                 }
             });
@@ -287,6 +288,7 @@ class Story extends Component{
                     errorObject.msg = responseObject.EMSG;
                     errorObject.status = "ERROR";
                     globalThis.props.setMsgState(errorObject);
+                    window.history.pushState({},"",urls.LOGOUT);
                 }
             }
         });
@@ -343,13 +345,13 @@ class Story extends Component{
         let demoteStoryClass = promoteShow ? "demoteStoryRight" : "demoteStory";
         let storyJSX = this.props.storyDetails.storyTitle != "" && 
                         this.props.storyDetails.storyDescription != "" ? 
-                            <div className = {storyStatus} 
+                            <div className = {storyStatus}
                                 id = {this.props.storyDetails._id} 
                                 onClick={this.editStory}
                                 onMouseOver={this.onMouseOver}
                                 onMouseLeave={this.onMouseLeave}>
-                                <div className = "tileHeading">{this.props.storyDetails.storytitle}</div>
-                                <div className = "tileDescription">{this.props.storyDetails.description}</div>
+                                <div className = "tileHeading" title={this.props.storyDetails.storytitle}>{this.props.storyDetails.storytitle}</div>
+                                <div className = "tileDescription" title={this.props.storyDetails.description}>{this.props.storyDetails.description}</div>
                                 {this.props.storyDetails.priority != "OnHold" && this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate > currentDate && <p className = "storyDuedate">Due: {this.props.storyDetails.duedate}</p>}
                                 {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status != "Finished" && this.props.storyDetails.duedate < currentDate && <p className = "duedate">OverDue</p>}
                                 {this.props.storyDetails.priority != "OnHold" &&this.props.storyDetails.status == "Finished" && <p className = "storyStatus">Finished</p>}
@@ -405,7 +407,7 @@ class Story extends Component{
                             }
                         </Form.Control>
                     </Form.Group>
-                    <Button className="updateStoryButton" variant="warning" hidden = {disableInput} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</Button>
+                    <Button id="updateStoryButton" variant="warning" hidden = {disableInput} disabled = {disableUpdate} onClick = {this.updateFormhandler}>Update</Button>
 				</Modal>
                </div>);
     }

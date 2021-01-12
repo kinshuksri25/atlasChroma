@@ -94,16 +94,16 @@
 
 .postSignupButton{
     border: 1px solid #007bff;
-    background-color: rgba(0,0,0,0);
-    color: #007bff;
+    background-color: #007bff;
+    color: white;
     width: 12rem;
 }
 
 .postSignupButton:hover,.postSignupButton:active{
-    border: 1px solid #007bff;
-    background-color: #007bff;
+    border: 1px solid #0162ca;
+    background-color: #0162ca;
     color: white;
-    outline-color: #007bff;
+    outline-color: #0162ca;
 }
 
 @media screen and (max-width: 1280px){
